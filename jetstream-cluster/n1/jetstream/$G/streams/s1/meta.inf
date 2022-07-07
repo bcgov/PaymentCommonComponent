@@ -1,0 +1,1 @@
+{"Created":"2022-07-07T18:33:27.7445427Z","name":"s1","subjects":["hello"],"retention":"limits","max_consumers":-1,"max_msgs":-1,"max_bytes":-1,"discard":"old","max_age":0,"max_msg_size":-1,"storage":"file","num_replicas":1,"duplicate_window":120000000000}
