@@ -16,33 +16,20 @@ export const handler = async (event?: any, context?: Context) => {
   const appLogger = app.get(AppLogger);
   appLogger.log({ event });
   appLogger.log({ context });
-  const SUBJECT = 'sales.*';
+  const SUBJECT = 'lob1.*';
   try {
     const sub = await natsStream.subscribeToEventPatterns(SUBJECT);
-    const listen = async () => {
+    const done = (async () => {
       for await (const message of sub) {
         try {
-          const decoded: any = natsStream.codec.decode(message.data);
-          appLogger.log(`subject:${message.subject}, message: ${message.seq}`);
-          if (message.subject === 'sales.processed') {
-            await natsStream.publish(
-              'lob1.sales',
-              {
-                datetime: decoded.datetime,
-                item: decoded.item,
-              },
-              { expect: { streamName: 'lob1' } },
-            );
-          }
-
+          const decoded:any = natsStream.codec.decode(message.data);
+          appLogger.log(`subject:${message.subject}, message: ${JSON.stringify(decoded)}`);
           message.ack();
         } catch {
           message.term();
         }
       }
-    };
-
-    await listen();
+    })();
   } catch (e) {
     appLogger.error(e);
   }

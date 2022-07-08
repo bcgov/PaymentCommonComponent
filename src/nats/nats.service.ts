@@ -11,10 +11,8 @@ import {
   JetStreamPublishOptions,
   PubAck,
   StreamInfo,
-  createInbox,
-  JsMsg,
-  ConsumerOpts,
   JetStreamSubscription,
+  createInbox,
 } from 'nats';
 import { AppLogger } from 'src/common/logger.service';
 import {
@@ -48,6 +46,7 @@ export class Nats {
 
     await this.createStreams(this.jetstreamManager, this.options.streams);
     this.logger.log(`Connected to ${this.connection.getServer()}`);
+    return this.connection;
   }
 
   async handleStatusUpdates(connection: NatsConnection): Promise<void> {
@@ -67,7 +66,6 @@ export class Nats {
 
         case 'disconnect':
         case 'error':
-          console.log('THIS IS IT');
           this.logger.error(message);
           break;
 
@@ -133,44 +131,36 @@ export class Nats {
     data?: any,
     options?: Partial<JetStreamPublishOptions>,
   ): Promise<PubAck> {
-    if (!this.connection) {
+    if (!this.connection || !this.jetstreamClient) {
       throw new Error('NATS not connected!');
     }
     const payload = this.codec.encode(data);
-
     return this.jetstreamClient.publish(subj, payload, options);
   }
 
-  buildConsumerOptions() {}
-
   async subscribeToEventPatterns(
     pattern: string,
-    options: ConsumerOptsBuilderImpl,
   ): Promise<JetStreamSubscription> {
-    let consumerOptions: ConsumerOptsBuilderImpl;
-    if (isConsumerOptsBuilder(options)) {
-      consumerOptions = options;
+    if (!this.connection || !this.jetstreamClient) {
+      throw new Error('NATS not connected!');
     }
-    consumerOptions = consumerOpts() as ConsumerOptsBuilderImpl;
 
+    const consumerOptions = consumerOpts() as ConsumerOptsBuilderImpl;
+    consumerOptions.durable('me');
+    consumerOptions.manualAck();
+    consumerOptions.ackExplicit();
+    consumerOptions.deliverTo(createInbox());
     if (consumerOptions.config.durable_name) {
       consumerOptions.durable(
         this.createDurableName(consumerOptions.config.durable_name, pattern),
       );
     }
 
-    consumerOptions.deliverTo(createInbox());
-
-    consumerOptions.manualAck();
-
-    if (this.options.consumer) {
-      this.options.consumer(consumerOptions);
-    }
-
     try {
       this.logger.log(`Subscribing to ${pattern} events`);
-      return await this.jetstreamClient.subscribe(pattern, consumerOptions);
-    } catch (error) {
+      const sub = this.jetstreamClient.subscribe(pattern, consumerOptions);
+      return sub;
+    } catch (error: any) {
       if (error.message === 'no stream matches subject') {
         throw new Error(`Cannot find stream with the ${pattern} event pattern`);
       }
@@ -188,6 +178,9 @@ export class Nats {
   }
 
   subscribeToMessagePatterns(pattern: string): void {
+    if (!this.connection) {
+      throw new Error('NATS not connected!');
+    }
     this.connection.subscribe(pattern, {
       callback: (error, message) => {
         if (error) {
@@ -218,7 +211,7 @@ export class Nats {
       });
 
       return updated;
-    } catch (error) {
+    } catch (error: any) {
       if (error.message === 'stream not found') {
         const added = await manager.streams.add(config);
 

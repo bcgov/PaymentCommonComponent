@@ -1,5 +1,8 @@
 import { LoggerService } from '@nestjs/common';
-import { WinstonModule, utilities as nestWinstonModuleUtilities } from 'nest-winston';
+import {
+  WinstonModule,
+  utilities as nestWinstonModuleUtilities,
+} from 'nest-winston';
 import winston from 'winston';
 import axios from 'axios';
 
@@ -8,17 +11,17 @@ export class AppLogger implements LoggerService {
 
   constructor() {
     this.logger = WinstonModule.createLogger({
-      // transports: [
-      //   new winston.transports.Console({
-      //     level: 'debug',
-      //     format: winston.format.combine(
-      //       winston.format.timestamp(),
-      //       process.env.RUNTIME_ENV === 'local'
-      //         ? nestWinstonModuleUtilities.format.nestLike('CCFP', { prettyPrint: true })
-      //         : winston.format.json(),
-      //     ),
-      //   }),
-      // ],
+      transports: [
+        new winston.transports.Console({
+          level: 'debug',
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            nestWinstonModuleUtilities.format.nestLike('CCFP', {
+              prettyPrint: true,
+            }),
+          ),
+        }),
+      ],
       exitOnError: false,
     });
   }

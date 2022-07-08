@@ -23,7 +23,11 @@ import { Nats } from './nats/nats.service';
           },
           {
             name: 'sales',
-            subjects: ['sales*']
+            subjects: ['sales.*']
+          },
+          {
+            name: 'lob1',
+            subjects: ['lob1.*']
           }
         ]
         });
