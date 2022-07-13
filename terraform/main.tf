@@ -26,6 +26,6 @@ provider "aws" {
   }
 }
 
-locals {
-  namespace = "${var.project_code}-${var.target_env}"
-}
+# locals {
+#   namespace = "${var.project_code}-${var.target_env}"
+# }
