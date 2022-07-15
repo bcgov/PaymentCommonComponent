@@ -13,3 +13,8 @@ variable "build_info" {}
 variable "region" {
   default = "ca-central-1"
 }
+
+
+locals {
+  namespace = "${var.project_code}_${var.target_env}"
+}
