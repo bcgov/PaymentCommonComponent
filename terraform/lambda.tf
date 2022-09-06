@@ -15,6 +15,17 @@ resource "aws_lambda_function" "csvTransformer" {
       NODE_ENV = var.target_env
     }
   }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      filename,
+      source_code_hash,
+      source_code_size,
+      last_modified,
+    ]
+  }
 }
 
 resource "aws_cloudwatch_event_rule" "csvTransformer" {

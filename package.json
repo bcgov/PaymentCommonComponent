@@ -12,6 +12,7 @@
     "format:check": "yarn prettier --check .",
     "format:write": "yarn prettier --write .",
     "lint": "echo 'Linting all packages' && wsrun --parallel --exclude-missing lint",
+    "prebuild": "echo 'Building packages' && wsrun --stages --exclude-missing prebuild",
     "build": "echo 'Building packages' && wsrun --stages --exclude-missing build",
     "watch:backend": "yarn workspace @payment/backend start",
     "watch": "run-p 'watch:backend'",

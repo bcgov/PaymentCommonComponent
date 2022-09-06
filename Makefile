@@ -57,3 +57,15 @@ apply: init
 
 destroy: init
 	@terraform -chdir=$(TERRAFORM_DIR) destroy
+
+
+# ===================================
+# Lambda Builds
+# ===================================
+
+build:
+	@yarn build
+
+deploy-backend: 
+# aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
+	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./build/empty_lambda.zip --region $(AWS_REGION) > /dev/null

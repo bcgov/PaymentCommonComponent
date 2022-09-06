@@ -47,14 +47,8 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Clean Build Folder
-        run: make pre-build
-
-      - name: Build web app
-        run: make build-web
-
       - name: Build api
-        run: make build-api
+        run: make build
 
-      - name: Deploy All
-        run: make deploy-all
+      - name: Deploy Api
+        run: make deploy-backend
