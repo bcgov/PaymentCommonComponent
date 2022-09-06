@@ -8,10 +8,11 @@
     "node": ">=16.17.0"
   },
   "scripts": {
-    "watch:api": "yarn workspace @ien/api start:debug:local",
-    "watch": "run-p 'watch:common' 'watch:api' 'watch:web'",
-    "start:backend:local": "yarn workspace @ien/api start:local",
-    "start:local": "run-p 'start:api:local'",
+    "build": "echo 'Building packages' && wsrun --stages --exclude-missing build",
+    "watch:backend": "yarn workspace @payment/backend start",
+    "watch": "run-p 'watch:backend'",
+    "start:backend:local": "yarn workspace @payment/backend start:local",
+    "start:local": "run-p 'start:backend:local'",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test"
   },
   "devDependencies": {
