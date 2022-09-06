@@ -1,3 +1,4 @@
-import { StreamConfig } from "nats";
+import { StreamConfig } from 'nats';
 
-export type NatsStreamConfig = Partial<StreamConfig> & Pick<StreamConfig, "name">;
+export type NatsStreamConfig = Partial<StreamConfig> &
+  Pick<StreamConfig, 'name'>;

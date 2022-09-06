@@ -8,7 +8,7 @@ import { AppLogger } from '../src/common/logger.service';
  * Design this function to trigger existing NestJs appliation services without Api-Getway
  * All the schedule and backgroud job trigger will be added here.
  */
-export const handler = async (event?:any, context?: Context) => {
+export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const natsStream: Nats = app.get('NATS_CONNECTION');
   const appLogger = app.get(AppLogger);
