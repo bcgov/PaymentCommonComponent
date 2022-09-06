@@ -69,3 +69,30 @@ build:
 deploy-backend: 
 # aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./terraform/build/api.zip --region $(AWS_REGION) > /dev/null
 	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./build/empty_lambda.zip --region $(AWS_REGION) > /dev/null
+
+
+# ===================================
+# Tag Based Deployments
+# ===================================
+
+pre-tag:
+	@./scripts/check_rebase.sh
+	
+tag-dev:
+	@git tag -fa dev -m "Deploy dev: $(git rev-parse --abbrev-ref HEAD)"
+	@git push --force origin refs/tags/dev:refs/tags/dev
+
+tag-test:
+	@git tag -fa test -m "Deploy test: $(git rev-parse --abbrev-ref HEAD)"
+	@git push --force origin refs/tags/test:refs/tags/test
+
+tag-prod:
+ifndef version
+	@echo "++\n***** ERROR: version not set.\n++"
+	@exit 1
+else
+	@git tag -fa $(version) -m "IEN release version: $(version)"
+	@git push --force origin refs/tags/$(version):refs/tags/$(version)
+	@git tag -fa prod -m "Deploy prod: $(version)"
+	@git push --force origin refs/tags/prod:refs/tags/prod
+endif
