@@ -1,0 +1,40 @@
+{
+  "name": "payment",
+  "packageManager": "yarn@3.2.3",
+  "workspaces": [
+    "apps/*"
+  ],
+  "engines": {
+    "node": ">=16.17.0"
+  },
+  "scripts": {
+    "watch:api": "yarn workspace @ien/api start:debug:local",
+    "watch": "run-p 'watch:common' 'watch:api' 'watch:web'",
+    "start:backend:local": "yarn workspace @ien/api start:local",
+    "start:local": "run-p 'start:api:local'",
+    "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test"
+  },
+  "devDependencies": {
+    "@tsconfig/node14": "1.0.1",
+    "@typescript-eslint/eslint-plugin": "5.0.0",
+    "@typescript-eslint/parser": "5.0.0",
+    "eslint-config-prettier": "8.3.0",
+    "husky": "7.0.4",
+    "nodemon": "2.0.15",
+    "npm-run-all": "4.1.5",
+    "prettier": "2.4.1",
+    "pretty-quick": "3.1.2",
+    "start-server-and-test": "1.14.0",
+    "ts-loader": "9.2.3",
+    "ts-node": "10.0.0",
+    "tsconfig-paths": "3.10.1",
+    "typescript": "4.3.5",
+    "wsrun": "5.2.4"
+  },
+  "lint-staged": {
+    "*.{tsx,ts}": [
+      "prettier --write",
+      "eslint --cache --fix"
+    ]
+  }
+}

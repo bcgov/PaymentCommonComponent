@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { Context, Handler } from 'aws-lambda';
 import { consumerOpts, createInbox } from 'nats';
 import { ConsumerOptsBuilderImpl } from 'nats/lib/nats-base-client/jsconsumeropts';
-import { Nats } from 'apps/backend/src/nats/nats.service';
+import { Nats } from '../src/nats/nats.service';
 import { AppModule } from '../src/app.module';
 import { AppLogger } from '../src/common/logger.service';
 

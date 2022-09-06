@@ -14,7 +14,7 @@ import {
   JetStreamSubscription,
   createInbox,
 } from 'nats';
-import { AppLogger } from 'apps/backend/src/common/logger.service';
+import { AppLogger } from '../common/logger.service';
 import {
   ConsumerOptsBuilderImpl,
   isConsumerOptsBuilder,
