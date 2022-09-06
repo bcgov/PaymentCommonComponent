@@ -5,7 +5,6 @@ import {
   JSONCodec,
   connect,
   ConnectionOptions,
-  PublishOptions,
   JetStreamManager,
   consumerOpts,
   JetStreamPublishOptions,
@@ -17,7 +16,6 @@ import {
 import { AppLogger } from '../common/logger.service';
 import {
   ConsumerOptsBuilderImpl,
-  isConsumerOptsBuilder,
 } from 'nats/lib/nats-base-client/jsconsumeropts';
 import { NatsClientOptions } from './interfaces/nats-client-options.interface';
 import { NatsStreamConfig } from './interfaces/nats-stream-config.interface';
@@ -182,12 +180,10 @@ export class Nats {
       throw new Error('NATS not connected!');
     }
     this.connection.subscribe(pattern, {
-      callback: (error, message) => {
+      callback: (error) => {
         if (error) {
           return this.logger.error(error.message, error.stack);
         }
-
-        console.log(message, 'MEEEEEEE');
       },
       queue: this.options.queue,
     });

@@ -51,7 +51,7 @@ export class AppLogger implements LoggerService {
     if (error.response?.message) {
       message = error.response?.message;
     }
-    const env = process.env.TARGET_ENV || 'N/A';
+    process.env.TARGET_ENV || 'N/A';
     this.logger.error(message, error.stack, context);
   }
 
