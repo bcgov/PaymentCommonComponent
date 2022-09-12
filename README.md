@@ -1,4 +1,13 @@
 
+## Payments Common Component 
+
+[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](<Redirect-URL>)
+
+### Scope Of Project
+
+  TBD
+
+### Technical Setup
 
 
 #### Yarn Workspaces Setup 
