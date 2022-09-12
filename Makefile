@@ -67,7 +67,7 @@ build:
 	@yarn build
 
 deploy-backend: 
-	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://.terraform/build/empty_lambda.zip --region $(AWS_REGION) > /dev/null
+	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./terraform/build/empty_lambda.zip --region $(AWS_REGION) > /dev/null
 
 
 # ===================================
