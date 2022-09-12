@@ -47,8 +47,8 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Build api
+      - name: Build
         run: make build
 
-      - name: Deploy Api
+      - name: Deploy
         run: make deploy-backend

@@ -7,3 +7,8 @@ backend.hcl
 debug.tf
 *.zip
 build
+
+node_modules
+.DS_Store
+.env
+.idea
