@@ -1,43 +1,28 @@
-version: '3'
+version: "3.7"
 services:
-  n1.example.net:
-    container_name: n1
-    image: synadia/jsm:nightly
-    dns_search: example.net
-    entrypoint: /nats-server
-    command: --name N1 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
+  localstack:
+    container_name: localstack
+    image: localstack/localstack-full:1.1.0
     networks:
-      - nats
+      - localstack-net
     ports:
-      - 4222:4222
+      - "4566-4599:4566-4599"
+      - "8080:8080"
+    environment:
+      - SERVICES=kinesis,s3,sqs,lambda,iam,events
+      - DEBUG=1
+      - DATA_DIR=/var/lib/localstack
+      - PORT_WEB_UI=8080
+      - LAMBDA_EXECUTOR=docker-reuse
+      - LAMBDA_REMOTE_DOCKER=false
+      - LAMBDA_REMOVE_CONTAINERS=true
+      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
+      - DOCKER_HOST=unix:///var/run/docker.sock
+      - HOST_TMP_FOLDER=${TMPDIR}
     volumes:
-      - ./jetstream-cluster/n1:/data
-
-  n2.example.net:
-    container_name: n2
-    image: synadia/jsm:nightly
-    dns_search: example.net
-    entrypoint: /nats-server
-    command: --name N2 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
-    networks:
-      - nats
-    ports:
-      - 4223:4222
-    volumes:
-      - ./jetstream-cluster/n2:/data
-
-  n3.example.net:
-    container_name: n3
-    image: synadia/jsm:nightly
-    dns_search: example.net
-    entrypoint: /nats-server
-    command: --name N3 --cluster_name JSC --js --sd /data --cluster nats://0.0.0.0:4245 --routes nats://n1:4245,nats://n2:4245,nats://n3:4245 -p 4222
-    networks:
-      - nats
-    ports:
-      - 4224:4222
-    volumes:
-      - ./jetstream-cluster/n3:/data
-
+      - ./.localstack:/var/lib/localstack
 networks:
-  nats: {}
+  localstack-net:
+    external: false
+    driver: bridge
+    name: localstack-net
