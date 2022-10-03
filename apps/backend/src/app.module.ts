@@ -9,4 +9,5 @@ import { SalesModule } from './sales/sales.module';
   controllers: [AppController],
   providers: [AppService, AppLogger],
 })
+
 export class AppModule {}
