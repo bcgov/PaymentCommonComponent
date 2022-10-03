@@ -21,16 +21,15 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^8.0.0",
-    "@nestjs/core": "^8.0.0",
-    "@nestjs/platform-express": "^8.0.0",
-    "aws-lambda": "^1.0.7",
-    "nats": "^2.7.1",
-    "nest-winston": "^1.6.2",
-    "node-nats-streaming": "^0.3.2",
-    "reflect-metadata": "^0.1.13",
-    "rimraf": "^3.0.2",
-    "rxjs": "^7.2.0",
+    "@nestjs/common": "8.0.0",
+    "@nestjs/core": "8.0.0",
+    "@nestjs/platform-express": "8.0.0",
+    "aws-lambda": "1.0.7",
+    "nest-winston": "1.6.2",
+    "node-nats-streaming": "0.3.2",
+    "reflect-metadata": "0.1.13",
+    "rimraf": "3.0.2",
+    "rxjs": "7.2.0",
     "winston": "3.3.3"
   },
   "devDependencies": {
