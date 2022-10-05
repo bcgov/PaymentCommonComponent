@@ -17,4 +17,5 @@ variable "region" {
 
 locals {
   namespace = "${var.project_code}_${var.target_env}"
+  pcc_api_name = "Payment_Common_Component_API"
 }
