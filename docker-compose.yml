@@ -19,8 +19,10 @@ services:
       - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
       - DOCKER_HOST=unix:///var/run/docker.sock
       - HOST_TMP_FOLDER=${TMPDIR}
+      - PERSISTENCE=1
     volumes:
       - ./.localstack:/var/lib/localstack
+      - ./localstack/init/ready.d:/etc/localstack/init/ready.d
 networks:
   localstack-net:
     external: false
