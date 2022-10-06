@@ -1094,12 +1094,14 @@ __metadata:
     "@typescript-eslint/eslint-plugin": 5.0.0
     "@typescript-eslint/parser": 5.0.0
     aws-lambda: 1.0.7
+    aws-sdk: ^2.1230.0
     class-transformer: ^0.5.1
     class-validator: ^0.13.2
     eslint: 8.0.1
     eslint-config-prettier: 8.3.0
     eslint-plugin-prettier: 4.0.0
     jest: 27.2.5
+    nest-aws-sdk: ^3.0.0
     nest-winston: 1.6.2
     node-nats-streaming: 0.3.2
     prettier: 2.3.2
@@ -2233,6 +2235,24 @@ __metadata:
   bin:
     lambda: bin/lambda
   checksum: 11316e87b5c4fc36e6bd0495742a3c0ed13befc9527a7b251a58180d141d9afd68b684f37aeb3b53d117d3c2f96747eace31826b683543f1edddc03f392865fd
+  languageName: node
+  linkType: hard
+
+"aws-sdk@npm:^2.1230.0":
+  version: 2.1230.0
+  resolution: "aws-sdk@npm:2.1230.0"
+  dependencies:
+    buffer: 4.9.2
+    events: 1.1.1
+    ieee754: 1.1.13
+    jmespath: 0.16.0
+    querystring: 0.2.0
+    sax: 1.2.1
+    url: 0.10.3
+    util: ^0.12.4
+    uuid: 8.0.0
+    xml2js: 0.4.19
+  checksum: 1f33c0ecd9edaf786064a5ab4c5541a253f861a64b2d8f2b880f205067f9bb02d4581e100f4146a88f0e9ac708a63c8c99177fe6bccf7701188801cc508834d6
   languageName: node
   linkType: hard
 
@@ -6703,6 +6723,20 @@ __metadata:
   version: 2.6.2
   resolution: "neo-async@npm:2.6.2"
   checksum: deac9f8d00eda7b2e5cd1b2549e26e10a0faa70adaa6fdadca701cc55f49ee9018e427f424bac0c790b7c7e2d3068db97f3093f1093975f2acb8f8818b936ed9
+  languageName: node
+  linkType: hard
+
+"nest-aws-sdk@npm:^3.0.0":
+  version: 3.0.0
+  resolution: "nest-aws-sdk@npm:3.0.0"
+  peerDependencies:
+    "@nestjs/common": ">= 7.0.0"
+    "@nestjs/core": ">= 7.0.0"
+    aws-sdk: ^2.718.0
+    reflect-metadata: ^0.1.13
+    rimraf: ^3.0.2
+    rxjs: ">= 6.5.4"
+  checksum: 2e63cd6e24d6ce154fc9939c853fffe58e890cca1daaf154eef338c0d74e172b06128543bda438e9913d89931c96dc40094374b65aeb04b128b41d7f082d61f2
   languageName: node
   linkType: hard
 
