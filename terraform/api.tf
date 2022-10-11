@@ -5,7 +5,7 @@ resource "aws_lambda_function" "api" {
   runtime          = "nodejs14.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
-  handler          = "api/lambda.handler" # TODO update 
+  handler          = "backend/lambda.handler"
   memory_size      = 512
   timeout          = 30
 

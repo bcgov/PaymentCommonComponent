@@ -28,10 +28,15 @@ export BOOTSTRAP_ENV=terraform/bootstrap
 define TFVARS_DATA
 target_env = "$(ENV_NAME)"
 project_code = "$(PROJECT)"
+lz2_code = "$(LZ2_PROJECT)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
 endef
 export TFVARS_DATA
+
+# AWS Environments variables
+export AWS_REGION ?= ca-central-1
+APP_SRC_BUCKET = $(LZ2_PROJECT)-$(ENV_NAME)-packages
 
 .PHONY: 
 
@@ -101,6 +106,35 @@ endif
 # API Build
 # ===================================
 
+pre-build:
+	@echo "++\n***** Pre-build Clean Build Artifact\n++"
+	@rm -rf ./terraform/build || true
+	@mkdir -p ./terraform/build
+	@echo "++\n*****"
 
-build-api: 
+build-api: pre-build
+	# @echo 'Deleting existing build dir...\n'
+	# @rm -rf ./.build || true
+
+	# @echo "++\n***** Building API for AWS\n++"
+	# @yarn || yarn workspace @payment/backend build
+	# @yarn workspaces focus @payment/backend --production
 	
+	# @echo 'Creating build dir...\n' && mkdir -p .build/backend
+	# @echo 'Copy Node modules....\n' && cp -r node_modules .build/backend
+	# @echo 'Unlink local packages...\n' && rm -rf .build/backend/node_modules/@payment/*
+	# @echo 'Copy backend dist build files ...\n' && cp -r apps/backend/dist/* .build/backend
+	
+	@echo 'Creating Zip ...\n' && cd .build && mkdir pkg && zip -r ./pkg/backend.zip ./backend && cd ..
+	@echo "Done!++\n****"
+
+# ===================================
+# AWS Deployments
+# ===================================
+
+sync-app:
+	aws s3 sync ./.build/pkg s3://$(APP_SRC_BUCKET) --delete
+
+# Full redirection to /dev/null is required to not leak env variables
+deploy-api:
+	aws lambda update-function-code --function-name Payment_Common_Component_API --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
