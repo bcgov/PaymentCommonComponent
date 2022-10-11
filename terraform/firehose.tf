@@ -1,5 +1,5 @@
 resource "aws_kinesis_firehose_delivery_stream" "sales_events_to_s3_delivery_stream" {
-  name        = "sales-firehose-s3-delivery-stream"
+  name        = "SalesDelivery"
   destination = "extended_s3"
 
   extended_s3_configuration {
@@ -9,7 +9,6 @@ resource "aws_kinesis_firehose_delivery_stream" "sales_events_to_s3_delivery_str
     buffer_size     = 1
     buffer_interval = 60
 
-    prefix              = "sales_"
     compression_format  = "UNCOMPRESSED"
     error_output_prefix = "SALES_ERR"
 
@@ -32,15 +31,6 @@ resource "aws_cloudwatch_log_group" "pcc_firehose_delivery" {
 resource "aws_cloudwatch_log_stream" "sales_firehose_delivery" {
   name           = "sales_firehose_delivery"
   log_group_name = aws_cloudwatch_log_group.pcc_firehose_delivery.name
-}
-
-resource "aws_s3_bucket" "bc_pcc_files_bucket" {
-  bucket = "bc-pcc-data-files-${var.target_env}"
-}
-
-resource "aws_s3_bucket_acl" "bc-pcc-files-bucket-acl" {
-  bucket = aws_s3_bucket.bc_pcc_files_bucket.id
-  acl    = "private"
 }
 
 resource "aws_iam_role" "firehose_role" {
