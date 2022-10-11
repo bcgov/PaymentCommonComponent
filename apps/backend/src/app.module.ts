@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppLogger } from './common/logger.service';
@@ -8,14 +9,18 @@ import { AwsSdkModule } from 'nest-aws-sdk';
 import { Firehose } from 'aws-sdk';
 
 @Module({
-
   imports: [
-    SalesModule, 
+    SalesModule,
     FirehoseModule,
+    ConfigModule.forRoot({
+      ignoreEnvFile: process.env.NODE_ENV === 'local' ? false : true,
+    }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
-        endpoint: 'http://localhost:4566',
-        region: 'us-east-1',
+        ...process.env.NODE_ENV === 'local' ? {
+          endpoint: process.env.AWS_ENDPOINT,
+          region: process.env.AWS_REGION
+        } : {}
       },
       services: [Firehose],
     }),
