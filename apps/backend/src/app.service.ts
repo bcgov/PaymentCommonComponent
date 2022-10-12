@@ -2,7 +2,11 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class AppService {
-  getHello(): string {
-    return 'Hello World!';
+  getVersionInfo(): object {
+    return {
+      buildId: process.env.BUILD_ID ?? 'NA',
+      info: process.env.BUILD_INFO ?? 'NA',
+      env: process.env.ENV_NAME ?? 'NA',
+    };
   }
 }

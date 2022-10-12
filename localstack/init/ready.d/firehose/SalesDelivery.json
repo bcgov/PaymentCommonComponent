@@ -1,0 +1,17 @@
+{
+  "DeliveryStreamName": "SalesDelivery",
+  "DeliveryStreamType": "DirectPut",
+  "ExtendedS3DestinationConfiguration": {
+    "RoleARN": "arn:aws:iam::000000000000:role/Firehose-Reader-Role",
+    "BucketARN": "arn:aws:s3:::pcc-data",
+    "Prefix": "sales",
+    "BufferingHints": {
+      "SizeInMBs": 10,
+      "IntervalInSeconds": 60
+    },
+    "CompressionFormat": "UNCOMPRESSED",
+    "EncryptionConfiguration": {
+      "NoEncryptionConfig": "NoEncryption"
+    }
+  }
+}

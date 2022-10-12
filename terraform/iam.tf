@@ -36,7 +36,18 @@ data "aws_iam_policy_document" "lambda" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.files.id}/*"
+      "arn:aws:s3:::${aws_s3_bucket.bc_pcc_files_bucket.id}/*"
+    ]
+  }
+  statement {
+    sid    = "allowFirehoseAccess"
+    effect = "Allow"
+    actions = [
+      "firehose:PutRecord",
+      "firehose:PutRecordBatch",
+    ]
+    resources = [
+      aws_kinesis_firehose_delivery_stream.sales_events_to_s3_delivery_stream.arn
     ]
   }
 }
@@ -44,4 +55,24 @@ data "aws_iam_policy_document" "lambda" {
 resource "aws_iam_role_policy_attachment" "lambda_cloudwatch" {
   role       = aws_iam_role.lambda.name
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_sqs" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_execute" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaRole"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_s3" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonS3FullAccess"
+}
+
+resource "aws_iam_role_policy_attachment" "lambda_vpc" {
+  role       = aws_iam_role.lambda.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
 }
