@@ -10,7 +10,6 @@ export class SalesService {
     async saveSalesEvent(event: SalesDTO) {
         this.appLogger.log(event)
         try {
-
             const puts = await (await this.firehoseService.putRecord(event as unknown as Record<string, string>)).promise();
             console.log(puts)
         } catch (err) {

@@ -1,7 +1,3 @@
-import * as fs from 'fs';
-import { join } from 'path';
-// const file = fs.readFileSync(join(__dirname, './data.txt'), 'utf-8');
-
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
@@ -30,14 +26,14 @@ export const handler = async (event?: any, context?: Context) => {
   try {
     appLogger.log('...start GL Generation');
     const contents = await s3manager.getContents(
-      'pcc-data',
-      'sales/aggregate/gl.json',
+      process.env.S3_LOCATION || 'bc-pcc-data-files-local',
+      'aggregate/gl.json',
     );
     const json = contents.Body?.toString() || '';
     const glRecord = JSON.parse(json) as GLRecord;
 
     const output = generateGL(glRecord);
-    await s3manager.putObject('pcc-data', 'sales/aggregate/test2', output);
+    await s3manager.putObject( process.env.S3_LOCATION || 'bc-pcc-data-files-local', 'outputs/cgigl', output);
   } catch (e) {
     appLogger.error(e);
   }

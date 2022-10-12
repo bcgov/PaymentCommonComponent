@@ -23,8 +23,8 @@ import { Firehose, S3 } from 'aws-sdk';
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
         ...process.env.NODE_ENV === 'local' ? {
-          endpoint: process.env.AWS_ENDPOINT,
-          region: process.env.AWS_REGION,
+          endpoint: process.env.AWS_ENDPOINT || "http://localhost:4566",
+          region: process.env.AWS_REGION || "ca-central-1",
           s3ForcePathStyle: true,
         } : {}
       },
