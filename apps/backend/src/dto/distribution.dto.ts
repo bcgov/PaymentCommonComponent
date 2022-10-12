@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsIn, IsString, Length, IsCurrency, IsDateString, isNotEmpty, isIn, IsNumber } from 'class-validator';
+import { IsNotEmpty, IsIn, IsString, Length, IsDateString, IsNumber } from 'class-validator';
 export class DistributionDTO {
 
     // 00001 
