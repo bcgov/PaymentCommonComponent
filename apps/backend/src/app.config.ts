@@ -11,6 +11,7 @@ import express from 'express';
 import { AppModule } from './app.module';
 import { AppLogger } from './common/logger.service';
 import { API_PREFIX } from './config';
+import { TrimPipe } from './trim.pipe';
 
 interface ValidationErrorMessage {
   property: string;
@@ -64,6 +65,9 @@ export async function createNestApp(): Promise<{
     // Adding winston logger
     app.useLogger(new AppLogger());
   }
+
+  // Validation pipe
+  app.useGlobalPipes(new TrimPipe(), new ValidationPipe(validationPipeConfig));
 
   // Api prefix api/v1/
   app.setGlobalPrefix(API_PREFIX);
