@@ -113,17 +113,17 @@ pre-build:
 	@echo "++\n*****"
 
 build-api: pre-build
-	# @echo 'Deleting existing build dir...\n'
-	# @rm -rf ./.build || true
+	@echo 'Deleting existing build dir...\n'
+	@rm -rf ./.build || true
 
-	# @echo "++\n***** Building API for AWS\n++"
-	# @yarn || yarn workspace @payment/backend build
-	# @yarn workspaces focus @payment/backend --production
+	@echo "++\n***** Building API for AWS\n++"
+	@yarn || yarn workspace @payment/backend build
+	@yarn workspaces focus @payment/backend --production
 	
-	# @echo 'Creating build dir...\n' && mkdir -p .build/backend
-	# @echo 'Copy Node modules....\n' && cp -r node_modules .build/backend
-	# @echo 'Unlink local packages...\n' && rm -rf .build/backend/node_modules/@payment/*
-	# @echo 'Copy backend dist build files ...\n' && cp -r apps/backend/dist/* .build/backend
+	@echo 'Creating build dir...\n' && mkdir -p .build/backend
+	@echo 'Copy Node modules....\n' && cp -r node_modules .build/backend
+	@echo 'Unlink local packages...\n' && rm -rf .build/backend/node_modules/@payment/*
+	@echo 'Copy backend dist build files ...\n' && cp -r apps/backend/dist/* .build/backend
 	
 	@echo 'Creating Zip ...\n' && cd .build && mkdir pkg && zip -r ./pkg/backend.zip ./backend && cd ..
 	@echo "Done!++\n****"
