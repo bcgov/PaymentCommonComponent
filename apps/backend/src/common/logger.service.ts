@@ -12,15 +12,7 @@ export class AppLogger implements LoggerService {
   constructor() {
     this.logger = WinstonModule.createLogger({
       transports: [
-        new winston.transports.Console({
-          level: 'debug',
-          format: winston.format.combine(
-            winston.format.timestamp(),
-            nestWinstonModuleUtilities.format.nestLike('CCFP', {
-              prettyPrint: true,
-            }),
-          ),
-        }),
+        new winston.transports.Console({}),
       ],
       exitOnError: false,
     });
