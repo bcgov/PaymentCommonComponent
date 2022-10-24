@@ -966,6 +966,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@nestjs/mapped-types@npm:1.1.0":
+  version: 1.1.0
+  resolution: "@nestjs/mapped-types@npm:1.1.0"
+  peerDependencies:
+    "@nestjs/common": ^7.0.8 || ^8.0.0 || ^9.0.0
+    class-transformer: ^0.2.0 || ^0.3.0 || ^0.4.0 || ^0.5.0
+    class-validator: ^0.11.1 || ^0.12.0 || ^0.13.0
+    reflect-metadata: ^0.1.12
+  peerDependenciesMeta:
+    class-transformer:
+      optional: true
+    class-validator:
+      optional: true
+  checksum: 22deac62c44a4c8a491aa2d9e94385092ef4644d6299ddf9b545b87858d4be861479c6e19de860550489f38699bf7cdc28fdedc9b09f5770ea35d347f9743c28
+  languageName: node
+  linkType: hard
+
 "@nestjs/platform-express@npm:8.0.0":
   version: 8.0.0
   resolution: "@nestjs/platform-express@npm:8.0.0"
@@ -1009,6 +1026,27 @@ __metadata:
   peerDependencies:
     typescript: ^3.4.5 || ^4.3.5
   checksum: f32df90df297c626b54783bbae51ebc56b6b98f81180792558de33423de6f315abdb522f01bf6de3e02a22a0871b9332d07efaafbae0bed918eb8b1d00389765
+  languageName: node
+  linkType: hard
+
+"@nestjs/swagger@npm:6.1.2":
+  version: 6.1.2
+  resolution: "@nestjs/swagger@npm:6.1.2"
+  dependencies:
+    "@nestjs/mapped-types": 1.1.0
+    js-yaml: 4.1.0
+    lodash: 4.17.21
+    path-to-regexp: 3.2.0
+    swagger-ui-dist: 4.14.0
+  peerDependencies:
+    "@fastify/static": ^6.0.0
+    "@nestjs/common": ^9.0.0
+    "@nestjs/core": ^9.0.0
+    reflect-metadata: ^0.1.12
+  peerDependenciesMeta:
+    "@fastify/static":
+      optional: true
+  checksum: 1acfddac35f3c41298da30c865e1bd61a979c6d3fdba3056f71474f65aca51d001c5eff8775615d3459ee41e578ffbb577ee529409f4f7baaf9466b8e12626de
   languageName: node
   linkType: hard
 
@@ -1102,24 +1140,25 @@ __metadata:
     "@nestjs/core": 8.0.0
     "@nestjs/platform-express": 8.0.0
     "@nestjs/schematics": 8.0.0
+    "@nestjs/swagger": 6.1.2
     "@nestjs/testing": 8.0.0
-    "@types/aws-lambda": ^8.10.101
+    "@types/aws-lambda": 8.10.101
     "@types/express": 4.17.13
     "@types/jest": 27.4.1
     "@types/node": 16.0.0
     "@types/supertest": 2.0.11
     "@typescript-eslint/eslint-plugin": 5.0.0
     "@typescript-eslint/parser": 5.0.0
-    "@vendia/serverless-express": ^4.10.1
+    "@vendia/serverless-express": 4.10.1
     aws-lambda: 1.0.7
-    aws-sdk: ^2.1230.0
-    class-transformer: ^0.5.1
-    class-validator: ^0.13.2
+    aws-sdk: 2.1230.0
+    class-transformer: 0.5.1
+    class-validator: 0.13.2
     eslint: 8.0.1
     eslint-config-prettier: 8.3.0
     eslint-plugin-prettier: 4.0.0
     jest: 27.2.5
-    nest-aws-sdk: ^3.0.0
+    nest-aws-sdk: 3.0.0
     nest-winston: 1.6.2
     node-nats-streaming: 0.3.2
     prettier: 2.3.2
@@ -1243,10 +1282,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/aws-lambda@npm:^8.10.101":
-  version: 8.10.102
-  resolution: "@types/aws-lambda@npm:8.10.102"
-  checksum: 71095334a700f24c88918890d2f31782583511d61c0fe4bfe1adcc17b314d4fcbccdb76de47507fd1a6ece1676a3b0ddecb8816808a541a2bca6fface1879b8d
+"@types/aws-lambda@npm:8.10.101":
+  version: 8.10.101
+  resolution: "@types/aws-lambda@npm:8.10.101"
+  checksum: 7e81bab6b1bfd45404b19ffbfafc70a27f6a5975c20d288be354a83c48a8d31054e8a0986c4b8547df278034832492f86de9cbd74b337158c26d88d7e356c3c6
   languageName: node
   linkType: hard
 
@@ -1677,7 +1716,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@vendia/serverless-express@npm:^4.10.1":
+"@vendia/serverless-express@npm:4.10.1":
   version: 4.10.1
   resolution: "@vendia/serverless-express@npm:4.10.1"
   checksum: 083c3931701530647797bc56784a2be27560a8649403ba308b7c7800336e0d85fe6fc73cfb7ceb87cc05294cbde1cbbe5ce982aa27d9cf4c3a219bdeae263bd3
@@ -2263,7 +2302,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"aws-sdk@npm:^2.1230.0":
+"aws-sdk@npm:2.1230.0":
   version: 2.1230.0
   resolution: "aws-sdk@npm:2.1230.0"
   dependencies:
@@ -2783,14 +2822,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"class-transformer@npm:^0.5.1":
+"class-transformer@npm:0.5.1":
   version: 0.5.1
   resolution: "class-transformer@npm:0.5.1"
   checksum: f191c8b4cc4239990f5efdd790cabdd852c243ed66248e39f6616a349c910c6eed2d9fd1fbf7ee6ea89f69b4f1d0b493b27347fe0cd0ae26b47c3745a805b6d3
   languageName: node
   linkType: hard
 
-"class-validator@npm:^0.13.2":
+"class-validator@npm:0.13.2":
   version: 0.13.2
   resolution: "class-validator@npm:0.13.2"
   dependencies:
@@ -5984,6 +6023,17 @@ __metadata:
   languageName: node
   linkType: hard
 
+"js-yaml@npm:4.1.0, js-yaml@npm:^4.1.0":
+  version: 4.1.0
+  resolution: "js-yaml@npm:4.1.0"
+  dependencies:
+    argparse: ^2.0.1
+  bin:
+    js-yaml: bin/js-yaml.js
+  checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
+  languageName: node
+  linkType: hard
+
 "js-yaml@npm:^3.13.1, js-yaml@npm:^3.14.1":
   version: 3.14.1
   resolution: "js-yaml@npm:3.14.1"
@@ -5993,17 +6043,6 @@ __metadata:
   bin:
     js-yaml: bin/js-yaml.js
   checksum: bef146085f472d44dee30ec34e5cf36bf89164f5d585435a3d3da89e52622dff0b188a580e4ad091c3341889e14cb88cac6e4deb16dc5b1e9623bb0601fc255c
-  languageName: node
-  linkType: hard
-
-"js-yaml@npm:^4.1.0":
-  version: 4.1.0
-  resolution: "js-yaml@npm:4.1.0"
-  dependencies:
-    argparse: ^2.0.1
-  bin:
-    js-yaml: bin/js-yaml.js
-  checksum: c7830dfd456c3ef2c6e355cc5a92e6700ceafa1d14bba54497b34a99f0376cecbb3e9ac14d3e5849b426d5a5140709a66237a8c991c675431271c4ce5504151a
   languageName: node
   linkType: hard
 
@@ -6765,7 +6804,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nest-aws-sdk@npm:^3.0.0":
+"nest-aws-sdk@npm:3.0.0":
   version: 3.0.0
   resolution: "nest-aws-sdk@npm:3.0.0"
   peerDependencies:
@@ -8712,6 +8751,13 @@ __metadata:
   version: 1.0.0
   resolution: "supports-preserve-symlinks-flag@npm:1.0.0"
   checksum: 53b1e247e68e05db7b3808b99b892bd36fb096e6fba213a06da7fab22045e97597db425c724f2bbd6c99a3c295e1e73f3e4de78592289f38431049e1277ca0ae
+  languageName: node
+  linkType: hard
+
+"swagger-ui-dist@npm:4.14.0":
+  version: 4.14.0
+  resolution: "swagger-ui-dist@npm:4.14.0"
+  checksum: 8670e230ae841b16c983bf8420a3c52073fc3e6590cd1c700342ee788e6c46e329daeeff7e5dcfa59ffe58d2efce40cf51377b7f29ce36af9134b4112cd5c97e
   languageName: node
   linkType: hard
 
