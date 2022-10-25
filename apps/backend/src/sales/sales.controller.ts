@@ -5,11 +5,12 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
+  InternalServerErrorException,
   Logger,
   Post,
   UseInterceptors,
 } from '@nestjs/common';
-import { SalesDTO } from 'src/dto/sales.dto';
+import { SalesDTO } from './dto/sales.dto';
 import { SalesService } from './sales.service';
 import { AppLogger } from '../common/logger.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -33,6 +34,15 @@ export class SalesController {
   @HttpCode(HttpStatus.OK)
   async saveSalesEvent(@Body() salesEvent: SalesDTO) {
     this.appLogger.log(salesEvent);
-    return this.salesService.saveSalesEvent(salesEvent);
+
+    // More validation
+    
+
+    try {
+      return this.salesService.saveSalesEvent(salesEvent);
+    } catch (e) {
+      throw new InternalServerErrorException('An unknown error occured while saving a form');
+    }
+
   }
 }
