@@ -14,7 +14,8 @@ import {
   ArrayUnique,
   Validate,
 } from 'class-validator';
-import { AreDistributionsValid } from 'src/sales/decorators/distributionsValidator.decorator';
+import { AreDistributionsValid } from 'src/sales/decorators/areDistributionsValid';
+import { ArePaymentMethodsValid } from 'src/sales/decorators/arePaymentMethodsValid';
 import { DistributionDTO } from './distribution.dto';
 import { PaymentMethodDTO } from './paymentMethod.dto';
 
@@ -50,11 +51,12 @@ export class SalesDTO {
   @Length(2, 2)
   ministry_alpha_identifier!: string;
 
-  // 150.25 - Amount
-  @ApiProperty({ description: 'Total Value of the Txn', example: 150.25 })
+  // 150.50 - Amount
+  @ApiProperty({ description: 'Total Value of the Txn', example: 150.50 })
   @IsNumber()
   @IsNotEmpty()
   total_amount!: number;
+
 
   @ApiProperty({
     description: 'Payment of total amount by method',
@@ -83,6 +85,7 @@ export class SalesDTO {
     },
     { message: 'Payment Method items must be unique' },
   )
+  @Validate(ArePaymentMethodsValid)
   payment_method!: PaymentMethodDTO[];
 
   @ApiProperty({
@@ -98,7 +101,7 @@ export class SalesDTO {
         dist_project_code: '29K0230',
         dist_location_code: '000000',
         dist_future_code: '0000',
-        line_amount: 250,
+        line_amount: 150.50,
         line_code: 'C',
         line_description:
           'GA OFF# 00002 2022-08-05                    *900100002',
@@ -114,7 +117,7 @@ export class SalesDTO {
         dist_project_code: '3200000',
         dist_location_code: '000000',
         dist_future_code: '0000',
-        line_amount: 250,
+        line_amount: 150.50,
         line_code: 'D',
         line_description: 'GA OFF# 00014 2022-08-05',
         gl_date: '2022-10-12',
