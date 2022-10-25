@@ -16,10 +16,13 @@ import {
 } from 'class-validator';
 import { AreDistributionsValid } from 'src/sales/decorators/distributionsValidator.decorator';
 import { DistributionDTO } from './distribution.dto';
-
+import { PaymentMethodDTO } from './paymentMethod.dto';
 
 export class SalesDTO {
-  @ApiProperty({ description: 'Id', example: 'uuid' })
+  @ApiProperty({
+    description: 'Id',
+    example: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7',
+  })
   @IsString()
   @IsNotEmpty()
   id!: string;
@@ -47,14 +50,78 @@ export class SalesDTO {
   @Length(2, 2)
   ministry_alpha_identifier!: string;
 
-  // 25.25 - Amount
-  @ApiProperty()
+  // 150.25 - Amount
+  @ApiProperty({ description: 'Total Value of the Txn', example: 150.25 })
   @IsNumber()
   @IsNotEmpty()
   total_amount!: number;
 
-  // TODO - Does not validate if the array items don't exist
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Payment of total amount by method',
+    example: [
+      {
+        amount: 100,
+        method: 'CASH',
+      },
+      {
+        amount: 50.5,
+        method: 'POS_CREDIT',
+      },
+    ],
+  })
+  @IsDefined()
+  @IsNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => PaymentMethodDTO)
+  @IsArray()
+  @ArrayMinSize(1, {
+    message: 'At least 1 Payment Method Required',
+  })
+  @ArrayUnique(
+    (o: PaymentMethodDTO) => {
+      return o.method;
+    },
+    { message: 'Payment Method items must be unique' },
+  )
+  payment_method!: PaymentMethodDTO[];
+
+  @ApiProperty({
+    description:
+      'Distribution of funds to other ministries and program areas by GL codes',
+    example: [
+      {
+        line_number: '00001',
+        dist_client_code: '130',
+        dist_resp_code: '29KGT',
+        dist_service_line_code: '38513',
+        dist_stob_code: '4303',
+        dist_project_code: '29K0230',
+        dist_location_code: '000000',
+        dist_future_code: '0000',
+        line_amount: 250,
+        line_code: 'C',
+        line_description:
+          'GA OFF# 00002 2022-08-05                    *900100002',
+        gl_date: '2022-10-12',
+        supplier_code: 'xxxxxx'
+      },
+      {
+        line_number: '00002',
+        dist_client_code: '074',
+        dist_resp_code: '32L14',
+        dist_service_line_code: '58200',
+        dist_stob_code: '1461',
+        dist_project_code: '3200000',
+        dist_location_code: '000000',
+        dist_future_code: '0000',
+        line_amount: 250,
+        line_code: 'D',
+        line_description: 'GA OFF# 00014 2022-08-05',
+        gl_date: '2022-10-12',
+        supplier_code: 'xxxxxx'
+      },
+    ],
+  })
   @IsDefined()
   @IsNotEmpty()
   @ValidateNested({ each: true })
@@ -73,5 +140,3 @@ export class SalesDTO {
   @Validate(AreDistributionsValid)
   distributions!: DistributionDTO[];
 }
-
-
