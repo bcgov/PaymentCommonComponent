@@ -16,7 +16,7 @@ import { AppLogger } from '../common/logger.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { EmptyResponse } from 'src/common/ro/empty-response.ro';
 
-@Controller('sales')
+@Controller('sale')
 @ApiTags('Sales API')
 export class SalesController {
   constructor(
@@ -34,15 +34,12 @@ export class SalesController {
   @HttpCode(HttpStatus.OK)
   async saveSalesEvent(@Body() salesEvent: SalesDTO) {
     this.appLogger.log(salesEvent);
-
-    // More validation
-    
-
     try {
       return this.salesService.saveSalesEvent(salesEvent);
     } catch (e) {
-      throw new InternalServerErrorException('An unknown error occured while saving a form');
+      throw new InternalServerErrorException(
+        'An unknown error occured while saving a form',
+      );
     }
-
   }
 }
