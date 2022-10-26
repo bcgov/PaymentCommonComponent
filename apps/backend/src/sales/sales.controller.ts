@@ -30,8 +30,8 @@ export class SalesController {
   @ApiOperation({
     summary: 'Post Sales Event',
   })
-  @ApiResponse({ status: HttpStatus.OK, type: EmptyResponse })
-  @HttpCode(HttpStatus.OK)
+  @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
+  @HttpCode(HttpStatus.CREATED)
   async saveSalesEvent(@Body() salesEvent: SalesDTO) {
     this.appLogger.log(salesEvent);
     console.log(salesEvent);
