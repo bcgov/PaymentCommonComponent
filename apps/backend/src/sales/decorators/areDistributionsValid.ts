@@ -37,6 +37,25 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
       return sum + dist.line_amount;
     }, 0);
 
+    
+    if(debits.length === 0)
+    {
+      this.errorMessage = `At least 1 debit entry required`;
+      return false;
+    }
+    
+    if(credits.length === 0)
+    {
+      this.errorMessage = `At least 1 credit entry required`;
+      return false;
+    }
+    
+    if(debits.length !==1)
+    {
+      this.errorMessage = `There can be only one debit entry but ${debits.length} are found`;
+      return false;
+    }
+    
     if (creditSum !== debitSum) {
       this.errorMessage = `Credit and Debit Sums must match. There is a difference of ${debitSum-creditSum} found`;
       return false;
@@ -46,26 +65,7 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
       this.errorMessage = `Credit and Debit Sums do not match the Sales Total`;
       return false;
     }
-
-    if(debits.length === 0)
-    {
-      this.errorMessage = `At least 1 debit entry required`;
-      return false;
-    }
-
-    if(credits.length === 0)
-    {
-      this.errorMessage = `At least 1 credit entry required`;
-      return false;
-    }
-
-
-    if(debits.length !==1)
-    {
-      this.errorMessage = `There can be only one debit entry but ${debits.length} are found`;
-      return false;
-    }
-
+    
     return true;
   }
 
