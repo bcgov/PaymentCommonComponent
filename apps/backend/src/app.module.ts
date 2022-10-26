@@ -11,22 +11,26 @@ import { AwsSdkModule } from 'nest-aws-sdk';
 import { Firehose, S3 } from 'aws-sdk';
 
 @Module({
-
   imports: [
     S3ManagerModule,
     FixedWidthRecordModule,
     SalesModule,
     FirehoseModule,
     ConfigModule.forRoot({
-      ignoreEnvFile: process.env.NODE_ENV === 'local' ? false : true,
+      ignoreEnvFile:
+        process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
+          ? false
+          : true,
     }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
-        ...process.env.NODE_ENV === 'local' ? {
-          endpoint: process.env.AWS_ENDPOINT || "http://localhost:4566",
-          region: process.env.AWS_REGION || "ca-central-1",
-          s3ForcePathStyle: true,
-        } : {}
+        ...(process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
+          ? {
+              endpoint: process.env.AWS_ENDPOINT || 'http://localhost:4566',
+              region: 'ca-central-1',
+              s3ForcePathStyle: true,
+            }
+          : {}),
       },
       services: [Firehose, S3],
     }),

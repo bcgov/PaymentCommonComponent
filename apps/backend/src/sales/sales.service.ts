@@ -5,20 +5,26 @@ import { FirehoseService } from '../firehose/firehose.service';
 
 @Injectable()
 export class SalesService {
-    constructor(@Inject(Logger) private readonly appLogger: AppLogger,
-        @Inject(FirehoseService) private readonly firehoseService: FirehoseService) { }
+  constructor(
+    @Inject(Logger) private readonly appLogger: AppLogger,
+    @Inject(FirehoseService) private readonly firehoseService: FirehoseService,
+  ) {}
 
-    
-    // validateDistributions()
-        
-    async saveSalesEvent(event: SalesDTO) {
-        this.appLogger.log(event)
-        try {
-            const puts = await (await this.firehoseService.putRecord(event as unknown as Record<string, string>)).promise();
-            console.log(puts)
-        } catch (err) {
-            this.appLogger.error(err);
-        }
-        return;
+  // validateDistributions()
+
+  async saveSalesEvent(event: SalesDTO) {
+    this.appLogger.log(event);
+    try {
+      const puts = await (
+        await this.firehoseService.putRecord(
+          event as unknown as Record<string, string>,
+        )
+      ).promise();
+      console.log(puts);
+    } catch (err) {
+      this.appLogger.error(err);
+      throw err;
     }
+    return;
+  }
 }

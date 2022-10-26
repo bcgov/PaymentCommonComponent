@@ -34,6 +34,7 @@ export class SalesController {
   @HttpCode(HttpStatus.OK)
   async saveSalesEvent(@Body() salesEvent: SalesDTO) {
     this.appLogger.log(salesEvent);
+    console.log(salesEvent);
     try {
       return this.salesService.saveSalesEvent(salesEvent);
     } catch (e) {

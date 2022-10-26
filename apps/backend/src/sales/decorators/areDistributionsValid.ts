@@ -1,4 +1,5 @@
 import {
+  isArray,
   ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface,
@@ -19,10 +20,14 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
     const credits: Array<DistributionDTO> = [];
     const debits: Array<DistributionDTO> = [];
 
+    if(!isArray(distributions)){
+      this.errorMessage = `Distributions must be an array`;
+      return false;
+    }
+
     for (const dist of distributions) {
       (dist.line_code === 'C' ? credits : debits).push(dist);
     }
-
 
     const creditSum = credits.reduce((sum, dist) => {
       return sum + dist.line_amount;
