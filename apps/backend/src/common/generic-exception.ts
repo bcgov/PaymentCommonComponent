@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { HttpStatus, HttpException } from '@nestjs/common';
-import { CommonError } from 'src/common/common.errors';
+import { CommonError } from './common.errors';
 
 export class GenericError {
   /** Internal code */

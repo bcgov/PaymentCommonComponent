@@ -14,7 +14,7 @@ import { SalesDTO } from './dto/sales.dto';
 import { SalesService } from './sales.service';
 import { AppLogger } from '../common/logger.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { EmptyResponse } from 'src/common/ro/empty-response.ro';
+import { EmptyResponse } from '../common/ro/empty-response.ro';
 
 @Controller('sale')
 @ApiTags('Sales API')

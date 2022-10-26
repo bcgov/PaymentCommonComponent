@@ -1,5 +1,5 @@
 import { HttpStatus } from '@nestjs/common';
-import { GenericError } from 'src/common/generic-exception';
+import { GenericError } from './generic-exception';
 
 export const CommonError = {
   INTERNAL_ERROR: {

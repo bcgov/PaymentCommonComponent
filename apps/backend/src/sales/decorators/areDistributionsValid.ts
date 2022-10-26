@@ -3,7 +3,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
 } from 'class-validator';
-import { DistributionDTO } from 'src/sales/dto/distribution.dto';
+import { DistributionDTO } from '../../sales/dto/distribution.dto';
 import { SalesDTO } from '../dto/sales.dto';
 
 @ValidatorConstraint()

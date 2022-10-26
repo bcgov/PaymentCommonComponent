@@ -15,8 +15,13 @@ describe('AppController', () => {
   });
 
   describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(appController.getHello()).toBe('Hello World!');
+    it('should return Version information', () => {
+      console.log(appController.getVersion())
+      expect(appController.getVersion()).toStrictEqual({
+        buildId: 'NA',
+        info: 'NA',
+        env: 'NA',
+      });
     });
   });
 });

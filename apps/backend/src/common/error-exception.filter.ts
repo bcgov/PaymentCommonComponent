@@ -9,8 +9,8 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { FailedResponse } from '../common/ro/failed-response.ro';
-import { CommonError } from 'src/common/common.errors';
+import { FailedResponse } from './ro/failed-response.ro';
+import { CommonError } from './common.errors';
 
 @Catch(Error)
 export class ErrorExceptionFilter implements ExceptionFilter {

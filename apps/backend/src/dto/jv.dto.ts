@@ -1,9 +1,9 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import {
   Column,
   DataType,
-} from 'src/common/fixedWidthRecord/fixedWidthRecord.decorator';
-import { FixedWidthRecordService } from 'src/common/fixedWidthRecord/fixedWidthRecord.service';
+} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import { FixedWidthRecordService } from '../common/fixedWidthRecord/fixedWidthRecord.service';
 
 @Injectable()
 export class BatchHeader extends FixedWidthRecordService {

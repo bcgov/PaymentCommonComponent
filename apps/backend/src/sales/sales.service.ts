@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { AppLogger } from 'src/common/logger.service';
+import { AppLogger } from '../common/logger.service';
 import { SalesDTO } from './dto/sales.dto';
-import { FirehoseService } from 'src/firehose/firehose.service';
+import { FirehoseService } from '../firehose/firehose.service';
 
 @Injectable()
 export class SalesService {

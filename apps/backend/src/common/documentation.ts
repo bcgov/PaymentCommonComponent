@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { SalesModule } from 'src/sales/sales.module';
+import { SalesModule } from '../sales/sales.module';
 
 
 export const Documentation = (app: INestApplication) => {

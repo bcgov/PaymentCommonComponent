@@ -14,8 +14,8 @@ import {
   ArrayUnique,
   Validate,
 } from 'class-validator';
-import { AreDistributionsValid } from 'src/sales/decorators/areDistributionsValid';
-import { ArePaymentMethodsValid } from 'src/sales/decorators/arePaymentMethodsValid';
+import { AreDistributionsValid } from '../decorators/areDistributionsValid';
+import { ArePaymentMethodsValid } from '../decorators/arePaymentMethodsValid';
 import { DistributionDTO } from './distribution.dto';
 import { PaymentMethodDTO } from './paymentMethod.dto';
 
