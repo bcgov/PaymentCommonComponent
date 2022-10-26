@@ -59,6 +59,7 @@ export class SalesDTO {
 
 
   @ApiProperty({
+    type: PaymentMethodDTO,
     description: 'Payment of total amount by method',
     example: [
       {
@@ -89,6 +90,7 @@ export class SalesDTO {
   payment_method!: PaymentMethodDTO[];
 
   @ApiProperty({
+    type: DistributionDTO,
     description:
       'Distribution of funds to other ministries and program areas by GL codes',
     example: [
