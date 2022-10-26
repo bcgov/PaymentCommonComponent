@@ -1,5 +1,5 @@
 import { Logger, Module } from '@nestjs/common';
-import { FirehoseModule } from 'src/firehose/firehose.module';
+import { FirehoseModule } from '../firehose/firehose.module';
 import { SalesController } from './sales.controller';
 import { SalesService } from './sales.service';
 
