@@ -1,5 +1,4 @@
 import { S3ManagerModule } from './s3-manager/s3-manager.module';
-import { FixedWidthRecordModule } from './common/fixedWidthRecord/fixedWidthRecord.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
@@ -13,7 +12,6 @@ import { Firehose, S3 } from 'aws-sdk';
 @Module({
   imports: [
     S3ManagerModule,
-    FixedWidthRecordModule,
     SalesModule,
     FirehoseModule,
     ConfigModule.forRoot({
