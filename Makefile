@@ -144,7 +144,7 @@ deploy-gl:
 
 
 # ===================================
-# Local Devleopment
+# Local Development
 # ===================================
 
 build-local:
