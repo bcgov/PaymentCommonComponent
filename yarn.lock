@@ -3949,7 +3949,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"eslint-nibble@npm:^8.1.0":
+"eslint-nibble@npm:8.1.0":
   version: 8.1.0
   resolution: "eslint-nibble@npm:8.1.0"
   dependencies:
@@ -5174,12 +5174,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"husky@npm:^8.0.0":
-  version: 8.0.2
-  resolution: "husky@npm:8.0.2"
+"husky@npm:8.0.0":
+  version: 8.0.0
+  resolution: "husky@npm:8.0.0"
   bin:
     husky: lib/bin.js
-  checksum: e101656fcb56163d610488f186448c78b132626aa427094489d886ce9374955a90274912b0f3a34af3326eaa74977883b032e5f701d7aaf4554daa5a7931be43
+  checksum: b6b842abdd1bbc9322ad0c2003471fa35f94c9c01fccef3a6b5262f53e3f1bde1d78787f8a96ed8ef8a15ab3a7d56c83f576afd1cf7618588df77940044081df
   languageName: node
   linkType: hard
 
@@ -7732,11 +7732,11 @@ __metadata:
     "@typescript-eslint/eslint-plugin": 5.0.0
     "@typescript-eslint/parser": 5.0.0
     eslint-config-prettier: 8.3.0
-    eslint-nibble: ^8.1.0
-    husky: ^8.0.0
+    eslint-nibble: 8.1.0
+    husky: 8.0.0
     nodemon: 2.0.15
     npm-run-all: 4.1.5
-    pinst: ^3.0.0
+    pinst: 3.0.0
     prettier: 2.4.1
     pretty-quick: 3.1.2
     start-server-and-test: 1.14.0
@@ -7778,7 +7778,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"pinst@npm:^3.0.0":
+"pinst@npm:3.0.0":
   version: 3.0.0
   resolution: "pinst@npm:3.0.0"
   bin:
