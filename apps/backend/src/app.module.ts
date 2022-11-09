@@ -27,7 +27,7 @@ import { Firehose, S3 } from 'aws-sdk';
         ...(process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
           ? {
               endpoint: process.env.AWS_ENDPOINT || 'http://localhost:4566',
-              region: 'ca-central-1',
+              region: process.env.AWS_REGION || 'ca-central-1',
               s3ForcePathStyle: true,
             }
           : {}),

@@ -1,5 +1,25 @@
 version: "3.7"
 services:
+  backend:
+    container_name: backend
+    build: 
+      context: './apps/backend'
+    networks:
+      - localstack-net
+    ports:
+      - "3000:3000"
+    environment:
+      - CHOKIDAR_USEPOLLING="true"
+      - APP_PORT=3000
+      - NODE_ENV=local
+      - AWS_ACCESS_KEY_ID="test"
+      - AWS_SECRET_ACCESS_KEY="test"
+      - AWS_DEFAULT_REGION="ca-central-1"
+      - YARN_VERSION=3.2.3
+      - AWS_ENDPOINT=http://localstack:4566
+    volumes:
+      - ./apps/backend:/usr/arc/app
+      - /usr/arc/app/node_modules
   localstack:
     container_name: localstack
     image: localstack/localstack-full:1.1.0

@@ -141,3 +141,30 @@ deploy-api:
 
 deploy-gl:
 	aws lambda update-function-code --function-name glGenerator --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
+
+
+# ===================================
+# Local Devleopment
+# ===================================
+
+build-local:
+	@docker-compose up -d --build
+
+run-local:
+	@docker-compose up -d 
+
+localstack-logs:
+	@docker logs localstack --follow --tail 25
+
+backend-logs:
+	@docker logs backend --follow --tail 25
+
+backend-workspace:
+	@docker exec -it backend sh
+
+localstack-workspace:
+	@docker exec -it localstack sh
+
+close-local:
+	@docker-compose down
+	
