@@ -20,10 +20,14 @@ export class JV extends Resource<IJV> implements IJV {
     });
   }
 
-  public static transformSalesEvent(record: SalesDTO, options: transformSalesEventOptions) {
+  public static transformSalesEvent(record: SalesDTO) {
     return new JV({
-      header: JVHeader.transformSalesEvent(record, options),
-      details: record.distributions.map((distribution) => JVDetails.transformSalesEvent(distribution, options)),
+      header: JVHeader.transformSalesEvent(record),
+      details: record.distributions.map((distribution) =>
+        JVDetails.transformSalesEvent(distribution, {
+          journalName: record.journal_name,
+        }),
+      ),
     });
   }
 }

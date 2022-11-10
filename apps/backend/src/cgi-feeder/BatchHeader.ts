@@ -1,11 +1,12 @@
 import {
   Column,
   DataType,
-} from '../resources/fixedWidthRecord/fixedWidthRecord.decorator';
+} from './fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord,
-} from '../resources/fixedWidthRecord/fixedWidthRecord';
+} from './fixedWidthRecord/fixedWidthRecord';
+import { FEEDER_NUMBER } from './constants';
 
 export interface IBatchHeader extends IFixedWidthRecord<IBatchHeader> {
   feederNumber1?: number;
@@ -17,7 +18,14 @@ export interface IBatchHeader extends IFixedWidthRecord<IBatchHeader> {
   messageVersion?: number;
 }
 
-export class BatchHeader extends FixedWidthRecord<IBatchHeader> implements IBatchHeader {
+export const BATCH_HEADER_TX_TYPE = 'BH';
+export const BATCH_HEADER_BATCH_TYPE = 'GI';
+export const BATCH_HEADER_MESSAGE_VERSION = 4010;
+
+export class BatchHeader
+  extends FixedWidthRecord<IBatchHeader>
+  implements IBatchHeader
+{
   public static readonly resourceType = 'BatchHeader';
   public static readonly delimiter = {
     value: '',
@@ -57,5 +65,17 @@ export class BatchHeader extends FixedWidthRecord<IBatchHeader> implements IBatc
   @Column({ start: 26, width: 4 })
   public get messageVersion() {
     return this.resource.messageVersion;
+  }
+
+  public static generate() {
+    return new BatchHeader({
+      feederNumber1: FEEDER_NUMBER,
+      batchType: BATCH_HEADER_BATCH_TYPE,
+      transactionType: BATCH_HEADER_TX_TYPE,
+      feederNumber2: FEEDER_NUMBER,
+      fiscalYear: 2023, //ToDo: Track fiscal year
+      batchNumber: '',
+      messageVersion: BATCH_HEADER_MESSAGE_VERSION,
+    });
   }
 }

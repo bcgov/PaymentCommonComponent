@@ -1,13 +1,14 @@
 import {
   Column,
   DataType,
-} from '../resources/fixedWidthRecord/fixedWidthRecord.decorator';
+} from './fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord,
-} from '../resources/fixedWidthRecord/fixedWidthRecord';
+} from './fixedWidthRecord/fixedWidthRecord';
 import { transformSalesEventOptions } from './Resource';
 import { DistributionDTO } from '../sales/dto/distribution.dto';
+import { FEEDER_NUMBER } from './constants';
 
 export interface IJVDetails extends IFixedWidthRecord<IJVDetails> {
   feederNumber1?: number;
@@ -23,6 +24,9 @@ export interface IJVDetails extends IFixedWidthRecord<IJVDetails> {
   lineDescription?: string;
   flowThru?: string;
 }
+
+export const JV_DETAILS_TX_TYPE = 'JD';
+export const JV_DETAILS_BATCH_TYPE = 'GI';
 
 export class JVDetails
   extends FixedWidthRecord<IJVDetails>
@@ -43,13 +47,13 @@ export class JVDetails
     options: transformSalesEventOptions,
   ) {
     return new JVDetails({
-      feederNumber1: 3085,
-      batchType: 'GI',
-      transactionType: 'JD',
-      journalName: `SM J${options.index.toString().padStart(6, '0')}`,
+      feederNumber1: FEEDER_NUMBER,
+      batchType: JV_DETAILS_BATCH_TYPE,
+      transactionType: JV_DETAILS_TX_TYPE,
+      journalName: options.journalName,
       jvLineNumber: record.line_number,
       glEffectiveDate: record.gl_date,
-      distributionAck: '02232OCG00000157632000000000000000',
+      distributionAck: `${record.dist_client_code}${record.dist_resp_code}${record.dist_service_line_code}${record.dist_stob_code}${record.dist_project_code}${record.dist_location_code}${record.dist_future_code}`, //'02232OCG00000157632000000000000000',
       supplierNumber: record.supplier_code,
       amountOfLine: record.line_amount,
       lineCode: record.line_code,

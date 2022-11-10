@@ -16,7 +16,7 @@ import {
 export class DistributionDTO {
   // 00001
   @ApiProperty({
-    description: 'Sequential 5 digit line numbers',
+    description: 'Sequential 6 digit line numbers',
     example: '00001',
   })
   @IsNumberString({
@@ -24,7 +24,7 @@ export class DistributionDTO {
   })
   @IsString()
   @IsNotEmpty()
-  @Length(5, 5)
+  @Length(6, 6)
   line_number!: string;
 
   // 130 - Agriculture

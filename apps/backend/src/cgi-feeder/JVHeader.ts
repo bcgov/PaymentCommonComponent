@@ -1,14 +1,19 @@
 import {
   Column,
   DataType,
-} from '../resources/fixedWidthRecord/fixedWidthRecord.decorator';
+} from './fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord,
-} from '../resources/fixedWidthRecord/fixedWidthRecord';
+} from './fixedWidthRecord/fixedWidthRecord';
 import { SalesDTO } from '../sales/dto/sales.dto';
-import { transformSalesEventOptions } from './Resource';
+import { FEEDER_NUMBER } from './constants';
 
+export const JV_HEADER_TX_TYPE = 'JH';
+export const JV_HEADER_BATCH_TYPE = 'GP';
+export const JV_HEADER_BATCH_NAME_SUFFIX = 'GA REVENUE';
+export const JV_HEADER_CURRENCY_CODE = 'CAD';
+export const JV_HEADER_RECORD_TYPE = 'A';
 
 export interface IJVHeader extends IFixedWidthRecord<IJVHeader> {
   feederNumber1?: number;
@@ -30,18 +35,18 @@ export class JVHeader extends FixedWidthRecord<IJVHeader> implements IJVHeader {
     length: 1,
   };
 
-  public static transformSalesEvent(record: SalesDTO, options: transformSalesEventOptions) {
+  public static transformSalesEvent(record: SalesDTO) {
     return new JVHeader({
-      feederNumber1: 123,
-      batchType: 'GP',
-      transactionType: 'JH',
-      journalName: `SM J${options.index.toString().padStart(6, '0')}`,
-      journalBatchName: 'SM GA REVENUE',
+      feederNumber1: FEEDER_NUMBER,
+      batchType: JV_HEADER_BATCH_TYPE,
+      transactionType: JV_HEADER_TX_TYPE,
+      journalName: record.journal_name,
+      journalBatchName: `${record.ministry_alpha_identifier} ${JV_HEADER_BATCH_NAME_SUFFIX}`,
       controlTotal: record.total_amount,
-      recordType: 'A',
-      countryCurrencyCode: 'CAD',
+      recordType: JV_HEADER_RECORD_TYPE,
+      countryCurrencyCode: JV_HEADER_CURRENCY_CODE,
       externalReferenceSource: '',
-      FlowThru: '2023000001967',
+      FlowThru: '',
     });
   }
 

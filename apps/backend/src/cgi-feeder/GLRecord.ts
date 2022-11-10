@@ -26,33 +26,14 @@ export class GLRecord extends Resource<IGLRecord> implements IGLRecord {
     return new BatchTrailer(this.resource.trailer);
   }
 
-  public static transformSalesEvent(
-    records: SalesDTO[]
-  ) {
+  public static transformSalesEvent(records: SalesDTO[]) {
     return new GLRecord({
-      batchHeader: new BatchHeader({
-        feederNumber1: 3085,
-        batchType: 'GI',
-        transactionType: 'BH',
-        feederNumber2: 3085,
-        fiscalYear: 2023,
-        batchNumber: '000001967',
-        messageVersion: 4010,
-      }),
-      trailer: new BatchTrailer({
-        feederNumber1: 3085,
-        batchType: 'GI',
-        transactionType: 'BT',
-        clientSystem: '3085',
-        fiscalYear: 2023,
-        batchNumber: '000001967',
-        controlCount: records.length,
-        controlTotal: records.reduce(
-          (acc, record) => acc + record.total_amount,
-          0,
-        ),
-      }),
-      jv: records.map((record, idx) => JV.transformSalesEvent(record, {index: idx + 1})),
+      batchHeader: BatchHeader.generate(),
+      trailer: BatchTrailer.generate(
+        records.length,
+        records.reduce((acc, record) => acc + record.total_amount, 0),
+      ),
+      jv: records.map((record) => JV.transformSalesEvent(record)),
     });
   }
 }
