@@ -1,8 +1,10 @@
-FROM node:16.18-alpine As development
+FROM node:16.18-alpine AS backend-development
 
 WORKDIR /usr/src/app
 
-COPY  package*.json ./
+ARG BUILD_CONTEXT 
+
+COPY ./apps/$BUILD_CONTEXT/package.json .
 
 RUN corepack enable
 
@@ -12,7 +14,9 @@ RUN yarn set version 3.2.3
 
 RUN yarn install
 
-COPY  . .
+COPY ./apps/$BUILD_CONTEXT .
+
+RUN yarn workspace @payment/backend build
 
 EXPOSE 3000
 

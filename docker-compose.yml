@@ -2,8 +2,11 @@ version: "3.7"
 services:
   backend:
     container_name: backend
-    build: 
-      context: './apps/backend'
+    build:
+      context: .
+      target: backend-development
+      args: 
+        - BUILD_CONTEXT=backend
     networks:
       - localstack-net
     ports:
@@ -20,6 +23,7 @@ services:
     volumes:
       - ./apps/backend:/usr/arc/app
       - /usr/arc/app/node_modules
+      - /usr/src/app/dist
   localstack:
     container_name: localstack
     image: localstack/localstack-full:1.1.0
