@@ -1,6 +1,5 @@
 import 'reflect-metadata';
 
-
 export interface ColumnOptions {
   start: number;
   width: number;

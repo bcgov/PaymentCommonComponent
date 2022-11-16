@@ -1,8 +1,4 @@
-/*
-https://docs.nestjs.com/providers#services
-*/
-
-import { Injectable } from '@nestjs/common';
+import { Resource, ResourceBase } from '../Resource';
 import {
   ColumnMetadataKey,
   ColumnOptions,
@@ -16,25 +12,32 @@ type DelimiterOptions = {
   length: number;
 };
 
-export interface FixedWidthOptions {
+export interface IFixedWidthRecord<T> extends ResourceBase<T> {
   delimiter?: DelimiterOptions;
 }
 
-@Injectable()
-export class FixedWidthRecordService {
-  private delimiter?: DelimiterOptions;
-  constructor(options?: FixedWidthOptions) {
-    if (options && options.delimiter) {
-      this.delimiter = options.delimiter;
+export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
+  extends Resource<T>
+  implements IFixedWidthRecord<T>
+{
+  constructor(data: T) {
+    super(data);
+    if (data instanceof FixedWidthRecord) {
+      data = data.resource;
+    }
+    const delimiter = (this.constructor as any).delimiter;
+    if (delimiter) {
+      data.delimiter = delimiter;
+    } else {
+      throw new Error(`no delimiter options specified for ${this.constructor.name}`);
     }
   }
-
-  convertToJson(line: string): void {
-    FixedWidthRecordService.convertToJson(line, this);
+  public convertToJson(line: string): void {
+    FixedWidthRecord.convertToJson(line, this);
   }
 
-  convertFromJson(): Buffer {
-    return FixedWidthRecordService.convertFromJSON(this);
+  public convertFromJson(): Buffer {
+    return FixedWidthRecord.convertFromJSON(this);
   }
 
   static convertToJson<T extends Record<string, any>>(
@@ -69,7 +72,7 @@ export class FixedWidthRecordService {
    * @param clz the class/constructor
    * @returns the fields decorated with @Column all the way up the prototype chain.
    */
-  static getAllFields(clz: Record<string, any>): string[] {
+  private static getAllFields(clz: Record<string, any>): string[] {
     if (!clz) return [];
     const fields: string[] | undefined = Reflect.getMetadata(
       ColumnVariableKey,
@@ -120,5 +123,9 @@ export class FixedWidthRecordService {
       });
     }
     return Buffer.concat([result, Buffer.from('\n')]);
+  }
+
+  public get delimiter(): T['delimiter'] {
+    return this.resource.delimiter;
   }
 }
