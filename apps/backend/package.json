@@ -10,7 +10,7 @@
     "build": "rimraf dist && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
-    "start:dev": "NODE_ENV=local nest start --watch",
+    "start:dev": "NODE_ENV=local RUNTIME_ENV=local nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_ENV=prod node dist/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
@@ -18,7 +18,9 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand"
+    "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
+    "parseTDI17": "NODE_ENV=local RUNTIME_ENV=local LAMBDA_ARG=TDI17 ts-node ./scripts/handler.ts",
+    "parseTDI34": "NODE_ENV=local RUNTIME_ENV=local LAMBDA_ARG=TDI34 ts-node ./scripts/handler.ts"
   },
   "dependencies": {
     "@nestjs/common": "8.0.0",

@@ -1,4 +1,4 @@
-import { SalesDTO } from '../sales/dto/sales.dto';
+import { SalesDTO } from '../../sales/dto/sales.dto';
 
 export interface ResourceBase<T> {
   resourceType?: string;

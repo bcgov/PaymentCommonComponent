@@ -1,11 +1,11 @@
 import {
   Column,
   DataType,
-} from './fixedWidthRecord/fixedWidthRecord.decorator';
+} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord,
-} from './fixedWidthRecord/fixedWidthRecord';
+} from '../common/fixedWidthRecord/fixedWidthRecord';
 import { FEEDER_NUMBER } from './constants';
 
 export interface IBatchTrailer extends IFixedWidthRecord<IBatchTrailer> {
@@ -33,9 +33,14 @@ export class BatchTrailer
     positions: [8, 56],
     length: 1,
   };
+
   @Column({ start: 0, width: 4, format: { type: DataType.Integer } })
   public get feederNumber1() {
     return this.resource.feederNumber1;
+  }
+
+  public set feederNumber1(data) {
+    this.resource.feederNumber1 = data;
   }
 
   @Column({ start: 4, width: 2 })
@@ -43,9 +48,17 @@ export class BatchTrailer
     return this.resource.batchType;
   }
 
+  public set batchType(data) {
+    this.resource.batchType = data;
+  }
+
   @Column({ start: 6, width: 2 })
   public get transactionType() {
     return this.resource.transactionType;
+  }
+
+  public set transactionType(data) {
+    this.resource.transactionType = data;
   }
 
   @Column({ start: 9, width: 4 })
@@ -53,9 +66,17 @@ export class BatchTrailer
     return this.resource.clientSystem;
   }
 
+  public set clientSystem(data) {
+    this.resource.clientSystem = data;
+  }
+
   @Column({ start: 13, width: 4 })
   public get fiscalYear() {
     return this.resource.fiscalYear;
+  }
+
+  public set fiscalYear(data) {
+    this.resource.fiscalYear = data;
   }
 
   @Column({ start: 17, width: 9 })
@@ -63,14 +84,26 @@ export class BatchTrailer
     return this.resource.batchNumber;
   }
 
+  public set batchNumber(data) {
+    this.resource.batchNumber = data;
+  }
+
   @Column({ start: 26, width: 15 })
   public get controlCount() {
     return this.resource.controlCount;
   }
 
+  public set controlCount(data) {
+    this.resource.controlCount = data;
+  }
+
   @Column({ start: 41, width: 15 })
   public get controlTotal() {
     return this.resource.controlTotal;
+  }
+
+  public set controlTotal(data) {
+    this.resource.controlTotal = data;
   }
 
   public static generate(count: number, total: number) {
@@ -79,7 +112,7 @@ export class BatchTrailer
       batchType: BATCH_TRAILER_BATCH_TYPE,
       transactionType: BATCH_TRAILER_TX_TYPE,
       clientSystem: FEEDER_NUMBER,
-      fiscalYear: 2023,
+      fiscalYear: 2023, //TODO track fiscal year
       batchNumber: '',
       controlCount: count,
       controlTotal: total,

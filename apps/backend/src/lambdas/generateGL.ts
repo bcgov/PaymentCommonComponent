@@ -15,14 +15,15 @@ export const handler = async (event?: any, context?: Context) => {
   try {
     appLogger.log('...start GL Generation');
     const contents = await s3manager.getContents(
-      process.env.S3_LOCATION || 'bc-pcc-data-files-local',
+    `bc-pcc-data-files-${process.env.NODE_ENV}`,
       'aggregate/gl.json',
     );
     const json = contents.Body?.toString() || '';
     const glRecord = JSON.parse(json) as GLRecord;
 
     const output = generateGL(glRecord);
-    await s3manager.putObject( process.env.S3_LOCATION || 'bc-pcc-data-files-local', 'outputs/cgigl', output);
+    await s3manager.putObject(`bc-pcc-data-files-${process.env.NODE_ENV}`, 'outputs/cgigl', output);
+
   } catch (e) {
     appLogger.error(e);
   }
