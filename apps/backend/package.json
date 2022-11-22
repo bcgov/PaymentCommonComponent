@@ -87,7 +87,7 @@
   "lint-staged": {
     "*.{tsx,ts}": [
       "prettier --write",
-      "eslint --cache --fix"
+      "eslint  --fix"
     ]
   }
 }
