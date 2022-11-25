@@ -157,7 +157,8 @@ put-local-tdi34:
 # ===================================
 
 parse-local-tdi17:
-	cd './apps/backend' && yarn run parseTDI17
+		NODE_ENV=local RUNTIME_ENV=local ts-node -e 'require("./apps/backend/src/lambdas/parseTDI.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT"})'
 
-parse-local-tdi34:
-	cd './apps/backend' && yarn run parseTDI34
+parse-local-tdi34: 			
+	NODE_ENV=local RUNTIME_ENV=local ts-node -e 'require("./apps/backend/src/lambdas/parseTDI.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
+	 
