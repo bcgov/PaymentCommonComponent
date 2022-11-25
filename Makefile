@@ -141,3 +141,24 @@ deploy-api:
 
 deploy-gl:
 	aws lambda update-function-code --function-name glGenerator --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
+
+# ===================================
+# Add Local Tdi Files
+# ===================================
+
+put-local-tdi17:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi17/TDI17.TXT --body ./sample-files/TDI17.TXT 
+
+put-local-tdi34:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi34/TDI34.TXT --body ./sample-files/TDI34.TXT 
+
+# ===================================
+# Parse Local
+# ===================================
+
+parse-local-tdi17:
+		NODE_ENV=local RUNTIME_ENV=local ts-node -e 'require("./apps/backend/src/lambdas/parseTDI.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT"})'
+
+parse-local-tdi34: 			
+	NODE_ENV=local RUNTIME_ENV=local ts-node -e 'require("./apps/backend/src/lambdas/parseTDI.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
+	 

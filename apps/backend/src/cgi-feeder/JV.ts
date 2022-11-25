@@ -1,7 +1,7 @@
 import { SalesDTO } from '../sales/dto/sales.dto';
 import { JVDetails } from './JvDetails';
 import { JVHeader } from './JvHeader';
-import { Resource, ResourceBase, transformSalesEventOptions } from './Resource';
+import { Resource, ResourceBase } from '../common/fixedWidthRecord/Resource';
 
 export interface IJV extends ResourceBase<IJV> {
   header: JVHeader;

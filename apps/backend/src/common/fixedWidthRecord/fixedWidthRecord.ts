@@ -1,10 +1,11 @@
-import { Resource, ResourceBase } from '../Resource';
+import { Resource, ResourceBase } from './Resource';
 import {
   ColumnMetadataKey,
   ColumnOptions,
   ColumnVariableKey,
   DataType,
 } from './fixedWidthRecord.decorator';
+
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
@@ -28,11 +29,10 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
     const delimiter = (this.constructor as any).delimiter;
     if (delimiter) {
       data.delimiter = delimiter;
-    } else {
-      throw new Error(`no delimiter options specified for ${this.constructor.name}`);
-    }
+    } 
   }
   public convertToJson(line: string): void {
+
     FixedWidthRecord.convertToJson(line, this);
   }
 
@@ -105,7 +105,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
       );
     });
 
-    let op = fieldsWithMeta
+    const op = fieldsWithMeta
       .map((field) => {
         return target[field.field].toString().padEnd(field.options.width);
       })

@@ -2,7 +2,7 @@ import { SalesDTO } from '../sales/dto/sales.dto';
 import { BatchHeader } from './BatchHeader';
 import { BatchTrailer } from './BatchTrailer';
 import { JV } from './JV';
-import { Resource, ResourceBase } from './Resource';
+import { Resource, ResourceBase } from '../common/fixedWidthRecord/Resource';
 
 export interface IGLRecord extends ResourceBase<IGLRecord> {
   batchHeader: BatchHeader;
