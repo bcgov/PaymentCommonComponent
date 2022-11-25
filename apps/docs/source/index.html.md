@@ -2,6 +2,7 @@
 title: Payment Common Components
 language_tabs:
   - typescript: Typescript
+  
 
 toc_footers: []
 includes:
@@ -10,6 +11,7 @@ includes:
   - userguide
   - api
   - readme.md
+  - test
 
 search: true
 highlight_theme: darkula
