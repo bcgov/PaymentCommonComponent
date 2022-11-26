@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppLogger } from '../common/logger.service';
-import { FirehoseService } from '../firehose/firehose.service';
-import { SalesService } from './sales.service';
+// import { AppLogger } from '../common/logger.service';
+import { FirehoseService } from '../src/firehose/firehose.service';
+import { SalesService } from '../src/sales/sales.service';
 
 describe('SalesService', () => {
   let service: SalesService;
@@ -15,9 +15,8 @@ describe('SalesService', () => {
         {
           provide: FirehoseService,
           useValue: jest.fn(),
-        }
+        },
       ],
-
     }).compile();
 
     service = module.get<SalesService>(SalesService);

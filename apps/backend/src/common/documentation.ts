@@ -2,11 +2,10 @@ import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SalesModule } from '../sales/sales.module';
 
-
 export const Documentation = (app: INestApplication) => {
   const options = new DocumentBuilder()
     .setTitle('PayCoCo API Docs')
-    .setDescription("Payment Common Component API Documentation")
+    .setDescription('Payment Common Component API Documentation')
     .setVersion(`1.0.0`)
     // .addBearerAuth()
     .build();

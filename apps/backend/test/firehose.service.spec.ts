@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FirehoseService } from './firehose.service';
+import { FirehoseService } from '../src/firehose/firehose.service';
 
 describe('FirehoseService', () => {
   let service: FirehoseService;

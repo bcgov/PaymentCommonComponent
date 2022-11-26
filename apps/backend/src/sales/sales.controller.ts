@@ -34,13 +34,11 @@ export class SalesController {
   @HttpCode(HttpStatus.CREATED)
   async saveSalesEvent(@Body() salesEvent: SalesDTO) {
     this.appLogger.log(salesEvent);
-    console.log(salesEvent);
+
     try {
       return this.salesService.saveSalesEvent(salesEvent);
     } catch (e) {
-      throw new InternalServerErrorException(
-        'An unknown error occured while saving a form',
-      );
+      throw new InternalServerErrorException('An unknown error occured while saving a form');
     }
   }
 }

@@ -1,11 +1,5 @@
-import {
-  Column,
-  DataType,
-} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import {
-  FixedWidthRecord,
-  IFixedWidthRecord,
-} from '../common/fixedWidthRecord/fixedWidthRecord';
+import { Column, DataType } from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import { FixedWidthRecord, IFixedWidthRecord } from '../common/fixedWidthRecord/fixedWidthRecord';
 import { FEEDER_NUMBER } from './constants';
 
 export interface IBatchTrailer extends IFixedWidthRecord<IBatchTrailer> {
@@ -23,10 +17,7 @@ export const BATCH_TRAILER_TX_TYPE = 'BT';
 export const BATCH_TRAILER_BATCH_TYPE = 'GI';
 export const BATCH_TRAILER_MESSAGE_VERSION = 4010;
 
-export class BatchTrailer
-  extends FixedWidthRecord<IBatchTrailer>
-  implements IBatchTrailer
-{
+export class BatchTrailer extends FixedWidthRecord<IBatchTrailer> implements IBatchTrailer {
   public static readonly resourceType = 'BatchTrailer';
   public static readonly delimiter = {
     value: '',

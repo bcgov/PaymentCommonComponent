@@ -1,11 +1,5 @@
-import {
-  Column,
-  DataType,
-} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import {
-  FixedWidthRecord,
-  IFixedWidthRecord,
-} from '../../common/fixedWidthRecord/fixedWidthRecord';
+import { Column, DataType } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import { FixedWidthRecord, IFixedWidthRecord } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   rcd_type: number;
@@ -27,10 +21,7 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   jv_no?: number;
 }
 
-export class TDI17Details
-  extends FixedWidthRecord<ITDI17Details>
-  implements ITDI17Details
-{
+export class TDI17Details extends FixedWidthRecord<ITDI17Details> implements ITDI17Details {
   public static readonly resourceType = 'TDIDetails';
 
   constructor(init?: any) {
@@ -121,7 +112,7 @@ export class TDI17Details
   public set location_desc(data) {
     this.resource.location_desc = data;
   }
-  
+
   @Column({ start: 67, width: 12, format: { type: DataType.Integer } })
   public get deposit_amt_curr() {
     return this.resource.deposit_amt_curr;

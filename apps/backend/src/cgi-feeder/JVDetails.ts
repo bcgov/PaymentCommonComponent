@@ -1,11 +1,5 @@
-import {
-  Column,
-  DataType,
-} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import {
-  FixedWidthRecord,
-  IFixedWidthRecord,
-} from '../common/fixedWidthRecord/fixedWidthRecord';
+import { Column, DataType } from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import { FixedWidthRecord, IFixedWidthRecord } from '../common/fixedWidthRecord/fixedWidthRecord';
 import { transformSalesEventOptions } from '../common/fixedWidthRecord/Resource';
 import { DistributionDTO } from '../sales/dto/distribution.dto';
 import { FEEDER_NUMBER } from './constants';
@@ -28,10 +22,7 @@ export interface IJVDetails extends IFixedWidthRecord<IJVDetails> {
 export const JV_DETAILS_TX_TYPE = 'JD';
 export const JV_DETAILS_BATCH_TYPE = 'GI';
 
-export class JVDetails
-  extends FixedWidthRecord<IJVDetails>
-  implements IJVDetails
-{
+export class JVDetails extends FixedWidthRecord<IJVDetails> implements IJVDetails {
   public static readonly resourceType = 'JVDetails';
   public static readonly delimiter = {
     value: '',
@@ -42,10 +33,7 @@ export class JVDetails
     super(init);
   }
 
-  public static transformSalesEvent(
-    record: DistributionDTO,
-    options: transformSalesEventOptions,
-  ) {
+  public static transformSalesEvent(record: DistributionDTO, options: transformSalesEventOptions) {
     return new JVDetails({
       feederNumber1: FEEDER_NUMBER,
       batchType: JV_DETAILS_BATCH_TYPE,
@@ -165,7 +153,7 @@ export class JVDetails
   public get flowThru() {
     return this.resource.flowThru;
   }
-  
+
   public set flowThru(data) {
     this.resource.flowThru = data;
   }

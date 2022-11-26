@@ -1,9 +1,4 @@
-import {
-  ValidatorConstraint,
-  ValidatorConstraintInterface,
-  ValidationArguments,
-  isArray,
-} from 'class-validator';
+import { ValidatorConstraint, ValidatorConstraintInterface, ValidationArguments, isArray } from 'class-validator';
 import { PaymentMethodDTO } from '../dto/paymentMethod.dto';
 import { SalesDTO } from '../dto/sales.dto';
 
@@ -14,13 +9,10 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
     this.errorMessage = `Payment Method Values are incorrect.`;
   }
 
-  public async validate(
-    paymentMethods: PaymentMethodDTO[],
-    args: ValidationArguments,
-  ) {
+  public async validate(paymentMethods: PaymentMethodDTO[], args: ValidationArguments) {
     const sales = args.object as SalesDTO;
 
-    if(!isArray(paymentMethods)){
+    if (!isArray(paymentMethods)) {
       this.errorMessage = `Distributions must be an array`;
       return false;
     }

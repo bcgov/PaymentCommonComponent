@@ -14,10 +14,7 @@ describe('Sales Controller (e2e)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(
-      new TrimPipe(),
-      new ValidationPipe(validationPipeConfig),
-    );
+    app.useGlobalPipes(new TrimPipe(), new ValidationPipe(validationPipeConfig));
     await app.init();
   });
 
@@ -25,8 +22,8 @@ describe('Sales Controller (e2e)', () => {
     const resp = await request(app.getHttpServer())
       .post('/sale')
       .send({
-        id: 'test',
-        sale_date: '2022-10-12',
+        id: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7',
+        sale_date: '2022-10-25',
         journal_name: 'SM J000001',
         ministry_alpha_identifier: 'SM',
         total_amount: 150.5,
@@ -42,7 +39,7 @@ describe('Sales Controller (e2e)', () => {
         ],
         distributions: [
           {
-            line_number: '00001',
+            line_number: '000001',
             dist_client_code: '130',
             dist_resp_code: '29KGT',
             dist_service_line_code: '38513',
@@ -52,14 +49,12 @@ describe('Sales Controller (e2e)', () => {
             dist_future_code: '0000',
             line_amount: 150.5,
             line_code: 'C',
-            line_description:
-              'GA OFF# 00002 2022-08-05                    *900100002',
+            line_description: 'GA OFF# 00002 2022-08-05                    *900100002',
             gl_date: '2022-10-12',
             supplier_code: 'xxxxxx',
-            method: 'CASH',
           },
           {
-            line_number: '00002',
+            line_number: '000002',
             dist_client_code: '074',
             dist_resp_code: '32L14',
             dist_service_line_code: '58200',
@@ -72,12 +67,12 @@ describe('Sales Controller (e2e)', () => {
             line_description: 'GA OFF# 00014 2022-08-05',
             gl_date: '2022-10-12',
             supplier_code: 'xxxxxx',
-            method: 'CASH',
           },
         ],
       })
-      .expect({}).expect(201);
-    console.log(resp.body);
+      .expect({})
+      .expect(201);
+
     return;
   });
 

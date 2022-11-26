@@ -56,6 +56,6 @@ export class SuccessResponseInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    return next.handle().pipe(map(responseBody => this.transformSuccess(responseBody)));
+    return next.handle().pipe(map((responseBody: any[]) => this.transformSuccess(responseBody)));
   }
 }

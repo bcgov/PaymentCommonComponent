@@ -1,11 +1,5 @@
 import serverlessExpress from '@vendia/serverless-express';
-import {
-  APIGatewayProxyEvent,
-  APIGatewayProxyResult,
-  Context,
-  Callback,
-  Handler,
-} from 'aws-lambda';
+import { APIGatewayProxyEvent, APIGatewayProxyResult, Context, Callback, Handler } from 'aws-lambda';
 import { createNestApp } from './app.config';
 
 let cachedServer: Handler;

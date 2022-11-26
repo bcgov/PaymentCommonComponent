@@ -1,11 +1,5 @@
-import {
-  Column,
-  DataType,
-} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import {
-  FixedWidthRecord,
-  IFixedWidthRecord,
-} from '../../common/fixedWidthRecord/fixedWidthRecord';
+import { Column, DataType } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import { FixedWidthRecord, IFixedWidthRecord } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   rcd_type: number;
@@ -27,10 +21,7 @@ export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   fill4: string;
 }
 
-export class TDI34Details
-  extends FixedWidthRecord<ITDI34Details>
-  implements ITDI34Details
-{
+export class TDI34Details extends FixedWidthRecord<ITDI34Details> implements ITDI34Details {
   public static readonly resourceType = 'TDI34Details';
 
   constructor(init?: any) {
@@ -129,7 +120,7 @@ export class TDI34Details
   public set transaction_cd(data) {
     this.resource.transaction_cd = data;
   }
-  
+
   @Column({ start: 69, width: 3, format: { type: DataType.Integer } })
   public get fill2() {
     return this.resource.fill2;

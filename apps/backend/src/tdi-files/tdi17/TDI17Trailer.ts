@@ -1,11 +1,5 @@
-import {
-  Column,
-  DataType,
-} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import {
-  FixedWidthRecord,
-  IFixedWidthRecord,
-} from '../../common/fixedWidthRecord/fixedWidthRecord';
+import { Column, DataType } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import { FixedWidthRecord, IFixedWidthRecord } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI17Trailer extends IFixedWidthRecord<ITDI17Trailer> {
   rcd_type: string;
@@ -14,10 +8,7 @@ export interface ITDI17Trailer extends IFixedWidthRecord<ITDI17Trailer> {
   filler: string;
 }
 
-export class TDI17Trailer
-  extends FixedWidthRecord<ITDI17Trailer>
-  implements ITDI17Trailer
-{
+export class TDI17Trailer extends FixedWidthRecord<ITDI17Trailer> implements ITDI17Trailer {
   public static readonly resourceType = 'TDI17Trailer';
 
   constructor(init?: any) {
@@ -55,7 +46,7 @@ export class TDI17Trailer
   public get filler() {
     return this.resource.filler;
   }
-  
+
   public set filler(data) {
     this.resource.filler = data;
   }

@@ -1,13 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsNotEmpty,
-  IsIn,
-  IsString,
-  Length,
-  IsDateString,
-  IsNumber,
-  IsNumberString,
-} from 'class-validator';
+import { IsNotEmpty, IsIn, IsString, Length, IsDateString, IsNumber, IsNumberString } from 'class-validator';
 
 /* 
   Chart Of Accounts Definitions: 
@@ -73,7 +65,8 @@ export class DistributionDTO {
 
   // 29K0230 - Project Code
   @ApiProperty({
-    description: '7 Character Project Code - identifies projects or additional activity detail as defined by ministries or agencies',
+    description:
+      '7 Character Project Code - identifies projects or additional activity detail as defined by ministries or agencies',
     example: '29KGT',
   })
   @IsString()
@@ -83,7 +76,8 @@ export class DistributionDTO {
 
   // 000000 - Location Code
   @ApiProperty({
-    description: ' 6 Character Location Code - (not yet implemented) defines where (the location) the benefit was received as a result of the transaction.',
+    description:
+      ' 6 Character Location Code - (not yet implemented) defines where (the location) the benefit was received as a result of the transaction.',
     example: '000000',
   })
   @IsString()
@@ -104,7 +98,7 @@ export class DistributionDTO {
   // 25.25 - Line Amount
   @ApiProperty({
     description: 'Distribution amount to the CoA',
-    example: 50.00,
+    example: 50.0,
   })
   @ApiProperty()
   @IsNumber()
@@ -114,7 +108,7 @@ export class DistributionDTO {
   // C or D - Credit or Debit
   @ApiProperty({
     description: 'Credit or Debit Indicator',
-    example: 50.00,
+    example: 50.0,
   })
   @IsString()
   @IsNotEmpty()
@@ -124,7 +118,7 @@ export class DistributionDTO {
   //
   @ApiProperty({
     description: 'Free text description of the distribution',
-    example: "lorem ipsum dolor sit amet",
+    example: 'lorem ipsum dolor sit amet',
   })
   @IsString()
   @Length(0, 100)
@@ -140,7 +134,7 @@ export class DistributionDTO {
   // Supplier Code
   @ApiProperty({
     description: 'Free text description of the distribution',
-    example: "lorem ipsum dolor sit amet",
+    example: 'lorem ipsum dolor sit amet',
   })
   @IsString()
   @Length(6, 9)

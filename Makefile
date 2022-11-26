@@ -1,5 +1,3 @@
-
-
 # Project
 export PROJECT := pcc
 
@@ -21,6 +19,8 @@ export TF_BACKEND_CFG
 export COMMIT_SHA:=$(shell git rev-parse --short=7 HEAD)
 export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-color --format="%h, %cn, %f, %D" | sed 's/->/:/')
 
+export GIT_LOCAL_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
+export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
 # Terraform variables
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
@@ -162,3 +162,38 @@ parse-local-tdi17:
 parse-local-tdi34: 			
 	NODE_ENV=local RUNTIME_ENV=local ts-node -e 'require("./apps/backend/src/lambdas/parseTDI.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
 	 
+# ===================================
+# Local Dev Environmentq
+# ===================================
+
+build-local:
+	@docker-compose up --build -d --force-recreate
+
+run-local:
+	@docker-compose up -d
+
+local-backend-workspace:
+	@docker exec -it $(PROJECT)-backend sh
+
+localstack-workspace:
+	@docker exec -it $(PROJECT)-localstack sh
+
+local-backend-logs:
+	@docker logs $(PROJECT)-backend --follow --tail 25
+
+localstack-logs:
+	@docker logs $(PROJECT)-localstack --follow --tail 25
+
+close-local:
+	@docker-compose down -v --remove-orphans
+
+run-test:
+	@echo "+\n++ Make: Running test build ...\n+"
+	@docker-compose -f docker-compose.test.yml up -d
+
+run-test-pipeline:
+	@docker exec -i $(PROJECT)-backend-test yarn run test:pipeline
+
+close-test:
+	@echo "+\n++ Make: Closing test container ...\n+"
+	@docker-compose -f docker-compose.test.yml down

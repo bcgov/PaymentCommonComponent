@@ -1,8 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { AppLogger } from '../common/logger.service';
-import { SalesController } from './sales.controller';
-import { SalesService } from './sales.service';
+import { SalesController } from '../src/sales/sales.controller';
+import { SalesService } from '../src/sales/sales.service';
 
 describe('SalesController', () => {
   let controller: SalesController;

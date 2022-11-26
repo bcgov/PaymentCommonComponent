@@ -6,6 +6,6 @@ import { SalesService } from './sales.service';
 @Module({
   imports: [FirehoseModule],
   controllers: [SalesController],
-  providers: [SalesService, Logger]
+  providers: [SalesService, Logger],
 })
 export class SalesModule {}

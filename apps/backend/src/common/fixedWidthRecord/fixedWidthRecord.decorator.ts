@@ -29,9 +29,7 @@ export function Column(options: ColumnOptions): any {
     if (!Reflect.hasOwnMetadata(ColumnVariableKey, target.constructor)) {
       Reflect.defineMetadata(ColumnVariableKey, [], target.constructor);
     }
-    Reflect.getOwnMetadata(ColumnVariableKey, target.constructor).push(
-      propertyKey,
-    );
+    Reflect.getOwnMetadata(ColumnVariableKey, target.constructor).push(propertyKey);
     Reflect.defineMetadata(ColumnMetadataKey, options, target, propertyKey);
   };
 }

@@ -5,5 +5,4 @@ import { FirehoseService } from './firehose.service';
   providers: [FirehoseService],
   exports: [FirehoseService],
 })
-
 export class FirehoseModule {}

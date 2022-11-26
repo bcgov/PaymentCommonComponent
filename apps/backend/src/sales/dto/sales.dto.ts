@@ -37,8 +37,7 @@ export class SalesDTO {
   sale_date!: string;
 
   @ApiProperty({
-    description:
-      'Journal Name - Prefixed with 2 character Ministry Alpha identifier',
+    description: 'Journal Name - Prefixed with 2 character Ministry Alpha identifier',
     example: 'SM J000001',
   })
   @IsString()
@@ -52,11 +51,10 @@ export class SalesDTO {
   ministry_alpha_identifier!: string;
 
   // 150.50 - Amount
-  @ApiProperty({ description: 'Total Value of the Txn', example: 150.50 })
+  @ApiProperty({ description: 'Total Value of the Txn', example: 150.5 })
   @IsNumber()
   @IsNotEmpty()
   total_amount!: number;
-
 
   @ApiProperty({
     type: PaymentMethodDTO,
@@ -91,8 +89,7 @@ export class SalesDTO {
 
   @ApiProperty({
     type: DistributionDTO,
-    description:
-      'Distribution of funds to other ministries and program areas by GL codes',
+    description: 'Distribution of funds to other ministries and program areas by GL codes',
     example: [
       {
         line_number: '00001',
@@ -103,12 +100,11 @@ export class SalesDTO {
         dist_project_code: '29K0230',
         dist_location_code: '000000',
         dist_future_code: '0000',
-        line_amount: 150.50,
+        line_amount: 150.5,
         line_code: 'C',
-        line_description:
-          'GA OFF# 00002 2022-08-05                    *900100002',
+        line_description: 'GA OFF# 00002 2022-08-05                    *900100002',
         gl_date: '2022-10-12',
-        supplier_code: 'xxxxxx'
+        supplier_code: 'xxxxxx',
       },
       {
         line_number: '00002',
@@ -119,11 +115,11 @@ export class SalesDTO {
         dist_project_code: '3200000',
         dist_location_code: '000000',
         dist_future_code: '0000',
-        line_amount: 150.50,
+        line_amount: 150.5,
         line_code: 'D',
         line_description: 'GA OFF# 00014 2022-08-05',
         gl_date: '2022-10-12',
-        supplier_code: 'xxxxxx'
+        supplier_code: 'xxxxxx',
       },
     ],
   })

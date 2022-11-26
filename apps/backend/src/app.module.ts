@@ -15,10 +15,7 @@ import { Firehose, S3 } from 'aws-sdk';
     SalesModule,
     FirehoseModule,
     ConfigModule.forRoot({
-      ignoreEnvFile:
-        process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
-          ? false
-          : true,
+      ignoreEnvFile: process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test' ? false : true,
     }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {

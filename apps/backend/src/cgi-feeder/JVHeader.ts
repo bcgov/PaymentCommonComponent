@@ -1,11 +1,5 @@
-import {
-  Column,
-  DataType,
-} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import {
-  FixedWidthRecord,
-  IFixedWidthRecord,
-} from '../common/fixedWidthRecord/fixedWidthRecord';
+import { Column, DataType } from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import { FixedWidthRecord, IFixedWidthRecord } from '../common/fixedWidthRecord/fixedWidthRecord';
 import { SalesDTO } from '../sales/dto/sales.dto';
 import { FEEDER_NUMBER } from './constants';
 

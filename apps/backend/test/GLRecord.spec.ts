@@ -1,5 +1,5 @@
-import { GLRecord } from '../';
-import { SalesDTO } from '../../sales/dto/sales.dto';
+import { GLRecord } from '../src/cgi-feeder/GLRecord';
+import { SalesDTO } from '../src/sales/dto/sales.dto';
 
 const salesRecord = require('./fixtures/sale.json');
 describe('GLRecord', () => {
@@ -8,4 +8,3 @@ describe('GLRecord', () => {
     expect(glRecord.batchHeader).toHaveProperty('transactionType', 'BH');
   });
 });
-
