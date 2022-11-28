@@ -11,7 +11,6 @@ includes:
   - userguide
   - api
   - readme.md
-  - test
 
 search: true
 highlight_theme: darkula

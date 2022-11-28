@@ -4,7 +4,7 @@ Aliquam metus, vivamus hac venenatis nullam. Duis imperdiet aenean scelerisque, 
 
 ## 1.1. The definitions of terms
 
-### EXAMPLE
+###  EXAMPLE
 
 Libero Duis Habitant Leo Non Felis Massa Diam Justo Imperdiet Dictum Sapien Taciti Sollicitudin Phasellus Interdum Cubilia Inceptos Nulla Litora Quisque Congue Gravida Sodales Ultricies Mattis Faucibus Lacinia Sapien Feugiat Sem Congue Fermentum Magna Ipsum Rutrum Ipsum Aptent Odio Dui Condimentum Etiam Venenatis Etiam Ac Consequat Dui Mattis Euismod Hac
 
