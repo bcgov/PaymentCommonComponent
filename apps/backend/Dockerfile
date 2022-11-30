@@ -21,8 +21,6 @@ RUN yarn set version 3.2.3
 
 RUN yarn 
 
-COPY ./yarn/install-state.gz ./.yarn/install-state.gz
-
 COPY . .
 
 ENV PORT=3000
