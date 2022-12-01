@@ -18,7 +18,7 @@ export interface IntOptions {
 
 export enum DataType {
   Float = 'Float',
-  Integer = 'Integer ',
+  Integer = 'Integer '
 }
 
 export const ColumnMetadataKey = Symbol('Column:metadata');
@@ -30,7 +30,7 @@ export function Column(options: ColumnOptions): any {
       Reflect.defineMetadata(ColumnVariableKey, [], target.constructor);
     }
     Reflect.getOwnMetadata(ColumnVariableKey, target.constructor).push(
-      propertyKey,
+      propertyKey
     );
     Reflect.defineMetadata(ColumnMetadataKey, options, target, propertyKey);
   };

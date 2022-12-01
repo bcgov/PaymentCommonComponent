@@ -3,11 +3,11 @@ import {
   BadRequestException,
   ValidationError,
   ValidationPipe,
-  ValidationPipeOptions,
+  ValidationPipeOptions
 } from '@nestjs/common';
 import {
   ExpressAdapter,
-  NestExpressApplication,
+  NestExpressApplication
 } from '@nestjs/platform-express';
 import express from 'express';
 
@@ -32,27 +32,27 @@ export const validationPipeConfig: ValidationPipeOptions = {
   disableErrorMessages: true,
   exceptionFactory: (errors) => {
     const getErrorMessages = (
-      error: ValidationError,
+      error: ValidationError
     ): ValidationErrorMessage[] => {
       const messages: ValidationErrorMessage[] = [];
       if (error.constraints) {
         messages.push({
           property: error.property,
-          errors: Object.values(error.constraints),
+          errors: Object.values(error.constraints)
         });
       }
       if (error.children && error.children?.length > 0) {
         messages.push(
           ...error.children
             .map(getErrorMessages)
-            .reduce((a, c) => a.concat(c), []),
+            .reduce((a, c) => a.concat(c), [])
         );
       }
       return messages;
     };
     const errorMessages = errors.map((error) => getErrorMessages(error));
     throw new BadRequestException(errorMessages);
-  },
+  }
 };
 
 export async function createNestApp(): Promise<{
@@ -65,14 +65,17 @@ export async function createNestApp(): Promise<{
 
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
-  if (process.env.RUNTIME_ENV === 'local') {
+  if (
+    process.env.RUNTIME_ENV === 'local' ||
+    process.env.RUNTIME_ENV === 'test'
+  ) {
     app = await NestFactory.create(AppModule, {
-      logger: new AppLogger(),
+      logger: new AppLogger()
     });
   } else {
     app = await NestFactory.create<NestExpressApplication>(
       AppModule,
-      new ExpressAdapter(expressApp),
+      new ExpressAdapter(expressApp)
     );
     // Adding winston logger
     app.useLogger(new AppLogger());
@@ -85,7 +88,6 @@ export async function createNestApp(): Promise<{
   app.setGlobalPrefix(API_PREFIX);
 
   Documentation(app);
-
 
   // Interceptor
   app.useGlobalInterceptors(new SuccessResponseInterceptor());
@@ -103,10 +105,10 @@ export async function createNestApp(): Promise<{
     envName: process.env.ENV_NAME,
     nodeEnv: process.env.NODE_ENV,
     runtimeEnv: process.env.RUNTIME_ENV,
-    alertsEnabled: Boolean(false),
+    alertsEnabled: Boolean(false)
   });
   return {
     app,
-    expressApp,
+    expressApp
   };
 }

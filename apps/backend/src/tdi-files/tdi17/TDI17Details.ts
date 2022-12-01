@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
@@ -103,7 +103,7 @@ export class TDI17Details
   @Column({
     start: 24,
     width: 3,
-    format: { type: DataType.Integer },
+    format: { type: DataType.Integer }
   })
   public get seq_no() {
     return this.resource.seq_no;
@@ -121,7 +121,7 @@ export class TDI17Details
   public set location_desc(data) {
     this.resource.location_desc = data;
   }
-  
+
   @Column({ start: 67, width: 12, format: { type: DataType.Integer } })
   public get deposit_amt_curr() {
     return this.resource.deposit_amt_curr;
@@ -143,7 +143,7 @@ export class TDI17Details
   @Column({
     start: 82,
     width: 12,
-    format: { type: DataType.Integer },
+    format: { type: DataType.Integer }
   })
   public get exchange_adj_amt(): number {
     return this.resource.exchange_adj_amt;

@@ -3,9 +3,8 @@ import {
   ColumnMetadataKey,
   ColumnOptions,
   ColumnVariableKey,
-  DataType,
+  DataType
 } from './fixedWidthRecord.decorator';
-
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
@@ -29,10 +28,9 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
     const delimiter = (this.constructor as any).delimiter;
     if (delimiter) {
       data.delimiter = delimiter;
-    } 
+    }
   }
   public convertToJson(line: string): void {
-
     FixedWidthRecord.convertToJson(line, this);
   }
 
@@ -42,14 +40,14 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
 
   static convertToJson<T extends Record<string, any>>(
     line: string,
-    target: T,
+    target: T
   ): T {
     const fields = this.getAllFields(target.constructor);
     for (const field of fields) {
       const options: ColumnOptions = Reflect.getMetadata(
         ColumnMetadataKey,
         target,
-        field,
+        field
       );
       const value = line
         .substring(options.start, options.start + options.width)
@@ -60,7 +58,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
           (target as any)[field] = parseInt(value);
         } else if (options.format.type === DataType.Float) {
           (target as any)[field] = Number(
-            parseFloat(value).toFixed(options.format.precision || 2),
+            parseFloat(value).toFixed(options.format.precision || 2)
           );
         }
       }
@@ -76,12 +74,12 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
     if (!clz) return [];
     const fields: string[] | undefined = Reflect.getMetadata(
       ColumnVariableKey,
-      clz,
+      clz
     );
     // get `__proto__` and (recursively) all parent classes
     const rs = new Set([
       ...(fields || []),
-      ...this.getAllFields(Object.getPrototypeOf(clz)),
+      ...this.getAllFields(Object.getPrototypeOf(clz))
     ]);
     return Array.from(rs);
   }
@@ -92,11 +90,11 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
       const options: ColumnOptions = Reflect.getMetadata(
         ColumnMetadataKey,
         target,
-        field,
+        field
       );
       return {
         field,
-        options,
+        options
       };
     });
     fieldsWithMeta.sort((a, b) => {
@@ -118,7 +116,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
         result = Buffer.concat([
           result.slice(0, pos + 1),
           Buffer.from(target.delimiter?.value),
-          result.slice(pos + 1),
+          result.slice(pos + 1)
         ]);
       });
     }

@@ -7,7 +7,7 @@ export const PaymentMethods = [
   'POS_CREDIT',
   'POS_DEBIT',
   'ONL_CREDIT',
-  'ONL_DEBIT',
+  'ONL_DEBIT'
 ];
 
 export class PaymentMethodDTO {
@@ -20,7 +20,7 @@ export class PaymentMethodDTO {
   @ApiProperty({
     description: 'Method Of Payment',
     example: 'CASH',
-    enum: PaymentMethods,
+    enum: PaymentMethods
   })
   @IsString()
   @Length(1, 10)

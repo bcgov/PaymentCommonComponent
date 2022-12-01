@@ -7,7 +7,7 @@ import { FirehoseService } from '../firehose/firehose.service';
 export class SalesService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
-    @Inject(FirehoseService) private readonly firehoseService: FirehoseService,
+    @Inject(FirehoseService) private readonly firehoseService: FirehoseService
   ) {}
 
   // validateDistributions()
@@ -15,12 +15,11 @@ export class SalesService {
   async saveSalesEvent(event: SalesDTO) {
     this.appLogger.log(event);
     try {
-      const puts = await (
+      await (
         await this.firehoseService.putRecord(
-          event as unknown as Record<string, string>,
+          event as unknown as Record<string, string>
         )
       ).promise();
-      console.log(puts);
     } catch (err) {
       this.appLogger.error(err);
       throw err;

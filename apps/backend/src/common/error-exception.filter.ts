@@ -6,7 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-  Inject,
+  Inject
 } from '@nestjs/common';
 import { Response } from 'express';
 import { FailedResponse } from './ro/failed-response.ro';
@@ -36,7 +36,7 @@ export class ErrorExceptionFilter implements ExceptionFilter {
         (exception as any)?.response?.message ||
         CommonError.INTERNAL_ERROR.errorMessage,
 
-      errorDetails: {},
+      errorDetails: {}
     };
   }
 
@@ -48,7 +48,9 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
     const status =
-      exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
     const request = ctx.getRequest();
     /** Flat error if it was wrapped inside another error */
     const flattenedException =
@@ -58,8 +60,11 @@ export class ErrorExceptionFilter implements ExceptionFilter {
         : exception;
 
     const privateKeys: string[] = ['password', 'payload'];
-    const body = typeof request.body === 'string' ? JSON.parse(request.body) : request.body;
-    privateKeys.forEach(key => {
+    const body =
+      typeof request.body === 'string'
+        ? JSON.parse(request.body)
+        : request.body;
+    privateKeys.forEach((key) => {
       if (body[key]) {
         delete body[key];
       }
@@ -68,6 +73,8 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     // Log errors
     this.logger.error(flattenedException, 'ExceptionFilter');
 
-    response.status(status).json(this.transformHttpException(flattenedException));
+    response
+      .status(status)
+      .json(this.transformHttpException(flattenedException));
   }
 }

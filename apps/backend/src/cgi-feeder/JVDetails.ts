@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../common/fixedWidthRecord/fixedWidthRecord';
 import { transformSalesEventOptions } from '../common/fixedWidthRecord/Resource';
 import { DistributionDTO } from '../sales/dto/distribution.dto';
@@ -36,7 +36,7 @@ export class JVDetails
   public static readonly delimiter = {
     value: '',
     positions: [8, 317],
-    length: 1,
+    length: 1
   };
   constructor(init?: any) {
     super(init);
@@ -44,7 +44,7 @@ export class JVDetails
 
   public static transformSalesEvent(
     record: DistributionDTO,
-    options: transformSalesEventOptions,
+    options: transformSalesEventOptions
   ) {
     return new JVDetails({
       feederNumber1: FEEDER_NUMBER,
@@ -58,7 +58,7 @@ export class JVDetails
       amountOfLine: record.line_amount,
       lineCode: record.line_code,
       lineDescription: record.line_description,
-      flowThru: '',
+      flowThru: ''
     });
   }
 
@@ -165,7 +165,7 @@ export class JVDetails
   public get flowThru() {
     return this.resource.flowThru;
   }
-  
+
   public set flowThru(data) {
     this.resource.flowThru = data;
   }

@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI17Header extends IFixedWidthRecord<ITDI17Header> {

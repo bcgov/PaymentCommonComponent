@@ -1,8 +1,5 @@
 import { LoggerService } from '@nestjs/common';
-import {
-  WinstonModule,
-  utilities as nestWinstonModuleUtilities,
-} from 'nest-winston';
+import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
 import axios from 'axios';
 
@@ -11,10 +8,8 @@ export class AppLogger implements LoggerService {
 
   constructor() {
     this.logger = WinstonModule.createLogger({
-      transports: [
-        new winston.transports.Console({}),
-      ],
-      exitOnError: false,
+      transports: [new winston.transports.Console({})],
+      exitOnError: false
     });
   }
 
@@ -22,7 +17,7 @@ export class AppLogger implements LoggerService {
     this.logger.log(message, context);
   }
 
-  async error(e: unknown, context?: string) {
+  async error(e: any, context?: string) {
     const error = e as Error & { response?: Error };
     let message: string | object = error.message;
 
@@ -33,9 +28,9 @@ export class AppLogger implements LoggerService {
     if (axios.isAxiosError(e)) {
       const { response, config } = e;
       message = {
-        url: config.url,
-        method: config.method,
-        ...(response?.data ? { data: response.data } : {}),
+        url: config?.url,
+        method: config?.method,
+        ...(response?.data ? { data: response.data } : {})
       };
     }
 

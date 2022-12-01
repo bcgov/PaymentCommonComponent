@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
@@ -111,7 +111,7 @@ export class TDI34Details
 
   @Column({
     start: 59,
-    width: 8,
+    width: 8
   })
   public get settlement_date() {
     return this.resource.settlement_date;
@@ -129,7 +129,7 @@ export class TDI34Details
   public set transaction_cd(data) {
     this.resource.transaction_cd = data;
   }
-  
+
   @Column({ start: 69, width: 3, format: { type: DataType.Integer } })
   public get fill2() {
     return this.resource.fill2;
@@ -150,7 +150,7 @@ export class TDI34Details
 
   @Column({
     start: 78,
-    width: 2,
+    width: 2
   })
   public get fill3() {
     return this.resource.fill3;

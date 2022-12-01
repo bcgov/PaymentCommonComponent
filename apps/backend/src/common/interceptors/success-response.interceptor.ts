@@ -34,7 +34,8 @@ export class SuccessResponseInterceptor implements NestInterceptor {
    * @returns the response body as a SuccessResponse
    */
   transformSuccess(responseBody: object): SuccessResponse {
-    const containedSuccessResponse = this.getContainedSuccessResponse(responseBody);
+    const containedSuccessResponse =
+      this.getContainedSuccessResponse(responseBody);
     if (containedSuccessResponse) {
       return containedSuccessResponse;
     }
@@ -56,6 +57,8 @@ export class SuccessResponseInterceptor implements NestInterceptor {
       return next.handle();
     }
 
-    return next.handle().pipe(map(responseBody => this.transformSuccess(responseBody)));
+    return next
+      .handle()
+      .pipe(map((responseBody: any[]) => this.transformSuccess(responseBody)));
   }
 }

@@ -24,3 +24,4 @@ yarn.build.json
 ssh-keypair*
 
 .localstack
+.editorconfig

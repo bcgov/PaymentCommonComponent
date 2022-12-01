@@ -22,7 +22,7 @@ export const handler = async (event?: any, context?: Context) => {
 
     const contents = await s3manager.getContents(
       `bc-pcc-data-files-${process.env.NODE_ENV}`,
-      `${event.filepath}`,
+      `${event.filepath}`
     );
 
     await uploadParsedTDI(
@@ -30,6 +30,7 @@ export const handler = async (event?: any, context?: Context) => {
       s3manager,
       parseTDI(event.type, contents?.Body?.toString()),
       appLogger,
+      event?.outputPath
     );
   } catch (e) {
     appLogger.error(e);
@@ -38,9 +39,9 @@ export const handler = async (event?: any, context?: Context) => {
 
 const parseTDI = (type: string, fileContents?: string) => {
   const lines = fileContents?.split('\n').filter((l: string) => l);
-      lines?.splice(0, 1)
-      lines?.splice(lines.length-1, 1)
-      
+  lines?.splice(0, 1);
+  lines?.splice(lines.length - 1, 1);
+
   const detailsArr: (TDI34Details | TDI17Details)[] | undefined =
     lines &&
     lines.map((line: string) => {
@@ -50,7 +51,7 @@ const parseTDI = (type: string, fileContents?: string) => {
       return details;
     });
   return {
-    details: detailsArr?.map((itm: { resource: unknown }) => itm.resource),
+    details: detailsArr?.map((itm: { resource: unknown }) => itm.resource)
   };
 };
 
@@ -59,12 +60,13 @@ const uploadParsedTDI = async (
   s3manager: S3ManagerService,
   output: unknown,
   appLogger: AppLogger,
+  outputPath?: string
 ) => {
   try {
     await s3manager.putObject(
       `bc-pcc-data-files-${process.env.NODE_ENV}`,
-      `outputs/${type}/${Date.now()}_${type}.json`,
-      Buffer.from(JSON.stringify(output)),
+      outputPath ?? `outputs/${type}/${Date.now()}_${type}.json`,
+      Buffer.from(JSON.stringify(output))
     );
   } catch (e) {
     appLogger.error(e);

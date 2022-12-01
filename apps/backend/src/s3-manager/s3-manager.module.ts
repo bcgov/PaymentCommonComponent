@@ -9,6 +9,6 @@ import { Module } from '@nestjs/common';
   imports: [],
   controllers: [],
   providers: [S3ManagerService],
-  exports: [S3ManagerService],
+  exports: [S3ManagerService]
 })
 export class S3ManagerModule {}

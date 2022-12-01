@@ -4,7 +4,7 @@ export interface ResourceBase<T> {
   resourceType?: string;
   transformSalesEvent?(
     record: SalesDTO,
-    options: transformSalesEventOptions,
+    options: transformSalesEventOptions
   ): T;
 }
 

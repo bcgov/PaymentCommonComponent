@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../common/fixedWidthRecord/fixedWidthRecord';
 import { FEEDER_NUMBER } from './constants';
 
@@ -31,7 +31,7 @@ export class BatchTrailer
   public static readonly delimiter = {
     value: '',
     positions: [8, 56],
-    length: 1,
+    length: 1
   };
 
   @Column({ start: 0, width: 4, format: { type: DataType.Integer } })
@@ -115,7 +115,7 @@ export class BatchTrailer
       fiscalYear: 2023, //TODO track fiscal year
       batchNumber: '',
       controlCount: count,
-      controlTotal: total,
+      controlTotal: total
     });
   }
 }

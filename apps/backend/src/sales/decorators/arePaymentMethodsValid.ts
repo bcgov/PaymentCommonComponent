@@ -2,7 +2,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
   ValidationArguments,
-  isArray,
+  isArray
 } from 'class-validator';
 import { PaymentMethodDTO } from '../dto/paymentMethod.dto';
 import { SalesDTO } from '../dto/sales.dto';
@@ -16,11 +16,11 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
 
   public async validate(
     paymentMethods: PaymentMethodDTO[],
-    args: ValidationArguments,
+    args: ValidationArguments
   ) {
     const sales = args.object as SalesDTO;
 
-    if(!isArray(paymentMethods)){
+    if (!isArray(paymentMethods)) {
       this.errorMessage = `Distributions must be an array`;
       return false;
     }

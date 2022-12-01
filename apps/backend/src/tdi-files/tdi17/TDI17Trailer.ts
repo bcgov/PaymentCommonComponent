@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI17Trailer extends IFixedWidthRecord<ITDI17Trailer> {
@@ -55,7 +55,7 @@ export class TDI17Trailer
   public get filler() {
     return this.resource.filler;
   }
-  
+
   public set filler(data) {
     this.resource.filler = data;
   }

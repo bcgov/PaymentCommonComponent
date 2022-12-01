@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../common/fixedWidthRecord/fixedWidthRecord';
 import { SalesDTO } from '../sales/dto/sales.dto';
 import { FEEDER_NUMBER } from './constants';
@@ -32,7 +32,7 @@ export class JVHeader extends FixedWidthRecord<IJVHeader> implements IJVHeader {
   public static readonly delimiter = {
     value: '',
     positions: [8, 273],
-    length: 1,
+    length: 1
   };
 
   public static transformSalesEvent(record: SalesDTO) {
@@ -46,7 +46,7 @@ export class JVHeader extends FixedWidthRecord<IJVHeader> implements IJVHeader {
       recordType: JV_HEADER_RECORD_TYPE,
       countryCurrencyCode: JV_HEADER_CURRENCY_CODE,
       externalReferenceSource: '',
-      FlowThru: '',
+      FlowThru: ''
     });
   }
 

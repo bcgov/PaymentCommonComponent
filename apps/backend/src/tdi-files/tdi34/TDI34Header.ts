@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType,
+  DataType
 } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord,
+  IFixedWidthRecord
 } from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI34Header extends IFixedWidthRecord<ITDI34Header> {
@@ -36,7 +36,7 @@ export class TDI34Header
   public get settlement_date() {
     return this.resource.settlement_date;
   }
-  
+
   public set settlement_date(data) {
     this.resource.settlement_date = data;
   }
@@ -45,7 +45,7 @@ export class TDI34Header
   public get filler() {
     return this.resource.filler;
   }
-  
+
   public set filler(data) {
     this.resource.filler = data;
   }

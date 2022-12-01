@@ -4,7 +4,7 @@ import {
   APIGatewayProxyResult,
   Context,
   Callback,
-  Handler,
+  Handler
 } from 'aws-lambda';
 import { createNestApp } from './app.config';
 
@@ -22,7 +22,7 @@ async function bootstrap() {
 export const handler: Handler = async (
   event: APIGatewayProxyEvent,
   context: Context,
-  callback: Callback,
+  callback: Callback
 ): Promise<APIGatewayProxyResult> => {
   const cachedServerHandler = await bootstrap();
   return cachedServerHandler(event, context, callback);

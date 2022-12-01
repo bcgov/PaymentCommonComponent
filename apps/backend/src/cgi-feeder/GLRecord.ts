@@ -31,9 +31,9 @@ export class GLRecord extends Resource<IGLRecord> implements IGLRecord {
       batchHeader: BatchHeader.generate(),
       trailer: BatchTrailer.generate(
         records.length,
-        records.reduce((acc, record) => acc + record.total_amount, 0),
+        records.reduce((acc, record) => acc + record.total_amount, 0)
       ),
-      jv: records.map((record) => JV.transformSalesEvent(record)),
+      jv: records.map((record) => JV.transformSalesEvent(record))
     });
   }
 }

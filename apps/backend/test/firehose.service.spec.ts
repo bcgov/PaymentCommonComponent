@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { FirehoseService } from './firehose.service';
+import { FirehoseService } from '../src/firehose/firehose.service';
 
 describe('FirehoseService', () => {
   let service: FirehoseService;
@@ -10,9 +10,9 @@ describe('FirehoseService', () => {
         FirehoseService,
         {
           provide: 'AWS_SERVICE_FIREHOSE',
-          useValue: jest.fn(),
-        },
-      ],
+          useValue: jest.fn()
+        }
+      ]
     }).compile();
 
     service = module.get<FirehoseService>(FirehoseService);
