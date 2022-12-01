@@ -1,5 +1,11 @@
-import { Column, DataType } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import { FixedWidthRecord, IFixedWidthRecord } from '../../common/fixedWidthRecord/fixedWidthRecord';
+import {
+  Column,
+  DataType
+} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import {
+  FixedWidthRecord,
+  IFixedWidthRecord
+} from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI34Header extends IFixedWidthRecord<ITDI34Header> {
   rcd_type: string;
@@ -7,7 +13,10 @@ export interface ITDI34Header extends IFixedWidthRecord<ITDI34Header> {
   filler: string;
 }
 
-export class TDI34Header extends FixedWidthRecord<ITDI34Header> implements ITDI34Header {
+export class TDI34Header
+  extends FixedWidthRecord<ITDI34Header>
+  implements ITDI34Header
+{
   public static readonly resourceType = 'TDI34Header';
 
   constructor(init?: any) {

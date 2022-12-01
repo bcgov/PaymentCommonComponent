@@ -1,5 +1,11 @@
 import serverlessExpress from '@vendia/serverless-express';
-import { APIGatewayProxyEvent, APIGatewayProxyResult, Context, Callback, Handler } from 'aws-lambda';
+import {
+  APIGatewayProxyEvent,
+  APIGatewayProxyResult,
+  Context,
+  Callback,
+  Handler
+} from 'aws-lambda';
 import { createNestApp } from './app.config';
 
 let cachedServer: Handler;
@@ -16,7 +22,7 @@ async function bootstrap() {
 export const handler: Handler = async (
   event: APIGatewayProxyEvent,
   context: Context,
-  callback: Callback,
+  callback: Callback
 ): Promise<APIGatewayProxyResult> => {
   const cachedServerHandler = await bootstrap();
   return cachedServerHandler(event, context, callback);

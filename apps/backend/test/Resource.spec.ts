@@ -6,9 +6,9 @@ describe('Resource', () => {
     try {
       new TestResource({});
     } catch (e) {
-        expect(e instanceof Error).toBeTruthy();
-        // TODO: check error message
-        // expect(e?.message).toBe('no resource type specified on TestResource');
+      expect(e instanceof Error).toBeTruthy();
+      // TODO: check error message
+      // expect(e?.message).toBe('no resource type specified on TestResource');
     }
   });
 });

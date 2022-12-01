@@ -9,7 +9,10 @@ export interface ITDI34Record extends ResourceBase<ITDI34Record> {
   trailer: TDI34Trailer;
 }
 
-export class TDI34Record extends Resource<ITDI34Record> implements ITDI34Record {
+export class TDI34Record
+  extends Resource<ITDI34Record>
+  implements ITDI34Record
+{
   public static readonly resourceType = 'TDI34Record';
 
   constructor(init?: any) {

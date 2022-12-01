@@ -1,5 +1,11 @@
-import { Column, DataType } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import { FixedWidthRecord, IFixedWidthRecord } from '../../common/fixedWidthRecord/fixedWidthRecord';
+import {
+  Column,
+  DataType
+} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import {
+  FixedWidthRecord,
+  IFixedWidthRecord
+} from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI17Header extends IFixedWidthRecord<ITDI17Header> {
   rcd_type: string;
@@ -13,7 +19,10 @@ export interface ITDI17Header extends IFixedWidthRecord<ITDI17Header> {
   to_date: string;
   filler: string;
 }
-export class TDI17Header extends FixedWidthRecord<ITDI17Header> implements ITDI17Header {
+export class TDI17Header
+  extends FixedWidthRecord<ITDI17Header>
+  implements ITDI17Header
+{
   public static readonly resourceType = 'TDI17Header';
 
   constructor(init?: any) {

@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsIn, IsString, Length, IsDateString, IsNumber, IsNumberString } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsIn,
+  IsString,
+  Length,
+  IsDateString,
+  IsNumber,
+  IsNumberString
+} from 'class-validator';
 
 /* 
   Chart Of Accounts Definitions: 
@@ -9,10 +17,10 @@ export class DistributionDTO {
   // 00001
   @ApiProperty({
     description: 'Sequential 6 digit line numbers',
-    example: '00001',
+    example: '00001'
   })
   @IsNumberString({
-    no_symbols: true,
+    no_symbols: true
   })
   @IsString()
   @IsNotEmpty()
@@ -23,7 +31,7 @@ export class DistributionDTO {
   @ApiProperty({
     description:
       '3 character Client Number - the legal entity (Ministry, Trust, Special Account, Special Fund) and the balancing segment in the General Ledger.',
-    example: '130',
+    example: '130'
   })
   @IsString()
   @IsNotEmpty()
@@ -34,7 +42,7 @@ export class DistributionDTO {
   @ApiProperty({
     description:
       '5 Character Responsibility Centre - identifies how the ministry has assigned responsibility and accountability to manage human, financial and capital resources.',
-    example: '29KGT',
+    example: '29KGT'
   })
   @IsString()
   @IsNotEmpty()
@@ -45,7 +53,7 @@ export class DistributionDTO {
   @ApiProperty({
     description:
       '5 Character Service Line Code -  identifies the ministry program or service at the lowest functional level desired.',
-    example: '38513',
+    example: '38513'
   })
   @IsString()
   @IsNotEmpty()
@@ -56,7 +64,7 @@ export class DistributionDTO {
   @ApiProperty({
     description:
       '4 Character STOB (Standard Object of Expenditure) -  identifies the nature of goods and services purchased (office supplies, salaries) and the nature of payment (government transfers). Also used to classify transactions according to common characteristics such as expenses, revenue, assets, liabilities and equity.',
-    example: '4303',
+    example: '4303'
   })
   @IsString()
   @IsNotEmpty()
@@ -67,7 +75,7 @@ export class DistributionDTO {
   @ApiProperty({
     description:
       '7 Character Project Code - identifies projects or additional activity detail as defined by ministries or agencies',
-    example: '29KGT',
+    example: '29KGT'
   })
   @IsString()
   @IsNotEmpty()
@@ -78,7 +86,7 @@ export class DistributionDTO {
   @ApiProperty({
     description:
       ' 6 Character Location Code - (not yet implemented) defines where (the location) the benefit was received as a result of the transaction.',
-    example: '000000',
+    example: '000000'
   })
   @IsString()
   @IsNotEmpty()
@@ -87,8 +95,9 @@ export class DistributionDTO {
 
   // 0000 - Future Code
   @ApiProperty({
-    description: '5 Character Future Code -  (not yet implemented) segment reserved for future business.',
-    example: '0000',
+    description:
+      '5 Character Future Code -  (not yet implemented) segment reserved for future business.',
+    example: '0000'
   })
   @IsString()
   @IsNotEmpty()
@@ -98,7 +107,7 @@ export class DistributionDTO {
   // 25.25 - Line Amount
   @ApiProperty({
     description: 'Distribution amount to the CoA',
-    example: 50.0,
+    example: 50.0
   })
   @ApiProperty()
   @IsNumber()
@@ -108,7 +117,7 @@ export class DistributionDTO {
   // C or D - Credit or Debit
   @ApiProperty({
     description: 'Credit or Debit Indicator',
-    example: 50.0,
+    example: 50.0
   })
   @IsString()
   @IsNotEmpty()
@@ -118,7 +127,7 @@ export class DistributionDTO {
   //
   @ApiProperty({
     description: 'Free text description of the distribution',
-    example: 'lorem ipsum dolor sit amet',
+    example: 'lorem ipsum dolor sit amet'
   })
   @IsString()
   @Length(0, 100)
@@ -134,7 +143,7 @@ export class DistributionDTO {
   // Supplier Code
   @ApiProperty({
     description: 'Free text description of the distribution',
-    example: 'lorem ipsum dolor sit amet',
+    example: 'lorem ipsum dolor sit amet'
   })
   @IsString()
   @Length(6, 9)

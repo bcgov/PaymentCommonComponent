@@ -1,6 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import { BadRequestException, ValidationError, ValidationPipe, ValidationPipeOptions } from '@nestjs/common';
-import { ExpressAdapter, NestExpressApplication } from '@nestjs/platform-express';
+import {
+  BadRequestException,
+  ValidationError,
+  ValidationPipe,
+  ValidationPipeOptions
+} from '@nestjs/common';
+import {
+  ExpressAdapter,
+  NestExpressApplication
+} from '@nestjs/platform-express';
 import express from 'express';
 
 import { AppModule } from './app.module';
@@ -22,23 +30,29 @@ export const validationPipeConfig: ValidationPipeOptions = {
   forbidNonWhitelisted: false,
   enableDebugMessages: false,
   disableErrorMessages: true,
-  exceptionFactory: errors => {
-    const getErrorMessages = (error: ValidationError): ValidationErrorMessage[] => {
+  exceptionFactory: (errors) => {
+    const getErrorMessages = (
+      error: ValidationError
+    ): ValidationErrorMessage[] => {
       const messages: ValidationErrorMessage[] = [];
       if (error.constraints) {
         messages.push({
           property: error.property,
-          errors: Object.values(error.constraints),
+          errors: Object.values(error.constraints)
         });
       }
       if (error.children && error.children?.length > 0) {
-        messages.push(...error.children.map(getErrorMessages).reduce((a, c) => a.concat(c), []));
+        messages.push(
+          ...error.children
+            .map(getErrorMessages)
+            .reduce((a, c) => a.concat(c), [])
+        );
       }
       return messages;
     };
-    const errorMessages = errors.map(error => getErrorMessages(error));
+    const errorMessages = errors.map((error) => getErrorMessages(error));
     throw new BadRequestException(errorMessages);
-  },
+  }
 };
 
 export async function createNestApp(): Promise<{
@@ -51,12 +65,18 @@ export async function createNestApp(): Promise<{
 
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
-  if (process.env.RUNTIME_ENV === 'local' || process.env.RUNTIME_ENV === 'test') {
+  if (
+    process.env.RUNTIME_ENV === 'local' ||
+    process.env.RUNTIME_ENV === 'test'
+  ) {
     app = await NestFactory.create(AppModule, {
-      logger: new AppLogger(),
+      logger: new AppLogger()
     });
   } else {
-    app = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(expressApp));
+    app = await NestFactory.create<NestExpressApplication>(
+      AppModule,
+      new ExpressAdapter(expressApp)
+    );
     // Adding winston logger
     app.useLogger(new AppLogger());
   }
@@ -85,10 +105,10 @@ export async function createNestApp(): Promise<{
     envName: process.env.ENV_NAME,
     nodeEnv: process.env.NODE_ENV,
     runtimeEnv: process.env.RUNTIME_ENV,
-    alertsEnabled: Boolean(false),
+    alertsEnabled: Boolean(false)
   });
   return {
     app,
-    expressApp,
+    expressApp
   };
 }

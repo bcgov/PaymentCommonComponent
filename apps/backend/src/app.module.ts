@@ -15,7 +15,10 @@ import { Firehose, S3 } from 'aws-sdk';
     SalesModule,
     FirehoseModule,
     ConfigModule.forRoot({
-      ignoreEnvFile: process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test' ? false : true,
+      ignoreEnvFile:
+        process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
+          ? false
+          : true
     }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
@@ -23,14 +26,14 @@ import { Firehose, S3 } from 'aws-sdk';
           ? {
               endpoint: process.env.AWS_ENDPOINT || 'http://localhost:4566',
               region: 'ca-central-1',
-              s3ForcePathStyle: true,
+              s3ForcePathStyle: true
             }
-          : {}),
+          : {})
       },
-      services: [Firehose, S3],
-    }),
+      services: [Firehose, S3]
+    })
   ],
   controllers: [AppController],
-  providers: [AppService, AppLogger],
+  providers: [AppService, AppLogger]
 })
 export class AppModule {}

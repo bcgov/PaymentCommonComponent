@@ -7,6 +7,5 @@
   "semi": true,
   "jsxSingleQuote": true,
   "printWidth": 80,
-  "endOfLine": "lf",
-  "proseWrap": "always"
+  "endOfLine": "lf"
 }

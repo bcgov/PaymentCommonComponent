@@ -24,10 +24,17 @@
     "outDir": "./dist",
     "baseUrl": "./",
     "allowJs": true,
-    "strictPropertyInitialization": false,
+    "strictPropertyInitialization": false
   },
   "paths": {
     "src": "./src"
   },
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "src/**/*.spec.ts",  "./env.js", "test"]
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "src/**/*.spec.ts",
+    "./env.js",
+    "test"
+  ]
 }

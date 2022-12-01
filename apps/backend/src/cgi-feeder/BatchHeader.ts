@@ -1,5 +1,11 @@
-import { Column, DataType } from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import { FixedWidthRecord, IFixedWidthRecord } from '../common/fixedWidthRecord/fixedWidthRecord';
+import {
+  Column,
+  DataType
+} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import {
+  FixedWidthRecord,
+  IFixedWidthRecord
+} from '../common/fixedWidthRecord/fixedWidthRecord';
 import { FEEDER_NUMBER } from './constants';
 
 export interface IBatchHeader extends IFixedWidthRecord<IBatchHeader> {
@@ -16,12 +22,15 @@ export const BATCH_HEADER_TX_TYPE = 'BH';
 export const BATCH_HEADER_BATCH_TYPE = 'GI';
 export const BATCH_HEADER_MESSAGE_VERSION = 4010;
 
-export class BatchHeader extends FixedWidthRecord<IBatchHeader> implements IBatchHeader {
+export class BatchHeader
+  extends FixedWidthRecord<IBatchHeader>
+  implements IBatchHeader
+{
   public static readonly resourceType = 'BatchHeader';
   public static readonly delimiter = {
     value: '',
     positions: [8, 30],
-    length: 1,
+    length: 1
   };
 
   @Column({ start: 0, width: 4, format: { type: DataType.Integer } })
@@ -95,7 +104,7 @@ export class BatchHeader extends FixedWidthRecord<IBatchHeader> implements IBatc
       feederNumber2: FEEDER_NUMBER,
       fiscalYear: 2023, //TODO Track fiscal year
       batchNumber: '',
-      messageVersion: BATCH_HEADER_MESSAGE_VERSION,
+      messageVersion: BATCH_HEADER_MESSAGE_VERSION
     });
   }
 }

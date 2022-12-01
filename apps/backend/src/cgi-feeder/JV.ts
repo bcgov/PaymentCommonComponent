@@ -15,7 +15,7 @@ export class JV extends Resource<IJV> implements IJV {
   }
 
   public get details() {
-    return this.resource.details.map(distribution => {
+    return this.resource.details.map((distribution) => {
       return new JVDetails(distribution);
     });
   }
@@ -23,11 +23,11 @@ export class JV extends Resource<IJV> implements IJV {
   public static transformSalesEvent(record: SalesDTO) {
     return new JV({
       header: JVHeader.transformSalesEvent(record),
-      details: record.distributions.map(distribution =>
+      details: record.distributions.map((distribution) =>
         JVDetails.transformSalesEvent(distribution, {
-          journalName: record.journal_name,
-        }),
-      ),
+          journalName: record.journal_name
+        })
+      )
     });
   }
 }

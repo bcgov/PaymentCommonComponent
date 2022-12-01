@@ -10,9 +10,9 @@ describe('FirehoseService', () => {
         FirehoseService,
         {
           provide: 'AWS_SERVICE_FIREHOSE',
-          useValue: jest.fn(),
-        },
-      ],
+          useValue: jest.fn()
+        }
+      ]
     }).compile();
 
     service = module.get<FirehoseService>(FirehoseService);

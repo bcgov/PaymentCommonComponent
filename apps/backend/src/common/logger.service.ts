@@ -9,7 +9,7 @@ export class AppLogger implements LoggerService {
   constructor() {
     this.logger = WinstonModule.createLogger({
       transports: [new winston.transports.Console({})],
-      exitOnError: false,
+      exitOnError: false
     });
   }
 
@@ -30,7 +30,7 @@ export class AppLogger implements LoggerService {
       message = {
         url: config?.url,
         method: config?.method,
-        ...(response?.data ? { data: response.data } : {}),
+        ...(response?.data ? { data: response.data } : {})
       };
     }
 

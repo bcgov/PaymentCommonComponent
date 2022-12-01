@@ -1,5 +1,11 @@
-import { Column, DataType } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import { FixedWidthRecord, IFixedWidthRecord } from '../../common/fixedWidthRecord/fixedWidthRecord';
+import {
+  Column,
+  DataType
+} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import {
+  FixedWidthRecord,
+  IFixedWidthRecord
+} from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   rcd_type: number;
@@ -21,7 +27,10 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   jv_no?: number;
 }
 
-export class TDI17Details extends FixedWidthRecord<ITDI17Details> implements ITDI17Details {
+export class TDI17Details
+  extends FixedWidthRecord<ITDI17Details>
+  implements ITDI17Details
+{
   public static readonly resourceType = 'TDIDetails';
 
   constructor(init?: any) {
@@ -94,7 +103,7 @@ export class TDI17Details extends FixedWidthRecord<ITDI17Details> implements ITD
   @Column({
     start: 24,
     width: 3,
-    format: { type: DataType.Integer },
+    format: { type: DataType.Integer }
   })
   public get seq_no() {
     return this.resource.seq_no;
@@ -134,7 +143,7 @@ export class TDI17Details extends FixedWidthRecord<ITDI17Details> implements ITD
   @Column({
     start: 82,
     width: 12,
-    format: { type: DataType.Integer },
+    format: { type: DataType.Integer }
   })
   public get exchange_adj_amt(): number {
     return this.resource.exchange_adj_amt;

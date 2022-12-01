@@ -1,5 +1,10 @@
 import { Resource, ResourceBase } from './Resource';
-import { ColumnMetadataKey, ColumnOptions, ColumnVariableKey, DataType } from './fixedWidthRecord.decorator';
+import {
+  ColumnMetadataKey,
+  ColumnOptions,
+  ColumnVariableKey,
+  DataType
+} from './fixedWidthRecord.decorator';
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
@@ -11,7 +16,10 @@ export interface IFixedWidthRecord<T> extends ResourceBase<T> {
   delimiter?: DelimiterOptions;
 }
 
-export class FixedWidthRecord<T extends IFixedWidthRecord<T>> extends Resource<T> implements IFixedWidthRecord<T> {
+export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
+  extends Resource<T>
+  implements IFixedWidthRecord<T>
+{
   constructor(data: T) {
     super(data);
     if (data instanceof FixedWidthRecord) {
@@ -30,17 +38,28 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>> extends Resource<T
     return FixedWidthRecord.convertFromJSON(this);
   }
 
-  static convertToJson<T extends Record<string, any>>(line: string, target: T): T {
+  static convertToJson<T extends Record<string, any>>(
+    line: string,
+    target: T
+  ): T {
     const fields = this.getAllFields(target.constructor);
     for (const field of fields) {
-      const options: ColumnOptions = Reflect.getMetadata(ColumnMetadataKey, target, field);
-      const value = line.substring(options.start, options.start + options.width).trim();
+      const options: ColumnOptions = Reflect.getMetadata(
+        ColumnMetadataKey,
+        target,
+        field
+      );
+      const value = line
+        .substring(options.start, options.start + options.width)
+        .trim();
       (target as any)[field] = value;
       if (options.format) {
         if (options.format.type === DataType.Integer) {
           (target as any)[field] = parseInt(value);
         } else if (options.format.type === DataType.Float) {
-          (target as any)[field] = Number(parseFloat(value).toFixed(options.format.precision || 2));
+          (target as any)[field] = Number(
+            parseFloat(value).toFixed(options.format.precision || 2)
+          );
         }
       }
     }
@@ -53,27 +72,39 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>> extends Resource<T
    */
   private static getAllFields(clz: Record<string, any>): string[] {
     if (!clz) return [];
-    const fields: string[] | undefined = Reflect.getMetadata(ColumnVariableKey, clz);
+    const fields: string[] | undefined = Reflect.getMetadata(
+      ColumnVariableKey,
+      clz
+    );
     // get `__proto__` and (recursively) all parent classes
-    const rs = new Set([...(fields || []), ...this.getAllFields(Object.getPrototypeOf(clz))]);
+    const rs = new Set([
+      ...(fields || []),
+      ...this.getAllFields(Object.getPrototypeOf(clz))
+    ]);
     return Array.from(rs);
   }
 
   static convertFromJSON<T extends Record<string, any>>(target: T): Buffer {
     const fields = this.getAllFields(target.constructor);
-    const fieldsWithMeta = fields.map(field => {
-      const options: ColumnOptions = Reflect.getMetadata(ColumnMetadataKey, target, field);
+    const fieldsWithMeta = fields.map((field) => {
+      const options: ColumnOptions = Reflect.getMetadata(
+        ColumnMetadataKey,
+        target,
+        field
+      );
       return {
         field,
-        options,
+        options
       };
     });
     fieldsWithMeta.sort((a, b) => {
-      return a.options.start && b.options.start && a.options.start - b.options.start;
+      return (
+        a.options.start && b.options.start && a.options.start - b.options.start
+      );
     });
 
     const op = fieldsWithMeta
-      .map(field => {
+      .map((field) => {
         return target[field.field].toString().padEnd(field.options.width);
       })
       .join('');
@@ -82,7 +113,11 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>> extends Resource<T
 
     if (target.delimiter?.value) {
       target.delimiter.positions.forEach((pos: number) => {
-        result = Buffer.concat([result.slice(0, pos + 1), Buffer.from(target.delimiter?.value), result.slice(pos + 1)]);
+        result = Buffer.concat([
+          result.slice(0, pos + 1),
+          Buffer.from(target.delimiter?.value),
+          result.slice(pos + 1)
+        ]);
       });
     }
     return Buffer.concat([result, Buffer.from('\n')]);

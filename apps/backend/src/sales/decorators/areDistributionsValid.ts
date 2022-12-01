@@ -1,4 +1,9 @@
-import { isArray, ValidationArguments, ValidatorConstraint, ValidatorConstraintInterface } from 'class-validator';
+import {
+  isArray,
+  ValidationArguments,
+  ValidatorConstraint,
+  ValidatorConstraintInterface
+} from 'class-validator';
 import { DistributionDTO } from '../dto/distribution.dto';
 import { SalesDTO } from '../dto/sales.dto';
 
@@ -9,7 +14,10 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
     this.errorMessage = `Distribution Values are incorrect.`;
   }
 
-  public async validate(distributions: DistributionDTO[], args: ValidationArguments) {
+  public async validate(
+    distributions: DistributionDTO[],
+    args: ValidationArguments
+  ) {
     const sales = args.object as SalesDTO;
     const credits: Array<DistributionDTO> = [];
     const debits: Array<DistributionDTO> = [];
@@ -47,7 +55,9 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
     }
 
     if (creditSum !== debitSum) {
-      this.errorMessage = `Credit and Debit Sums must match. There is a difference of ${debitSum - creditSum} found`;
+      this.errorMessage = `Credit and Debit Sums must match. There is a difference of ${
+        debitSum - creditSum
+      } found`;
       return false;
     }
 

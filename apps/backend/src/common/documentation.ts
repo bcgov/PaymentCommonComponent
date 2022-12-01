@@ -11,7 +11,7 @@ export const Documentation = (app: INestApplication) => {
     .build();
 
   const baseDocument = SwaggerModule.createDocument(app, options, {
-    include: [SalesModule],
+    include: [SalesModule]
   });
 
   SwaggerModule.setup('api', app, baseDocument, {
@@ -21,7 +21,7 @@ export const Documentation = (app: INestApplication) => {
       operationsSorter: 'alpha',
       tagsSorter: 'alpha',
       defaultModelsExpandDepth: 2,
-      defaultModelExpandDepth: 2,
-    },
+      defaultModelExpandDepth: 2
+    }
   });
 };

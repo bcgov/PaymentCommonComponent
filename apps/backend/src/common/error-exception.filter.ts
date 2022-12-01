@@ -1,5 +1,13 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger, Inject } from '@nestjs/common';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
+  Inject
+} from '@nestjs/common';
 import { Response } from 'express';
 import { FailedResponse } from './ro/failed-response.ro';
 import { CommonError } from './common.errors';
@@ -18,12 +26,17 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     const exceptionMessage: any = exception.message;
 
     return {
-      errorType: exceptionMessage?.error || (exception as any).response?.error || CommonError.INTERNAL_ERROR.errorType,
+      errorType:
+        exceptionMessage?.error ||
+        (exception as any).response?.error ||
+        CommonError.INTERNAL_ERROR.errorType,
 
       errorMessage:
-        exceptionMessage?.message || (exception as any)?.response?.message || CommonError.INTERNAL_ERROR.errorMessage,
+        exceptionMessage?.message ||
+        (exception as any)?.response?.message ||
+        CommonError.INTERNAL_ERROR.errorMessage,
 
-      errorDetails: {},
+      errorDetails: {}
     };
   }
 
@@ -34,17 +47,24 @@ export class ErrorExceptionFilter implements ExceptionFilter {
   catch(exception: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
-    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
+    const status =
+      exception instanceof HttpException
+        ? exception.getStatus()
+        : HttpStatus.INTERNAL_SERVER_ERROR;
     const request = ctx.getRequest();
     /** Flat error if it was wrapped inside another error */
     const flattenedException =
-      typeof exception?.message === 'object' && typeof (exception?.message as any)?.message === 'object'
+      typeof exception?.message === 'object' &&
+      typeof (exception?.message as any)?.message === 'object'
         ? exception?.message
         : exception;
 
     const privateKeys: string[] = ['password', 'payload'];
-    const body = typeof request.body === 'string' ? JSON.parse(request.body) : request.body;
-    privateKeys.forEach(key => {
+    const body =
+      typeof request.body === 'string'
+        ? JSON.parse(request.body)
+        : request.body;
+    privateKeys.forEach((key) => {
       if (body[key]) {
         delete body[key];
       }
@@ -53,6 +73,8 @@ export class ErrorExceptionFilter implements ExceptionFilter {
     // Log errors
     this.logger.error(flattenedException, 'ExceptionFilter');
 
-    response.status(status).json(this.transformHttpException(flattenedException));
+    response
+      .status(status)
+      .json(this.transformHttpException(flattenedException));
   }
 }

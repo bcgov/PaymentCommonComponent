@@ -14,9 +14,9 @@ describe('SalesService', () => {
         Logger,
         {
           provide: FirehoseService,
-          useValue: jest.fn(),
-        },
-      ],
+          useValue: jest.fn()
+        }
+      ]
     }).compile();
 
     service = module.get<SalesService>(SalesService);

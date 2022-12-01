@@ -14,12 +14,19 @@ export const handler = async (event?: any, context?: Context) => {
 
   try {
     appLogger.log('...start GL Generation');
-    const contents = await s3manager.getContents(`bc-pcc-data-files-${process.env.NODE_ENV}`, 'aggregate/gl.json');
+    const contents = await s3manager.getContents(
+      `bc-pcc-data-files-${process.env.NODE_ENV}`,
+      'aggregate/gl.json'
+    );
     const json = contents.Body?.toString() || '';
     const glRecord = JSON.parse(json) as GLRecord;
 
     const output = generateGL(glRecord);
-    await s3manager.putObject(`bc-pcc-data-files-${process.env.NODE_ENV}`, 'outputs/cgigl', output);
+    await s3manager.putObject(
+      `bc-pcc-data-files-${process.env.NODE_ENV}`,
+      'outputs/cgigl',
+      output
+    );
   } catch (e) {
     appLogger.error(e);
   }
@@ -85,10 +92,16 @@ const convertToFixedWidth = (glRecord: GLRecord) => {
   const BT = glRecord.trailer.convertFromJson();
 
   let result = Buffer.concat([BH]);
-  glRecord.jv.forEach(key => {
-    result = Buffer.concat([result, key.header?.convertFromJson() || Buffer.from('')]);
-    key.details?.forEach(key1 => {
-      result = Buffer.concat([result, key1?.convertFromJson() || Buffer.from('')]);
+  glRecord.jv.forEach((key) => {
+    result = Buffer.concat([
+      result,
+      key.header?.convertFromJson() || Buffer.from('')
+    ]);
+    key.details?.forEach((key1) => {
+      result = Buffer.concat([
+        result,
+        key1?.convertFromJson() || Buffer.from('')
+      ]);
     });
   });
   return Buffer.concat([result, BT]);

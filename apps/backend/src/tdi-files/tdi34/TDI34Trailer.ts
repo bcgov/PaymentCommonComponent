@@ -1,5 +1,11 @@
-import { Column, DataType } from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
-import { FixedWidthRecord, IFixedWidthRecord } from '../../common/fixedWidthRecord/fixedWidthRecord';
+import {
+  Column,
+  DataType
+} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+import {
+  FixedWidthRecord,
+  IFixedWidthRecord
+} from '../../common/fixedWidthRecord/fixedWidthRecord';
 
 export interface ITDI34Trailer extends IFixedWidthRecord<ITDI34Trailer> {
   rcd_type: number;
@@ -8,7 +14,10 @@ export interface ITDI34Trailer extends IFixedWidthRecord<ITDI34Trailer> {
   filler: string;
 }
 
-export class TDI34Trailer extends FixedWidthRecord<ITDI34Trailer> implements ITDI34Trailer {
+export class TDI34Trailer
+  extends FixedWidthRecord<ITDI34Trailer>
+  implements ITDI34Trailer
+{
   public static readonly resourceType = 'TDI34Trailer';
 
   constructor(init?: any) {

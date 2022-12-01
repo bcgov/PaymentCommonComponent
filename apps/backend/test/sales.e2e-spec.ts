@@ -10,11 +10,14 @@ describe('Sales Controller (e2e)', () => {
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
+      imports: [AppModule]
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new TrimPipe(), new ValidationPipe(validationPipeConfig));
+    app.useGlobalPipes(
+      new TrimPipe(),
+      new ValidationPipe(validationPipeConfig)
+    );
     await app.init();
   });
 
@@ -30,12 +33,12 @@ describe('Sales Controller (e2e)', () => {
         payment_method: [
           {
             amount: 100,
-            method: 'CASH',
+            method: 'CASH'
           },
           {
             amount: 50.5,
-            method: 'POS_CREDIT',
-          },
+            method: 'POS_CREDIT'
+          }
         ],
         distributions: [
           {
@@ -49,9 +52,10 @@ describe('Sales Controller (e2e)', () => {
             dist_future_code: '0000',
             line_amount: 150.5,
             line_code: 'C',
-            line_description: 'GA OFF# 00002 2022-08-05                    *900100002',
+            line_description:
+              'GA OFF# 00002 2022-08-05                    *900100002',
             gl_date: '2022-10-12',
-            supplier_code: 'xxxxxx',
+            supplier_code: 'xxxxxx'
           },
           {
             line_number: '000002',
@@ -66,9 +70,9 @@ describe('Sales Controller (e2e)', () => {
             line_code: 'D',
             line_description: 'GA OFF# 00014 2022-08-05',
             gl_date: '2022-10-12',
-            supplier_code: 'xxxxxx',
-          },
-        ],
+            supplier_code: 'xxxxxx'
+          }
+        ]
       })
       .expect({})
       .expect(201);
