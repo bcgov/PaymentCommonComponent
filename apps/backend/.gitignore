@@ -39,3 +39,4 @@ lerna-debug.log*
 /jetstream-cluster
 .yarn/cache/*
 
+/tests/outputs/*
