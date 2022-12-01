@@ -424,3 +424,17 @@ version-minor:
 
 version-patch:
 	@yarn run version:patch
+	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID) --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
+	ssh -i ssh-keypair ec2-user@$(BASTION_INSTANCE_ID) -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+
+update-docs:
+	@echo "+\n++ Updating docs: ...\n+"
+	@./apps/backend/docs/docs.sh
+
+build-docs:
+	@docker-compose up -d  --build docs 
+	@echo "docs: http://localhost:3001"
+
+run-docs:
+	@docker-compose -f up -d docs 
+	@echo "docs: http://localhost:3001"
