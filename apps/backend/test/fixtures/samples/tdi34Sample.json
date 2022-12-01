@@ -1,0 +1,74 @@
+[
+  {
+    "resourceType": "TDI34Details",
+    "rcd_type": 2,
+    "merchant_no": "20777441",
+    "terminal_no": "GA2077744104",
+    "fill1": "",
+    "card_vendor": { "type": "P", "vendor": "N/A" },
+    "card_id": "***************4305",
+    "transaction_date": "2022-11-03",
+    "transaction_time": "10:40",
+    "settlement_date": "2022-11-04",
+    "transaction_cd": {
+      "code": "10",
+      "description": "Purchase (P)",
+      "type": "+"
+    },
+    "fill2": "",
+    "approval_cd": "492173",
+    "fill3": "",
+    "transaction_amt": "4000.00",
+    "invoice_no": "3097",
+    "echo_data_field": "13V04",
+    "fill4": ""
+  },
+  {
+    "resourceType": "TDI34Details",
+    "rcd_type": 2,
+    "merchant_no": "20777441",
+    "terminal_no": "GA2077744108",
+    "fill1": "",
+    "card_vendor": { "type": "P", "vendor": "N/A" },
+    "card_id": "***************3405",
+    "transaction_date": "2022-11-04",
+    "transaction_time": "14:58",
+    "settlement_date": "2022-11-04",
+    "transaction_cd": {
+      "code": "10",
+      "description": "Purchase (P)",
+      "type": "+"
+    },
+    "fill2": "",
+    "approval_cd": "454060",
+    "fill3": "",
+    "transaction_amt": "7500.00",
+    "invoice_no": "1987",
+    "echo_data_field": "13V04",
+    "fill4": ""
+  },
+  {
+    "resourceType": "TDI34Details",
+    "rcd_type": 2,
+    "merchant_no": "20777441",
+    "terminal_no": "GA2077744107",
+    "fill1": "",
+    "card_vendor": { "type": "V", "vendor": "VISA" },
+    "card_id": "***************3069",
+    "transaction_date": "2022-11-04",
+    "transaction_time": "10:59",
+    "settlement_date": "2022-11-04",
+    "transaction_cd": {
+      "code": "10",
+      "description": "Purchase (P)",
+      "type": "+"
+    },
+    "fill2": "",
+    "approval_cd": "07838F",
+    "fill3": "",
+    "transaction_amt": "4725.00",
+    "invoice_no": "746",
+    "echo_data_field": "13V04",
+    "fill4": ""
+  }
+]

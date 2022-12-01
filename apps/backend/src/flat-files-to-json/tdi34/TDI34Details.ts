@@ -9,8 +9,8 @@ import {
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   rcd_type: number;
-  merchant_no: number;
-  terminal_no: number;
+  merchant_no: string;
+  terminal_no: string;
   fill1: string;
   card_vendor: string;
   card_id: string;
@@ -22,7 +22,7 @@ export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   approval_cd: string;
   fill3: string;
   transaction_amt: number;
-  invoice_no: number;
+  invoice_no: string;
   echo_data_field: string;
   fill4: string;
 }
@@ -38,7 +38,7 @@ export class TDI34Details
   }
 
   @Column({ start: 0, width: 1, format: { type: DataType.Integer } })
-  public get rcd_type() {
+  public get rcd_type(): number {
     return this.resource.rcd_type;
   }
 
@@ -64,7 +64,7 @@ export class TDI34Details
     this.resource.terminal_no = data;
   }
 
-  @Column({ start: 21, width: 5, format: { type: DataType.Integer } })
+  @Column({ start: 21, width: 5 })
   public get fill1() {
     return this.resource.fill1;
   }
@@ -73,7 +73,7 @@ export class TDI34Details
     this.resource.fill1 = data;
   }
 
-  @Column({ start: 26, width: 2 })
+  @Column({ start: 26, width: 2, format: { type: DataType.Card } })
   public get card_vendor() {
     return this.resource.card_vendor;
   }
@@ -82,7 +82,7 @@ export class TDI34Details
     this.resource.card_vendor = data;
   }
 
-  @Column({ start: 28, width: 19, format: { type: DataType.Integer } })
+  @Column({ start: 28, width: 19 })
   public get card_id() {
     return this.resource.card_id;
   }
@@ -91,7 +91,7 @@ export class TDI34Details
     this.resource.card_id = data;
   }
 
-  @Column({ start: 47, width: 8, format: { type: DataType.Integer } })
+  @Column({ start: 47, width: 8, format: { type: DataType.Date } })
   public get transaction_date() {
     return this.resource.transaction_date;
   }
@@ -100,7 +100,7 @@ export class TDI34Details
     this.resource.transaction_date = data;
   }
 
-  @Column({ start: 55, width: 4, format: { type: DataType.Integer } })
+  @Column({ start: 55, width: 4, format: { type: DataType.Time } })
   public get transaction_time() {
     return this.resource.transaction_time;
   }
@@ -111,7 +111,8 @@ export class TDI34Details
 
   @Column({
     start: 59,
-    width: 8
+    width: 8,
+    format: { type: DataType.Date }
   })
   public get settlement_date() {
     return this.resource.settlement_date;
@@ -121,7 +122,7 @@ export class TDI34Details
     this.resource.settlement_date = data;
   }
 
-  @Column({ start: 67, width: 2 })
+  @Column({ start: 67, width: 2, format: { type: DataType.TransactionCode } })
   public get transaction_cd() {
     return this.resource.transaction_cd;
   }
@@ -130,7 +131,7 @@ export class TDI34Details
     this.resource.transaction_cd = data;
   }
 
-  @Column({ start: 69, width: 3, format: { type: DataType.Integer } })
+  @Column({ start: 69, width: 3 })
   public get fill2() {
     return this.resource.fill2;
   }
@@ -160,7 +161,7 @@ export class TDI34Details
     this.resource.fill3 = data;
   }
 
-  @Column({ start: 80, width: 9, format: { type: DataType.Integer } })
+  @Column({ start: 80, width: 9, format: { type: DataType.Float } })
   public get transaction_amt(): number {
     return this.resource.transaction_amt;
   }
@@ -169,8 +170,8 @@ export class TDI34Details
     this.resource.transaction_amt = data;
   }
 
-  @Column({ start: 89, width: 10, format: { type: DataType.Integer } })
-  public get invoice_no(): number {
+  @Column({ start: 89, width: 10 })
+  public get invoice_no() {
     return this.resource.invoice_no;
   }
 

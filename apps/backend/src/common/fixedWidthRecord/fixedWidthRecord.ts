@@ -3,7 +3,12 @@ import {
   ColumnMetadataKey,
   ColumnOptions,
   ColumnVariableKey,
-  DataType
+  DataType,
+  timeFormat,
+  dateFormat,
+  cardVendor,
+  transactionCode,
+  transactionType
 } from './fixedWidthRecord.decorator';
 
 type DelimiterOptions = {
@@ -57,12 +62,23 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
         if (options.format.type === DataType.Integer) {
           (target as any)[field] = parseInt(value);
         } else if (options.format.type === DataType.Float) {
-          (target as any)[field] = Number(
-            parseFloat(value).toFixed(options.format.precision || 2)
+          (target as any)[field] = parseInt(value).toFixed(
+            options.format.precision || 2
           );
+        } else if (options.format.type === DataType.Date) {
+          (target as any)[field] = dateFormat(value.split(''));
+        } else if (options.format.type === DataType.Time) {
+          (target as any)[field] = value ? timeFormat(value.split('')) : '';
+        } else if (options.format.type === DataType.Card) {
+          (target as any)[field] = cardVendor(value);
+        } else if (options.format.type === DataType.TransactionCode) {
+          (target as any)[field] = transactionCode(value);
+        } else if (options.format.type === DataType.TransactionType) {
+          (target as any)[field] = transactionType(value);
         }
       }
     }
+
     return target;
   }
 

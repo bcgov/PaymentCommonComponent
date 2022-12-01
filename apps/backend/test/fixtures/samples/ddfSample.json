@@ -1,0 +1,83 @@
+[
+  {
+    "resourceType": "DDFDetails",
+    "rcd_type": 2,
+    "merchant_no": "22046144",
+    "terminal_id": "Y22046144001",
+    "filler1": "",
+    "card_vendor": { "type": "V", "vendor": "VISA" },
+    "card_id": "XXXXXXXXXXXXXXXXXXX",
+    "transaction_date": "2022-03-30",
+    "transaction_time": "08:10",
+    "settlement_date": "2022-03-30",
+    "transaction_code": {
+      "code": "10",
+      "description": "Purchase (P)",
+      "type": "+"
+    },
+    "filler2": "A",
+    "approval_code": "TEST",
+    "filler3": "",
+    "transaction_amount": "100.00",
+    "unknown": "",
+    "worldline_transaction_id": "10032942",
+    "client_transaction_id": "0075113331",
+    "merchant_id": "17589202",
+    "filler4": "",
+    "filler5": ""
+  },
+  {
+    "resourceType": "DDFDetails",
+    "rcd_type": 2,
+    "merchant_no": "22046144",
+    "terminal_id": "Y22046144001",
+    "filler1": "",
+    "card_vendor": { "type": "V", "vendor": "VISA" },
+    "card_id": "XXXXXXXXXXXXXXXXXXX",
+    "transaction_date": "2022-03-30",
+    "transaction_time": "08:25",
+    "settlement_date": "2022-03-30",
+    "transaction_code": {
+      "code": "10",
+      "description": "Purchase (P)",
+      "type": "+"
+    },
+    "filler2": "A",
+    "approval_code": "TEST",
+    "filler3": "",
+    "transaction_amount": "700.00",
+    "unknown": "",
+    "worldline_transaction_id": "10032949",
+    "client_transaction_id": "0075113401",
+    "merchant_id": "17589202",
+    "filler4": "",
+    "filler5": ""
+  },
+  {
+    "resourceType": "DDFDetails",
+    "rcd_type": 2,
+    "merchant_no": "22046144",
+    "terminal_id": "Y22046144001",
+    "filler1": "",
+    "card_vendor": { "type": "V", "vendor": "VISA" },
+    "card_id": "XXXXXXXXXXXXXXXXXXX",
+    "transaction_date": "2022-03-30",
+    "transaction_time": "08:32",
+    "settlement_date": "2022-03-30",
+    "transaction_code": {
+      "code": "10",
+      "description": "Purchase (P)",
+      "type": "+"
+    },
+    "filler2": "A",
+    "approval_code": "TEST",
+    "filler3": "",
+    "transaction_amount": "1000.00",
+    "unknown": "",
+    "worldline_transaction_id": "10032952",
+    "client_transaction_id": "0075113431",
+    "merchant_id": "17589202",
+    "filler4": "",
+    "filler5": ""
+  }
+]
