@@ -29,37 +29,3 @@ EXPOSE 3000
 
 CMD ["yarn", "run", "start:dev"]
 
-###################
-# BUILD FOR PRODUCTION
-###################
-
-FROM node:16-alpine3.16 AS build
-
-WORKDIR /usr/src/app
-
-COPY package.json ./
-
-COPY yarn.lock ./
-
-COPY --from=development /usr/src/app/node_modules ./node_modules
-
-COPY . .
-
-RUN yarn run build
-
-ENV NODE_ENV production
-
-RUN yarn workspaces focus --production
-
-USER node
-
-###################
-# PRODUCTION
-###################
-
-FROM node:16-alpine AS production
-
-COPY --from=build /usr/src/app/node_modules ./node_modules
-COPY --from=build /usr/src/app/dist ./dist
-
-CMD [ "node", "dist/main.js" ]
