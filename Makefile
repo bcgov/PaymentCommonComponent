@@ -197,3 +197,16 @@ run-test-pipeline:
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
+
+
+update-docs:
+	@echo "+\n++ Updating docs: ...\n+"
+	@./apps/backend/docs/docs.sh
+
+build-docs:
+	@docker-compose up -d  --build docs 
+	@echo "docs: http://localhost:3001"
+
+run-docs:
+	@docker-compose -f up -d docs 
+	@echo "docs: http://localhost:3001"

@@ -48,6 +48,17 @@ services:
     volumes:
       - ./.localstack:/var/lib/localstack
       - ./localstack/init/ready.d:/etc/localstack/init/ready.d
+  
+  docs:
+      container_name: docs
+      ports: 
+      - '3001:4567' 
+      volumes: 
+      - ./apps/docs/source:/srv/slate/source
+      image: slatedocs/slate 
+      command: 
+      - serve
+
 networks:
   localstack-net:
     external: false
