@@ -4,7 +4,7 @@ import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { TDI17Details, TDI34Details } from '../tdi-files';
+import { TDI17Details, TDI34Details, DDFDetails } from '../flat-files-to-json';
 
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -25,12 +25,14 @@ export const handler = async (event?: any, context?: Context) => {
       `${event.filepath}`
     );
 
+    const file = await parseTDI(event.type, contents?.Body?.toString());
+
     await uploadParsedTDI(
       event.type,
       s3manager,
-      parseTDI(event.type, contents?.Body?.toString()),
+      file,
       appLogger,
-      event?.outputPath
+      event?.outputPath ?? undefined
     );
   } catch (e) {
     appLogger.error(e);
@@ -42,14 +44,19 @@ const parseTDI = (type: string, fileContents?: string) => {
   lines?.splice(0, 1);
   lines?.splice(lines.length - 1, 1);
 
-  const detailsArr: (TDI34Details | TDI17Details)[] | undefined =
+  const detailsArr: (TDI34Details | TDI17Details | DDFDetails)[] | undefined =
     lines &&
     lines.map((line: string) => {
       const details =
-        type === 'TDI17' ? new TDI17Details({}) : new TDI34Details({});
+        type === 'DDF'
+          ? new DDFDetails({})
+          : type === 'TDI17'
+          ? new TDI17Details({})
+          : new TDI34Details({});
       details.convertToJson(line);
       return details;
     });
+
   return {
     details: detailsArr?.map((itm: { resource: unknown }) => itm.resource)
   };
