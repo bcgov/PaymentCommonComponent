@@ -198,7 +198,7 @@ run-test:
 	@docker-compose -f docker-compose.test.yml up -d
 
 run-test-pipeline:
-	@docker exec -i $(PROJECT)-backend-test yarn run test:pipeline
+	@docker exec -i $(PROJECT)-backend-test  yarn run test:pipeline
 
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"

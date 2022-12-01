@@ -25,12 +25,10 @@ export const handler = async (event?: any, context?: Context) => {
       `${event.filepath}`
     );
 
-    const file = await parseTDI(event.type, contents?.Body?.toString());
-
     await uploadParsedTDI(
       event.type,
       s3manager,
-      file,
+      parseTDI(event.type, contents?.Body?.toString()),
       appLogger,
       event?.outputPath ?? undefined
     );
@@ -54,6 +52,7 @@ const parseTDI = (type: string, fileContents?: string) => {
           ? new TDI17Details({})
           : new TDI34Details({});
       details.convertToJson(line);
+      console.log(details, 'details');
       return details;
     });
 
