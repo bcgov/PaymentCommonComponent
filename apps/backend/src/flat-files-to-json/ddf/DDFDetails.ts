@@ -22,7 +22,7 @@ export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
   approval_code: string;
   filler3: string;
   transaction_amount: number;
-  unknown2: string;
+  unknown: string;
   merchant_work_area: string;
   filler4: string;
 }
@@ -164,12 +164,12 @@ export class DDFDetails
   }
 
   @Column({ start: 89, width: 10 })
-  public get unknown2() {
-    return this.resource.unknown2;
+  public get unknown() {
+    return this.resource.unknown;
   }
 
-  public set unknown2(data) {
-    this.resource.unknown2 = data;
+  public set unknown(data) {
+    this.resource.unknown = data;
   }
 
   @Column({ start: 99, width: 36 })
