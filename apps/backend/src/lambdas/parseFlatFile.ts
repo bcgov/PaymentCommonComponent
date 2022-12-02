@@ -52,7 +52,6 @@ const parseTDI = (type: string, fileContents?: string) => {
           ? new TDI17Details({})
           : new TDI34Details({});
       details.convertToJson(line);
-      console.log(details, 'details');
       return details;
     });
 

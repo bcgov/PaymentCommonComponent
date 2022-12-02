@@ -64,7 +64,7 @@ export class TDI34Details
     this.resource.terminal_no = data;
   }
 
-  @Column({ start: 21, width: 5, format: { type: DataType.Integer } })
+  @Column({ start: 21, width: 5 })
   public get fill1() {
     return this.resource.fill1;
   }
@@ -82,7 +82,7 @@ export class TDI34Details
     this.resource.card_vendor = data;
   }
 
-  @Column({ start: 28, width: 19, format: { type: DataType.Integer } })
+  @Column({ start: 28, width: 19 })
   public get card_id() {
     return this.resource.card_id;
   }
@@ -91,7 +91,7 @@ export class TDI34Details
     this.resource.card_id = data;
   }
 
-  @Column({ start: 47, width: 8, format: { type: DataType.Integer } })
+  @Column({ start: 47, width: 8 })
   public get transaction_date() {
     return this.resource.transaction_date;
   }
@@ -100,7 +100,7 @@ export class TDI34Details
     this.resource.transaction_date = data;
   }
 
-  @Column({ start: 55, width: 4, format: { type: DataType.Integer } })
+  @Column({ start: 55, width: 4 })
   public get transaction_time() {
     return this.resource.transaction_time;
   }
@@ -130,7 +130,7 @@ export class TDI34Details
     this.resource.transaction_cd = data;
   }
 
-  @Column({ start: 69, width: 3, format: { type: DataType.Integer } })
+  @Column({ start: 69, width: 3 })
   public get fill2() {
     return this.resource.fill2;
   }

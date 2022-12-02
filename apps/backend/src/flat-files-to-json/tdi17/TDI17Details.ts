@@ -11,20 +11,20 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   rcd_type: number;
   ministry_no: string;
   program_cd: number;
-  deposit_date: number;
+  deposit_date: string;
   transaction_type: number;
   office_number: number;
-  deposit_time?: number;
-  seq_no?: number;
+  deposit_time?: string;
+  seq_no?: string;
   location_desc: string;
   deposit_amt_curr: number;
   currency?: string;
   exchange_adj_amt: number;
   deposit_amt_cdn: number;
   destination_bank_no: number;
-  batch_no: number;
+  batch_no?: string;
   jv_type?: string;
-  jv_no?: number;
+  jv_no?: string;
 }
 
 export class TDI17Details
@@ -91,7 +91,7 @@ export class TDI17Details
     this.resource.office_number = data;
   }
 
-  @Column({ start: 20, width: 4, format: { type: DataType.Integer } })
+  @Column({ start: 20, width: 4 })
   public get deposit_time() {
     return this.resource.deposit_time;
   }
@@ -102,8 +102,7 @@ export class TDI17Details
 
   @Column({
     start: 24,
-    width: 3,
-    format: { type: DataType.Integer }
+    width: 3
   })
   public get seq_no() {
     return this.resource.seq_no;
@@ -162,8 +161,8 @@ export class TDI17Details
     this.resource.deposit_amt_cdn = data;
   }
 
-  @Column({ start: 108, width: 4, format: { type: DataType.Integer } })
-  public get destination_bank_no(): number {
+  @Column({ start: 108, width: 4 })
+  public get destination_bank_no() {
     return this.resource.destination_bank_no;
   }
 
@@ -171,8 +170,8 @@ export class TDI17Details
     this.resource.destination_bank_no = data;
   }
 
-  @Column({ start: 112, width: 9, format: { type: DataType.Integer } })
-  public get batch_no(): number {
+  @Column({ start: 112, width: 9 })
+  public get batch_no() {
     return this.resource.batch_no;
   }
 
@@ -189,7 +188,7 @@ export class TDI17Details
     this.resource.jv_type = data;
   }
 
-  @Column({ start: 122, width: 9, format: { type: DataType.Integer } })
+  @Column({ start: 122, width: 9 })
   public get jv_no() {
     return this.resource.jv_no;
   }
