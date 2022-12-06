@@ -63,10 +63,8 @@ describe('Parser (e2e)', () => {
     };
     const file = await service.getContents(params.Bucket, params.Key);
     const buffer = file.Body && Buffer.from(file.Body.toString() || '');
-    console.log(
-      fs
-        .createWriteStream(path.join(__dirname, './outputs/DDF.json'))
-        .write(buffer)
+    fs.createWriteStream(path.join(__dirname, './outputs/DDF.json')).write(
+      buffer
     );
   });
 
@@ -101,10 +99,8 @@ describe('Parser (e2e)', () => {
     };
     const file = await service.getContents(params.Bucket, params.Key);
     const buffer = file.Body && Buffer.from(file.Body.toString() || '');
-    console.log(
-      fs
-        .createWriteStream(path.join(__dirname, './outputs/TDI17.json'))
-        .write(buffer)
+    fs.createWriteStream(path.join(__dirname, './outputs/TDI17.json')).write(
+      buffer
     );
   });
 
