@@ -39,4 +39,6 @@ lerna-debug.log*
 /jetstream-cluster
 .yarn/cache/*
 
-/test/outputs/*
+/test/outputs/TDI17.json
+/test/outputs/TDI34.json
+/test/outputs/DDF.json
