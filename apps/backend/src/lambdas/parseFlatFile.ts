@@ -37,7 +37,7 @@ export const handler = async (event?: any, context?: Context) => {
   }
 };
 
-const parseTDI = (type: string, fileContents?: string) => {
+export const parseTDI = (type: string, fileContents?: string) => {
   const lines = fileContents?.split('\n').filter((l: string) => l);
   lines?.splice(0, 1);
   lines?.splice(lines.length - 1, 1);
@@ -52,6 +52,7 @@ const parseTDI = (type: string, fileContents?: string) => {
           ? new TDI17Details({})
           : new TDI34Details({});
       details.convertToJson(line);
+      console.log(details);
       return details;
     });
 
@@ -60,7 +61,7 @@ const parseTDI = (type: string, fileContents?: string) => {
   };
 };
 
-const uploadParsedTDI = async (
+export const uploadParsedTDI = async (
   type: string,
   s3manager: S3ManagerService,
   output: unknown,
