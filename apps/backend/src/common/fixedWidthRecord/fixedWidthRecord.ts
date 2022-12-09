@@ -3,13 +3,15 @@ import {
   ColumnMetadataKey,
   ColumnOptions,
   ColumnVariableKey,
-  DataType,
+  DataType
+} from './fixedWidthRecord.decorator';
+import {
   timeFormat,
   dateFormat,
   cardVendor,
   transactionCode,
   transactionType
-} from './fixedWidthRecord.decorator';
+} from '../utils';
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
