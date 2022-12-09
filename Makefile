@@ -149,19 +149,36 @@ deploy-gl:
 put-local-tdi17:
 	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi17/TDI17.TXT --body ./sample-files/TDI17.TXT 
 
+put-local-tdi17a:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi17/TDI17a.TXT --body ./sample-files/TDI17a.TXT
+
+put-local-tdi17b:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi17/TDI17b.TXT --body ./sample-files/TDI17b.TXT
+
 put-local-tdi34:
 	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi34/TDI34.TXT --body ./sample-files/TDI34.TXT 
+
+put-local-tdi34b:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi34/TDI34b.TXT --body ./sample-files/TDI34b.TXT 
 
 # ===================================
 # Parse Local
 # ===================================
 
 parse-local-tdi17:
-		NODE_ENV=local RUNTIME_ENV=local ts-node -e 'require("./apps/backend/src/lambdas/parseTDI.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT"})'
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseTDI.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT"})'
+
+parse-local-tdi17a:
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseTDI.ts").handler({type: "TDI17", filepath: "tdi17/TDI17a.TXT"})'
+
+parse-local-tdi17b:
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseTDI.ts").handler({type: "TDI17", filepath: "tdi17/TDI17b.TXT"})'
 
 parse-local-tdi34: 			
-	NODE_ENV=local RUNTIME_ENV=local ts-node -e 'require("./apps/backend/src/lambdas/parseTDI.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
-	 
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseTDI.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
+
+parse-local-tdi34b: 			
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseTDI.ts").handler({type: "TDI34", filepath: "tdi34/TDI34b.TXT"})'
 # ===================================
 # Local Dev Environmentq
 # ===================================
