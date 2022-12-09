@@ -11,14 +11,15 @@ services:
     ports:
       - "3001:3000"
     environment:
+      - CHOKIDAR_USEPOLLING="true"
       - APP_PORT=3000
       - NODE_ENV=local
       - RUNTIME_ENV=local
-      - AWS_ACCESS_KEY_ID="test"
-      - AWS_SECRET_ACCESS_KEY="test"
-      - AWS_DEFAULT_REGION="ca-central-1"
+      - AWS_ACCESS_KEY_ID=test
+      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_DEFAULT_REGION=ca-central-1
       - YARN_VERSION=3.2.3
-      - AWS_ENDPOINT=http://localstack:4566 
+      - AWS_ENDPOINT=http://localstack:4566
     volumes:
       - ./apps/backend:/usr/src/app
       - /usr/src/app/node_modules

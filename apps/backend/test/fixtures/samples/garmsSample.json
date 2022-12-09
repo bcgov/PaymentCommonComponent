@@ -1,0 +1,911 @@
+[
+  {
+    "sales_transaction_id": "20230103-00025-1000001",
+    "sales_transaction_date": "2022-11-30-13.33.31.875973",
+    "fiscal_close_date": "20230103",
+    "payment_total": 1000.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 1000.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "01"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "026",
+          "dist_resp_code": "66020",
+          "dist_service_line_code": "44275",
+          "dist_stob_code": "1278",
+          "dist_project_code": "6600000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 1000.01,
+          "line_description": "A/R HLTH GEN RECOV  ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ],
+      "002": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "112",
+          "dist_resp_code": "32099",
+          "dist_service_line_code": "56217",
+          "dist_stob_code": "4677",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": -0.01,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "002"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00025",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "026",
+          "dist_resp_code": "66020",
+          "dist_service_line_code": "44275",
+          "dist_stob_code": "1474",
+          "dist_project_code": "6600000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        },
+        "002": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32L25",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20230103-00025-1000002",
+    "sales_transaction_date": "2022-11-30-13.33.52.180373",
+    "fiscal_close_date": "20230103",
+    "payment_total": 999.02,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 500.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "11"
+      },
+      {
+        "amount": 299.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "13"
+      },
+      {
+        "amount": 200.0,
+        "currency": "USD",
+        "exchange_rate": 131.91,
+        "method": "09"
+      },
+      {
+        "amount": -63.8,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "01"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "32964",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3160",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 999.0,
+          "line_description": "BC_HYDRO_FEE        ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ],
+      "002": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "112",
+          "dist_resp_code": "32099",
+          "dist_service_line_code": "56217",
+          "dist_stob_code": "4677",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.02,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00025",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32L25",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221024-00040-1000001",
+    "sales_transaction_date": "2022-11-30-13.13.48.367103",
+    "fiscal_close_date": "20221024",
+    "payment_total": 28.85,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 28.85,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "01"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "022",
+          "dist_resp_code": "32363",
+          "dist_service_line_code": "34725",
+          "dist_stob_code": "4377",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 27.0,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00003",
+          "dist_client_code": "074",
+          "dist_resp_code": "32562",
+          "dist_service_line_code": "34373",
+          "dist_stob_code": "9002",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.25,
+          "line_description": "PMO                 ",
+          "supplier_code": "046890   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00004",
+          "dist_client_code": "074",
+          "dist_resp_code": "32962",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3051",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 1.5,
+          "line_description": "MDA_TRANSACTION_F   ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00005",
+          "dist_client_code": "074",
+          "dist_resp_code": "32962",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3051",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.08,
+          "line_description": "GST_ON_BCONLINE_F   ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00006",
+          "dist_client_code": "074",
+          "dist_resp_code": "32962",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3051",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.0,
+          "line_description": "I_AM_A_HAPPY_COW    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ],
+      "002": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "112",
+          "dist_resp_code": "32099",
+          "dist_service_line_code": "56217",
+          "dist_stob_code": "4677",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.02,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221024-00040-1000002",
+    "sales_transaction_date": "2022-11-30-13.15.40.723143",
+    "fiscal_close_date": "20221024",
+    "payment_total": 250.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 250.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "02"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "32964",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3160",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 250.0,
+          "line_description": "BC_HYDRO_FEE        ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221024-00040-1000003",
+    "sales_transaction_date": "2022-11-30-13.16.44.411287",
+    "fiscal_close_date": "20221024",
+    "payment_total": 200.01,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 201.0,
+        "currency": "USD",
+        "exchange_rate": 109.11,
+        "method": "09"
+      },
+      {
+        "amount": -19.3,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "01"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "026",
+          "dist_resp_code": "66998",
+          "dist_service_line_code": "44290",
+          "dist_stob_code": "4348",
+          "dist_project_code": "6600000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 200.0,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00002",
+          "dist_client_code": "026",
+          "dist_resp_code": "66998",
+          "dist_service_line_code": "44290",
+          "dist_stob_code": "4348",
+          "dist_project_code": "6600000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.0,
+          "line_description": "RECOVERY            ",
+          "supplier_code": "123456   ",
+          "revenue_gl_account": "001"
+        }
+      ],
+      "002": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "112",
+          "dist_resp_code": "32099",
+          "dist_service_line_code": "56217",
+          "dist_stob_code": "4677",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.01,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221024-00040-1000004",
+    "sales_transaction_date": "2022-11-30-13.19.32.436689",
+    "fiscal_close_date": "20221024",
+    "payment_total": 75.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 75.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "11"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "026",
+          "dist_resp_code": "66998",
+          "dist_service_line_code": "44275",
+          "dist_stob_code": "1282",
+          "dist_project_code": "6600000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 75.0,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221024-00040-1000005",
+    "sales_transaction_date": "2022-11-30-13.22.55.233905",
+    "fiscal_close_date": "20221024",
+    "payment_total": 228.85,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 200.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "01"
+      },
+      {
+        "amount": 28.85,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "13"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "022",
+          "dist_resp_code": "32363",
+          "dist_service_line_code": "34725",
+          "dist_stob_code": "4377",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 27.0,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00003",
+          "dist_client_code": "074",
+          "dist_resp_code": "32562",
+          "dist_service_line_code": "34373",
+          "dist_stob_code": "9002",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.25,
+          "line_description": "PMO                 ",
+          "supplier_code": "046890   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00004",
+          "dist_client_code": "074",
+          "dist_resp_code": "32962",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3051",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 1.5,
+          "line_description": "MDA_TRANSACTION_F   ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00005",
+          "dist_client_code": "074",
+          "dist_resp_code": "32962",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3051",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.08,
+          "line_description": "GST_ON_BCONLINE_F   ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        },
+        {
+          "line_number": "00006",
+          "dist_client_code": "074",
+          "dist_resp_code": "32962",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3051",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.0,
+          "line_description": "I_AM_A_HAPPY_COW    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ],
+      "002": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "32964",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3160",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 200.0,
+          "line_description": "BC_HYDRO_FEE        ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ],
+      "003": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "112",
+          "dist_resp_code": "32099",
+          "dist_service_line_code": "56217",
+          "dist_stob_code": "4677",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 0.02,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221024-00040-1000006",
+    "sales_transaction_date": "2022-11-30-13.23.51.774281",
+    "fiscal_close_date": "20221024",
+    "payment_total": 0.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      { "amount": 0.0, "currency": "CAD", "exchange_rate": 0.0, "method": "01" }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "32964",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3160",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 500.0,
+          "line_description": "BC_HYDRO_FEE        ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ],
+      "002": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "51643",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3520",
+          "dist_project_code": "5100000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": -500.0,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221025-00040-1000001",
+    "sales_transaction_date": "2022-11-30-13.29.09.582699",
+    "fiscal_close_date": "20221025",
+    "payment_total": 750.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 750.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "12"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "32964",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3160",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 750.0,
+          "line_description": "BC_HYDRO_FEE        ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221025-00040-1000002",
+    "sales_transaction_date": "2022-11-30-13.29.41.666394",
+    "fiscal_close_date": "20221025",
+    "payment_total": 50.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 50.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "17"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "026",
+          "dist_resp_code": "66998",
+          "dist_service_line_code": "44275",
+          "dist_stob_code": "1282",
+          "dist_project_code": "6600000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 50.0,
+          "line_description": "                    ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221025-00040-1000003",
+    "sales_transaction_date": "2022-11-30-13.30.16.894487",
+    "fiscal_close_date": "20221025",
+    "payment_total": 500.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 500.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "15"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "32964",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3160",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 500.0,
+          "line_description": "BC_HYDRO_FEE        ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  },
+  {
+    "sales_transaction_id": "20221025-00040-1000004",
+    "sales_transaction_date": "2022-11-30-13.30.43.896659",
+    "fiscal_close_date": "20221025",
+    "payment_total": 300.0,
+    "void_indicator": " ",
+    "transaction_reference": "",
+    "payments": [
+      {
+        "amount": 300.0,
+        "currency": "CAD",
+        "exchange_rate": 0.0,
+        "method": "14"
+      }
+    ],
+    "misc": {
+      "employee_id": "SC61350   "
+    },
+    "distributions": {
+      "001": [
+        {
+          "line_number": "00001",
+          "dist_client_code": "074",
+          "dist_resp_code": "32964",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "3160",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "line_dollar_amount": 300.0,
+          "line_description": "BC_HYDRO_FEE        ",
+          "supplier_code": "000000   ",
+          "revenue_gl_account": "001"
+        }
+      ]
+    },
+    "source": {
+      "source_id": "SBC",
+      "location_id": "00040",
+      "revenue_gl_accounts": {
+        "001": {
+          "dist_client_code": "074",
+          "dist_resp_code": "32G40",
+          "dist_service_line_code": "58200",
+          "dist_stob_code": "1461",
+          "dist_project_code": "3200000",
+          "dist_location_code": "000000",
+          "dist_future_code": "0000",
+          "supplier_code": "000000   "
+        }
+      }
+    }
+  }
+]

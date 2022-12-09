@@ -9,7 +9,7 @@ import {
 
 export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
   rcd_type: number;
-  merchant_no: number;
+  merchant_no: string;
   terminal_id: string;
   filler1: string;
   card_vendor: string;
@@ -21,10 +21,13 @@ export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
   filler2: string;
   approval_code: string;
   filler3: string;
-  transaction_amount: number;
+  transaction_amount: string;
   unknown: string;
-  merchant_work_area: string;
+  worldline_transaction_id: string;
+  client_transaction_id: string;
+  merchant_id: string;
   filler4: string;
+  filler5: string;
 }
 
 export class DDFDetails
@@ -37,7 +40,12 @@ export class DDFDetails
     super(init);
   }
 
-  @Column({ start: 0, width: 1, format: { type: DataType.Integer } })
+  @Column({
+    start: 0,
+    width: 1,
+    format: { type: DataType.Integer },
+    example: 2
+  })
   public get rcd_type() {
     return this.resource.rcd_type;
   }
@@ -46,7 +54,11 @@ export class DDFDetails
     this.resource.rcd_type = data;
   }
 
-  @Column({ start: 1, width: 8, format: { type: DataType.Integer } })
+  @Column({
+    start: 1,
+    width: 8,
+    example: '22046144'
+  })
   public get merchant_no() {
     return this.resource.merchant_no;
   }
@@ -55,7 +67,7 @@ export class DDFDetails
     this.resource.merchant_no = data;
   }
 
-  @Column({ start: 9, width: 12 })
+  @Column({ start: 9, width: 12, example: 'Y22046144001' })
   public get terminal_id() {
     return this.resource.terminal_id;
   }
@@ -64,7 +76,7 @@ export class DDFDetails
     this.resource.terminal_id = data;
   }
 
-  @Column({ start: 21, width: 5 })
+  @Column({ start: 21, width: 5, example: '' })
   public get filler1() {
     return this.resource.filler1;
   }
@@ -73,7 +85,12 @@ export class DDFDetails
     this.resource.filler1 = data;
   }
 
-  @Column({ start: 26, width: 2 })
+  @Column({
+    start: 26,
+    width: 2,
+    example: 'V ',
+    format: { type: DataType.Card }
+  })
   public get card_vendor() {
     return this.resource.card_vendor;
   }
@@ -82,7 +99,7 @@ export class DDFDetails
     this.resource.card_vendor = data;
   }
 
-  @Column({ start: 28, width: 19 })
+  @Column({ start: 28, width: 19, example: 'XXXXXXXXXXXXXXX1111' })
   public get card_id() {
     return this.resource.card_id;
   }
@@ -91,7 +108,12 @@ export class DDFDetails
     this.resource.card_id = data;
   }
 
-  @Column({ start: 47, width: 8 })
+  @Column({
+    start: 47,
+    width: 8,
+    example: '20220404',
+    format: { type: DataType.Date }
+  })
   public get transaction_date() {
     return this.resource.transaction_date;
   }
@@ -100,7 +122,12 @@ export class DDFDetails
     this.resource.transaction_date = data;
   }
 
-  @Column({ start: 55, width: 4 })
+  @Column({
+    start: 55,
+    width: 4,
+    example: '1539',
+    format: { type: DataType.Time }
+  })
   public get transaction_time() {
     return this.resource.transaction_time;
   }
@@ -109,7 +136,12 @@ export class DDFDetails
     this.resource.transaction_time = data;
   }
 
-  @Column({ start: 59, width: 8 })
+  @Column({
+    start: 59,
+    width: 8,
+    example: '20220405',
+    format: { type: DataType.Date }
+  })
   public get settlement_date() {
     return this.resource.settlement_date;
   }
@@ -118,7 +150,12 @@ export class DDFDetails
     this.resource.settlement_date = data;
   }
 
-  @Column({ start: 67, width: 2 })
+  @Column({
+    start: 67,
+    width: 2,
+    example: '10',
+    format: { type: DataType.TransactionCode }
+  })
   public get transaction_code() {
     return this.resource.transaction_code;
   }
@@ -127,7 +164,7 @@ export class DDFDetails
     this.resource.transaction_code = data;
   }
 
-  @Column({ start: 69, width: 3 })
+  @Column({ start: 69, width: 3, example: '' })
   public get filler2() {
     return this.resource.filler2;
   }
@@ -136,7 +173,7 @@ export class DDFDetails
     this.resource.filler2 = data;
   }
 
-  @Column({ start: 72, width: 6 })
+  @Column({ start: 72, width: 6, example: '123456' })
   public get approval_code() {
     return this.resource.approval_code;
   }
@@ -145,7 +182,7 @@ export class DDFDetails
     this.resource.approval_code = data;
   }
 
-  @Column({ start: 78, width: 2 })
+  @Column({ start: 78, width: 2, example: '' })
   public get filler3() {
     return this.resource.filler3;
   }
@@ -154,16 +191,19 @@ export class DDFDetails
     this.resource.filler3 = data;
   }
 
-  @Column({ start: 80, width: 9, format: { type: DataType.Integer } })
   public get transaction_amount() {
     return this.resource.transaction_amount;
   }
-
+  @Column({
+    start: 80,
+    width: 9,
+    format: { type: DataType.Float, precision: 2 }
+  })
   public set transaction_amount(data) {
     this.resource.transaction_amount = data;
   }
 
-  @Column({ start: 89, width: 10 })
+  @Column({ start: 89, width: 10, example: '' })
   public get unknown() {
     return this.resource.unknown;
   }
@@ -172,21 +212,44 @@ export class DDFDetails
     this.resource.unknown = data;
   }
 
-  @Column({ start: 99, width: 36 })
-  public get merchant_work_area() {
-    return this.resource.merchant_work_area;
+  @Column({ start: 99, width: 8, example: '10032942' })
+  public get worldline_transaction_id() {
+    return this.resource.worldline_transaction_id;
   }
 
-  public set merchant_work_area(data) {
-    this.resource.merchant_work_area = data;
+  public set worldline_transaction_id(data) {
+    this.resource.worldline_transaction_id = data;
+  }
+  @Column({ start: 108, width: 10, example: '0007511333' })
+  public get client_transaction_id() {
+    return this.resource.client_transaction_id;
   }
 
-  @Column({ start: 135, width: 36 })
+  public set client_transaction_id(data) {
+    this.resource.client_transaction_id = data;
+  }
+  @Column({ start: 118, width: 9, example: '117589202' })
+  public get merchant_id() {
+    return this.resource.merchant_id;
+  }
+
+  public set merchant_id(data) {
+    this.resource.merchant_id = data;
+  }
+  @Column({ start: 127, width: 9, example: '' })
   public get filler4() {
     return this.resource.filler4;
   }
 
   public set filler4(data) {
     this.resource.filler4 = data;
+  }
+  @Column({ start: 127, width: 9, example: '' })
+  public get filler5() {
+    return this.resource.filler5;
+  }
+
+  public set filler5(data) {
+    this.resource.filler5 = data;
   }
 }

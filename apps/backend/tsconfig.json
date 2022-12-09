@@ -27,14 +27,12 @@
     "strictPropertyInitialization": false
   },
   "paths": {
-    "src": "./src"
+    "src": "./src",
+    "test": "./test"
   },
   "exclude": [
     "node_modules",
     "dist",
-    "**/*.spec.ts",
-    "src/**/*.spec.ts",
-    "./env.js",
-    "test"
+    "./env.js"
   ]
 }

@@ -25,12 +25,10 @@ export const handler = async (event?: any, context?: Context) => {
       `${event.filepath}`
     );
 
-    const file = await parseTDI(event.type, contents?.Body?.toString());
-
     await uploadParsedTDI(
       event.type,
       s3manager,
-      file,
+      parseTDI(event.type, contents?.Body?.toString()),
       appLogger,
       event?.outputPath ?? undefined
     );
@@ -39,7 +37,7 @@ export const handler = async (event?: any, context?: Context) => {
   }
 };
 
-const parseTDI = (type: string, fileContents?: string) => {
+export const parseTDI = (type: string, fileContents?: string) => {
   const lines = fileContents?.split('\n').filter((l: string) => l);
   lines?.splice(0, 1);
   lines?.splice(lines.length - 1, 1);
@@ -54,6 +52,7 @@ const parseTDI = (type: string, fileContents?: string) => {
           ? new TDI17Details({})
           : new TDI34Details({});
       details.convertToJson(line);
+
       return details;
     });
 
@@ -62,7 +61,7 @@ const parseTDI = (type: string, fileContents?: string) => {
   };
 };
 
-const uploadParsedTDI = async (
+export const uploadParsedTDI = async (
   type: string,
   s3manager: S3ManagerService,
   output: unknown,
