@@ -1,12 +1,12 @@
 import {
   Column,
   DataType
-} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
+} from '../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../common/fixedWidthRecord/fixedWidthRecord';
-import { transformSalesEventOptions } from '../common/fixedWidthRecord/Resource';
+} from '../common/entities/FixedWidthRecord';
+import { transformSalesEventOptions } from '../common/entities/Resource';
 import { DistributionDTO } from '../sales/dto/distribution.dto';
 import { FEEDER_NUMBER } from './constants';
 

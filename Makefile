@@ -1,13 +1,19 @@
+# Makefile
+ENV ?=$(or $( $(PWD)/.env ),  $(PWD)/.env.example)
+# Environment variables for project
+include $(ENV)
 # Project
 export PROJECT := pcc
-
 # Environment
 export ENV_NAME ?= dev
+
+export PCC_SFTP :=  "$(PCC_SFTP)" 
+export BCM_SFTP :=  "$(BCM_SFTP)"
 
 # LZ2 
 LZ2_PROJECT = iz8ci7
 
-# Terraform Cloud backend config variables
+# Terraform Cloud backend config variables      
 define TF_BACKEND_CFG
 workspaces { name = "$(LZ2_PROJECT)-$(ENV_NAME)" }
 hostname     = "app.terraform.io"
@@ -143,33 +149,6 @@ deploy-gl:
 	aws lambda update-function-code --function-name glGenerator --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
 
 # ===================================
-# Add Local Tdi Files
-# ===================================
-
-put-local-tdi17:
-	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi17/TDI17.TXT --body ./apps/backend/sample-files/TDI17.TXT 
-
-put-local-tdi34:
-	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi34/TDI34.TXT --body ./apps/backend/sample-files/TDI34.TXT 
-
-put-local-ddf:
-	awslocal s3api put-object --bucket bc-pcc-data-files-local --key ddf/DDF.TXT --body ./apps/backend/sample-files/DDF.TXT 
-
-
-# ===================================
-# Parse Local
-# ===================================
-
-parse-local-tdi17:
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT"})'
-
-parse-local-tdi34: 			
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
-
-parse-local-ddf: 			
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
-	 
-# ===================================
 # Local Dev Environmentq
 # ===================================
 
@@ -204,3 +183,39 @@ run-test-pipeline:
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
+
+# ===================================
+# Add Local Tdi Files
+# ===================================
+
+put-local-tdi17:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi17/TDI17.TXT --body ./apps/backend/sample-files/TDI17.TXT 
+
+put-local-tdi34:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi34/TDI34.TXT --body ./apps/backend/sample-files/TDI34.TXT 
+
+put-local-ddf:
+	awslocal s3api put-object --bucket bc-pcc-data-files-local --key ddf/DDF.TXT --body ./apps/backend/sample-files/DDF.TXT 
+
+
+# ===================================
+# Parse Local
+# ===================================
+
+parse-local-tdi17:
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT"})'
+
+parse-local-tdi34: 			
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
+
+parse-local-ddf: 			
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
+
+
+get-daily-recon-files:
+	
+	cd ./apps/backend/src/temp-scripts && BCM_SFTP=$(BCM_SFTP) ./sftp.bcm.sh 
+	
+	cd ./apps/backend/src/temp-scripts &&  PCC_SFTP=$(PCC_SFTP)  ./sftp.garms.sh 
+	
+	

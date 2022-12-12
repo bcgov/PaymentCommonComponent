@@ -32,7 +32,7 @@ export class SalesController {
   })
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
-  async saveSalesEvent(@Body() salesEvent: SalesDTO) {
+  async saveSalesEvent(@Body() salesEvent: SalesDTO[]) {
     this.appLogger.log(salesEvent);
 
     try {

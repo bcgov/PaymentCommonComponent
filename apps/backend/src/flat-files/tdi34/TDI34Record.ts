@@ -1,7 +1,7 @@
 import { TDI34Header } from './TDI34Header';
 import { TDI34Details } from './TDI34Details';
 import { TDI34Trailer } from './TDI34Trailer';
-import { Resource, ResourceBase } from '../../common/fixedWidthRecord/Resource';
+import { Resource, ResourceBase } from '../../common/entities/Resource';
 
 export interface ITDI34Record extends ResourceBase<ITDI34Record> {
   header: TDI34Header;

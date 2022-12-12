@@ -10,7 +10,9 @@ export interface ColumnOptions {
     | TimeOptions
     | CardOptions
     | TransCodeOptions
-    | TransactionTypeOptions;
+    | TransactionTypeOptions
+    | MerchantTypeOptions
+    | TransactionCodeOptions;
   delimiter?: string;
   example?: unknown;
 }
@@ -40,6 +42,14 @@ export interface TransactionTypeOptions {
   type: DataType.TransactionType;
 }
 
+export interface MerchantTypeOptions {
+  type: DataType.MerchantLocation;
+}
+
+export interface TransactionCodeOptions {
+  type: DataType.TransactionCode;
+}
+
 export enum DataType {
   Float = 'Float',
   Integer = 'Integer ',
@@ -47,7 +57,8 @@ export enum DataType {
   Time = 'Time',
   Card = 'Card',
   TransactionCode = 'TransactionCode',
-  TransactionType = 'TransactionType'
+  TransactionType = 'TransactionType',
+  MerchantLocation = 'MerchantLocation'
 }
 
 export const ColumnMetadataKey = Symbol('Column:metadata');

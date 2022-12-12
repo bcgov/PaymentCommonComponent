@@ -4,14 +4,15 @@ import {
   ColumnOptions,
   ColumnVariableKey,
   DataType
-} from './fixedWidthRecord.decorator';
+} from '../decorators/fixedWidthRecord.decorator';
 import {
   timeFormat,
   dateFormat,
   cardVendor,
   transactionCode,
-  transactionType
-} from '../utils';
+  transactionType,
+  mapMerchantToLocation
+} from '../utils/formatFixedWidth';
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
@@ -77,6 +78,8 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
           (target as any)[field] = transactionCode(value);
         } else if (options.format.type === DataType.TransactionType) {
           (target as any)[field] = transactionType(value);
+        } else if (options.format.type === DataType.MerchantLocation) {
+          (target as any)[field] = mapMerchantToLocation(value);
         }
       }
     }

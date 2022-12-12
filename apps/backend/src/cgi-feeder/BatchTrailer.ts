@@ -1,11 +1,11 @@
 import {
   Column,
   DataType
-} from '../common/fixedWidthRecord/fixedWidthRecord.decorator';
+} from '../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../common/fixedWidthRecord/fixedWidthRecord';
+} from '../common/entities/FixedWidthRecord';
 import { FEEDER_NUMBER } from './constants';
 
 export interface IBatchTrailer extends IFixedWidthRecord<IBatchTrailer> {
