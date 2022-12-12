@@ -10,7 +10,7 @@ import {
   Post,
   UseInterceptors
 } from '@nestjs/common';
-import { SalesDTO } from './dto/sales.dto';
+import { SalesReconciliationDTO } from './dto/sales-reconciliation.dto';
 import { SalesService } from './sales.service';
 import { AppLogger } from '../common/logger.service';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -32,11 +32,31 @@ export class SalesController {
   })
   @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
   @HttpCode(HttpStatus.CREATED)
-  async saveSalesEvent(@Body() salesEvent: SalesDTO) {
+  async saveSalesEvent(@Body() salesEvent: SalesReconciliationDTO[]) {
     this.appLogger.log(salesEvent);
 
     try {
       return this.salesService.saveSalesEvent(salesEvent);
+    } catch (e) {
+      throw new InternalServerErrorException(
+        'An unknown error occured while saving a form'
+      );
+    }
+  }
+
+  @Post('/recon')
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiOperation({
+    summary: 'Post Sales Reconciliation Event'
+  })
+  @ApiResponse({ status: HttpStatus.CREATED, type: EmptyResponse })
+  @HttpCode(HttpStatus.CREATED)
+  async saveReconciliationEvent(@Body() reconEvent: any) {
+    this.appLogger.log(reconEvent);
+
+    try {
+      return this.salesService.saveReconciliationEvent(reconEvent);
     } catch (e) {
       throw new InternalServerErrorException(
         'An unknown error occured while saving a form'

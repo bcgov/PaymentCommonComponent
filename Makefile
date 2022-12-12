@@ -1,6 +1,5 @@
 # Project
 export PROJECT := pcc
-
 # Environment
 export ENV_NAME ?= dev
 
@@ -168,7 +167,10 @@ parse-local-tdi34:
 
 parse-local-ddf: 			
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
-	 
+
+get-sftp-files:
+	cd ./apps/backend/src/scripts && ./sftp.garms.sh 
+
 # ===================================
 # Local Dev Environmentq
 # ===================================
