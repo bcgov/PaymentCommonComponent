@@ -14,9 +14,3 @@ APP_ENV=local NODE_ENV=local ts-node -e "require('./parsegarms').handler($file1)
 sleep 5
 
 rm -rf $date
-# curl --request POST \
-#   --url http://localhost:3000/api/v1/sale/recon \
-#   --header 'Content-Type: application/json' \
-#   --data "$file1"
-# sleep 5
-# rm -rf $date
