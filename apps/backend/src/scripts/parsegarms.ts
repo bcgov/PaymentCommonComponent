@@ -15,7 +15,7 @@ export const handler = async (garmsJson: any[], context?: Context) => {
     const sales = await parseSales(garmsJson);
 
     const s3Params = {
-      bucket: `bc-pcc-data-files-${process.env.NODE_ENV}`,
+      bucket: `bc-pcc-data-files-local`,
       key: `outputs/sales/${Date.now()}_sales.json`,
       body: Buffer.from(JSON.stringify(sales))
     };
