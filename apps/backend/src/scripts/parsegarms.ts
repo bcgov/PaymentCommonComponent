@@ -4,19 +4,30 @@ import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
-export const handler = async (garmsJson: any[], context?: Context) => {
+export const handler = async (
+  garmsJson: any[],
+  filepath: any,
+  context?: Context
+) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
   const s3manager = app.get(S3ManagerService);
 
-  appLogger.log({ garmsJson });
   appLogger.log({ context });
   try {
     const sales = await parseSales(garmsJson);
 
+    const formatOutput = (filepath: any) => {
+      const date = filepath.split('').splice(0, 10).join('');
+      filepath = filepath?.split('.').shift();
+      filepath = filepath.split('/').pop();
+      filepath = filepath.split('.').shift();
+      return `${date}/SALES/JSON/${filepath}.json`;
+    };
+
     const s3Params = {
       bucket: `bc-pcc-data-files-local`,
-      key: `outputs/sales/${Date.now()}_sales.json`,
+      key: formatOutput(filepath),
       body: Buffer.from(JSON.stringify(sales))
     };
 
