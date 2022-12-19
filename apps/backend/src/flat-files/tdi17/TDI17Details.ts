@@ -1,11 +1,11 @@
 import {
   Column,
   DataType
-} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+} from '../../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../../common/fixedWidthRecord/fixedWidthRecord';
+} from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   rcd_type: number;
@@ -17,10 +17,10 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   deposit_time: string;
   seq_no: string;
   location_desc: string;
-  deposit_amt_curr: number;
+  deposit_amt_curr: string;
   currency: string;
-  exchange_adj_amt: number;
-  deposit_amt_cdn: number;
+  exchange_adj_amt: string;
+  deposit_amt_cdn: string;
   destination_bank_no: string;
   batch_no: string;
   jv_type: string;
@@ -84,7 +84,7 @@ export class TDI17Details
     this.resource.transaction_type = data;
   }
 
-  @Column({ start: 18, width: 2 })
+  @Column({ start: 18, width: 2, format: { type: DataType.MerchantLocation } })
   public get office_number() {
     return this.resource.office_number;
   }
@@ -99,7 +99,7 @@ export class TDI17Details
   }
 
   public set deposit_time(data) {
-    this.resource.deposit_time = data;
+    this.resource.deposit_time = data ?? '--:--';
   }
 
   @Column({
@@ -123,7 +123,7 @@ export class TDI17Details
     this.resource.location_desc = data;
   }
 
-  @Column({ start: 67, width: 12, format: { type: DataType.Float } })
+  @Column({ start: 67, width: 12 })
   public get deposit_amt_curr() {
     return this.resource.deposit_amt_curr;
   }
@@ -143,10 +143,9 @@ export class TDI17Details
 
   @Column({
     start: 82,
-    width: 12,
-    format: { type: DataType.Float }
+    width: 12
   })
-  public get exchange_adj_amt(): number {
+  public get exchange_adj_amt() {
     return this.resource.exchange_adj_amt;
   }
 
@@ -154,8 +153,8 @@ export class TDI17Details
     this.resource.exchange_adj_amt = data;
   }
 
-  @Column({ start: 95, width: 12, format: { type: DataType.Float } })
-  public get deposit_amt_cdn(): number {
+  @Column({ start: 95, width: 12 })
+  public get deposit_amt_cdn() {
     return this.resource.deposit_amt_cdn;
   }
 
@@ -198,7 +197,7 @@ export class TDI17Details
   public set jv_no(data) {
     this.resource.jv_no = data;
   }
-  @Column({ start: 122, width: 9, format: { type: DataType.Date } })
+  @Column({ start: 131, width: 8, format: { type: DataType.Date } })
   public get transaction_date() {
     return this.resource.transaction_date;
   }
@@ -206,7 +205,7 @@ export class TDI17Details
   public set transaction_date(data) {
     this.resource.transaction_date = data;
   }
-  @Column({ start: 122, width: 9 })
+  @Column({ start: 139, width: 0 })
   public get filler() {
     return this.resource.filler;
   }

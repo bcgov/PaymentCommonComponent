@@ -1,6 +1,6 @@
+import { SalesDTO } from './dto/sales.dto';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AppLogger } from '../common/logger.service';
-import { SalesDTO } from './dto/sales.dto';
 import { FirehoseService } from '../firehose/firehose.service';
 
 @Injectable()
@@ -11,8 +11,8 @@ export class SalesService {
   ) {}
 
   // validateDistributions()
-
-  async saveSalesEvent(event: SalesDTO) {
+  // TODO update the sales api endpoint distributions data
+  async saveSalesEvent(event: SalesDTO[]) {
     this.appLogger.log(event);
     try {
       await (

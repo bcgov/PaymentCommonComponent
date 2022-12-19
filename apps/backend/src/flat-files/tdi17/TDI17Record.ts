@@ -1,7 +1,7 @@
 import { TDI17Header } from './TDI17Header';
 import { TDI17Details } from './TDI17Details';
 import { TDI17Trailer } from './TDI17Trailer';
-import { Resource, ResourceBase } from '../../common/fixedWidthRecord/Resource';
+import { Resource, ResourceBase } from '../../common/entities/Resource';
 
 export interface ITDI17Record extends ResourceBase<ITDI17Record> {
   header: TDI17Header;

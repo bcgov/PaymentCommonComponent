@@ -1,8 +1,8 @@
-import { Resource } from '../src/common/fixedWidthRecord/Resource';
+import { Resource } from '../src/common/entities/Resource';
 
 describe('Resource', () => {
   it('resourceType should  be defined when initializing a Resouce', () => {
-    class TestResource extends Resource<{}> {}
+    class TestResource extends Resource<any> {}
     try {
       new TestResource({});
     } catch (e) {

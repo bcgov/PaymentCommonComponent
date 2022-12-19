@@ -19,6 +19,7 @@ import { ArePaymentMethodsValid } from '../decorators/arePaymentMethodsValid';
 import { DistributionDTO } from './distribution.dto';
 import { PaymentMethodDTO } from './paymentMethod.dto';
 
+//TODO update as per CCFPCM-257
 export class SalesDTO {
   @ApiProperty({
     description: 'Id',

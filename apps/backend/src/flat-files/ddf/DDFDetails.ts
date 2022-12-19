@@ -1,15 +1,15 @@
 import {
   Column,
   DataType
-} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+} from '../../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../../common/fixedWidthRecord/fixedWidthRecord';
+} from '../../common/entities/FixedWidthRecord';
 
 export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
   rcd_type: number;
-  merchant_no: string;
+  location: string;
   terminal_id: string;
   filler1: string;
   card_vendor: string;
@@ -57,14 +57,14 @@ export class DDFDetails
   @Column({
     start: 1,
     width: 8,
-    example: '22046144'
+    format: { type: DataType.MerchantLocation }
   })
-  public get merchant_no() {
-    return this.resource.merchant_no;
+  public get location() {
+    return this.resource.location;
   }
 
-  public set merchant_no(data) {
-    this.resource.merchant_no = data;
+  public set location(data) {
+    this.resource.location = data;
   }
 
   @Column({ start: 9, width: 12, example: 'Y22046144001' })

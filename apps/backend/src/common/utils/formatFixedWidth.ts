@@ -1,3 +1,5 @@
+import { sbcLocationMap } from '../const/location-dictionary';
+
 export const transactionType = (value: string) => {
   switch (value) {
     case '200':
@@ -14,6 +16,8 @@ export const transactionType = (value: string) => {
       return { code: 205, description: 'Mastercard POS' };
     case '206':
       return { code: 206, description: 'Visa' };
+    default:
+      return { code: value, description: 'N/A' };
   }
 };
 
@@ -52,6 +56,8 @@ export const transactionCode = (code: string) => {
       return { code, description: 'Purchase adjustment', type: '-' };
     case '22':
       return { code, description: 'Merchandise Return Adjustment', type: '+' };
+    default:
+      return { code, description: 'N/A', type: 'N/A' };
   }
 };
 
@@ -63,3 +69,17 @@ export const dateFormat = (value: string[]) =>
     value[4],
     value[5]
   ].join('')}-${[value[6], value[7]].join('')}`;
+
+export const mapMerchantToLocation = (value: any) => {
+  try {
+    const findindex = sbcLocationMap.filter(
+      (element: any, i: number) =>
+        element['merchant_terminal'] ||
+        (element['office_id'] === parseInt(value.toString()) && i)
+    );
+
+    return findindex[0];
+  } catch (e) {
+    return value;
+  }
+};

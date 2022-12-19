@@ -1,15 +1,15 @@
 import {
   Column,
   DataType
-} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+} from '../../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../../common/fixedWidthRecord/fixedWidthRecord';
+} from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   rcd_type: number;
-  merchant_no: string;
+  location: string;
   terminal_no: string;
   fill1: string;
   card_vendor: string;
@@ -46,13 +46,13 @@ export class TDI34Details
     this.resource.rcd_type = data;
   }
 
-  @Column({ start: 1, width: 8 })
-  public get merchant_no() {
-    return this.resource.merchant_no;
+  @Column({ start: 1, width: 8, format: { type: DataType.MerchantLocation } })
+  public get location() {
+    return this.resource.location;
   }
 
-  public set merchant_no(data) {
-    this.resource.merchant_no = data;
+  public set location(data) {
+    this.resource.location = data;
   }
 
   @Column({ start: 9, width: 12 })
@@ -188,7 +188,7 @@ export class TDI34Details
     this.resource.echo_data_field = data;
   }
 
-  @Column({ start: 135, width: 36 })
+  @Column({ start: 135, width: 16 })
   public get fill4() {
     return this.resource.fill4;
   }

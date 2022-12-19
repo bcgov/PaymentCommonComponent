@@ -4,7 +4,7 @@ import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { TDI17Details, TDI34Details, DDFDetails } from '../flat-files-to-json';
+import { TDI17Details, TDI34Details, DDFDetails } from '../flat-files';
 
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);

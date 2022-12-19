@@ -1,11 +1,13 @@
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../src/common/fixedWidthRecord/fixedWidthRecord';
+} from '../src/common/entities/FixedWidthRecord';
 
 describe('FixedWidthRecord', () => {
   it('delimiter options should  be defined when initializing a FixedWidthRecord', () => {
-    class TestResource extends FixedWidthRecord<IFixedWidthRecord<{}>> {
+    class TestResource extends FixedWidthRecord<
+      IFixedWidthRecord<Record<string, unknown>>
+    > {
       public static readonly resourceType = 'BatchTrailer';
     }
     try {

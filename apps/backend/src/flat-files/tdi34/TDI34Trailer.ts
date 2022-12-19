@@ -1,11 +1,11 @@
 import {
   Column,
   DataType
-} from '../../common/fixedWidthRecord/fixedWidthRecord.decorator';
+} from '../../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../../common/fixedWidthRecord/fixedWidthRecord';
+} from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI34Trailer extends IFixedWidthRecord<ITDI34Trailer> {
   rcd_type: number;
