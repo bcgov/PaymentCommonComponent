@@ -119,37 +119,37 @@ export const sbcLocationMap = [
     location_id: 97
   },
   {
-    office: 'SBC\u00a0Mobile\u00a0GVA',
+    office: 'SBC Mobile GVA',
     merchant_terminal: 24103838,
     location_id: 62
   },
   {
-    office: 'SBC\u00a0Mobile\u00a0FSSS',
+    office: 'SBC Mobile FSSS',
     merchant_terminal: 24103846,
     location_id: 52
   },
   {
-    office: 'SBC\u00a0Mobile\u00a0VI',
+    office: 'SBC Mobile VI',
     merchant_terminal: 24103853,
     location_id: 54
   },
   {
-    office: 'SBC\u00a0Mobile\u00a0TOCK',
+    office: 'SBC Mobile TOCK',
     merchant_terminal: 24103861,
     location_id: 57
   },
   {
-    office: 'SBC\u00a0Mobile\u00a0NCCI',
+    office: 'SBC Mobile NCCI',
     merchant_terminal: 24103879,
     location_id: 59
   },
   {
-    office: 'SBC\u00a0Mobile\u00a0West Kel',
+    office: 'SBC Mobile West Kel',
     merchant_terminal: 24103887,
     ' location_id': 96
   },
   {
-    office: 'SBC\u00a0Mobile\u00a0KP',
+    office: 'SBC Mobile KP',
     merchant_terminal: 24103895,
     location_id: 53
   }
