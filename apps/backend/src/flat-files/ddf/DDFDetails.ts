@@ -195,8 +195,7 @@ export class DDFDetails
   }
   @Column({
     start: 80,
-    width: 9,
-    format: { type: DataType.Float, precision: 2 }
+    width: 9
   })
   public set transaction_amount(data) {
     this.resource.transaction_amount = data;
