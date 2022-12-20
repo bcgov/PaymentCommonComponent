@@ -41,7 +41,10 @@ export const parseSales = (garmsJson: any[]) => {
       }) => ({
         transaction_id: sales_transaction_id,
         transaction_date: sales_transaction_date,
-        location: mapMerchantToLocation(parseInt(source.location_id)),
+        location: mapMerchantToLocation(
+          'location_id',
+          parseInt(source.location_id)
+        ),
         payments,
         payment_total
       })

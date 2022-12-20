@@ -70,14 +70,12 @@ export const dateFormat = (value: string[]) =>
     value[5]
   ].join('')}-${[value[6], value[7]].join('')}`;
 
-export const mapMerchantToLocation = (value: any) => {
+export const mapMerchantToLocation = (key: any, value: any) => {
   try {
     const findindex = sbcLocationMap.filter(
-      (element: any, i: number) =>
-        (element['location_id'] === value && i) ||
-        (element['merchant_terminal'] === value && i)
+      (element: any, i: number) => element[key] === value && i
     );
-    return findindex[0];
+    return findindex[0] ?? value;
   } catch (e) {
     return value;
   }
