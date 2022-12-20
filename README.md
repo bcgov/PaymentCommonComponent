@@ -31,7 +31,7 @@ Start apps/backend: `make run-local`
 
 ### Auto-Reconciliation Temp-Scripts
 
-- Add the BCM_SFTP and PCC_SFTP to a root .env file (prior to building the project)
+- Add BCM_SFTP and PCC_SFTP in a root .env
 
 - Ensure you are connected to the cisco VPN
 

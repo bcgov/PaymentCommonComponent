@@ -25,3 +25,4 @@ ssh-keypair*
 
 .localstack
 .editorconfig
+.env.example

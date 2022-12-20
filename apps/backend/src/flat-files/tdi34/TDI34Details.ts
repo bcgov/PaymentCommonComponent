@@ -161,7 +161,7 @@ export class TDI34Details
     this.resource.fill3 = data;
   }
 
-  @Column({ start: 80, width: 9, format: { type: DataType.Float } })
+  @Column({ start: 80, width: 9 })
   public get transaction_amt(): number {
     return this.resource.transaction_amt;
   }

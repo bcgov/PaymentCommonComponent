@@ -1,15 +1,10 @@
-# ! /bin/bash
+#! /bin/bash
 
 mkdir temp
-
-export BCM_SFTP=$BCM_SFTP
-
-cmd=$( lftp -d $BCM_SFTP -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/bcmpcc"; mirror -e /outgoing temp ; quit;' )
-
-echo $cmd
-
 mkdir TDI17
 mkdir TDI34
+
+echo $( lftp -d "$BCM_SFTP" -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/bcmpcc"; mirror -e /outgoing temp ; quit;' )
 
 sleep 3
 
@@ -45,7 +40,6 @@ do
     APP_ENV=local NODE_ENV=local ts-node -e "require('./parseFile.ts').parseTDI17(\"$i\")"
 done
 
-sleep 3
 
 rm -rf temp
 rm -rf TDI17

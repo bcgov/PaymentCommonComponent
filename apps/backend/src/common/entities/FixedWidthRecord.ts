@@ -79,7 +79,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
         } else if (options.format.type === DataType.TransactionType) {
           (target as any)[field] = transactionType(value);
         } else if (options.format.type === DataType.MerchantLocation) {
-          (target as any)[field] = mapMerchantToLocation(value);
+          (target as any)[field] = mapMerchantToLocation(parseInt(value));
         }
       }
     }
