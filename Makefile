@@ -1,7 +1,7 @@
 # Makefile
 
 # Environment variables for project
-ENV:=$(PWD)/.env
+ENV := $(PWD)/.env
 
 include $(ENV)
 
