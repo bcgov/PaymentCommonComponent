@@ -2,7 +2,7 @@
 
 mkdir temp
 
-echo $( lftp -d "$PCC_SFTP" -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/pcc-sandbox"; mirror -e /sbc-garms-data/sbc temp; quit;' )
+echo $( lftp -d "$PCC_SFTP" -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/pcc-sandbox"; mirror -e /sbc-garms-data/sbc temp ; quit;' )
 
 sleep 3
 

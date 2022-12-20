@@ -74,8 +74,8 @@ export const mapMerchantToLocation = (value: any) => {
   try {
     const findindex = sbcLocationMap.filter(
       (element: any, i: number) =>
-        element['merchant_terminal'] === parseInt(value.toString()) ||
-        (element['location_id'] === parseInt(value.toString()) && i)
+        (element['location_id'] === value && i) ||
+        (element['merchant_terminal'] === value && i)
     );
     return findindex[0];
   } catch (e) {
