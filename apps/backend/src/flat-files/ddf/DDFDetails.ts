@@ -9,7 +9,7 @@ import {
 
 export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
   rcd_type: number;
-  location: string;
+  merchant_no: string;
   terminal_id: string;
   filler1: string;
   card_vendor: string;
@@ -56,15 +56,14 @@ export class DDFDetails
 
   @Column({
     start: 1,
-    width: 8,
-    format: { type: DataType.MerchantLocation }
+    width: 8
   })
-  public get location() {
-    return this.resource.location;
+  public get merchant_no() {
+    return this.resource.merchant_no;
   }
 
-  public set location(data) {
-    this.resource.location = data;
+  public set merchant_no(data) {
+    this.resource.merchant_no = data;
   }
 
   @Column({ start: 9, width: 12, example: 'Y22046144001' })
