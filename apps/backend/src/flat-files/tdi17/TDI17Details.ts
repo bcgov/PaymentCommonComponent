@@ -13,7 +13,7 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   program_cd: string;
   deposit_date: string;
   transaction_type: number;
-  office_number: string;
+  location: string;
   deposit_time: string;
   seq_no: string;
   location_desc: string;
@@ -85,12 +85,12 @@ export class TDI17Details
   }
 
   @Column({ start: 18, width: 2, format: { type: DataType.MerchantLocation } })
-  public get office_number() {
-    return this.resource.office_number;
+  public get location() {
+    return this.resource.location;
   }
 
-  public set office_number(data) {
-    this.resource.office_number = data;
+  public set location(data) {
+    this.resource.location = data;
   }
 
   @Column({ start: 20, width: 4, format: { type: DataType.Time } })
@@ -197,7 +197,7 @@ export class TDI17Details
   public set jv_no(data) {
     this.resource.jv_no = data;
   }
-  @Column({ start: 131, width: 8, format: { type: DataType.Date } })
+  @Column({ start: 131, width: 0, format: { type: DataType.Date } })
   public get transaction_date() {
     return this.resource.transaction_date;
   }

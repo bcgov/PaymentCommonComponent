@@ -13,6 +13,9 @@ jobs:
       - name: checkout
         uses: actions/checkout@v3
 
+      - name: env
+        run: touch .env
+
       - name: Build Test
         run: make run-test
 

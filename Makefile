@@ -1,13 +1,17 @@
 # Makefile
-ENV ?=$(or $( $(PWD)/.env ),  $(PWD)/.env.example)
+
 # Environment variables for project
+ENV:=$(PWD)/.env
+
 include $(ENV)
+
 # Project
 export PROJECT := pcc
 # Environment
 export ENV_NAME ?= dev
 
 export PCC_SFTP :=  "$(PCC_SFTP)" 
+
 export BCM_SFTP :=  "$(BCM_SFTP)"
 
 # LZ2 
@@ -211,11 +215,9 @@ parse-local-tdi34:
 parse-local-ddf: 			
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
 
-
-get-daily-recon-files:
+get-daily-recon-files:	
+	@echo $(shell cd ./apps/backend/src/temp-scripts && BCM_SFTP=$(BCM_SFTP) ./sftp.bcm.sh) \ 
+	@echo $(shell cd ./apps/backend/src/temp-scripts && PCC_SFTP=$(PCC_SFTP)   ./sftp.garms.sh)  
 	
-	cd ./apps/backend/src/temp-scripts && BCM_SFTP=$(BCM_SFTP) ./sftp.bcm.sh 
-	
-	cd ./apps/backend/src/temp-scripts &&  PCC_SFTP=$(PCC_SFTP)  ./sftp.garms.sh 
 	
 	
