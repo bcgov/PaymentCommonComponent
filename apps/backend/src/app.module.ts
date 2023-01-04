@@ -8,10 +8,14 @@ import { SalesModule } from './sales/sales.module';
 import { FirehoseModule } from './firehose/firehose.module';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { Firehose, S3 } from 'aws-sdk';
+import { ReconciliationModule } from './reconciliation/reconciliation.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
+    DatabaseModule,
     S3ManagerModule,
+    ReconciliationModule,
     SalesModule,
     FirehoseModule,
     ConfigModule.forRoot({

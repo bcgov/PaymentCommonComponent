@@ -1,19 +1,30 @@
 #! /bin/bash
+mkdir transaction
 
-mkdir temp
-
-echo $( lftp -d "$PCC_SFTP" -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/pcc-sandbox"; mirror -e /sbc-garms-data/sbc temp ; quit;' )
+echo $( lftp -d "$PCC_SFTP" -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/pcc-sandbox"; mirror -e /sbc-garms-data/sbc transaction ; quit;' )
 
 sleep 3
 
-files="temp/*.JSON"
+files="transaction/*.JSON"
 
 for f in ${files[@]}
 do
     file1=`cat $f`
-    echo $file1
-    APP_ENV=local NODE_ENV=local ts-node -e "require('./parsegarms.ts').handler($file1, \"$f\")"
+    
+    sleep 1
+    
+    APP_ENV=local ts-node -e "require('./parsegarms.ts').parseSales($file1)" > $f
 
 done
 
-rm -rf temp
+sleep 3
+
+for f in ${files[@]}
+do
+    file=`cat $f`
+    awslocal s3api put-object --bucket bc-pcc-data-files-local --key $f --body $f    
+done
+
+sleep 3
+
+rm -rf transaction

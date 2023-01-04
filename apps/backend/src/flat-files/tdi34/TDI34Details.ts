@@ -9,7 +9,7 @@ import {
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   rcd_type: number;
-  location: string;
+  merchant_terminal: string;
   terminal_no: string;
   fill1: string;
   card_vendor: string;
@@ -46,13 +46,13 @@ export class TDI34Details
     this.resource.rcd_type = data;
   }
 
-  @Column({ start: 1, width: 8, format: { type: DataType.MerchantLocation } })
-  public get location() {
-    return this.resource.location;
+  @Column({ start: 1, width: 8, format: { type: DataType.Integer } })
+  public get merchant_terminal() {
+    return this.resource.merchant_terminal;
   }
 
-  public set location(data) {
-    this.resource.location = data;
+  public set merchant_terminal(data) {
+    this.resource.merchant_terminal = data;
   }
 
   @Column({ start: 9, width: 12 })
@@ -73,7 +73,7 @@ export class TDI34Details
     this.resource.fill1 = data;
   }
 
-  @Column({ start: 26, width: 2, format: { type: DataType.Card } })
+  @Column({ start: 26, width: 2 })
   public get card_vendor() {
     return this.resource.card_vendor;
   }
@@ -122,7 +122,7 @@ export class TDI34Details
     this.resource.settlement_date = data;
   }
 
-  @Column({ start: 67, width: 2, format: { type: DataType.TransactionCode } })
+  @Column({ start: 67, width: 2 })
   public get transaction_cd() {
     return this.resource.transaction_cd;
   }

@@ -1,5 +1,6 @@
 # Makefile
 
+export $(sed 's/=.*//' .env)
 # Environment variables for project
 ENV := $(PWD)/.env
 
@@ -218,3 +219,8 @@ parse-local-ddf:
 get-daily-recon-files:
 	@echo $(shell cd ./apps/backend/src/temp-scripts && PCC_SFTP=$(PCC_SFTP)   ./sftp.garms.sh)  
 	@echo $(shell cd ./apps/backend/src/temp-scripts && BCM_SFTP=$(BCM_SFTP) ./sftp.bcm.sh) 
+
+add-data:
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI17")' 
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI34")' 
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("transaction")' 

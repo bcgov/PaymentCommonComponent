@@ -1,5 +1,5 @@
-import { TDI34Header } from './TDI34Header';
 import { TDI34Details } from './TDI34Details';
+import { TDI34Header } from './TDI34Header';
 import { TDI34Trailer } from './TDI34Trailer';
 import { Resource, ResourceBase } from '../../common/entities/Resource';
 
