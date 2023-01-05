@@ -1,9 +1,21 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-@Entity('cash_deposit(TDI17)')
+@Entity('cash_deposit')
+//TODO discuss unique constrinats and apply
+// @Unique()
 export class CashDepositEntity {
-  @PrimaryGeneratedColumn({ type: 'int' })
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  // TODO
+  //@Column()
+  //metadata: time/program/lambda/source filename
+
+  // @Column()
+  //source_fileheader
+
+  @Column({ default: 'TDI17' })
+  source_file_type: string;
 
   @Column()
   program_cd: string;

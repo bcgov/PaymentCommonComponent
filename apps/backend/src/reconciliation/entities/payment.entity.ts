@@ -9,7 +9,7 @@ import {
 
 @Entity('payment')
 export class PaymentEntity {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @ManyToOne(
@@ -21,7 +21,7 @@ export class PaymentEntity {
   transaction: TransactionEntity;
 
   @Column()
-  method: string;
+  method: number;
 
   @Column()
   amount?: string;
@@ -31,8 +31,4 @@ export class PaymentEntity {
 
   @Column({ nullable: true })
   exchange_rate?: string;
-
-  constructor(data?: any) {
-    Object.assign(this, data);
-  }
 }

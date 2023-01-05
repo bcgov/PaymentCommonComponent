@@ -22,7 +22,10 @@ export const handler = async (event?: any, context?: Context) => {
   const addDataToDB = (file: string) => {
     s3.getContents('bc-pcc-data-files-local', file).then((parsed) => {
       event === 'transaction'
-        ? reconService.addSales(JSON.parse(parsed?.Body?.toString() || ''))
+        ? reconService.addData(
+            event,
+            JSON.parse(parsed?.Body?.toString() || '')
+          )
         : reconService.addData(event, parseTDI(event, parsed.Body?.toString()));
     });
   };
