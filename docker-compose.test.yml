@@ -15,9 +15,6 @@ services:
       - "5432:5432"
     volumes:
       - data:/var/lib/postgresql/data
-    networks:
-      - db
-      - localstack-net
   backend:
     image: ${PROJECT}-backend-test:${GIT_LOCAL_BRANCH}
     container_name: ${PROJECT}-backend-test
