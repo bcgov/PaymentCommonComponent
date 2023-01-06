@@ -75,7 +75,6 @@ resource "aws_transfer_user" "sbc" {
   server_id      = aws_transfer_server.sftp.id
   user_name      = "sbc"
   role           = aws_iam_role.sftp_user.arn
-  # home_directory = "/${aws_s3_bucket.sftp_storage.id}/sbc"
   home_directory_type       = "LOGICAL"
 
   home_directory_mappings {
@@ -94,7 +93,6 @@ resource "aws_transfer_user" "pcc" {
   server_id      = aws_transfer_server.sftp.id
   user_name      = "pcc"
   role           = aws_iam_role.sftp_user.arn
-  # home_directory = "/${aws_s3_bucket.sftp_storage.id}/pcc"
   home_directory_type       = "LOGICAL"
   home_directory_mappings {
     entry  = "/"
@@ -106,4 +104,9 @@ resource "aws_transfer_ssh_key" "pcc" {
   server_id = aws_transfer_server.sftp.id
   user_name = aws_transfer_user.pcc.user_name
   body      = data.aws_ssm_parameter.sftp_user_pcc.value
+}
+
+
+output "sftp_url" {
+  value = aws_transfer_server.sftp.endpoint
 }
