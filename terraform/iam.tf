@@ -39,17 +39,6 @@ data "aws_iam_policy_document" "lambda" {
       "arn:aws:s3:::${aws_s3_bucket.bc_pcc_files_bucket.id}/*"
     ]
   }
-  statement {
-    sid    = "allowFirehoseAccess"
-    effect = "Allow"
-    actions = [
-      "firehose:PutRecord",
-      "firehose:PutRecordBatch",
-    ]
-    resources = [
-      aws_kinesis_firehose_delivery_stream.sales_events_to_s3_delivery_stream.arn
-    ]
-  }
 }
 
 resource "aws_iam_role_policy_attachment" "lambda_cloudwatch" {
