@@ -5,14 +5,7 @@ import {
   ColumnVariableKey,
   DataType
 } from '../decorators/fixedWidthRecord.decorator';
-import {
-  timeFormat,
-  dateFormat,
-  cardVendor,
-  transactionCode,
-  transactionType,
-  mapMerchantToLocation
-} from '../utils/formatFixedWidth';
+import { timeFormat, dateFormat } from '../utils/formatFixedWidth';
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
@@ -57,6 +50,13 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
         target,
         field
       );
+
+      const makeDecimal = (arr: string[]): string => {
+        return `${arr.splice(0, arr.length - 2).join('')}.${arr
+          .splice(arr.length - 2, 2)
+          .join('')}`;
+      };
+
       const value = line
         .substring(options.start, options.start + options.width)
         .trim();
@@ -72,14 +72,10 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
           (target as any)[field] = dateFormat(value.split(''));
         } else if (options.format.type === DataType.Time) {
           (target as any)[field] = value ? timeFormat(value.split('')) : '';
-        } else if (options.format.type === DataType.Card) {
-          (target as any)[field] = cardVendor(value);
-        } else if (options.format.type === DataType.TransactionCode) {
-          (target as any)[field] = transactionCode(value);
-        } else if (options.format.type === DataType.TransactionType) {
-          (target as any)[field] = transactionType(value);
-        } else if (options.format.type === DataType.MerchantLocation) {
-          (target as any)[field] = mapMerchantToLocation(parseInt(value));
+        } else if (options.format.type === DataType.Decimal) {
+          (target as any)[field] = makeDecimal(
+            parseInt(value).toString().split('')
+          );
         }
       }
     }

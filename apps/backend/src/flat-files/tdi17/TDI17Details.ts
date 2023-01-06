@@ -17,10 +17,10 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   deposit_time: string;
   seq_no: string;
   location_desc: string;
-  deposit_amt_curr: string;
+  deposit_amt_curr: number;
   currency: string;
-  exchange_adj_amt: string;
-  deposit_amt_cdn: string;
+  exchange_adj_amt: number;
+  deposit_amt_cdn: number;
   destination_bank_no: string;
   batch_no: string;
   jv_type: string;
@@ -123,7 +123,7 @@ export class TDI17Details
     this.resource.location_desc = data;
   }
 
-  @Column({ start: 67, width: 12 })
+  @Column({ start: 67, width: 12, format: { type: DataType.Decimal } })
   public get deposit_amt_curr() {
     return this.resource.deposit_amt_curr;
   }
@@ -143,7 +143,8 @@ export class TDI17Details
 
   @Column({
     start: 82,
-    width: 12
+    width: 12,
+    format: { type: DataType.Decimal }
   })
   public get exchange_adj_amt() {
     return this.resource.exchange_adj_amt;
@@ -153,7 +154,7 @@ export class TDI17Details
     this.resource.exchange_adj_amt = data;
   }
 
-  @Column({ start: 95, width: 12 })
+  @Column({ start: 95, width: 12, format: { type: DataType.Decimal } })
   public get deposit_amt_cdn() {
     return this.resource.deposit_amt_cdn;
   }

@@ -22,13 +22,13 @@ export const parseSales = (garmsJson: any[]) => {
       )[0],
       payments: payments.map(
         ({ amount, method, exchange_rate, currency }: any) => ({
-          amount: parseInt(amount),
+          amount,
           method,
           exchange_rate,
           currency
         })
       ),
-      payment_total: parseInt(payment_total)
+      payment_total: parseFloat(payment_total)
     })
   );
   /* eslint-disable no-console */
