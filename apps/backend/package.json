@@ -31,7 +31,7 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "test:pipeline": "NODE_ENV=local RUNTIME_ENV=local jest  --config ./test/jest.json --runInBand",
+    "test:pipeline": "NODE_ENV=local RUNTIME_ENV=local jest  --config ./test/jest.json --runInBand --detectOpenHandles",
     "lint-staged": "lint-staged",
     "nibble": "eslint-nibble --ext .ts src/",
     "db:seed": "NODE_ENV=local ts-node ./src/database/seed.ts"

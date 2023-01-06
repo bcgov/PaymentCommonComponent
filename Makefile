@@ -180,8 +180,8 @@ close-local:
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
-	@docker-compose -f docker-compose.test.yml up -d
-
+	@docker-compose -f docker-compose.test.yml up --build -d 
+	
 run-test-pipeline:
 	@docker exec -i $(PROJECT)-backend-test yarn run test:pipeline
 
