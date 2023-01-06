@@ -6,7 +6,8 @@ services:
     restart: always
     env_file: .env
     environment:
-      - POSTGRES_HOST=localhost
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
       - POSTGRES_DB=test
       - POSTGRES_USER=test
       - POSTGRES_PASSWORD=test
@@ -30,7 +31,8 @@ services:
       - DB_NAME=test
       - DB_USER=test
       - DB_PASSWORD=test
-      - CHOKIDAR_USEPOLLING="true"
+      - ALLOWED_EMPTY_PASSWORD=yes
+      - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
       - NODE_ENV=local
       - RUNTIME_ENV=local
