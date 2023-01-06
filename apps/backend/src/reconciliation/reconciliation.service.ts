@@ -47,7 +47,7 @@ export class ReconciliationService {
       data.details.map((itm: any) =>
         this.TDI17.save(
           this.TDI17.create({
-            program_cd: itm.program_cd,
+            program_code: itm.program_cd,
             deposit_date: itm.deposit_date,
             transaction_type: itm.transaction_type,
             location_id: itm.location_id,

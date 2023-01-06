@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   db:
-    image: postgres:13-alpine
+    image: postgres:14-alpine
     container_name: db
     restart: always
     env_file: .env
@@ -37,7 +37,7 @@ services:
       - DB_NAME=${DB_NAME}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - ALLOW_EMPTY_PASSWORD=yes
+      # watch for files changes within the container
       - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
       - NODE_ENV=local

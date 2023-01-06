@@ -18,7 +18,7 @@ export class CashDepositEntity {
   source_file_type: string;
 
   @Column()
-  program_cd: string;
+  program_code: string;
 
   @Column()
   deposit_date: string;
