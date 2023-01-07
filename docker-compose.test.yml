@@ -1,17 +1,41 @@
 version: "3.7"
 services:
+  db:
+    image: postgres:14-alpine
+    container_name: ${PROJECT}-db-test
+    restart: always
+    environment:
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=test
+      - POSTGRES_USER=test
+      - POSTGRES_PASSWORD=test
+      - POSTGRES_ROOT_PASSWORD=test
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - default
   backend:
     image: ${PROJECT}-backend-test:${GIT_LOCAL_BRANCH}
     container_name: ${PROJECT}-backend-test
-    build: 
-      context: './apps/backend'
+    restart: always
+    build:
+      context: "./apps/backend"
       target: development
     networks:
       - localstack-net
+      - default
     ports:
-      - "3001:3000"
+      - "3000:3000"
     environment:
-      - CHOKIDAR_USEPOLLING="true"
+      - DB_HOST=db
+      - DB_NAME=test
+      - DB_USER=test
+      - DB_PASSWORD=test
+      - ALLOWED_EMPTY_PASSWORD=yes
+      - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
       - NODE_ENV=local
       - RUNTIME_ENV=local
@@ -23,6 +47,8 @@ services:
     volumes:
       - ./apps/backend:/usr/src/app
       - /usr/src/app/node_modules
+    depends_on:
+      - db
   localstack:
     container_name: ${PROJECT}-localstack
     image: localstack/localstack-full:1.1.0
@@ -47,7 +73,13 @@ services:
       - ./.localstack:/var/lib/localstack
       - ./localstack/init/ready.d:/etc/localstack/init/ready.d
 networks:
+  default:
+    driver: bridge
   localstack-net:
     external: false
     driver: bridge
     name: localstack-net
+volumes:
+  data:
+  localstack:
+    driver: local

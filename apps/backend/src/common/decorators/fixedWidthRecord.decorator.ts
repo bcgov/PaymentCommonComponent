@@ -4,6 +4,7 @@ export interface ColumnOptions {
   start: number;
   width: number;
   format?:
+    | DecimalOptions
     | FloatOptions
     | IntOptions
     | DateOptions
@@ -15,6 +16,9 @@ export interface ColumnOptions {
     | TransactionCodeOptions;
   delimiter?: string;
   example?: unknown;
+}
+export interface DecimalOptions {
+  type: DataType.Decimal;
 }
 export interface CardOptions {
   type: DataType.Card;
@@ -51,6 +55,7 @@ export interface TransactionCodeOptions {
 }
 
 export enum DataType {
+  Decimal = 'Decimal',
   Float = 'Float',
   Integer = 'Integer ',
   Date = 'Date',

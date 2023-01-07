@@ -1,5 +1,6 @@
 # Makefile
 
+export $(sed 's/=.*//' .env)
 # Environment variables for project
 ENV := $(PWD)/.env
 
@@ -179,8 +180,8 @@ close-local:
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
-	@docker-compose -f docker-compose.test.yml up -d
-
+	@docker-compose -f docker-compose.test.yml up --build -d 
+	
 run-test-pipeline:
 	@docker exec -i $(PROJECT)-backend-test yarn run test:pipeline
 
@@ -218,3 +219,8 @@ parse-local-ddf:
 get-daily-recon-files:
 	@echo $(shell cd ./apps/backend/src/temp-scripts && PCC_SFTP=$(PCC_SFTP)   ./sftp.garms.sh)  
 	@echo $(shell cd ./apps/backend/src/temp-scripts && BCM_SFTP=$(BCM_SFTP) ./sftp.bcm.sh) 
+
+add-data:
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI17")' 
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI34")'
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("transaction")' 

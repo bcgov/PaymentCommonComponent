@@ -25,11 +25,30 @@ Yarn V2 is the latest version.
 
 Yarn V2 needs to be enabled in node js versions 16 and above - Follow these steps to get yarn setup locally - https://yarnpkg.com/getting-started/install
 
-### Running The Project Locally
+#### Environment Variables
 
-Start apps/backend: `make run-local`
+Create a .env file at the root prior to running the project
 
-### Auto-Reconciliation Temp-Scripts
+- PCC_SFTP=
+- BCM_SFTP=
+- DB_HOST=
+- DB_NAME=
+- DB_USER=
+- DB_PASSWORD=
+- DB_ROOT_PASSWORD=
+- DB_PORT=
+- AWS_ACCESS_KEY_ID=
+- AWS_SECRET_ACCESS_KEY=
+- AWS_DEFAULT_REGION=
+
+### Running The Project Locally (Docker)
+
+Build docker containers: `make build-local`
+Run docker containers: `make run-local`
+Close docker containers: `make close-local`
+Local api logs: `make local-backend-logs`
+
+### SFTP files and scripts to fill the database
 
 - Add BCM_SFTP and PCC_SFTP in a root .env
 
@@ -40,3 +59,7 @@ Start apps/backend: `make run-local`
 - For the env vars reach out to anyone on the team, the format is: 'sftp://<username>@<server>'
 
 - Run `make get-daily-recon-files`
+
+- Check that your cyber duck/ local stack has the files
+
+- Run `make add-data` to populate the db

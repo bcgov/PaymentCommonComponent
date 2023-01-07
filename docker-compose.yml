@@ -1,30 +1,57 @@
 version: "3.7"
 services:
+  db:
+    image: postgres:14-alpine
+    container_name: db
+    restart: always
+    env_file: .env
+    environment:
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+      - ./data:/var/lib/postgresql/data
+    networks:
+      - db
+      - localstack-net
   backend:
     image: ${PROJECT}-server:${GIT_LOCAL_BRANCH}
     container_name: ${PROJECT}-backend
-    build: 
-      context: './apps/backend'
+    build:
+      context: "./apps/backend"
       target: development
     restart: unless-stopped
     stdin_open: true
     networks:
+      - db
       - localstack-net
     ports:
       - "3000:3000"
     environment:
-      - CHOKIDAR_USEPOLLING="true"
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      # watch for files changes within the container
+      - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
       - NODE_ENV=local
       - RUNTIME_ENV=local
-      - AWS_ACCESS_KEY_ID="test"
-      - AWS_SECRET_ACCESS_KEY="test"
-      - AWS_DEFAULT_REGION="ca-central-1"
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_REGION}
       - YARN_VERSION=3.2.3
       - AWS_ENDPOINT=http://localstack:4566
     volumes:
       - ./apps/backend:/usr/src/app
       - /usr/src/app/node_modules
+    depends_on:
+      - db
   localstack:
     container_name: ${PROJECT}-localstack
     image: localstack/localstack-full:1.1.0
@@ -49,7 +76,14 @@ services:
       - ./.localstack:/var/lib/localstack
       - ./localstack/init/ready.d:/etc/localstack/init/ready.d
 networks:
+  db:
+    driver: bridge
+    name: db
   localstack-net:
     external: false
     driver: bridge
     name: localstack-net
+volumes:
+  data:
+  localstack:
+    driver: local

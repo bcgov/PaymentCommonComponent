@@ -1,5 +1,3 @@
-import { sbcLocationMap } from '../const/location-dictionary';
-
 export const transactionType = (value: string) => {
   switch (value) {
     case '200':
@@ -69,16 +67,3 @@ export const dateFormat = (value: string[]) =>
     value[4],
     value[5]
   ].join('')}-${[value[6], value[7]].join('')}`;
-
-export const mapMerchantToLocation = (value: any) => {
-  try {
-    const findindex = sbcLocationMap.filter(
-      (element: any, i: number) =>
-        (element['location_id'] === value && i) ||
-        (element['merchant_terminal'] === value && i)
-    );
-    return findindex[0];
-  } catch (e) {
-    return value;
-  }
-};

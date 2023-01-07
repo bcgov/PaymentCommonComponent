@@ -28,7 +28,6 @@ for i in ${TDI34[@]}
 do  
     awslocal s3api put-object --bucket bc-pcc-data-files-local --key $i --body $i    
 
-    APP_ENV=local NODE_ENV=local ts-node -e "require('./parseFile.ts').parseTDI34(\"$i\")"
 done
 sleep 3
 
@@ -37,9 +36,9 @@ for i in ${TDI17[@]}
 do  
     awslocal s3api put-object --bucket bc-pcc-data-files-local --key $i --body $i    
 
-    APP_ENV=local NODE_ENV=local ts-node -e "require('./parseFile.ts').parseTDI17(\"$i\")"
 done
 
+sleep 3
 
 rm -rf temp
 rm -rf TDI17
