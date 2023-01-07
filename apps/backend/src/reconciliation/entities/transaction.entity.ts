@@ -19,7 +19,7 @@ export class TransactionEntity {
   transaction_time?: string;
 
   @Column()
-  payment_total: number;
+  payment_total: string;
 
   @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
     cascade: true

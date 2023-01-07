@@ -1,5 +1,4 @@
 import { TransactionDTO } from '../sales/dto/transaction.dto';
-import { locations } from '../reconciliation/const';
 
 export const parseSales = (garmsJson: any[]) => {
   const out: TransactionDTO[] = garmsJson.map(
@@ -17,9 +16,6 @@ export const parseSales = (garmsJson: any[]) => {
         .splice(11, 10)
         .join(''),
       location_id: parseInt(source.location_id),
-      location_desc: locations.filter(
-        (itm) => itm.location_id === source.location_id
-      )[0],
       payments: payments.map(
         ({ amount, method, exchange_rate, currency }: any) => ({
           amount,
