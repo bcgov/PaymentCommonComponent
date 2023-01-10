@@ -1,0 +1,19 @@
+services:
+  - name: PaymentAPI
+    url: https://ee1uqiu7x1.execute-api.ca-central-1.amazonaws.com/api/
+    tags: [ ns.payment ]
+    routes:
+      - tags:
+          - OAS3_import
+          - ns.payment
+        name: SalesController_saveSalesEvent
+        methods:
+          - POST
+        paths:
+          - /api/v1/sale
+        strip_path: false
+        hosts:
+          - payment.api.gov.bc.ca
+    tags:
+      - OAS3_import
+      - ns.payment
