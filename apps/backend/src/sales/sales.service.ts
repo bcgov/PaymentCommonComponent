@@ -25,6 +25,6 @@ export class SalesService {
       this.appLogger.error(err);
       throw err;
     }
-    return;
+    return parseGarms(event);
   }
 }
