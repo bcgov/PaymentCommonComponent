@@ -37,7 +37,7 @@ export class ReconciliationController {
         },
         fileType: {
           type: 'string',
-          enum: ['TDI17', 'TDI34', 'DDF'],
+          enum: ['TDI17', 'TDI34'],
           nullable: false
         },
         file: {
