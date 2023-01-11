@@ -1,6 +1,4 @@
-import { GarmsDTO } from '../../reconciliation/dto/garms.dto';
-
-export const parseGarms = (garmsJson: GarmsDTO[]): any[] => {
+export const parseGarms = (garmsJson: any[]): any[] => {
   return garmsJson.map(
     ({
       sales_transaction_id,
