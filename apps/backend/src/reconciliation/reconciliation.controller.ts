@@ -6,22 +6,12 @@ import {
   Controller,
   ClassSerializerInterceptor,
   Inject,
-  Logger,
-  HttpCode,
-  HttpStatus
+  Logger
 } from '@nestjs/common';
-import {
-  ApiResponse,
-  ApiOperation,
-  ApiConsumes,
-  ApiBody,
-  ApiTags
-} from '@nestjs/swagger';
+import { ApiOperation, ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppLogger } from '../common/logger.service';
 import { ReconciliationService } from './reconciliation.service';
-import { GarmsDTO } from './dto/garms.dto';
-import { TransactionEntity } from './entities/transaction.entity';
 
 @Controller('parse')
 @ApiTags('Flat File and Garms Json Test Parser API')
@@ -70,62 +60,25 @@ export class ReconciliationController {
     );
   }
 
-  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Post Transaction Data'
   })
-  @ApiConsumes('application/json')
+  @Post('garms-json')
+  @UseInterceptors(ClassSerializerInterceptor)
+  @ApiConsumes('multipart/form-data')
   @ApiBody({
     schema: {
-      example: [
-        {
-          sales_transaction_id: '20221212-00002-1000001',
-          sales_transaction_date: '2022-12-12-11.57.00.986053',
-          fiscal_close_date: '20221212',
-          payment_total: 52.5,
-          void_indicator: ' ',
-          transaction_reference: '',
-          payments: [
-            {
-              amount: 52.5,
-              currency: 'CAD',
-              exchange_rate: '0.000',
-              method: '01'
-            }
-          ],
-          source: { location_id: '00001' }
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary'
         }
-      ]
-    }
-  })
-  @ApiResponse({
-    status: HttpStatus.CREATED,
-    schema: {
-      example: {
-        data: [
-          {
-            transaction_id: '20221212-00002-1000004',
-            location_id: 1,
-            transaction_date: '2022-12-12',
-            transaction_time: '11.57.00.9',
-            payment_total: 52.5,
-            payments: [
-              {
-                method: '01',
-                amount: 52.5,
-                currency: 'CAD',
-                exchange_rate: '0.000'
-              }
-            ]
-          }
-        ]
       }
     }
   })
-  @Post('garms-json')
-  async postTransactionData(
-    @Body() garmsDTO: GarmsDTO[]
-  ): Promise<TransactionEntity[]> {
-    return await this.reconService.parseAndReturnGarms(garmsDTO);
+  @UseInterceptors(FileInterceptor('file'))
+  uploadGarmsJsonFile(@UploadedFile() file: Express.Multer.File) {
+    return this.reconService.readAndParseGarms(file.originalname, file.buffer);
   }
 }

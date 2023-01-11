@@ -22,6 +22,16 @@ export class ReconciliationService {
     private cashDepositRepo: Repository<CashDepositEntity>
   ) {}
 
+  //TODO this is temporary for testing the parsed garms json only
+  async readAndParseGarms(filename: string, filebuffer: Buffer) {
+    try {
+      return parseGarms(JSON.parse(filebuffer.toString()));
+    } catch (e) {
+      this.appLogger.error(e);
+      throw e;
+    }
+  }
+
   async readAndParseFile(
     type: string,
     program: string,
@@ -71,15 +81,6 @@ export class ReconciliationService {
             await this.salesRepo.save(this.salesRepo.create(itm))
         )
       );
-    } catch (e) {
-      this.appLogger.error(e);
-      throw e;
-    }
-  }
-  //TODO this is temporary for testing the parsed garms json only
-  async parseAndReturnGarms(data: any[]): Promise<any> {
-    try {
-      return parseGarms(data);
     } catch (e) {
       this.appLogger.error(e);
       throw e;
