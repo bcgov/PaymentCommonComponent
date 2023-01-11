@@ -1,7 +1,8 @@
-import { SalesDTO } from './dto/sales.dto';
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { SalesDTO } from './dto/sales.dto';
 import { AppLogger } from '../common/logger.service';
 import { FirehoseService } from '../firehose/firehose.service';
+import { parseGarms } from '../lambdas/utils/parseGarms';
 
 @Injectable()
 export class SalesService {
@@ -17,7 +18,7 @@ export class SalesService {
     try {
       await (
         await this.firehoseService.putRecord(
-          event as unknown as Record<string, string>
+          parseGarms(event) as unknown as Record<string, string>
         )
       ).promise();
     } catch (err) {
