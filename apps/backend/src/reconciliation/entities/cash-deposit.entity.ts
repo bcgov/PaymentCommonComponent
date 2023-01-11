@@ -1,32 +1,28 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { FileMetadata } from '../columns/metadata.col';
 
 @Entity('cash_deposit')
 //TODO discuss unique constrinats and apply
-// @Unique()
 export class CashDepositEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // TODO
-  //@Column()
-  //metadata: time/program/lambda/source filename
-
-  // @Column()
-  //source_fileheader
+  @Column(() => FileMetadata, { prefix: false })
+  metadata: FileMetadata;
 
   @Column({ default: 'TDI17' })
   source_file_type: string;
 
-  @Column()
-  program_code: string;
+  @Column({ nullable: true })
+  program_code?: string;
 
-  @Column()
+  @Column({ nullable: true })
   deposit_date: string;
 
   @Column({ nullable: true })
   transaction_type: number;
 
-  @Column()
+  @Column({ nullable: true })
   location_id: number;
 
   @Column({ nullable: true })
@@ -35,22 +31,22 @@ export class CashDepositEntity {
   @Column({ nullable: true })
   seq_no: string;
 
-  @Column()
+  @Column({ nullable: true })
   location_desc: string;
 
-  @Column()
-  deposit_amt_curr: string;
+  @Column({ type: 'numeric', nullable: true })
+  deposit_amt_curr: number;
 
   @Column({ nullable: true })
   currency: string;
 
+  @Column({ type: 'numeric', nullable: true })
+  exchange_adj_amt: number;
+
+  @Column({ type: 'numeric', nullable: true })
+  deposit_amt_cdn: number;
+
   @Column({ nullable: true })
-  exchange_adj_amt: string;
-
-  @Column()
-  deposit_amt_cdn: string;
-
-  @Column()
   destination_bank_no: string;
 
   @Column({ nullable: true })

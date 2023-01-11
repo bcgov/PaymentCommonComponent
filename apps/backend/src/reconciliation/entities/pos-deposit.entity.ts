@@ -1,26 +1,13 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { FileMetadata } from '../columns/metadata.col';
 
 @Entity('pos_deposit')
-//TODO
-// @Unique([
-//   'card_vendor',
-//   'merchant_terminal',
-//   'terminal_no',
-//   'card_id',
-//   'transaction_date',
-//   'transaction_time',
-//   'transaction_amt'
-// ])
 export class POSDepositEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  // TODO
-  //@Column()
-  //metadata: time/program/lambda/source filename
-
-  // @Column()
-  //source_fileheader
+  @Column(() => FileMetadata)
+  metadata: FileMetadata;
 
   @Column({ default: 'TDI34' })
   source_file_type: string;
@@ -29,7 +16,7 @@ export class POSDepositEntity {
   card_vendor: string;
 
   @Column()
-  merchant_terminal: number;
+  merchant_id: number;
 
   @Column()
   terminal_no: string;
@@ -46,8 +33,8 @@ export class POSDepositEntity {
   @Column()
   settlement_date: string;
 
-  @Column()
-  transaction_amt: string;
+  @Column({ type: 'numeric' })
+  transaction_amt: number;
 
   @Column({ nullable: true })
   transaction_code: number;

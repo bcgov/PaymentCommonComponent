@@ -1,7 +1,7 @@
-import { TransactionDTO } from '../sales/dto/transaction.dto';
+import { GarmsDTO } from '../../reconciliation/dto/garms.dto';
 
-export const parseSales = (garmsJson: any[]) => {
-  const out: TransactionDTO[] = garmsJson.map(
+export const parseGarms = (garmsJson: GarmsDTO[]): any[] => {
+  return garmsJson.map(
     ({
       sales_transaction_id,
       sales_transaction_date,
@@ -17,17 +17,14 @@ export const parseSales = (garmsJson: any[]) => {
         .join(''),
       location_id: parseInt(source.location_id),
       payments: payments.map(
-        ({ amount, method, exchange_rate, currency }: any) => ({
-          amount,
+        ({ method, amount, exchange_rate, currency }: any) => ({
           method,
+          amount,
           exchange_rate,
           currency
         })
       ),
-      payment_total: parseFloat(payment_total)
+      payment_total
     })
   );
-  /* eslint-disable no-console */
-  console.log(JSON.stringify(out));
-  return JSON.stringify(out);
 };

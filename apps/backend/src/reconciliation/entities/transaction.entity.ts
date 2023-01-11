@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { OneToMany, Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 
 @Entity('transaction')
@@ -18,11 +18,12 @@ export class TransactionEntity {
   @Column({ nullable: true })
   transaction_time?: string;
 
-  @Column()
-  payment_total: string;
+  @Column({ type: 'numeric' })
+  payment_total: number;
 
   @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
-    cascade: true
+    cascade: true,
+    eager: true
   })
   payments: PaymentEntity[];
 }
