@@ -1,7 +1,7 @@
 export const tdi34Keys = [
   'resourceType',
   'rcd_type',
-  'merchant_no',
+  'merchant_id',
   'terminal_no',
   'fill1',
   'card_vendor',
@@ -11,22 +11,23 @@ export const tdi34Keys = [
   'settlement_date',
   'transaction_cd',
   'fill2',
-  'approval_cd',
+  'approval_code',
   'fill3',
   'transaction_amt',
   'invoice_no',
   'echo_data_field',
-  'fill4'
+  'fill4',
+  'metadata'
 ];
 
 export const tdi17Keys = [
   'resourceType',
   'rcd_type',
   'ministry_no',
-  'program_cd',
+  'program_code',
   'deposit_date',
   'transaction_type',
-  'office_number',
+  'location_id',
   'deposit_time',
   'seq_no',
   'location_desc',
@@ -39,7 +40,8 @@ export const tdi17Keys = [
   'jv_type',
   'jv_no',
   'transaction_date',
-  'filler'
+  'filler',
+  'metadata'
 ];
 
 export const ddfKeys = [
@@ -63,5 +65,6 @@ export const ddfKeys = [
   'client_transaction_id',
   'merchant_id',
   'filler4',
-  'filler5'
+  'filler5',
+  'metadata'
 ];
