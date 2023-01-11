@@ -86,13 +86,4 @@ export class ReconciliationService {
       throw e;
     }
   }
-  //TODO this is temporary for testing the parsed garms json only
-  async parseAndReturnGarms(data: any[]): Promise<any> {
-    try {
-      return parseGarms(data);
-    } catch (e) {
-      this.appLogger.error(e);
-      throw e;
-    }
-  }
 }
