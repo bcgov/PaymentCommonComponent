@@ -8,8 +8,9 @@ import {
 } from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
+  metadata: any;
   rcd_type: number;
-  merchant_terminal: string;
+  merchant_id: string;
   terminal_no: string;
   fill1: string;
   card_vendor: string;
@@ -19,7 +20,7 @@ export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   settlement_date: string;
   transaction_cd: string;
   fill2: string;
-  approval_cd: string;
+  approval_code: string;
   fill3: string;
   transaction_amt: number;
   invoice_no: string;
@@ -37,6 +38,14 @@ export class TDI34Details
     super(init);
   }
 
+  public get metadata() {
+    return this.resource.metadata;
+  }
+
+  public set metadata(data) {
+    this.resource.metadata = data;
+  }
+
   @Column({ start: 0, width: 1, format: { type: DataType.Integer } })
   public get rcd_type(): number {
     return this.resource.rcd_type;
@@ -47,12 +56,12 @@ export class TDI34Details
   }
 
   @Column({ start: 1, width: 8, format: { type: DataType.Integer } })
-  public get merchant_terminal() {
-    return this.resource.merchant_terminal;
+  public get merchant_id() {
+    return this.resource.merchant_id;
   }
 
-  public set merchant_terminal(data) {
-    this.resource.merchant_terminal = data;
+  public set merchant_id(data) {
+    this.resource.merchant_id = data;
   }
 
   @Column({ start: 9, width: 12 })
@@ -141,12 +150,12 @@ export class TDI34Details
   }
 
   @Column({ start: 72, width: 6 })
-  public get approval_cd() {
-    return this.resource.approval_cd;
+  public get approval_code() {
+    return this.resource.approval_code;
   }
 
-  public set approval_cd(data) {
-    this.resource.approval_cd = data;
+  public set approval_code(data) {
+    this.resource.approval_code = data;
   }
 
   @Column({

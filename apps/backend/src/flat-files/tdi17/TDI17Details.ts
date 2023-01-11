@@ -8,9 +8,10 @@ import {
 } from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
+  metadata: any;
   rcd_type: number;
   ministry_no: string;
-  program_cd: string;
+  program_code: string;
   deposit_date: string;
   transaction_type: number;
   location_id: number;
@@ -39,6 +40,14 @@ export class TDI17Details
     super(init);
   }
 
+  public get metadata(): any {
+    return this.resource.metadata;
+  }
+
+  public set metadata(data) {
+    this.resource.metadata = data;
+  }
+
   @Column({ start: 0, width: 1, format: { type: DataType.Integer } })
   public get rcd_type(): number {
     return this.resource.rcd_type;
@@ -58,12 +67,12 @@ export class TDI17Details
   }
 
   @Column({ start: 3, width: 4 })
-  public get program_cd() {
-    return this.resource.program_cd;
+  public get program_code() {
+    return this.resource.program_code;
   }
 
-  public set program_cd(data) {
-    this.resource.program_cd = data;
+  public set program_code(data) {
+    this.resource.program_code = data;
   }
 
   @Column({ start: 7, width: 8, format: { type: DataType.Date } })
