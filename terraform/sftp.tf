@@ -96,7 +96,7 @@ resource "aws_transfer_user" "pcc" {
   home_directory_type       = "LOGICAL"
   home_directory_mappings {
     entry  = "/"
-    target = "/${aws_s3_bucket.sftp_storage.id}/pcc"
+    target = "/${aws_s3_bucket.sftp_storage.id}/sbc"
   }
 }
 
