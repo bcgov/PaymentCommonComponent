@@ -1,7 +1,7 @@
 #! /bin/bash
 mkdir transaction
 
-echo $( lftp -d "$PCC_SFTP" -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/pcc-sandbox"; mirror -e /sbc-garms-data/sbc transaction ; quit;' )
+echo $( lftp -d "$PCC_SFTP" -p 22 -e 'set sftp:connect-program "ssh -o StrictHostKeyChecking=no -a -x -i ~/.ssh/pcc-sandbox"; mirror -e / transaction ; quit;' )
 
 sleep 3
 
