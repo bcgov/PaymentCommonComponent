@@ -10,25 +10,24 @@ import {
 @Entity('payment')
 export class PaymentEntity {
   @PrimaryGeneratedColumn('uuid')
-  id: string;
+  id?: string;
 
   @ManyToOne(
     () => TransactionEntity,
-    (transaction: TransactionEntity) => transaction.payments,
-    { eager: true }
+    (transaction: TransactionEntity) => transaction.id
   )
   @JoinColumn({ name: 'transaction' })
-  transaction: TransactionEntity;
+  transaction?: TransactionEntity;
 
   @Column()
-  method: number;
+  method: string;
 
-  @Column()
-  amount?: string;
+  @Column({ type: 'numeric' })
+  amount: number;
 
   @Column({ nullable: true })
   currency?: string;
 
-  @Column({ nullable: true })
-  exchange_rate?: string;
+  @Column({ type: 'numeric', nullable: true })
+  exchange_rate?: number;
 }

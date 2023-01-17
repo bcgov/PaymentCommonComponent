@@ -1,4 +1,10 @@
-export const locations = [
+export interface SBCLocation {
+  office: string;
+  merchant_id: number;
+  location_id: number;
+}
+
+export const sbc_locations: SBCLocation[] = [
   { office: '100 Mile House', merchant_id: 22054353, location_id: 61 },
   { office: 'Ashcroft', merchant_id: 22054387, location_id: 2 },
   { office: 'Atlin', merchant_id: 22054486, location_id: 3 },

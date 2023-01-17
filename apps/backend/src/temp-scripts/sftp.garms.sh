@@ -9,20 +9,8 @@ files="transaction/*.JSON"
 
 for f in ${files[@]}
 do
-    file1=`cat $f`
-    
-    sleep 1
-    
-    APP_ENV=local ts-node -e "require('./parsegarms.ts').parseSales($file1)" > $f
-
-done
-
-sleep 3
-
-for f in ${files[@]}
-do
-    file=`cat $f`
     awslocal s3api put-object --bucket bc-pcc-data-files-local --key $f --body $f    
+
 done
 
 sleep 3

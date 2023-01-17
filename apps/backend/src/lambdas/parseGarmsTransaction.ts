@@ -4,7 +4,7 @@ import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { parseTDI } from './utils/parseTDI';
+import { parseGarms } from './utils/parseGarms';
 
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -25,15 +25,10 @@ export const handler = async (event?: any, context?: Context) => {
       `${event.filepath}`
     );
 
-    await uploadParsedTDI(
+    await uploadParsedGarms(
       event.type,
       s3manager,
-      parseTDI(
-        event.type,
-        contents?.Body?.toString() || '',
-        event.program,
-        event.filename
-      ),
+      parseGarms(JSON.parse(contents?.Body?.toString() || '')),
       appLogger,
       event?.outputPath ?? undefined
     );
@@ -42,7 +37,7 @@ export const handler = async (event?: any, context?: Context) => {
   }
 };
 
-export const uploadParsedTDI = async (
+export const uploadParsedGarms = async (
   type: string,
   s3manager: S3ManagerService,
   output: unknown,

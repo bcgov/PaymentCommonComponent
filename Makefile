@@ -208,10 +208,10 @@ put-local-ddf:
 # ===================================
 
 parse-local-tdi17:
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT"})'
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT", program: "unknown"})'
 
 parse-local-tdi34: 			
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT"})'
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT", program: "unknown"})'
 
 parse-local-ddf: 			
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
