@@ -8,6 +8,7 @@ import {
 } from '../../common/entities/FixedWidthRecord';
 
 export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
+  metadata: any;
   rcd_type: number;
   merchant_no: string;
   terminal_id: string;
@@ -38,6 +39,14 @@ export class DDFDetails
 
   constructor(init?: any) {
     super(init);
+  }
+
+  public get metadata() {
+    return this.resource.metadata;
+  }
+
+  public set metadata(data) {
+    this.resource.metadata = data;
   }
 
   @Column({

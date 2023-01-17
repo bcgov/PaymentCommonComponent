@@ -20,13 +20,13 @@ describe('TDI17', () => {
     expect(Object.keys(tdi17.details[0])).toEqual(tdi17Keys);
 
     expect(Object.values(tdi17.details[2])).toEqual(
-      Object.values(tdi17Sample[0])
+      Object.values(tdi17Sample[2])
     );
     expect(Object.values(tdi17.details[7])).toEqual(
-      Object.values(tdi17Sample[1])
+      Object.values(tdi17Sample[7])
     );
     expect(Object.values(tdi17.details[11])).toEqual(
-      Object.values(tdi17Sample[2])
+      Object.values(tdi17Sample[11])
     );
   });
 });
