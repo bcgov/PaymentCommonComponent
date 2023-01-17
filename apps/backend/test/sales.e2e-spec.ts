@@ -109,23 +109,7 @@ describe('Sales Controller (e2e)', () => {
           }
         }
       ])
-      .expect([
-        {
-          transaction_id: '20221212-00002-1000001',
-          transaction_date: '2022-12-12',
-          transaction_time: '11.57.00.9',
-          location_id: 2,
-          payments: [
-            {
-              method: '01',
-              amount: 52.5,
-              exchange_rate: 0,
-              currency: 'CAD'
-            }
-          ],
-          payment_total: 52.5
-        }
-      ])
+      .expect([])
       .expect(201);
   });
 

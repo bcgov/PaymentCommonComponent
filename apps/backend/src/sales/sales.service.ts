@@ -9,7 +9,9 @@ export class SalesService {
   // validateDistributions()
   // TODO update the sales api endpoint distributions data
   async saveSalesEvent(event: SalesDTO[]) {
-    this.appLogger.log(event);
+    this.appLogger.log(
+      event ? 'Sales Event Received' : 'No Sales Event Received'
+    );
     return [];
   }
 }
