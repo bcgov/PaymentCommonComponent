@@ -5,9 +5,8 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppLogger } from './common/logger.service';
 import { SalesModule } from './sales/sales.module';
-import { FirehoseModule } from './firehose/firehose.module';
 import { AwsSdkModule } from 'nest-aws-sdk';
-import { Firehose, S3 } from 'aws-sdk';
+import { S3 } from 'aws-sdk';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { DatabaseModule } from './database/database.module';
 
@@ -17,7 +16,6 @@ import { DatabaseModule } from './database/database.module';
     S3ManagerModule,
     ReconciliationModule,
     SalesModule,
-    FirehoseModule,
     ConfigModule.forRoot({
       ignoreEnvFile:
         process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
@@ -34,7 +32,7 @@ import { DatabaseModule } from './database/database.module';
             }
           : {})
       },
-      services: [Firehose, S3]
+      services: [S3]
     })
   ],
   controllers: [AppController],

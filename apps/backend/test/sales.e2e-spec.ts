@@ -22,62 +22,95 @@ describe('Sales Controller (e2e)', () => {
   });
 
   it('/sale (POST)', async () => {
-    const resp = await request(app.getHttpServer())
+    return await request(app.getHttpServer())
       .post('/sale')
-      .send({
-        id: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7',
-        sale_date: '2022-10-25',
-        journal_name: 'SM J000001',
-        ministry_alpha_identifier: 'SM',
-        total_amount: 150.5,
-        payment_method: [
-          {
-            amount: 100,
-            method: 'CASH'
+      .send([
+        {
+          sales_transaction_id: '20221212-00002-1000001',
+          sales_transaction_date: '2022-12-12-11.57.00.986053',
+          fiscal_close_date: '20221212',
+          payment_total: 52.5,
+          void_indicator: ' ',
+          transaction_reference: '',
+          payments: [
+            {
+              amount: 52.5,
+              currency: 'CAD',
+              exchange_rate: 0,
+              method: '01'
+            }
+          ],
+          misc: {
+            employee_id: 'SC61350   '
           },
-          {
-            amount: 50.5,
-            method: 'POS_CREDIT'
-          }
-        ],
-        distributions: [
-          {
-            line_number: '000001',
-            dist_client_code: '130',
-            dist_resp_code: '29KGT',
-            dist_service_line_code: '38513',
-            dist_stob_code: '4303',
-            dist_project_code: '29K0230',
-            dist_location_code: '000000',
-            dist_future_code: '0000',
-            line_amount: 150.5,
-            line_code: 'C',
-            line_description:
-              'GA OFF# 00002 2022-08-05                    *900100002',
-            gl_date: '2022-10-12',
-            supplier_code: 'xxxxxx'
+          distributions: {
+            '001': [
+              {
+                line_number: '00001',
+                dist_client_code: '128',
+                dist_resp_code: '71607',
+                dist_service_line_code: '30660',
+                dist_stob_code: '4304',
+                dist_project_code: '7100000',
+                dist_location_code: '000000',
+                dist_future_code: '0000',
+                line_dollar_amount: 50,
+                line_description: 'COMMISSION          ',
+                supplier_code: '000000   ',
+                revenue_gl_account: '001'
+              },
+              {
+                line_number: '00002',
+                dist_client_code: '128',
+                dist_resp_code: '71OCG',
+                dist_service_line_code: '00000',
+                dist_stob_code: '1575',
+                dist_project_code: '7100000',
+                dist_location_code: '000000',
+                dist_future_code: '0000',
+                line_dollar_amount: 2.5,
+                line_description: 'GST ON COMMISSION   ',
+                supplier_code: '000000   ',
+                revenue_gl_account: '001'
+              }
+            ],
+            '002': [
+              {
+                line_number: '00001',
+                dist_client_code: '000',
+                dist_resp_code: '00000',
+                dist_service_line_code: '00000',
+                dist_stob_code: '0000',
+                dist_project_code: '0000000',
+                dist_location_code: '000000',
+                dist_future_code: '0000',
+                line_dollar_amount: 0,
+                line_description: '                    ',
+                supplier_code: '000000   ',
+                revenue_gl_account: '001'
+              }
+            ]
           },
-          {
-            line_number: '000002',
-            dist_client_code: '074',
-            dist_resp_code: '32L14',
-            dist_service_line_code: '58200',
-            dist_stob_code: '1461',
-            dist_project_code: '3200000',
-            dist_location_code: '000000',
-            dist_future_code: '0000',
-            line_amount: 150.5,
-            line_code: 'D',
-            line_description: 'GA OFF# 00014 2022-08-05',
-            gl_date: '2022-10-12',
-            supplier_code: 'xxxxxx'
+          source: {
+            source_id: 'SBC',
+            location_id: '00002',
+            revenue_gl_accounts: {
+              '001': {
+                dist_client_code: '074',
+                dist_resp_code: '32G02',
+                dist_service_line_code: '58200',
+                dist_stob_code: '1461',
+                dist_project_code: '3200000',
+                dist_location_code: '000000',
+                dist_future_code: '0000',
+                supplier_code: '000000   '
+              }
+            }
           }
-        ]
-      })
-      .expect({})
+        }
+      ])
+      .expect([])
       .expect(201);
-
-    return;
   });
 
   afterAll(async () => {

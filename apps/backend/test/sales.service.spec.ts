@@ -1,7 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-// import { AppLogger } from '../common/logger.service';
-import { FirehoseService } from '../src/firehose/firehose.service';
+
 import { SalesService } from '../src/sales/sales.service';
 
 describe('SalesService', () => {
@@ -9,14 +8,7 @@ describe('SalesService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        SalesService,
-        Logger,
-        {
-          provide: FirehoseService,
-          useValue: jest.fn()
-        }
-      ]
+      providers: [SalesService, Logger]
     }).compile();
 
     service = module.get<SalesService>(SalesService);

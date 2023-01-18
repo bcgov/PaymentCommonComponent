@@ -14,7 +14,7 @@ import { AppLogger } from '../common/logger.service';
 import { ReconciliationService } from './reconciliation.service';
 
 @Controller('parse')
-@ApiTags('Flat File and Garms Json Test Parser API')
+@ApiTags('Parser API')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ReconciliationController {
   constructor(
@@ -37,7 +37,7 @@ export class ReconciliationController {
         },
         fileType: {
           type: 'string',
-          enum: ['TDI17', 'TDI34', 'DDF'],
+          enum: ['TDI17', 'TDI34'],
           nullable: false
         },
         file: {
