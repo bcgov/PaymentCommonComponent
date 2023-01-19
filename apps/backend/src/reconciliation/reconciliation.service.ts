@@ -6,8 +6,6 @@ import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { TransactionEntity } from './entities/transaction.entity';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { parseTDI } from '../lambdas/utils/parseTDI';
-import { POSDeposit } from './classes/pos-deposit';
-import { CashDeposit } from './classes/cash-deposit';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 
 @Injectable()
@@ -46,11 +44,11 @@ export class ReconciliationService {
     }
   }
 
-  async mapPOSDeposit(data: POSDeposit[]): Promise<POSDepositEntity[]> {
+  async mapPOSDeposit(data: POSDepositEntity[]): Promise<POSDepositEntity[]> {
     try {
       return Promise.all(
         data.map(
-          async (itm: POSDeposit) =>
+          async (itm: POSDepositEntity) =>
             await this.posDepositRepo.save(this.posDepositRepo.create(itm))
         )
       );
@@ -60,10 +58,12 @@ export class ReconciliationService {
     }
   }
 
-  async mapCashDeposit(data: CashDeposit[]): Promise<CashDepositEntity[]> {
+  async mapCashDeposit(
+    data: CashDepositEntity[]
+  ): Promise<CashDepositEntity[]> {
     try {
       return Promise.all(
-        data.map((itm: CashDeposit) =>
+        data.map((itm: CashDepositEntity) =>
           this.cashDepositRepo.save(this.cashDepositRepo.create(itm))
         )
       );
@@ -73,12 +73,11 @@ export class ReconciliationService {
     }
   }
 
-  async mapSalesTransaction(data: any[]): Promise<TransactionEntity[] | any> {
+  async mapSalesTransaction(data: any): Promise<TransactionEntity[]> {
     try {
       return Promise.all(
-        data.map(
-          async (itm: any) =>
-            await this.salesRepo.save(this.salesRepo.create(itm))
+        data.map((itm: Partial<TransactionEntity>) =>
+          this.salesRepo.save(this.salesRepo.create(itm))
         )
       );
     } catch (e) {

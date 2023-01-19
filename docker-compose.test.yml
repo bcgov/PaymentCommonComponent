@@ -2,21 +2,19 @@ version: "3.7"
 services:
   db:
     image: postgres:14-alpine
-    container_name: ${PROJECT}-db-test
+    container_name: db
     restart: always
     environment:
       - POSTGRES_HOST=localhost
-      - POSTGRES_PORT=5432
-      - POSTGRES_DB=test
-      - POSTGRES_USER=test
-      - POSTGRES_PASSWORD=test
-      - POSTGRES_ROOT_PASSWORD=test
+      - POSTGRES_DB=bcpcc
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_ROOT_PASSWORD=postgres
     ports:
       - "5432:5432"
-    volumes:
-      - data:/var/lib/postgresql/data
     networks:
-      - default
+      - db
+      - localstack-net
   backend:
     image: ${PROJECT}-backend-test:${GIT_LOCAL_BRANCH}
     container_name: ${PROJECT}-backend-test
@@ -24,21 +22,23 @@ services:
     build:
       context: "./apps/backend"
       target: development
+    stdin_open: true
     networks:
       - localstack-net
-      - default
+      - db
     ports:
       - "3000:3000"
     environment:
       - DB_HOST=db
-      - DB_NAME=test
-      - DB_USER=test
-      - DB_PASSWORD=test
+      - DB_NAME=bcpcc
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - DB_ROOT_PASSWORD=postgres
       - ALLOWED_EMPTY_PASSWORD=yes
       - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
-      - NODE_ENV=local
-      - RUNTIME_ENV=local
+      - NODE_ENV=test
+      - RUNTIME_ENV=test
       - AWS_ACCESS_KEY_ID=test
       - AWS_SECRET_ACCESS_KEY=test
       - AWS_DEFAULT_REGION=ca-central-1
@@ -73,13 +73,13 @@ services:
       - ./.localstack:/var/lib/localstack
       - ./localstack/init/ready.d:/etc/localstack/init/ready.d
 networks:
-  default:
+  db:
     driver: bridge
+    name: db
   localstack-net:
     external: false
     driver: bridge
     name: localstack-net
 volumes:
-  data:
   localstack:
     driver: local

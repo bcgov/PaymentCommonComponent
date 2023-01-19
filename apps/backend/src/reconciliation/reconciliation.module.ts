@@ -1,3 +1,4 @@
+import { PaymentEntity } from './entities/payment.entity';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { TransactionEntity } from './entities/transaction.entity';
@@ -11,7 +12,8 @@ import { ReconciliationController } from './reconciliation.controller';
     TypeOrmModule.forFeature([
       TransactionEntity,
       POSDepositEntity,
-      CashDepositEntity
+      CashDepositEntity,
+      PaymentEntity
     ])
   ],
   providers: [ReconciliationService, Logger],
