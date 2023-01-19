@@ -16,25 +16,25 @@ export class CashDepositEntity {
   @Column({ nullable: true })
   program_code?: string;
 
-  @Column({ nullable: true })
-  deposit_date: string;
+  @Column()
+  deposit_date: Date;
 
-  @Column({ nullable: true })
+  @Column()
   transaction_type: number;
 
-  @Column({ nullable: true })
+  @Column()
   location_id: number;
 
   @Column({ nullable: true })
   deposit_time: string;
 
-  @Column({ nullable: true })
+  @Column()
   seq_no: string;
 
-  @Column({ nullable: true })
+  @Column()
   location_desc: string;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ type: 'numeric' })
   deposit_amt_curr: number;
 
   @Column({ nullable: true })
@@ -43,10 +43,10 @@ export class CashDepositEntity {
   @Column({ type: 'numeric', nullable: true })
   exchange_adj_amt: number;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ type: 'numeric' })
   deposit_amt_cdn: number;
 
-  @Column({ nullable: true })
+  @Column()
   destination_bank_no: string;
 
   @Column({ nullable: true })
@@ -57,4 +57,7 @@ export class CashDepositEntity {
 
   @Column({ nullable: true })
   jv_no: string;
+
+  @Column({ default: false })
+  match: boolean;
 }

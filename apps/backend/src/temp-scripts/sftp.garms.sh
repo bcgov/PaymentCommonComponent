@@ -10,7 +10,7 @@ files="transaction/*.JSON"
 for f in ${files[@]}
 do
     awslocal s3api put-object --bucket bc-pcc-data-files-local --key $f --body $f    
-
+    sleep 5
 done
 
 sleep 3

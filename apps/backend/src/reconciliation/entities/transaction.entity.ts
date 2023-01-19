@@ -1,19 +1,21 @@
-import { OneToMany, Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { LocationEntity } from './location.entity';
+import {
+  OneToMany,
+  Entity,
+  Column,
+  PrimaryColumn,
+  ManyToOne,
+  JoinColumn
+} from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 
 @Entity('transaction')
 export class TransactionEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
-  @Column({ unique: true })
+  @PrimaryColumn()
   transaction_id: string;
 
   @Column()
-  location_id: number;
-
-  @Column()
-  transaction_date: string;
+  transaction_date: Date;
 
   @Column({ nullable: true })
   transaction_time?: string;
@@ -21,7 +23,17 @@ export class TransactionEntity {
   @Column({ type: 'numeric' })
   payment_total: number;
 
-  @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
+  @Column({ default: false })
+  match: boolean;
+
+  @ManyToOne(() => LocationEntity, (l) => l.location_id, {
+    eager: true,
+    cascade: false
+  })
+  @JoinColumn({ name: 'location', referencedColumnName: 'location_id' })
+  location: LocationEntity;
+
+  @OneToMany(() => PaymentEntity, (payment) => payment.transaction_id, {
     cascade: true,
     eager: true
   })
