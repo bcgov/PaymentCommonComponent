@@ -15,9 +15,10 @@ export const parseGarms = async (
     }: IGarmsJson) =>
       new TransactionEntity({
         transaction_id: sales_transaction_id,
-        transaction_date: new Date(
-          sales_transaction_date.split('').splice(0, 10).join('')
-        ),
+        transaction_date: sales_transaction_date
+          .split('')
+          .splice(0, 10)
+          .join(''),
         transaction_time: sales_transaction_date
           .split('')
           .splice(11, 10)

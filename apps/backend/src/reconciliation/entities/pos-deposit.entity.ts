@@ -24,17 +24,17 @@ export class POSDepositEntity {
   @Column({ type: 'numeric' })
   transaction_amt: number;
 
-  @Column()
-  transaction_date: Date;
+  @Column({ type: 'date' })
+  transaction_date: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, type: 'time' })
   transaction_time: string;
 
   @Column()
   terminal_no: string;
 
-  @Column({ nullable: true })
-  settlement_date: Date;
+  @Column({ nullable: true, type: 'date' })
+  settlement_date: string;
 
   @Column({ nullable: true })
   transaction_code: number;

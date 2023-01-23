@@ -19,7 +19,7 @@ export interface ILocation {
 
 export interface ITransaction {
   transaction_id: string;
-  transaction_date: Date;
+  transaction_date: string;
   transaction_time: string;
   location_id: number;
   payments: IPayment[];

@@ -13,8 +13,8 @@ export class TransactionEntity {
   @PrimaryColumn()
   transaction_id: string;
 
-  @Column()
-  transaction_date: Date;
+  @Column({ type: 'date' })
+  transaction_date: string;
 
   @Column({ nullable: true })
   transaction_time?: string;

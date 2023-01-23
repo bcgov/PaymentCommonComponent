@@ -15,8 +15,8 @@ export class CashDepositEntity {
   @Column({ nullable: true })
   program_code?: string;
 
-  @Column()
-  deposit_date: Date;
+  @Column({ type: 'date' })
+  deposit_date: string;
 
   @Column()
   transaction_type: number;
