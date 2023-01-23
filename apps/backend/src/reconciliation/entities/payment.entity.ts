@@ -12,7 +12,7 @@ import {
 export class PaymentEntity {
   @PrimaryGeneratedColumn()
   id?() {
-    return `${this.transaction_id}-${this.seq}`;
+    return `${this.transaction}-${this.seq}`;
   }
 
   @Generated()
@@ -20,10 +20,11 @@ export class PaymentEntity {
 
   @ManyToOne(
     () => TransactionEntity,
-    (transaction: TransactionEntity) => transaction.transaction_id
+    (transaction: TransactionEntity) => transaction.transaction_id,
+    { eager: true }
   )
-  @JoinColumn({ name: 'transaction' })
-  transaction_id?: TransactionEntity;
+  @JoinColumn({ name: 'transaction', referencedColumnName: 'transaction_id' })
+  transaction?: TransactionEntity;
 
   @Column()
   method: number;

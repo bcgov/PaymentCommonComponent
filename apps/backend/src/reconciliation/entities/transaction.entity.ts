@@ -27,9 +27,8 @@ export class TransactionEntity {
   @Column()
   location_id: number;
 
-  @OneToMany(() => PaymentEntity, (payment) => payment.transaction_id, {
-    cascade: true,
-    eager: true
+  @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
+    cascade: true
   })
   payments?: PaymentEntity[];
 

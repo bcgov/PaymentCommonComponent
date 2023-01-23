@@ -2,12 +2,12 @@ import { Column, PrimaryColumn, Entity } from 'typeorm';
 
 @Entity('payment_method')
 export class PaymentMethodEntity {
-  @PrimaryColumn({ readonly: true })
+  @PrimaryColumn()
   method: string;
 
-  @Column({ readonly: true })
+  @Column()
   description: string;
 
-  @Column({ unique: true, readonly: true })
+  @Column({ unique: true })
   sbc_code: number;
 }

@@ -1,4 +1,5 @@
 import { ViewEntity, ViewColumn } from 'typeorm';
+import { Transform } from 'class-transformer';
 
 {
   /*
@@ -11,21 +12,26 @@ import { ViewEntity, ViewColumn } from 'typeorm';
   name: 'location_view',
   database: 'bcpcc',
   schema: 'public',
-  expression: `SELECT 'GARMS Location' as sbc_location_id, 'Merchant ID' AS merchant_id, 'Location' AS pt_location_id, 'description' AS office_name, 'Type' AS type FROM master_location_data`
+  expression: `SELECT id, "GARMS Location", "Merchant ID", "Location", "description", "Type"  FROM master_location_data
+  with data;`
 })
 export class LocationView {
-  @ViewColumn()
+  @ViewColumn({ name: 'id' })
+  id: string;
+
+  @ViewColumn({ name: 'Type' })
+  @Transform(({ value }: { value: string }) => value.toUpperCase())
   type: string;
 
-  @ViewColumn()
+  @ViewColumn({ name: 'Merchant ID' })
   merchant_id: number;
 
-  @ViewColumn()
+  @ViewColumn({ name: 'Location' })
   pt_location_id: number;
 
-  @ViewColumn()
+  @ViewColumn({ name: 'GARMS Location' })
   sbc_location_id: number;
 
-  @ViewColumn()
+  @ViewColumn({ name: 'description' })
   office_name: string;
 }
