@@ -35,5 +35,5 @@ export default new DataSource({
     MasterLocationDataEntity
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-  synchronize: process.env.NODE_ENV === 'test' ?? false
+  synchronize: false
 });
