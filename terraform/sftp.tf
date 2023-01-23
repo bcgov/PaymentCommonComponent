@@ -4,7 +4,7 @@ resource "aws_transfer_server" "sftp" {
   endpoint_type          = "PUBLIC"
   identity_provider_type = "SERVICE_MANAGED"
   security_policy_name   = "TransferSecurityPolicy-2022-03"
-
+  post_authentication_login_banner = "Logged into ~~~~ ENV: ${var.target_env} ~~~~~ Payment Common Components SFTP"
   tags = {
     Name = "sftp"
   }
