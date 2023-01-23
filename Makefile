@@ -224,3 +224,20 @@ add-data:
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI17")' 
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI34")'
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("transaction")' 
+
+reconcile:
+	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/reconcile.ts").handler()'
+
+migration-create:
+	@docker exec -it $(PROJECT)-backend yarn run typeorm:create-migration
+
+migration-revert: 
+	@docker exec -it $(PROJECT)-backend yarn run typeorm:revert-migration
+
+migration-run:
+	@docker exec -it $(PROJECT)-backend yarn run typeorm:run-migrations
+
+migration-generate:	  
+	@docker exec -it $(PROJECT)-backend yarn run typeorm:generate-migration
+	
+    

@@ -20,7 +20,7 @@ services:
       - db
       - localstack-net
   backend:
-    image: ${PROJECT}-server:${GIT_LOCAL_BRANCH}
+    image: ${PROJECT}-backend:${GIT_LOCAL_BRANCH}
     container_name: ${PROJECT}-backend
     build:
       context: "./apps/backend"

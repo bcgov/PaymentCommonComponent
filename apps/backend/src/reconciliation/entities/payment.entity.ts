@@ -4,23 +4,30 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   JoinColumn,
-  ManyToOne
+  ManyToOne,
+  Generated
 } from 'typeorm';
 
 @Entity('payment')
 export class PaymentEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id?: string;
+  @PrimaryGeneratedColumn()
+  id?() {
+    return `${this.transaction}-${this.seq}`;
+  }
+
+  @Generated()
+  seq?: number;
 
   @ManyToOne(
     () => TransactionEntity,
-    (transaction: TransactionEntity) => transaction.id
+    (transaction: TransactionEntity) => transaction.transaction_id,
+    { eager: true }
   )
-  @JoinColumn({ name: 'transaction' })
+  @JoinColumn({ name: 'transaction', referencedColumnName: 'transaction_id' })
   transaction?: TransactionEntity;
 
   @Column()
-  method: string;
+  method: number;
 
   @Column({ type: 'numeric' })
   amount: number;
@@ -30,4 +37,11 @@ export class PaymentEntity {
 
   @Column({ type: 'numeric', nullable: true })
   exchange_rate?: number;
+
+  @Column({ default: false })
+  match?: boolean;
+
+  constructor(payment: Partial<PaymentEntity>) {
+    Object.assign(this, payment);
+  }
 }

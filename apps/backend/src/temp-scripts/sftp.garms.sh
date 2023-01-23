@@ -9,8 +9,9 @@ files="transaction/*.JSON"
 
 for f in ${files[@]}
 do
-    awslocal s3api put-object --bucket bc-pcc-data-files-local --key $f --body $f    
+    awslocal s3api put-object --bucket bc-pcc-data-files-local --key $f --body $f --metadata "Program=sbc_garms"   
 
+    sleep 5
 done
 
 sleep 3

@@ -27,3 +27,5 @@ ssh-keypair*
 .editorconfig
 postgres
 data
+.env.test
+testdata

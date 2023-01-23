@@ -1,5 +1,4 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { SalesDTO } from './dto/sales.dto';
 import { AppLogger } from '../common/logger.service';
 
 @Injectable()
@@ -8,7 +7,7 @@ export class SalesService {
 
   // validateDistributions()
   // TODO update the sales api endpoint distributions data
-  async saveSalesEvent(event: SalesDTO[]) {
+  async saveSalesEvent(event: any[]) {
     this.appLogger.log(
       event ? 'Sales Event Received' : 'No Sales Event Received'
     );
