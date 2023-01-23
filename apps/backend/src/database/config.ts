@@ -11,11 +11,11 @@ import {
 
 {
   /*
-    This module defines the datasource for the database connection, and is required for generating, running, and creating migrations via typeorm cli. 
-    explicitly specify all entities
-    autLoadEntities is not available here
-
- */
+   * This module is specific to Typeorm v3.
+   * It defines the datasource for the database connection, and is required for generating, running, and creating migrations via typeorm cli.
+   * Explicitly specify all entities as autoLoadEntities is not available here
+   * I have set fallback values as possibly undefined values are not allowed.
+   */
 }
 
 export default new DataSource({

@@ -5,7 +5,6 @@ import { PaymentEntity } from './payment.entity';
   /*
     This entity represents a partial transaction/sales api json to be used in the reconciliation process.
     There are one or more payments associated with a transaction, and each payment should match to a corresponding deposit, either in the CashDeposit or POSDeposit table.    
-    The relation to the location entity is required for matching the transaction to a location. and a location to a merchant_id for POS_Deposit, or, pt_location_id for Cash_Deposit.
  */
 }
 @Entity('transaction')

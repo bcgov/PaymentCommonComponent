@@ -8,11 +8,9 @@ import {
 
 {
   /*
-    This module is responsible for configuring the database connection.
-    explicitly specify entities which are not loaded as TypeOrmModule.forFeature() in another module
-    autLoadEntities: true will load all entities in the entities folder, as long as they are loaded with forFeature 
-    elsewhere
- */
+   * This module is responsible for configuring the database connection.
+   * Explicitly specify entities which are not loaded as TypeOrmModule.forFeature() in another module
+   */
 }
 @Module({
   imports: [
@@ -26,7 +24,7 @@ import {
         database: process.env.DB_NAME ?? 'bcpcc',
         entities: [LocationView, MasterLocationDataEntity, PaymentMethodEntity],
         autoLoadEntities: true,
-        synchronize: false
+        synchronize: process.env.NODE_ENV === 'test' ?? false
       })
     })
   ]

@@ -1,5 +1,11 @@
 import { ViewEntity, ViewColumn } from 'typeorm';
 
+{
+  /*
+   * Materialized Location View
+   */
+}
+
 @ViewEntity({
   materialized: true,
   name: 'location_view',
@@ -7,7 +13,6 @@ import { ViewEntity, ViewColumn } from 'typeorm';
   schema: 'public',
   expression: `SELECT 'GARMS Location' as sbc_location_id, 'Merchant ID' AS merchant_id, 'Location' AS pt_location_id, 'description' AS office_name, 'Type' AS type FROM master_location_data`
 })
-// alter table location alter column merchant_id type INT using merchant_id::integer
 export class LocationView {
   @ViewColumn()
   type: string;
