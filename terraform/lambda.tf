@@ -13,7 +13,6 @@ resource "aws_lambda_function" "glGenerator" {
   environment {
     variables = {
       NODE_ENV    = "production"
-      S3_LOCATION = aws_s3_bucket.bc_pcc_files_bucket.id
     }
   }
 

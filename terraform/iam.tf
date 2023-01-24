@@ -36,7 +36,7 @@ data "aws_iam_policy_document" "lambda" {
       "s3:*",
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.bc_pcc_files_bucket.id}/*"
+      "arn:aws:s3:::${aws_s3_bucket.sftp_storage.id}/*"
     ]
   }
 }
