@@ -43,7 +43,7 @@ services:
       - AWS_SECRET_ACCESS_KEY=password
       - AWS_DEFAULT_REGION=${AWS_REGION}
       - YARN_VERSION=3.2.3
-      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_ENDPOINT=http://minio:9000
     volumes:
       - ./apps/backend:/usr/src/app
       - ./apps/backend/node_modules:/usr/src/app/node_modules
