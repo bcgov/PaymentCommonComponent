@@ -6,15 +6,15 @@ data "aws_iam_policy_document" "service_account" {
     sid    = "AllowS3FullAccess"
     effect = "Allow"
     actions = [
-      "s3:DeleteObject",
-      "s3:GetBucketLocation",
-      "s3:GetObject",
-      "s3:ListBucket",
+      "s3:PutObjectAcl",
       "s3:PutObject",
-      "s3:PutObjectAcl"
+      "s3:ListBucket",
+      "s3:GetObject",
+      "s3:GetBucketLocation",
+      "s3:DeleteObject"
     ]
     resources = [
-      "arn:aws:s3:::pcc-*",
+      "arn:aws:s3:::*",
     ]
   }
 
@@ -26,7 +26,7 @@ data "aws_iam_policy_document" "service_account" {
       "lambda:UpdateFunctionCode",
     ]
     resources = [
-      "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:function:ien*",
+      "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:function:*",
     ]
   }
 
@@ -38,7 +38,7 @@ data "aws_iam_policy_document" "service_account" {
       "rds:CreateDBClusterSnapshot",
     ]
     resources = [
-      "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:cluster:ien*",
+      "arn:aws:lambda:${var.region}:${var.target_aws_account_id}:cluster:*",
     ]
   }
 }
