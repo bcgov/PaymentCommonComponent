@@ -6,4 +6,5 @@ SELECT
 	COUNT(transaction_amt)
 FROM pos_deposit pd
 	JOIN "location" l ON pd.merchant_id = l.merchant_id
+WHERE "match" = FALSE
 GROUP BY transaction_date, l.location_id, card_vendor, transaction_amt
