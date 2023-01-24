@@ -26,7 +26,7 @@ sleep 3
 TDI34="TDI34/*.TXT"
 for i in ${TDI34[@]}
 do  
-    awslocal s3api put-object --bucket bc-pcc-data-files-local --key $i --body $i --metadata "type=tdi_34"   
+    awslocal s3api put-object --bucket pcc-integration-data-files-local --key $i --body $i --metadata "type=tdi_34"   
 
 done
 sleep 3
@@ -34,7 +34,7 @@ sleep 3
 TDI17="TDI17/*.TXT"
 for i in ${TDI17[@]}
 do  
-    awslocal s3api put-object --bucket bc-pcc-data-files-local --key $i --body $i --metadata "type=tdi_17"   
+    awslocal s3api put-object --bucket pcc-integration-data-files-local --key $i --body $i --metadata "type=tdi_17"   
 
 done
 

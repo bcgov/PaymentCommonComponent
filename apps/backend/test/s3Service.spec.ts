@@ -13,7 +13,7 @@ describe('Parser (e2e)', () => {
         S3ManagerModule,
         AwsSdkModule.forRoot({
           defaultServiceOptions: {
-            endpoint: 'http://localstack:4566',
+            endpoint: 'http://minio:9000',
             region: 'ca-central-1',
             s3ForcePathStyle: true
           },
