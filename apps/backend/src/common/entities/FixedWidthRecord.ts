@@ -69,7 +69,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
             options.format.precision || 2
           );
         } else if (options.format.type === DataType.Date) {
-          (target as any)[field] = dateFormat(value.split(''));
+          (target as any)[field] = value ? dateFormat(value.split('')) : null;
         } else if (options.format.type === DataType.Time) {
           (target as any)[field] = value ? timeFormat(value.split('')) : '';
         } else if (options.format.type === DataType.Decimal) {

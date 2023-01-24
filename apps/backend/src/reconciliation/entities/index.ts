@@ -4,4 +4,3 @@ export * from './payment.entity';
 export * from './payment-method.entity';
 export * from './cash-deposit.entity';
 export * from './master-location-data.entity';
-export * from './location-view.entity';

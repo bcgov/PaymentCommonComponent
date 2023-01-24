@@ -207,15 +207,16 @@ export class TDI17Details
   public set jv_no(data) {
     this.resource.jv_no = data;
   }
-  @Column({ start: 131, width: 0, format: { type: DataType.Date } })
+  @Column({ start: 131, width: 8, format: { type: DataType.Date } })
   public get transaction_date() {
-    return this.resource.transaction_date;
+    return this.resource.transaction_date ?? null;
   }
 
   public set transaction_date(data) {
     this.resource.transaction_date = data;
   }
-  @Column({ start: 139, width: 0 })
+
+  @Column({ start: 139, width: 1 })
   public get filler() {
     return this.resource.filler;
   }

@@ -30,7 +30,7 @@ export const handler = async (event?: any, context?: Context) => {
       filename
     );
 
-    parsed && file.Metadata?.type === 'tdi34'
+    parsed && event === 'TDI34'
       ? await reconService.mapPOSDeposit(
           parsed.map((itm: any) => new POSDepositEntity(itm))
         )
@@ -40,25 +40,29 @@ export const handler = async (event?: any, context?: Context) => {
         ));
   };
 
-  const getBucketContents = async (fileList: any[]) => {
-    await Promise.all(
-      fileList.map(async (itm) => {
-        const file = await s3.getContents(
-          `bc-pcc-data-files-${process.env.NODE_ENV}`,
-          itm
-        );
-
-        if (file.Metadata?.program === 'sbc_garms') {
-          const parsedGarms = await parseGarms(
-            await JSON.parse(file.Body?.toString() || '')
-          );
-          parsedGarms && reconService.mapSalesTransaction(parsedGarms);
-        } else {
-          createTDIEntries(file, itm);
-        }
-      })
-    );
+  const createGarmsJson = async (file: any) => {
+    const fileData = file.Body?.toString();
+    fileData &&
+      (await reconService.mapSalesTransaction(
+        await parseGarms(JSON.parse(fileData))
+      ));
   };
+
+  const getBucketContents = async (fileList: any[]) => {
+    const filtered = fileList.filter((itm) => itm.split('/')[0] === event);
+    filtered.map(async (itm) => {
+      const file = await s3.getContents(
+        `bc-pcc-data-files-${process.env.NODE_ENV}`,
+        itm
+      );
+      if (event === 'transaction') {
+        createGarmsJson(file);
+      } else {
+        createTDIEntries(file, itm);
+      }
+    });
+  };
+
   try {
     await getBucketContents(
       (await s3.listBucketContents(

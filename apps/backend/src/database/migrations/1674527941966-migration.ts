@@ -1,0 +1,17 @@
+import { MigrationInterface, QueryRunner } from 'typeorm';
+
+export class migration1674527941966 implements MigrationInterface {
+  name = 'migration1674527941966';
+
+  public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "transaction" ADD "fiscal_close_date" date`
+    );
+  }
+
+  public async down(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "transaction" DROP COLUMN "fiscal_close_date"`
+    );
+  }
+}

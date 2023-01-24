@@ -5,7 +5,6 @@ import {
   TransactionEntity,
   PaymentEntity,
   PaymentMethodEntity,
-  LocationView,
   MasterLocationDataEntity
 } from '../reconciliation/entities';
 
@@ -31,7 +30,6 @@ export default new DataSource({
     TransactionEntity,
     POSDepositEntity,
     CashDepositEntity,
-    LocationView,
     MasterLocationDataEntity
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],

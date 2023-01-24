@@ -1,10 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  PaymentMethodEntity,
-  LocationView,
-  MasterLocationDataEntity
-} from '../reconciliation/entities';
+import { MasterLocationDataEntity } from '../reconciliation/entities';
 
 {
   /*
@@ -22,9 +18,9 @@ import {
         username: process.env.DB_USERNAME ?? 'postgres',
         password: process.env.DB_PASWORD ?? 'postgres',
         database: process.env.DB_NAME ?? 'bcpcc',
-        entities: [LocationView, MasterLocationDataEntity, PaymentMethodEntity],
+        entities: [MasterLocationDataEntity],
         autoLoadEntities: true,
-        synchronize: process.env.NODE_ENV === 'test' ?? false
+        synchronize: false
       })
     })
   ]

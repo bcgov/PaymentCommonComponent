@@ -3,7 +3,7 @@ import { TransactionEntity } from '../../reconciliation/entities/transaction.ent
 
 //TODO remove this once sales api is ready - development only
 export const parseGarms = async (
-  garmsJson: IGarmsJson[]
+  garmsJson: any[]
 ): Promise<TransactionEntity[] | boolean | void> => {
   return garmsJson.map(
     ({
@@ -11,28 +11,24 @@ export const parseGarms = async (
       sales_transaction_date,
       payment_total,
       payments,
+      fiscal_close_date,
       source
-    }: IGarmsJson) =>
-      new TransactionEntity({
-        transaction_id: sales_transaction_id,
-        transaction_date: sales_transaction_date
-          .split('')
-          .splice(0, 10)
-          .join(''),
-        transaction_time: sales_transaction_date
-          .split('')
-          .splice(11, 10)
-          .join(''),
-        location_id: parseInt(source.location_id),
-        payment_total,
-        payments: payments.map(
-          ({ method, amount, exchange_rate, currency }) => ({
-            method: parseInt(method),
-            amount,
-            exchange_rate,
-            currency
-          })
-        )
-      })
+    }: IGarmsJson) => ({
+      transaction_id: sales_transaction_id,
+      transaction_date: sales_transaction_date.split('').splice(0, 10).join(''),
+      transaction_time: sales_transaction_date
+        .split('')
+        .splice(11, 10)
+        .join(''),
+      location_id: parseInt(source.location_id),
+      fiscal_close_date,
+      payment_total,
+      payments: payments.map(({ method, amount, exchange_rate, currency }) => ({
+        method: parseInt(method),
+        amount,
+        exchange_rate,
+        currency
+      }))
+    })
   );
 };

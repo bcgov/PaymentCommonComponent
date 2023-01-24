@@ -1,4 +1,4 @@
-import { LocationView } from './entities/location-view.entity';
+import { PaymentMethodEntity } from './entities/payment-method.entity';
 import { PaymentEntity } from './entities/payment.entity';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
@@ -15,7 +15,7 @@ import { ReconciliationController } from './reconciliation.controller';
       POSDepositEntity,
       CashDepositEntity,
       PaymentEntity,
-      LocationView
+      PaymentMethodEntity
     ])
   ],
   providers: [ReconciliationService, Logger],

@@ -57,6 +57,9 @@ export class CashDepositEntity {
   @Column({ nullable: true })
   jv_no: string;
 
+  @Column({ type: 'date', nullable: true })
+  transaction_date: string;
+
   @Column({ default: false })
   match: boolean;
 
