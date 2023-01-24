@@ -37,9 +37,6 @@ Create a .env file at the root prior to running the project
 - DB_PASSWORD=
 - DB_ROOT_PASSWORD=
 - DB_PORT=
-- AWS_ACCESS_KEY_ID=
-- AWS_SECRET_ACCESS_KEY=
-- AWS_DEFAULT_REGION=
 
 ### Running The Project Locally (Docker)
 

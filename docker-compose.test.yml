@@ -13,19 +13,16 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - db
-      - localstack-net
+      - pcc
   backend:
-    image: ${PROJECT}-backend-test:${GIT_LOCAL_BRANCH}
-    container_name: ${PROJECT}-backend-test
+    image: pcc-backend:latest
+    container_name: pcc-backend
     restart: always
     build:
       context: "./apps/backend"
       target: development
     stdin_open: true
-    networks:
-      - localstack-net
-      - db
+    command: 'yarn start:test'
     ports:
       - "3000:3000"
     environment:
@@ -39,47 +36,38 @@ services:
       - APP_PORT=3000
       - NODE_ENV=test
       - RUNTIME_ENV=test
-      - AWS_ACCESS_KEY_ID=test
-      - AWS_SECRET_ACCESS_KEY=test
+      - AWS_ACCESS_KEY_ID=pcc
+      - AWS_SECRET_ACCESS_KEY=password
       - AWS_DEFAULT_REGION=ca-central-1
       - YARN_VERSION=3.2.3
-      - AWS_ENDPOINT=http://localstack:4566
+      - AWS_ENDPOINT=http://minio:9000
     volumes:
       - ./apps/backend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./apps/backend/node_modules:/usr/src/app/node_modules
     depends_on:
       - db
-  localstack:
-    container_name: ${PROJECT}-localstack
-    image: localstack/localstack-full:1.1.0
     networks:
-      - localstack-net
+      - pcc
+
+  minio:
+    image: minio/minio
+    container_name: pcc-minio
     ports:
-      - "4566-4599:4566-4599"
-      - "8080:8080"
-    environment:
-      - SERVICES=kinesis,s3,sqs,lambda,iam,events
-      - DEBUG=1
-      - DATA_DIR=/var/lib/localstack
-      - PORT_WEB_UI=8080
-      - LAMBDA_EXECUTOR=docker-reuse
-      - LAMBDA_REMOTE_DOCKER=false
-      - LAMBDA_REMOVE_CONTAINERS=true
-      - KINESIS_ERROR_PROBABILITY=${KINESIS_ERROR_PROBABILITY- }
-      - DOCKER_HOST=unix:///var/run/docker.sock
-      - HOST_TMP_FOLDER=${TMPDIR}
-      - PERSISTENCE=1
+      - "9000:9000"
+      - "9001:9001"
     volumes:
-      - ./.localstack:/var/lib/localstack
-      - ./localstack/init/ready.d:/etc/localstack/init/ready.d
+      - minio_storage:/data
+    environment:
+      MINIO_ROOT_USER: pcc
+      MINIO_ROOT_PASSWORD: password
+    command: server --console-address ":9001" /data
+    networks:
+      - pcc
+
 networks:
-  db:
+  pcc:
     driver: bridge
-    name: db
-  localstack-net:
-    external: false
-    driver: bridge
-    name: localstack-net
+    name: pcc
 volumes:
-  localstack:
-    driver: local
+  minio_storage: {}
+  pg_data: {}
