@@ -1,9 +1,5 @@
 {
-  "name": "payment",
-  "packageManager": "yarn@3.2.3",
-  "engines": {
-    "node": ">=16.17.0"
-  },
+  "name": "@payment/backend",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -70,10 +66,6 @@
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.48.2",
     "@typescript-eslint/parser": "5.48.2",
-    "eslint": "8.32.0",
-    "eslint-config-prettier": "8.6.0",
-    "eslint-nibble": "8.1.0",
-    "eslint-plugin-prettier": "4.2.1",
     "import-local": "3.1.0",
     "jest": "29.3.1",
     "lint-staged": "13.1.0",
@@ -102,11 +94,5 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
-  },
-  "lint-staged": {
-    "*.{tsx,ts}": [
-      "prettier --write",
-      "eslint  --fix"
-    ]
   }
 }

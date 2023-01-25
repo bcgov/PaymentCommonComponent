@@ -34,7 +34,5 @@ lerna-debug.log*
 !.vscode/launch.json
 !.vscode/extensions.json
 
-
-# Local Jestream cluster
-/jetstream-cluster
 .yarn/cache/*
+.yarn/yarn.build.json

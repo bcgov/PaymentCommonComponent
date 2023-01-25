@@ -22,11 +22,11 @@ services:
     image: pcc-backend:latest
     container_name: pcc-backend
     build:
-      context: "./apps/backend"
+      context: "."
       target: development
     restart: unless-stopped
     stdin_open: true
-    command: 'yarn start:dev'
+    command: 'yarn start:backend:local'
     ports:
       - "3000:3000"
     environment:
@@ -45,8 +45,8 @@ services:
       - YARN_VERSION=3.2.3
       - AWS_ENDPOINT=http://minio:9000
     volumes:
-      - ./apps/backend:/usr/src/app
-      - ./apps/backend/node_modules:/usr/src/app/node_modules
+      - ./apps/backend:/apps/backend
+      - ./node_modules:/node_modules
     depends_on:
       - db
     networks:
