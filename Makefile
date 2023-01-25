@@ -1,22 +1,28 @@
 # Makefile
 
-export $(sed 's/=.*//' .env)
-# Environment variables for project
-ENV := $(PWD)/.env
+# Run in the bash context and not /bin/sh (default)
+SHELL := /bin/bash
 
+# Environment variables for project
+export $(sed 's/=.*//' .env)
+ENV := $(PWD)/.env
 include $(ENV)
 
 # Project
 export PROJECT := pcc
+
 # Environment
 export ENV_NAME ?= dev
-
 export PCC_SFTP :=  "$(PCC_SFTP)" 
-
 export BCM_SFTP :=  "$(BCM_SFTP)"
+export POSTGRES_USERNAME := $(AWS_POSTGRES_USERNAME)
 
-# LZ2 
-LZ2_PROJECT = iz8ci7
+# AWS Config
+export AWS_DEFAULT_REGION := ca-central-1
+export AWS_REGION ?= ca-central-1
+
+# LZ2 Config
+export LZ2_PROJECT = iz8ci7
 
 # Terraform Cloud backend config variables      
 define TF_BACKEND_CFG
@@ -29,9 +35,9 @@ export TF_BACKEND_CFG
 # Git
 export COMMIT_SHA:=$(shell git rev-parse --short=7 HEAD)
 export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-color --format="%h, %cn, %f, %D" | sed 's/->/:/')
-
 export GIT_LOCAL_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
 export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
+
 # Terraform variables
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
@@ -40,14 +46,31 @@ define TFVARS_DATA
 target_env = "$(ENV_NAME)"
 project_code = "$(PROJECT)"
 lz2_code = "$(LZ2_PROJECT)"
+db_username = "$(POSTGRES_USERNAME)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
 endef
 export TFVARS_DATA
 
-# AWS Environments variables
-export AWS_REGION ?= ca-central-1
+# Deployment
 APP_SRC_BUCKET = $(LZ2_PROJECT)-$(ENV_NAME)-packages
+
+# Set Vars based on ENV 
+ifeq ($(ENV_NAME), dev) 
+BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_DEV)
+DB_HOST = $(DB_HOST_DEV)
+endif
+
+ifeq ($(ENV_NAME), test) 
+BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
+DB_HOST = $(DB_HOST_PROD_TEST)
+endif
+
+ifeq ($(ENV_NAME), prod)
+BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
+DB_HOST = $(DB_HOST_PROD)
+endif
+
 
 .PHONY: 
 
@@ -114,7 +137,7 @@ endif
 
 
 # ===================================
-# API Build
+# Build application stack
 # ===================================
 
 pre-build:
@@ -123,21 +146,35 @@ pre-build:
 	@mkdir -p ./terraform/build
 	@echo "++\n*****"
 
-build-api: pre-build
+build-backend:
+	@echo 'Building backend package... \n' 
+	@yarn workspace @payment/backend build
+
+	@echo 'Updating prod dependencies...\n'
+	@yarn workspaces focus @payment/backend --production
+
 	@echo 'Deleting existing build dir...\n'
 	@rm -rf ./.build || true
 
-	@echo "++\n***** Building API for AWS\n++"
-	@yarn || yarn workspace @payment/backend build
-	@yarn workspaces focus @payment/backend --production
+	@echo 'Creating build dir...\n'
+	@mkdir -p .build
+
+	@echo 'Copy Node modules....\n'
+	@mv node_modules .build
+
+	@echo 'Unlink local packages...\n'
+	@rm -rf .build/node_modules/@payment/*
 	
-	@echo 'Creating build dir...\n' && mkdir -p .build/backend
-	@echo 'Copy Node modules....\n' && cp -r node_modules .build/backend
-	@echo 'Unlink local packages...\n' && rm -rf .build/backend/node_modules/@payment/*
-	@echo 'Copy backend dist build files ...\n' && cp -r apps/backend/dist/* .build/backend
+	@echo 'Copy backend ...\n' 
+	@cp -r apps/backend/dist/* .build
+
+	@echo 'Creating Zip ...\n'
+	@cd .build && zip -r backend.zip .
+	@cd ..
 	
-	@echo 'Creating Zip ...\n' && cd .build && mkdir pkg && zip -r ./pkg/backend.zip ./backend && cd ..
-	@echo "Done!++\n****"
+	@echo 'Copying to terraform build location...\n'
+	@mv .build/backend.zip ./terraform/build/backend.zip
+
 
 # ===================================
 # AWS Deployments
@@ -154,7 +191,7 @@ deploy-gl:
 	aws lambda update-function-code --function-name glGenerator --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
 
 # ===================================
-# Local Dev Environmentq
+# Local Dev Environment
 # ===================================
 
 build-local:
@@ -166,14 +203,8 @@ run-local:
 local-backend-workspace:
 	@docker exec -it $(PROJECT)-backend sh
 
-localstack-workspace:
-	@docker exec -it $(PROJECT)-localstack sh
-
 local-backend-logs:
 	@docker logs $(PROJECT)-backend --follow --tail 25
-
-localstack-logs:
-	@docker logs $(PROJECT)-localstack --follow --tail 25
 
 close-local:
 	@docker-compose down -v --remove-orphans
@@ -188,19 +219,6 @@ run-test-pipeline:
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
-
-# ===================================
-# Add Local Tdi Files
-# ===================================
-
-put-local-tdi17:
-	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi17/TDI17.TXT --body ./apps/backend/sample-files/TDI17.TXT 
-
-put-local-tdi34:
-	awslocal s3api put-object --bucket bc-pcc-data-files-local --key tdi34/TDI34.TXT --body ./apps/backend/sample-files/TDI34.TXT 
-
-put-local-ddf:
-	awslocal s3api put-object --bucket bc-pcc-data-files-local --key ddf/DDF.TXT --body ./apps/backend/sample-files/DDF.TXT 
 
 
 # ===================================
@@ -217,7 +235,7 @@ parse-local-ddf:
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
 	
 get-daily-recon-files:
-	@echo $(shell cd ./apps/backend/src/temp-scripts && PCC_SFTP=$(PCC_SFTP)   ./sftp.garms.sh)  
+	@echo $(shell cd ./apps/backend/src/temp-scripts && PCC_SFTP=$(PCC_SFTP) ./sftp.garms.sh)  
 	@echo $(shell cd ./apps/backend/src/temp-scripts && BCM_SFTP=$(BCM_SFTP) ./sftp.bcm.sh) 
 
 add-data:
@@ -241,3 +259,52 @@ migration-generate:
 	@docker exec -it $(PROJECT)-backend yarn run typeorm:generate-migration
 	
     
+# ===================================
+# Local S3 Management
+# ===================================
+
+minio-init: 
+	@mc alias set s3 http://localhost:9000 pcc password
+	@mc mb s3/pcc-integration-data-files-local
+
+minio-ls: 
+	@mc ls s3/pcc-integration-data-files-local/bcm
+
+
+# ===================================
+# SFTP Data management
+# ===================================
+
+# Source the env vars
+rclone-init: 
+	@. ./scaffold/rclone/init.sh
+
+rclone-local: rclone-init
+	@rclone sync bcm:/outgoing minio:/pcc-integration-data-files-local/bcm/
+	@rclone check bcm:/outgoing minio:pcc-integration-data-files-local/bcm/
+
+rclone-all: 
+	@rclone ls bcm:/ --include '*{{PROD.*TDI34}}*'
+	@rclone ls bcm:/ --include '*{{PROD.*TDI17}}*'
+	# to be replaced with S3 Service account. 
+	@rclone ls pccp:/
+
+
+# ===================================
+# DB Tunneling
+# ===================================
+
+test-aws: 
+	# @aws sts get-caller-identity
+	@echo $(AWS_ACCESS_KEY_ID)
+open-db-tunnel:
+	# Needs exported credentials for a matching LZ2 space
+	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
+	@echo "Host Instance Id: $(BASTION_INSTANCE_ID) | $(BASTION_INSTANCE_ID_DEV) | $(DOMAIN)\n"
+	@echo "DB HOST URL: $(DB_HOST)\n"
+	# Checking you have the SSM plugin for the AWS cli installed
+	session-manager-plugin
+	rm ssh-keypair ssh-keypair.pub || true
+	ssh-keygen -t rsa -f ssh-keypair -N ''
+	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID) --availability-zone ca-central-1b --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
+	ssh -i ssh-keypair ec2-user@$(BASTION_INSTANCE_ID) -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
