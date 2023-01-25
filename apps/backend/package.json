@@ -4,14 +4,6 @@
   "engines": {
     "node": ">=16.17.0"
   },
-  "workspaces": {
-    "packages": [
-      "packages/*"
-    ],
-    "no-hoist": [
-      "@nestjs/core"
-    ]
-  },
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -19,7 +11,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "rimraf dist && nest build",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start": "nest start",
     "start:dev": "NODE_ENV=local RUNTIME_ENV=local nest start --watch",
