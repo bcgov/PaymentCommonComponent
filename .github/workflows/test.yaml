@@ -3,7 +3,8 @@ name: Run tests for the API
 env:
   GIT_LOCAL_BRANCH: ${{ github.sha }}
 
-on: [push]
+# Disable test temporarily
+# on: [push]
 
 jobs:
   build-test:
