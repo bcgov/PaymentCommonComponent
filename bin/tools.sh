@@ -48,15 +48,10 @@ then
     echo "Contact project admin"
 fi
 
-if ! test -f "$HOME/.ssh/pcc"; 
-then
-    echo "pcc keys not found"
-    echo "Contact project admin"
-fi
-
 if [ ! $(aws configure list-profiles | grep -e pcc-aws -e minio | wc -l) -eq 2 ]
 then
 	echo "pcc-aws / minio Profile not found"
+    echo "pcc-aws keys are in secrets manager in aws"
 fi
 
 if [ ! $(mdfind "kMDItemKind == 'Application'" | grep -c "Cisco AnyConnect Secure Mobility Client") -eq 1 ]

@@ -11,7 +11,7 @@ import {
   POSDepositEntity
 } from './../reconciliation/entities';
 
-// TODO - clean this up - this is for dev only
+
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
 

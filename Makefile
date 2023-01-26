@@ -74,6 +74,8 @@ endif
 
 .PHONY: 
 
+check: 
+	@./bin/tools.sh
 
 # ===================================
 # Terraform commands
@@ -189,8 +191,11 @@ deploy-backend:
 build-local:
 	@docker-compose up --build -d --force-recreate
 
-run-local:
-	@docker-compose up -d
+start: 
+	docker-compose up -d 
+
+stop: 
+	@docker-compose down
 
 local-backend-workspace:
 	@docker exec -it $(PROJECT)-backend sh
@@ -234,16 +239,16 @@ reconcile:
 # ===================================
 
 migration-create:
-	@docker exec -it $(PROJECT)-backend yarn run typeorm:create-migration
+	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:create-migration
 
 migration-revert: 
-	@docker exec -it $(PROJECT)-backend yarn run typeorm:revert-migration
+	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:revert-migration
 
 migration-run:
-	@docker exec -it $(PROJECT)-backend yarn run typeorm:run-migrations
+	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:run-migrations
 
 migration-generate:	  
-	@docker exec -it $(PROJECT)-backend yarn run typeorm:generate-migration
+	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:generate-migration
 	
     
 # ===================================

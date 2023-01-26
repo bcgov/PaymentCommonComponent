@@ -22,7 +22,7 @@
     "test:pipeline": "NODE_ENV=test RUNTIME_ENV=test jest  --config ./test/jest.json --runInBand --detectOpenHandles",
     "lint-staged": "lint-staged",
     "nibble": "eslint-nibble --ext .ts src/",
-    "typeorm": "ts-node ./node_modules/typeorm/cli",
+    "typeorm": "ts-node ./node_modules/.bin/typeorm",
     "typeorm:run-migrations": "yarn run typeorm migration:run -d ./src/database/config.ts",
     "typeorm:generate-migration": "yarn run typeorm migration:generate -d ./src/database/config.ts ./src/database/migrations/migration",
     "typeorm:create-migration": "yarn run typeorm migration:create ./src/database/migrations/migration",

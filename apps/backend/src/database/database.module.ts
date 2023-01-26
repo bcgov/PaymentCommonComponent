@@ -21,7 +21,7 @@ import {
         port: parseInt(process.env.DB_PORT ?? '5432') ?? 5432,
         username: process.env.DB_USERNAME ?? 'postgres',
         password: process.env.DB_PASWORD ?? 'postgres',
-        database: process.env.DB_NAME ?? 'bcpcc',
+        database: process.env.DB_NAME ?? 'pcc',
         entities: [LocationView, MasterLocationDataEntity, PaymentMethodEntity],
         autoLoadEntities: true,
         synchronize: process.env.NODE_ENV === 'test' ?? false
