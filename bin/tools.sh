@@ -6,6 +6,12 @@ then
     echo "https://rclone.org/install/"
 fi
 
+if ! command -v jq &> /dev/null
+then
+    echo "jq could not be found"
+    echo "https://stedolan.github.io/jq/download/"
+fi
+
 if ! command -v mc &> /dev/null
 then
     echo "mc (minio client) could not be found"
@@ -46,6 +52,11 @@ if ! test -f "$HOME/.ssh/pcc";
 then
     echo "pcc keys not found"
     echo "Contact project admin"
+fi
+
+if [ ! $(aws configure list-profiles | grep -e pcc-aws -e minio | wc -l) -eq 2 ]
+then
+	echo "pcc-aws / minio Profile not found"
 fi
 
 if [ ! $(mdfind "kMDItemKind == 'Application'" | grep -c "Cisco AnyConnect Secure Mobility Client") -eq 1 ]

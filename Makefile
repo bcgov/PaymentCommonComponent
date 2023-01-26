@@ -99,17 +99,6 @@ destroy: init
 
 
 # ===================================
-# Lambda Builds
-# ===================================
-
-build:
-	@yarn build
-
-deploy-backend: 
-	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./terraform/build/empty_lambda.zip --region $(AWS_REGION) > /dev/null
-
-
-# ===================================
 # Tag Based Deployments
 # ===================================
 
@@ -190,6 +179,9 @@ deploy-api:
 deploy-gl:
 	aws lambda update-function-code --function-name glGenerator --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
 
+deploy-backend: 
+	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./terraform/build/empty_lambda.zip --region $(AWS_REGION) > /dev/null
+
 # ===================================
 # Local Dev Environment
 # ===================================
@@ -233,18 +225,13 @@ parse-local-tdi34:
 
 parse-local-ddf: 			
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
-	
-get-daily-recon-files:
-	@echo $(shell cd ./apps/backend/src/temp-scripts && PCC_SFTP=$(PCC_SFTP) ./sftp.garms.sh)  
-	@echo $(shell cd ./apps/backend/src/temp-scripts && BCM_SFTP=$(BCM_SFTP) ./sftp.bcm.sh) 
-
-add-data:
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI17")' 
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("TDI34")'
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/generateData.ts").handler("transaction")' 
 
 reconcile:
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/reconcile.ts").handler()'
+
+# ===================================
+# Migrations
+# ===================================
 
 migration-create:
 	@docker exec -it $(PROJECT)-backend yarn run typeorm:create-migration
@@ -272,31 +259,16 @@ minio-ls:
 
 
 # ===================================
-# SFTP Data management
+# SFTP Data Sync
 # ===================================
 
-# Source the env vars
-rclone-init: 
-	@. ./scaffold/rclone/init.sh
-
-rclone-local: rclone-init
-	@rclone sync bcm:/outgoing minio:/pcc-integration-data-files-local/bcm/
-	@rclone check bcm:/outgoing minio:pcc-integration-data-files-local/bcm/
-
-rclone-all: 
-	@rclone ls bcm:/ --include '*{{PROD.*TDI34}}*'
-	@rclone ls bcm:/ --include '*{{PROD.*TDI17}}*'
-	# to be replaced with S3 Service account. 
-	@rclone ls pccp:/
-
+sync:
+	@./bin/sync.sh
 
 # ===================================
-# DB Tunneling
+# AWS Management
 # ===================================
 
-test-aws: 
-	# @aws sts get-caller-identity
-	@echo $(AWS_ACCESS_KEY_ID)
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
