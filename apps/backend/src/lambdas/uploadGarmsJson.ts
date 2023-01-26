@@ -21,7 +21,7 @@ export const handler = async (event?: any, context?: Context) => {
     appLogger.log(`...start ${event.type} Parsing`);
 
     const contents = await s3manager.getContents(
-      `bc-pcc-data-files-${process.env.NODE_ENV}`,
+      `pcc-integration-data-files-${process.env.NODE_ENV}`,
       `${event.filepath}`
     );
 
@@ -46,7 +46,7 @@ export const uploadParsedGarms = async (
 ) => {
   try {
     await s3manager.putObject(
-      `bc-pcc-data-files-${process.env.NODE_ENV}`,
+      `pcc-integration-data-files-${process.env.NODE_ENV}`,
       outputPath ?? `outputs/${type}/${Date.now()}_${type}.json`,
       Buffer.from(JSON.stringify(output))
     );

@@ -44,7 +44,7 @@ export const handler = async (event?: any, context?: Context) => {
     await Promise.all(
       fileList.map(async (itm) => {
         const file = await s3.getContents(
-          `bc-pcc-data-files-${process.env.NODE_ENV}`,
+          `pcc-integration-data-files-${process.env.NODE_ENV}`,
           itm
         );
 
@@ -62,7 +62,7 @@ export const handler = async (event?: any, context?: Context) => {
   try {
     await getBucketContents(
       (await s3.listBucketContents(
-        `bc-pcc-data-files-${process.env.NODE_ENV}`
+        `pcc-integration-data-files-${process.env.NODE_ENV}`
       )) || []
     );
   } catch (e) {

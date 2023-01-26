@@ -18,15 +18,15 @@ import { DatabaseModule } from './database/database.module';
     SalesModule,
     ConfigModule.forRoot({
       ignoreEnvFile:
-        process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
+        process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'ci'
           ? false
           : true
     }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
-        ...(process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'test'
+        ...(process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'ci'
           ? {
-              endpoint: process.env.AWS_ENDPOINT || 'http://localhost:4566',
+              endpoint: process.env.AWS_ENDPOINT || 'http://localhost:9000',
               region: 'ca-central-1',
               s3ForcePathStyle: true
             }
