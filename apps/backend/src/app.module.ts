@@ -9,12 +9,16 @@ import { AwsSdkModule } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { DatabaseModule } from './database/database.module';
+import { PosModule } from './pos/pos.module';
+import { CashModule } from './cash/cash.module';
 
 @Module({
   imports: [
+    CashModule,
     DatabaseModule,
     S3ManagerModule,
     ReconciliationModule,
+    PosModule,
     SalesModule,
     ConfigModule.forRoot({
       ignoreEnvFile:

@@ -1,3 +1,4 @@
+import { FileTypes } from '../../constants';
 import { TDI17Details, TDI34Details, DDFDetails } from '../../flat-files';
 
 export const parseTDI = (
@@ -5,33 +6,43 @@ export const parseTDI = (
   fileContents: string,
   program: string,
   fileName: string
-) => {
+): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
   const lines = fileContents?.split('\n').filter((l: string) => l);
-
   lines.splice(0, 1);
   lines.splice(lines.length - 1, 1);
 
   if (lines.length === 0) {
-    return;
+    return [];
   }
-  const detailsArr: (TDI34Details | TDI17Details | DDFDetails)[] = lines.map(
-    (line: string) => {
-      const details =
-        type === 'DDF'
-          ? new DDFDetails({})
-          : type === 'TDI17'
-          ? new TDI17Details({})
-          : new TDI34Details({});
-      details.convertToJson(line);
-      details.metadata = {
-        type: type,
-        source_file_line: lines.indexOf(line) + 1,
-        program: program.toUpperCase(),
-        source_file_name: fileName,
-        source_file_length: lines.length
-      };
-      return details;
-    }
-  );
-  return detailsArr.map((itm: { resource: unknown }) => itm.resource);
+
+  const items = ((): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
+    if (type === FileTypes.TDI17)
+      return lines.map(() => {
+        return new TDI17Details({});
+      });
+    if (type === FileTypes.TDI34)
+      return lines.map(() => {
+        return new TDI34Details({});
+      });
+    if (type === FileTypes.DDF)
+      return lines.map(() => {
+        return new DDFDetails({});
+      });
+    return [];
+  })();
+
+  const detailsArr = items.map((item, index) => {
+    item.convertToJson(lines[index]);
+    item.metadata = {
+      type: type,
+      source_file_line: index + 1,
+      program,
+      source_file_name: fileName,
+      source_file_length: lines.length
+    };
+    return item;
+  });
+
+  const typedTDArray = detailsArr as (TDI34Details[] | TDI17Details[] | DDFDetails[]);
+  return typedTDArray;
 };

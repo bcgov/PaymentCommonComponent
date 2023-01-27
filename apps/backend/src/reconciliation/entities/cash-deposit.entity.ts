@@ -1,4 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { TDI17Details } from '../../flat-files';
 import { FileMetadata } from '../columns/metadata.col';
 
 @Entity('cash_deposit')
@@ -60,7 +61,7 @@ export class CashDepositEntity {
   @Column({ default: false })
   match: boolean;
 
-  constructor(data?: any) {
-    Object.assign(this, data);
+  constructor(data?: TDI17Details) {
+    Object.assign(this, data?.resource);
   }
 }

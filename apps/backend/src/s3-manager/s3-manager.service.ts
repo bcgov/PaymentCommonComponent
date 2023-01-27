@@ -16,17 +16,10 @@ export class S3ManagerService {
     return response.Contents?.map((c) => c.Key);
   }
 
-  async getContents(bucket: string, key: string) {
+  async getObject(bucket: string, key: string) {
     const response = await this.s3
       .getObject({ Bucket: bucket, Key: key })
       .promise();
-    return response;
-  }
-
-  readContents(bucket: string, key: string) {
-    const response = this.s3
-      .getObject({ Bucket: bucket, Key: key })
-      .createReadStream();
     return response;
   }
 

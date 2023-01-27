@@ -1,10 +1,10 @@
 import { IGarmsJson } from '../../reconciliation/interface';
 import { TransactionEntity } from '../../reconciliation/entities/transaction.entity';
 
-//TODO remove this once sales api is ready - development only
-export const parseGarms = async (
+// For parsing GARMS Sales JSON into PCC Sales
+export const parseGarms = (
   garmsJson: IGarmsJson[]
-): Promise<TransactionEntity[] | boolean | void> => {
+): TransactionEntity[] | boolean | void => {
   return garmsJson.map(
     ({
       sales_transaction_id,

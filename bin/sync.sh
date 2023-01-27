@@ -12,8 +12,8 @@ do
             
             echo -e "\nSyncing BCM PROD TO AWS PROD..."
             source $REPO_LOCATION/bin/assume.sh "prod" "local"
-            rclone sync bcm:/outgoing s3:pcc-integration-data-files-prod/bcm
-	        rclone check bcm:/outgoing s3:pcc-integration-data-files-prod/bcm
+            rclone sync bcm:/outgoing s3:pcc-integration-data-files-prod/bcm --include '*{{PROD}}*'
+	        rclone check bcm:/outgoing s3:pcc-integration-data-files-prod/bcm --include '*{{PROD}}*'
             
             break
             ;;
