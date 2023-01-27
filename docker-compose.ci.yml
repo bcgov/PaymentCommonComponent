@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       - POSTGRES_HOST=localhost
-      - POSTGRES_DB=bcpcc
+      - POSTGRES_DB=pcc
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_ROOT_PASSWORD=postgres
