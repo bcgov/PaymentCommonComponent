@@ -226,7 +226,7 @@ parse:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/generateData.ts").handler({eventType: "make"})' 
 
 reconcile:
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/reconcile.ts").handler()'
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e  'require("./apps/backend/src/lambdas/reconcile.ts").handler()'
 
 # ===================================
 # Migrations

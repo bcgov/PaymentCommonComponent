@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class migration1674507306355 implements MigrationInterface {
-  name = 'migration1674507306355';
+export class migration1674847599295 implements MigrationInterface {
+  name = 'migration1674847599295';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -11,7 +11,7 @@ export class migration1674507306355 implements MigrationInterface {
       `CREATE TABLE "payment" ("id" SERIAL NOT NULL, "method" integer NOT NULL, "amount" numeric NOT NULL, "currency" character varying, "exchange_rate" numeric, "match" boolean NOT NULL DEFAULT false, "transaction" character varying, CONSTRAINT "PK_fcaec7df5adf9cac408c686b2ab" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "transaction" ("transaction_id" character varying NOT NULL, "transaction_date" date NOT NULL, "transaction_time" character varying, "payment_total" numeric NOT NULL, "match" boolean DEFAULT false, "location_id" integer NOT NULL, CONSTRAINT "PK_6e02e5a0a6a7400e1c944d1e946" PRIMARY KEY ("transaction_id"))`
+      `CREATE TABLE "transaction" ("transaction_id" character varying NOT NULL, "transaction_date" date NOT NULL, "fiscal_date" date NOT NULL, "transaction_time" character varying, "payment_total" numeric NOT NULL, "match" boolean DEFAULT false, "location_id" integer NOT NULL, CONSTRAINT "PK_6e02e5a0a6a7400e1c944d1e946" PRIMARY KEY ("transaction_id"))`
     );
     await queryRunner.query(
       `CREATE TABLE "payment_method" ("method" character varying NOT NULL, "description" character varying NOT NULL, "sbc_code" integer NOT NULL, CONSTRAINT "UQ_6d29c1e169753ef8da83645ab67" UNIQUE ("sbc_code"), CONSTRAINT "PK_463d4c661719685f2dffa48ec9d" PRIMARY KEY ("method"))`
@@ -25,25 +25,9 @@ export class migration1674507306355 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "payment" ADD CONSTRAINT "FK_791b8ba36efbc1f7de35a95a2d4" FOREIGN KEY ("transaction") REFERENCES "transaction"("transaction_id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
-    await queryRunner.query(`CREATE MATERIALIZED VIEW "location_view" AS SELECT id, "GARMS Location", "Merchant ID", "Location", "description", "Type"  FROM master_location_data
-  with data;`);
-    await queryRunner.query(
-      `INSERT INTO "typeorm_metadata"("database", "schema", "table", "type", "name", "value") VALUES (DEFAULT, $1, DEFAULT, $2, $3, $4)`,
-      [
-        'public',
-        'MATERIALIZED_VIEW',
-        'location_view',
-        'SELECT id, "GARMS Location", "Merchant ID", "Location", "description", "Type"  FROM master_location_data\n  with data;'
-      ]
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `DELETE FROM "typeorm_metadata" WHERE "type" = $1 AND "name" = $2 AND "schema" = $3`,
-      ['MATERIALIZED_VIEW', 'location_view', 'public']
-    );
-    await queryRunner.query(`DROP MATERIALIZED VIEW "location_view"`);
     await queryRunner.query(
       `ALTER TABLE "payment" DROP CONSTRAINT "FK_791b8ba36efbc1f7de35a95a2d4"`
     );

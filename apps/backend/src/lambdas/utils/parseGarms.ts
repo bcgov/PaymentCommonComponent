@@ -7,12 +7,14 @@ export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
     ({
       sales_transaction_id,
       sales_transaction_date,
+      fiscal_close_date,
       payment_total,
       payments,
       source
     }: IGarmsJson) =>
       new TransactionEntity({
         transaction_id: sales_transaction_id,
+        fiscal_date: fiscal_close_date,
         transaction_date: sales_transaction_date
           .split('')
           .splice(0, 10)
