@@ -50,6 +50,7 @@
     "rimraf": "4.1.1",
     "rxjs": "7.8.0",
     "typeorm": "0.3.11",
+    "underscore": "1.13.6",
     "webpack": "5.75.0",
     "winston": "3.8.2"
   },
@@ -64,6 +65,7 @@
     "@types/node": "18.11.18",
     "@types/pg": "8.6.6",
     "@types/supertest": "2.0.12",
+    "@types/underscore": "1.11.4",
     "@typescript-eslint/eslint-plugin": "5.48.2",
     "@typescript-eslint/parser": "5.48.2",
     "import-local": "3.1.0",

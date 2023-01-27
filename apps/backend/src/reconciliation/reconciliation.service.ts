@@ -73,6 +73,7 @@ export class ReconciliationService {
     }
   }
 
+  // TODO: typed for garms sales txn
   async mapSalesTransaction(data: any): Promise<TransactionEntity[]> {
     try {
       return Promise.all(

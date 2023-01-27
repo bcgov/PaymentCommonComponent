@@ -222,14 +222,8 @@ close-test:
 # Parse Local
 # ===================================
 
-parse-local-tdi17:
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI17", filepath: "tdi17/TDI17.TXT", program: "unknown"})'
-
-parse-local-tdi34: 			
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "TDI34", filepath: "tdi34/TDI34.TXT", program: "unknown"})'
-
-parse-local-ddf: 			
-	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/parseFlatFile.ts").handler({type: "DDF", filepath:  "ddf/DDF.TXT"})'
+parse:
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/generateData.ts").handler({eventType: "make"})' 
 
 reconcile:
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/reconcile.ts").handler()'
@@ -260,7 +254,7 @@ minio-init:
 	@mc mb s3/pcc-integration-data-files-local
 
 minio-ls: 
-	@mc ls s3/pcc-integration-data-files-local/bcm
+	@mc ls s3/pcc-integration-data-files-local
 
 
 # ===================================
