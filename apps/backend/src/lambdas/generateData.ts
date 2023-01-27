@@ -1,3 +1,4 @@
+import { IGarmsJson } from './../reconciliation/interface/sbc_garms.interface';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { parseTDI } from './utils/parseTDI';
@@ -8,13 +9,13 @@ import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { ReconciliationService } from '../reconciliation/reconciliation.service';
 import {
   CashDepositEntity,
-  POSDepositEntity
+  POSDepositEntity,
+  TransactionEntity
 } from './../reconciliation/entities';
 import { getLambdaEventSource } from './utils/eventTypes';
 import { FileNames, FileTypes, LOCAL, Ministries } from '../constants';
 import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
 import { TDI34Details } from '../flat-files';
-import { IGarmsJson } from '../reconciliation/interface';
 import { CashService } from '../cash/cash.service';
 import { PosService } from '../pos/pos.service';
 import * as _ from 'underscore';
@@ -102,11 +103,14 @@ export const handler = async (event?: any, context?: Context) => {
 
       if (fileType === FileTypes.SBC_SALES) {
         // IGarmsJson should not be in reconciliation module
-        const garmsSales = (await JSON.parse(
-          file.Body?.toString() || '{}'
-        )) as IGarmsJson[];
+
         // TODO: mapSalesTransaction should be typed to garms sales JSON format.
-        reconService.mapSalesTransaction(parseGarms(garmsSales));
+        const parsed: TransactionEntity[] = parseGarms(
+          (await JSON.parse(file.Body?.toString() || '{}')) as IGarmsJson[]
+        );
+        parsed.map((transaction: TransactionEntity) =>
+          reconService.createSalesTransaction(transaction)
+        );
       }
 
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
@@ -119,20 +123,18 @@ export const handler = async (event?: any, context?: Context) => {
 
         if (fileType === FileTypes.TDI34) {
           const tdi34Details = parsed as TDI34Details[];
-          const tdi34Entities = tdi34Details.map(
-            (item) => new POSDepositEntity(item)
+          tdi34Details.map((item) =>
+            reconService.createPOSDeposit(new POSDepositEntity(item))
           );
           // TODO: Needs to go to it's own service / repository
-          await reconService.mapPOSDeposit(tdi34Entities);
         }
 
         if (fileType === FileTypes.TDI17) {
           const tdi17Details = parsed as TDI17Details[];
-          const tdi17Entities = tdi17Details.map(
-            (item) => new CashDepositEntity(item)
+          tdi17Details.map((item) =>
+            reconService.createCashDeposit(new CashDepositEntity(item))
           );
           // TODO: Needs to go to it's own service / repository
-          await reconService.mapCashDeposit(tdi17Entities);
         }
       }
     } catch (err) {
@@ -140,7 +142,7 @@ export const handler = async (event?: any, context?: Context) => {
     }
   };
 
-  if(event?.eventType === 'make') {
+  if (event?.eventType === 'make') {
     await processLocalFiles();
     return;
   }

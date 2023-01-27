@@ -25,7 +25,5 @@ ssh-keypair*
 
 .localstack
 .editorconfig
-postgres
-data
 .env.test
-testdata
+pg_data

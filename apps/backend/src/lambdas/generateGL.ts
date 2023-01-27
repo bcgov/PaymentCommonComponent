@@ -14,7 +14,7 @@ export const handler = async (event?: any, context?: Context) => {
 
   try {
     appLogger.log('...start GL Generation');
-    const contents = await s3manager.getContents(
+    const contents = await s3manager.getObject(
       `pcc-integration-data-files-${process.env.NODE_ENV}`,
       'aggregate/gl.json'
     );

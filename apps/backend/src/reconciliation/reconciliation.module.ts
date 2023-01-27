@@ -1,10 +1,9 @@
-import { LocationView } from './entities/location-view.entity';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Module, Logger } from '@nestjs/common';
 import { PaymentEntity } from './entities/payment.entity';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { TransactionEntity } from './entities/transaction.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Module, Logger } from '@nestjs/common';
 import { ReconciliationService } from './reconciliation.service';
 import { ReconciliationController } from './reconciliation.controller';
 
@@ -14,8 +13,7 @@ import { ReconciliationController } from './reconciliation.controller';
       TransactionEntity,
       POSDepositEntity,
       CashDepositEntity,
-      PaymentEntity,
-      LocationView
+      PaymentEntity
     ])
   ],
   providers: [ReconciliationService, Logger],

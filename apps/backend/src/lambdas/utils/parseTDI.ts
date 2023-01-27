@@ -43,6 +43,9 @@ export const parseTDI = (
     return item;
   });
 
-  const typedTDArray = detailsArr as (TDI34Details[] | TDI17Details[] | DDFDetails[]);
+  const typedTDArray = detailsArr as
+    | TDI34Details[]
+    | TDI17Details[]
+    | DDFDetails[];
   return typedTDArray;
 };

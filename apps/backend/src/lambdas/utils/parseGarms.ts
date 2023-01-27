@@ -2,9 +2,7 @@ import { IGarmsJson } from '../../reconciliation/interface';
 import { TransactionEntity } from '../../reconciliation/entities/transaction.entity';
 
 // For parsing GARMS Sales JSON into PCC Sales
-export const parseGarms = (
-  garmsJson: IGarmsJson[]
-): TransactionEntity[] | boolean | void => {
+export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
   return garmsJson.map(
     ({
       sales_transaction_id,

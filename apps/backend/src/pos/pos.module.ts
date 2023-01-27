@@ -4,9 +4,8 @@ import { POSDepositEntity } from '../reconciliation/entities';
 import { PosService } from './pos.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([POSDepositEntity])],
-    providers: [PosService, Logger],
-    exports: [PosService]
+  imports: [TypeOrmModule.forFeature([POSDepositEntity])],
+  providers: [PosService, Logger],
+  exports: [PosService]
 })
 export class PosModule {}
-

@@ -4,9 +4,8 @@ import { CashDepositEntity } from '../reconciliation/entities';
 import { CashService } from './cash.service';
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CashDepositEntity])],
-    providers: [CashService, Logger],
-    exports: [CashService]
+  imports: [TypeOrmModule.forFeature([CashDepositEntity])],
+  providers: [CashService, Logger],
+  exports: [CashService]
 })
 export class CashModule {}
-

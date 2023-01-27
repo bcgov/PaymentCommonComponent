@@ -44,29 +44,18 @@ export class ReconciliationService {
     }
   }
 
-  async mapPOSDeposit(data: POSDepositEntity[]): Promise<POSDepositEntity[]> {
+  async createPOSDeposit(data: POSDepositEntity): Promise<POSDepositEntity> {
     try {
-      return Promise.all(
-        data.map(
-          async (itm: POSDepositEntity) =>
-            await this.posDepositRepo.save(this.posDepositRepo.create(itm))
-        )
-      );
+      return await this.posDepositRepo.save(this.posDepositRepo.create(data));
     } catch (err) {
       this.appLogger.error(err, 'Error inserting TDI34 to POS Deposits table');
       throw err;
     }
   }
 
-  async mapCashDeposit(
-    data: CashDepositEntity[]
-  ): Promise<CashDepositEntity[]> {
+  async createCashDeposit(data: CashDepositEntity): Promise<CashDepositEntity> {
     try {
-      return Promise.all(
-        data.map((itm: CashDepositEntity) =>
-          this.cashDepositRepo.save(this.cashDepositRepo.create(itm))
-        )
-      );
+      return await this.cashDepositRepo.save(this.cashDepositRepo.create(data));
     } catch (err) {
       this.appLogger.error(err);
       throw err;
@@ -74,13 +63,11 @@ export class ReconciliationService {
   }
 
   // TODO: typed for garms sales txn
-  async mapSalesTransaction(data: any): Promise<TransactionEntity[]> {
+  async createSalesTransaction(
+    data: TransactionEntity
+  ): Promise<TransactionEntity> {
     try {
-      return Promise.all(
-        data.map((itm: Partial<TransactionEntity>) =>
-          this.salesRepo.save(this.salesRepo.create(itm))
-        )
-      );
+      return await this.salesRepo.save(this.salesRepo.create(data));
     } catch (e) {
       this.appLogger.error(e);
       throw e;
