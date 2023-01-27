@@ -1,23 +1,12 @@
-import { LocationView } from './entities/location-view.entity';
-import { PaymentEntity } from './entities/payment.entity';
-import { CashDepositEntity } from './entities/cash-deposit.entity';
-import { POSDepositEntity } from './entities/pos-deposit.entity';
-import { TransactionEntity } from './entities/transaction.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { SalesModule } from './../sales/sales.module';
+import { PosModule } from './../pos/pos.module';
+import { CashModule } from './../cash/cash.module';
 import { Module, Logger } from '@nestjs/common';
 import { ReconciliationService } from './reconciliation.service';
 import { ReconciliationController } from './reconciliation.controller';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      TransactionEntity,
-      POSDepositEntity,
-      CashDepositEntity,
-      PaymentEntity,
-      LocationView
-    ])
-  ],
+  imports: [CashModule, PosModule, SalesModule],
   providers: [ReconciliationService, Logger],
   controllers: [ReconciliationController],
   exports: [ReconciliationService]

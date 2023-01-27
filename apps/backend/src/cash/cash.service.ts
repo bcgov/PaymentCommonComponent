@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
-import { CashDepositEntity } from '../reconciliation/entities';
+import { CashDepositEntity } from './entities/cash-deposit.entity';
 
 @Injectable()
 export class CashService {
@@ -24,5 +24,14 @@ export class CashService {
       .select('cash_deposit.metadata.source_file_name')
       .distinct()
       .getRawMany();
+  }
+
+  async createCashDeposit(data: CashDepositEntity): Promise<CashDepositEntity> {
+    try {
+      return await this.cashDepositRepo.save(this.cashDepositRepo.create(data));
+    } catch (err) {
+      this.appLogger.error(err);
+      throw err;
+    }
   }
 }

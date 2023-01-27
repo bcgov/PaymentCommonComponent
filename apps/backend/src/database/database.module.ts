@@ -1,17 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  PaymentMethodEntity,
-  LocationView,
-  MasterLocationDataEntity
-} from '../reconciliation/entities';
+import { MasterLocationDataEntity } from '../reconciliation/entities';
+import { PaymentMethodEntity } from '../sales/entities';
 
-{
-  /*
-   * This module is responsible for configuring the database connection.
-   * Explicitly specify entities which are not loaded as TypeOrmModule.forFeature() in another module
-   */
-}
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
@@ -22,9 +13,9 @@ import {
         username: process.env.DB_USERNAME ?? 'postgres',
         password: process.env.DB_PASWORD ?? 'postgres',
         database: process.env.DB_NAME ?? 'pcc',
-        entities: [LocationView, MasterLocationDataEntity, PaymentMethodEntity],
+        entities: [MasterLocationDataEntity, PaymentMethodEntity],
         autoLoadEntities: true,
-        synchronize: process.env.NODE_ENV === 'test' ?? false
+        synchronize: false
       })
     })
   ]

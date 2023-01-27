@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
-import { POSDepositEntity } from '../reconciliation/entities';
+import { POSDepositEntity } from './entities/pos-deposit.entity';
 
 @Injectable()
 export class PosService {
@@ -23,5 +23,14 @@ export class PosService {
       .select('pos_deposit.metadata.source_file_name')
       .distinct()
       .getRawMany();
+  }
+
+  async createPOSDeposit(data: POSDepositEntity): Promise<POSDepositEntity> {
+    try {
+      return await this.posDepositRepo.save(this.posDepositRepo.create(data));
+    } catch (err) {
+      this.appLogger.error(err, 'Error inserting TDI34 to POS Deposits table');
+      throw err;
+    }
   }
 }

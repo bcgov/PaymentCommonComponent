@@ -20,7 +20,7 @@ export const handler = async (event?: any, context?: Context) => {
   try {
     appLogger.log(`...start ${event.type} Parsing`);
 
-    const contents = await s3manager.getContents(
+    const contents = await s3manager.getObject(
       `pcc-integration-data-files-${process.env.NODE_ENV}`,
       `${event.filepath}`
     );
