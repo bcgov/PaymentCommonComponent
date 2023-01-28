@@ -1,22 +1,12 @@
 import { DataSource } from 'typeorm';
+import { MasterLocationDataEntity } from '../reconciliation/entities';
+import { CashDepositEntity } from '../cash/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
 import {
-  CashDepositEntity,
-  POSDepositEntity,
   TransactionEntity,
   PaymentEntity,
-  PaymentMethodEntity,
-  LocationView,
-  MasterLocationDataEntity
-} from '../reconciliation/entities';
-
-{
-  /*
-   * This module is specific to Typeorm v3.
-   * It defines the datasource for the database connection, and is required for generating, running, and creating migrations via typeorm cli.
-   * Explicitly specify all entities as autoLoadEntities is not available here
-   * I have set fallback values as possibly undefined values are not allowed.
-   */
-}
+  PaymentMethodEntity
+} from '../sales/entities';
 
 export default new DataSource({
   type: 'postgres',
@@ -31,7 +21,6 @@ export default new DataSource({
     TransactionEntity,
     POSDepositEntity,
     CashDepositEntity,
-    LocationView,
     MasterLocationDataEntity
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],

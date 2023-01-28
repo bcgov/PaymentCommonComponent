@@ -1,15 +1,13 @@
-import { OneToMany, Entity, Column, PrimaryColumn } from 'typeorm';
+import { OneToMany, Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 
-{
-  /*
-    This entity represents a partial transaction/sales api json to be used in the reconciliation process.
-    There are one or more payments associated with a transaction, and each payment should match to a corresponding deposit, either in the CashDeposit or POSDeposit table.    
- */
-}
 @Entity('transaction')
 export class TransactionEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  //This should be unique - at least across the diff programs
+  @Column()
   transaction_id: string;
 
   @Column({ type: 'date' })
@@ -21,16 +19,13 @@ export class TransactionEntity {
   @Column({ type: 'numeric' })
   payment_total: number;
 
-  @Column({ default: false, nullable: true })
-  match?: boolean;
-
   @Column()
   location_id: number;
 
   @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
     cascade: true
   })
-  payments?: PaymentEntity[];
+  payments: PaymentEntity[];
 
   constructor(transaction: Partial<TransactionEntity>) {
     Object.assign(this, transaction);

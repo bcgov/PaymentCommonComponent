@@ -1,10 +1,8 @@
+import { TransactionEntity, PaymentEntity } from '../../sales/entities';
 import { IGarmsJson } from '../../reconciliation/interface';
-import { TransactionEntity } from '../../reconciliation/entities/transaction.entity';
 
 // For parsing GARMS Sales JSON into PCC Sales
-export const parseGarms = (
-  garmsJson: IGarmsJson[]
-): TransactionEntity[] | boolean | void => {
+export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
   return garmsJson.map(
     ({
       sales_transaction_id,
@@ -26,12 +24,13 @@ export const parseGarms = (
         location_id: parseInt(source.location_id),
         payment_total,
         payments: payments.map(
-          ({ method, amount, exchange_rate, currency }) => ({
-            method: parseInt(method),
-            amount,
-            exchange_rate,
-            currency
-          })
+          ({ method, amount, exchange_rate, currency }) =>
+            new PaymentEntity({
+              method: parseInt(method),
+              amount,
+              exchange_rate,
+              currency
+            })
         )
       })
   );

@@ -4,26 +4,25 @@ import { parseTDI } from './utils/parseTDI';
 import { parseGarms } from './utils/parseGarms';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
-import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { ReconciliationService } from '../reconciliation/reconciliation.service';
-import {
-  CashDepositEntity,
-  POSDepositEntity
-} from './../reconciliation/entities';
 import { getLambdaEventSource } from './utils/eventTypes';
 import { FileNames, FileTypes, LOCAL, Ministries } from '../constants';
 import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
 import { TDI34Details } from '../flat-files';
 import { IGarmsJson } from '../reconciliation/interface';
+import { SalesService } from '../sales/sales.service';
 import { CashService } from '../cash/cash.service';
 import { PosService } from '../pos/pos.service';
+import { S3ManagerService } from '../s3-manager/s3-manager.service';
+import { CashDepositEntity } from '../cash/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
+import { TransactionEntity } from './../sales/entities/transaction.entity';
 import * as _ from 'underscore';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
-  const reconService = app.get(ReconciliationService);
+  const salesService = app.get(SalesService);
   const s3 = app.get(S3ManagerService);
   const posService = app.get(PosService);
   const cashService = app.get(CashService);
@@ -102,11 +101,14 @@ export const handler = async (event?: any, context?: Context) => {
 
       if (fileType === FileTypes.SBC_SALES) {
         // IGarmsJson should not be in reconciliation module
-        const garmsSales = (await JSON.parse(
-          file.Body?.toString() || '{}'
-        )) as IGarmsJson[];
+        const garmsSales: TransactionEntity[] = parseGarms(
+          (await JSON.parse(file.Body?.toString() || '{}')) as IGarmsJson[]
+        );
         // TODO: mapSalesTransaction should be typed to garms sales JSON format.
-        reconService.mapSalesTransaction(parseGarms(garmsSales));
+        garmsSales.map(
+          async (data: TransactionEntity) =>
+            await salesService.createTransaction(data)
+        );
       }
 
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
@@ -119,20 +121,19 @@ export const handler = async (event?: any, context?: Context) => {
 
         if (fileType === FileTypes.TDI34) {
           const tdi34Details = parsed as TDI34Details[];
-          const tdi34Entities = tdi34Details.map(
-            (item) => new POSDepositEntity(item)
+          tdi34Details.map(
+            async (item: TDI34Details) =>
+              await posService.createPOSDeposit(new POSDepositEntity(item))
           );
-          // TODO: Needs to go to it's own service / repository
-          await reconService.mapPOSDeposit(tdi34Entities);
         }
 
         if (fileType === FileTypes.TDI17) {
           const tdi17Details = parsed as TDI17Details[];
-          const tdi17Entities = tdi17Details.map(
-            (item) => new CashDepositEntity(item)
+          tdi17Details.map(
+            async (item: TDI17Details) =>
+              await cashService.createCashDeposit(new CashDepositEntity(item))
           );
           // TODO: Needs to go to it's own service / repository
-          await reconService.mapCashDeposit(tdi17Entities);
         }
       }
     } catch (err) {
@@ -140,7 +141,7 @@ export const handler = async (event?: any, context?: Context) => {
     }
   };
 
-  if(event?.eventType === 'make') {
+  if (event?.eventType === 'make') {
     await processLocalFiles();
     return;
   }

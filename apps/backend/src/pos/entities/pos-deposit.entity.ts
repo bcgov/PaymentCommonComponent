@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { TDI34Details } from '../../flat-files';
-import { FileMetadata } from '../columns/metadata.col';
+import { FileMetadata } from '../../reconciliation/columns/metadata.col';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {
