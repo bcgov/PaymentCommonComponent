@@ -100,11 +100,10 @@ export const handler = async (event?: any, context?: Context) => {
       })();
 
       if (fileType === FileTypes.SBC_SALES) {
-        // IGarmsJson should not be in reconciliation module
         const garmsSales: TransactionEntity[] = parseGarms(
           (await JSON.parse(file.Body?.toString() || '{}')) as IGarmsJson[]
         );
-        // TODO: mapSalesTransaction should be typed to garms sales JSON format.
+
         garmsSales.map(
           async (data: TransactionEntity) =>
             await salesService.createTransaction(data)
@@ -133,7 +132,6 @@ export const handler = async (event?: any, context?: Context) => {
             async (item: TDI17Details) =>
               await cashService.createCashDeposit(new CashDepositEntity(item))
           );
-          // TODO: Needs to go to it's own service / repository
         }
       }
     } catch (err) {
