@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 
@@ -32,5 +32,22 @@ export class PosService {
       this.appLogger.error(err, 'Error inserting TDI34 to POS Deposits table');
       throw err;
     }
+  }
+
+  async queryPOSDeposits(merchant_ids: number[], date: string) {
+    const pos_deposits = await this.posDepositRepo.find({
+      select: {
+        id: true,
+        card_vendor: true,
+        transaction_date: true,
+        transaction_amt: true,
+        merchant_id: true
+      },
+      where: {
+        transaction_date: date,
+        merchant_id: In(merchant_ids)
+      }
+    });
+    return pos_deposits;
   }
 }

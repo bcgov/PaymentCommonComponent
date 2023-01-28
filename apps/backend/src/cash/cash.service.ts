@@ -34,4 +34,45 @@ export class CashService {
       throw err;
     }
   }
+
+  async queryCashDepositRange(location_id: number) {
+    const cash_deposits_date = await this.cashDepositRepo.manager.query(
+      `SELECT DISTINCT deposit_date::varchar FROM cash_deposit cd WHERE cd.location_id=${location_id} ORDER BY deposit_date DESC`
+    );
+
+    const current_deposit_date = cash_deposits_date[0]?.deposit_date
+      .toString()
+      .split('T')[0];
+
+    const last_deposit_date = cash_deposits_date[1]?.deposit_date
+      .toString()
+      .split('T')[0];
+
+    return { last_deposit_date, current_deposit_date };
+  }
+
+  async queryCashDeposit(location_id: number): Promise<CashDepositEntity[]> {
+    const { current_deposit_date } = await this.queryCashDepositRange(
+      location_id
+    );
+
+    // TODO
+    // const qb = this.cashDepositRepo.createQueryBuilder('cash_deposit');
+    // qb.select('distinct(cd.deposit_date), cd.location_id, cd.deposit_amt_cdn')
+    //   .where('cash_deposit.location_id = :location_id', { location_id })
+    //   .andWhere('cd.deposit_date  = :deposit_date', { current_deposit_date })
+    //   .groupBy('cd.deposit_date, cd.location_id, cd.deposit_amt_cdn')
+    //   .orderBy('cd.deposit_date desc, cd.location_id asc');
+
+    const cash_deposits = await this.cashDepositRepo.manager.query(`
+        SELECT distinct(cd.deposit_date), cd.location_id, cd.deposit_amt_cdn
+        FROM cash_deposit cd
+        WHERE cd.location_id=${location_id}
+        and cd.deposit_date  = '${current_deposit_date}'
+        GROUP BY  cd.deposit_date, cd.location_id, cd.deposit_amt_cdn
+        ORDER BY cd.deposit_date desc, cd.location_id asc
+    `);
+
+    return cash_deposits;
+  }
 }

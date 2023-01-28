@@ -18,6 +18,6 @@ import { SalesService } from './sales.service';
   ],
   controllers: [SalesController],
   providers: [SalesService, Logger],
-  exports: [TypeOrmModule]
+  exports: [TypeOrmModule, SalesService]
 })
 export class SalesModule {}

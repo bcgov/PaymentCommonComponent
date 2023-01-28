@@ -13,6 +13,9 @@ export class TransactionEntity {
   @Column({ type: 'date' })
   transaction_date: string;
 
+  @Column({ type: 'date' })
+  fiscal_date: string;
+
   @Column({ nullable: true })
   transaction_time?: string;
 
