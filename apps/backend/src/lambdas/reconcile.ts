@@ -16,10 +16,8 @@ export const handler = async (event?: any, context?: Context) => {
   // const { date, location_id } = event;
   const date = '2023-01-17';
   const location_id = 61;
-  const pos_reconciled_by_office = await reconService.reconcilePOS(
-    date,
-    location_id
-  );
+  const pos_reconciled_by_office =
+    await reconService.reconcilePOSBySalesLocation(date, location_id);
   const cash_reconciled_by_office = await reconService.reconcileCash(
     date,
     location_id

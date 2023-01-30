@@ -24,7 +24,10 @@ export class ReconciliationService {
   ) {}
 
   // TODO define return type
-  public async reconcilePOS(date: string, location_id: number): Promise<any> {
+  public async reconcilePOSBySalesLocation(
+    date: string,
+    location_id: number
+  ): Promise<any> {
     const pos_transactions: PaymentEntity[] =
       await this.salesService.queryPOSTransactions(location_id, date);
 
@@ -102,7 +105,8 @@ export class ReconciliationService {
 
   // TODO define return type
   async reconcileAllCash(date: string): Promise<any> {
-    const locations = await this.locationService.getLocationList();
+    const locations =
+      await this.locationService.getSBCLocationIDsAndOfficeList();
     try {
       if (locations) {
         return await Promise.all(
@@ -119,13 +123,17 @@ export class ReconciliationService {
 
   // TODO define return type
   async reconcileAllPOS(date: string): Promise<any> {
-    const locations = await this.locationService.getLocationList();
+    const locations =
+      await this.locationService.getSBCLocationIDsAndOfficeList();
     try {
       if (locations) {
         return await Promise.all(
           locations.map(
             async (location: any) =>
-              await this.reconcilePOS(date, location.sbc_location)
+              await this.reconcilePOSBySalesLocation(
+                date,
+                location.sbc_location
+              )
           )
         );
       }

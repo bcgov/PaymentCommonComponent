@@ -3,10 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { ILocation } from './interface/location.interface';
-//TODO
-// enum LocationEnum {
-//   Bank = 'Bank'
-// }
+import { LocationEnum } from './const';
 
 @Injectable()
 export class LocationService {
@@ -33,12 +30,12 @@ export class LocationService {
     SELECT DISTINCT "Merchant ID" 
     FROM public.master_location_data ml 
     WHERE ml."GARMS Location" = ${location_id} 
-    AND "Type" != 'Bank'
+    AND "Type" != '${LocationEnum.Bank}'
   `);
     return merchant_ids.map((itm: any) => parseInt(itm['Merchant ID']));
   }
 
-  public async getPTIDs(location_id: number): Promise<number[]> {
+  public async getPTLocdByGarmsLocId(location_id: number): Promise<number[]> {
     const pt_ids = await this.locationRepo.find({
       select: { Location: true },
       where: {
@@ -48,7 +45,7 @@ export class LocationService {
     return pt_ids?.map((itm: MasterLocationDataEntity) => itm['Location']);
   }
 
-  public async getLocationList(): Promise<Partial<ILocation>[]> {
+  public async getSBCLocationIDsAndOfficeList(): Promise<Partial<ILocation>[]> {
     //TODO
     // const locations = await this.locationRepo.find({
     //   select: { 'GARMS Location': true, description: true },
@@ -82,7 +79,7 @@ export class LocationService {
     location_id: number
   ): Promise<Partial<ILocation>> {
     try {
-      const location = (await this.getLocationList()).find(
+      const location = (await this.getSBCLocationIDsAndOfficeList()).find(
         (location: Partial<ILocation>) => location.sbc_location === location_id
       );
       if (location) {
