@@ -195,16 +195,13 @@ start:
 	docker-compose up -d 
 
 stop: 
-	@docker-compose down
+	@docker-compose down -v --remove-orphans
 
 local-backend-workspace:
 	@docker exec -it $(PROJECT)-backend sh
 
 local-backend-logs:
 	@docker logs $(PROJECT)-backend --follow --tail 25
-
-close-local:
-	@docker-compose down -v --remove-orphans
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
@@ -227,6 +224,10 @@ parse:
 
 reconcile:
 	@docker exec -it $(PROJECT)-backend ts-node -e 'require("./src/lambdas/reconcile.ts").handler()'
+
+clear: 
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.payment"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.transaction"
 
 # ===================================
 # Migrations

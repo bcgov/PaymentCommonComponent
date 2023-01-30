@@ -1,5 +1,12 @@
 #!/bin/bash
 
+
+if ! command -v yarn &> /dev/null
+then
+    echo "yarn v2 could not be found"
+    echo "https://yarnpkg.com/getting-started/install"
+fi
+
 if ! command -v rclone &> /dev/null
 then
     echo "rclone could not be found"
