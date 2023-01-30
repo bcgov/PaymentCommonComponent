@@ -7,13 +7,15 @@ import {
 } from './entities';
 import { SalesController } from './sales.controller';
 import { SalesService } from './sales.service';
-
+import { LocationModule } from '../location/location.module';
 @Module({
   imports: [
+    LocationModule,
     TypeOrmModule.forFeature([
       TransactionEntity,
       PaymentEntity,
-      PaymentMethodEntity
+      PaymentMethodEntity,
+      LocationModule
     ])
   ],
   controllers: [SalesController],

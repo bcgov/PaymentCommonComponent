@@ -1,3 +1,4 @@
+import { LocationService } from './../location/location.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -9,7 +10,9 @@ export class PosService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
     @InjectRepository(POSDepositEntity)
-    private posDepositRepo: Repository<POSDepositEntity>
+    private posDepositRepo: Repository<POSDepositEntity>,
+    @Inject(LocationService)
+    private locationService: LocationService
   ) {}
 
   findAll(): Promise<POSDepositEntity[]> {
@@ -34,7 +37,7 @@ export class PosService {
     }
   }
 
-  async queryPOSDeposits(merchant_ids: number[], date: string) {
+  async queryPOSDeposits(location_id: number, date: string) {
     const pos_deposits = await this.posDepositRepo.find({
       select: {
         id: true,
@@ -45,7 +48,9 @@ export class PosService {
       },
       where: {
         transaction_date: date,
-        merchant_id: In(merchant_ids)
+        merchant_id: In(
+          await this.locationService.getMerchantIdsByLocationId(location_id)
+        )
       }
     });
     return pos_deposits;

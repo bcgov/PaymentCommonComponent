@@ -51,11 +51,11 @@ export class CashService {
     return { last_deposit_date, current_deposit_date };
   }
 
-  async queryCashDeposit(location_id: number): Promise<CashDepositEntity[]> {
-    const { current_deposit_date } = await this.queryCashDepositRange(
-      location_id
-    );
-
+  async queryCashDeposit(
+    location_id: number,
+    current_deposit_date: string,
+    date: string
+  ): Promise<CashDepositEntity[]> {
     // TODO
     // const qb = this.cashDepositRepo.createQueryBuilder('cash_deposit');
     // qb.select('distinct(cd.deposit_date), cd.location_id, cd.deposit_amt_cdn')
@@ -68,7 +68,7 @@ export class CashService {
         SELECT distinct(cd.deposit_date), cd.location_id, cd.deposit_amt_cdn
         FROM cash_deposit cd
         WHERE cd.location_id=${location_id}
-        and cd.deposit_date  = '${current_deposit_date}'
+        and cd.deposit_date  = '${current_deposit_date ?? date} '
         GROUP BY  cd.deposit_date, cd.location_id, cd.deposit_amt_cdn
         ORDER BY cd.deposit_date desc, cd.location_id asc
     `);

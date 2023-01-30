@@ -8,7 +8,7 @@ import { getLambdaEventSource } from './utils/eventTypes';
 import { FileNames, FileTypes, LOCAL, Ministries } from '../constants';
 import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
 import { TDI34Details } from '../flat-files';
-import { IGarmsJson } from '../reconciliation/interface';
+import { IGarmsJson } from '../sales/interface';
 import { SalesService } from '../sales/sales.service';
 import { CashService } from '../cash/cash.service';
 import { PosService } from '../pos/pos.service';

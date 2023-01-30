@@ -5,7 +5,7 @@ export interface IGarmsPayment {
   currency: string;
 }
 
-interface ISource {
+export interface ISource {
   location_id: string;
 }
 

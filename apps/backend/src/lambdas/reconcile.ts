@@ -25,16 +25,17 @@ export const handler = async (event?: any, context?: Context) => {
     location_id
   );
 
-  // const allCash = await reconService.reconcileAllCash(date);
-  // const allPOS = await reconService.reconcileAllPOS(date);
+  const allCash = await reconService.reconcileAllCash(date);
+  const allPOS = await reconService.reconcileAllPOS(date);
+  /*eslint-disable */
   console.log(pos_reconciled_by_office);
   console.log(cash_reconciled_by_office);
-  // console.log(allPOS);
-  // console.log(allCash);
+  console.log(allPOS);
+  console.log(allCash);
   return {
     pos_reconciled_by_office,
-    cash_reconciled_by_office
-    // allCash
-    // allPOS
+    cash_reconciled_by_office,
+    allCash,
+    allPOS
   };
 };

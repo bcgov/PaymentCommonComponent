@@ -3,12 +3,10 @@ import { PosModule } from './../pos/pos.module';
 import { CashModule } from './../cash/cash.module';
 import { Module, Logger } from '@nestjs/common';
 import { ReconciliationService } from './reconciliation.service';
-import { ReconciliationController } from './reconciliation.controller';
-
+import { LocationModule } from '../location/location.module';
 @Module({
-  imports: [CashModule, PosModule, SalesModule],
+  imports: [CashModule, PosModule, SalesModule, LocationModule],
   providers: [ReconciliationService, Logger],
-  controllers: [ReconciliationController],
   exports: [ReconciliationService]
 })
 export class ReconciliationModule {}

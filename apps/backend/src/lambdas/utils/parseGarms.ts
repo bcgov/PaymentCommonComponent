@@ -1,5 +1,5 @@
 import { TransactionEntity, PaymentEntity } from '../../sales/entities';
-import { IGarmsJson } from '../../reconciliation/interface';
+import { IGarmsJson, IGarmsPayment } from '../../sales/interface';
 
 // For parsing GARMS Sales JSON into PCC Sales
 export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
@@ -26,7 +26,7 @@ export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
         payment_total,
         fiscal_date: fiscal_close_date,
         payments: payments.map(
-          ({ method, amount, exchange_rate, currency }) =>
+          ({ method, amount, exchange_rate, currency }: IGarmsPayment) =>
             new PaymentEntity({
               method: parseInt(method),
               amount,

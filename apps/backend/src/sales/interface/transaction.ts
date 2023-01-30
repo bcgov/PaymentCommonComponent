@@ -10,13 +10,6 @@ export interface IPayment {
   currency: string;
 }
 
-export interface ILocation {
-  sbc_location: number;
-  pt_location_id: number;
-  merchant_id: number;
-  office_name: string;
-}
-
 export interface ITransaction {
   transaction_id: string;
   transaction_date: string;

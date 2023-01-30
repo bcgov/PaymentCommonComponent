@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { MasterLocationDataEntity } from '../reconciliation/entities';
+import { MasterLocationDataEntity } from '../location/entities';
 import { CashDepositEntity } from '../cash/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
 import {
