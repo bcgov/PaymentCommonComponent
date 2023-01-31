@@ -26,4 +26,8 @@
       "eslint  --fix"
     ]
   }
+  "dependencies": {
+    "@nestjs/common": "^9.2.1",
+    "rxjs": "^7.8.0"
+  },
 }
