@@ -1,7 +1,7 @@
-import { MasterLocationDataEntity } from './entities/master-location-data.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
+import { MasterLocationDataEntity } from './entities/master-location-data.entity';
 import { ILocation } from './interface/location.interface';
 import { LocationEnum } from './const';
 
@@ -15,23 +15,12 @@ export class LocationService {
   public async getMerchantIdsByLocationId(
     location_id: number
   ): Promise<number[]> {
-    //TODO
-    // const merchant_ids = await this.locationRepo.find({
-    //   where: {
-    //     'GARMS Location': location_id,
-    //     Type: Not(LocationEnum.Bank)
-    //   }
-    // });
-
-    // return merchant_ids?.map((location: MasterLocationDataEntity) =>
-    //   parseInt(location['Merchant ID'])
-    // );
     const merchant_ids = await this.locationRepo.manager.query(`
-    SELECT DISTINCT "Merchant ID" 
-    FROM public.master_location_data ml 
-    WHERE ml."GARMS Location" = ${location_id} 
-    AND "Type" != '${LocationEnum.Bank}'
-  `);
+      SELECT DISTINCT "Merchant ID" 
+      FROM public.master_location_data ml 
+      WHERE ml."GARMS Location" = ${location_id} 
+      AND "Type" != '${LocationEnum.Bank}'
+    `);
     return merchant_ids.map((itm: any) => parseInt(itm['Merchant ID']));
   }
 
@@ -46,33 +35,23 @@ export class LocationService {
   }
 
   public async getSBCLocationIDsAndOfficeList(): Promise<Partial<ILocation>[]> {
-    //TODO
-    // const locations = await this.locationRepo.find({
-    //   select: { 'GARMS Location': true, description: true },
-    //   where: {
-    //     Type: LocationEnum.Bank
-    //   },
-    //   order: {
-    //     'GARMS Location': 'DESC'
-    //   }
-    // });
-    // return (
-    //   locations &&
-    //   locations.map((itm: MasterLocationDataEntity) => ({
-    //     sbc_location: itm['GARMS Location'],
-    //     office_name: itm.description
-    //   }))
-    // );
-    const locations = await this.locationRepo.manager.query(`
-        SELECT "GARMS Location", description 
-        FROM public.master_location_data ml 
-        WHERE ml."Type" = 'Bank' 
-        ORDER BY "GARMS Location" DESC;
-      `);
-    return locations.map((itm: any) => ({
-      sbc_location: itm['GARMS Location'],
-      office_name: itm.description
-    }));
+    const locations = await this.locationRepo.find({
+      select: {
+        'GARMS Location': true,
+        description: true
+      },
+      where: {
+        Type: `${LocationEnum.Bank}`
+      }
+    });
+
+    return (
+      locations &&
+      locations.map((itm: Partial<MasterLocationDataEntity>) => ({
+        sbc_location: itm['GARMS Location'],
+        office_name: itm.description
+      }))
+    );
   }
 
   public async getLocationByGARMSLocationID(

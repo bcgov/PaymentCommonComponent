@@ -43,6 +43,9 @@ export class POSDepositEntity {
   @Column({ default: false })
   match: boolean;
 
+  @Column({ nullable: true })
+  matched_payment_id?: string;
+
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);
   }

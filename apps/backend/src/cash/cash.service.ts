@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 
@@ -35,44 +35,43 @@ export class CashService {
     }
   }
 
-  async queryCashDepositRange(location_id: number) {
-    const cash_deposits_date = await this.cashDepositRepo.manager.query(
-      `SELECT DISTINCT deposit_date::varchar FROM cash_deposit cd WHERE cd.location_id=${location_id} ORDER BY deposit_date DESC`
-    );
-
-    const current_deposit_date = cash_deposits_date[0]?.deposit_date
-      .toString()
-      .split('T')[0];
-
-    const last_deposit_date = cash_deposits_date[1]?.deposit_date
-      .toString()
-      .split('T')[0];
-
-    return { last_deposit_date, current_deposit_date };
+  async queryLatestCashDeposit(
+    location_id: number
+  ): Promise<{ deposit_date: string }[]> {
+    return await this.cashDepositRepo.manager.query(`
+      SELECT DISTINCT(deposit_date::varchar) 
+      FROM cash_deposit cd 
+      WHERE cd.location_id=${location_id} 
+      ORDER BY deposit_date DESC
+      LIMIT 1
+    `);
   }
 
+  //TODO convert to use query builder and re-evaluate: where date is "greater than" in the query
   async queryCashDeposit(
+    program: string,
+
     location_id: number,
-    current_deposit_date: string,
-    date: string
+    deposit_date: string
   ): Promise<CashDepositEntity[]> {
-    // TODO
-    // const qb = this.cashDepositRepo.createQueryBuilder('cash_deposit');
-    // qb.select('distinct(cd.deposit_date), cd.location_id, cd.deposit_amt_cdn')
-    //   .where('cash_deposit.location_id = :location_id', { location_id })
-    //   .andWhere('cd.deposit_date  = :deposit_date', { current_deposit_date })
-    //   .groupBy('cd.deposit_date, cd.location_id, cd.deposit_amt_cdn')
-    //   .orderBy('cd.deposit_date desc, cd.location_id asc');
+    return await this.cashDepositRepo.manager.query(`
+      SELECT id, deposit_date, deposit_amt_cdn
+      FROM cash_deposit cd
+      WHERE location_id=${location_id}
+      AND cd.deposit_date <= '${deposit_date}'
+      AND cd.deposit_date >= '2023-01-12'
+      AND cd.match = false
+      AND cd.program = '${program}'
+      ORDER BY deposit_date DESC`);
+  }
 
-    const cash_deposits = await this.cashDepositRepo.manager.query(`
-        SELECT distinct(cd.deposit_date), cd.location_id, cd.deposit_amt_cdn
-        FROM cash_deposit cd
-        WHERE cd.location_id=${location_id}
-        and cd.deposit_date  = '${current_deposit_date ?? date} '
-        GROUP BY  cd.deposit_date, cd.location_id, cd.deposit_amt_cdn
-        ORDER BY cd.deposit_date desc, cd.location_id asc
-    `);
-
-    return cash_deposits;
+  async markCashDepositAsMatched(
+    payment: any,
+    deposit: any
+  ): Promise<UpdateResult> {
+    return await this.cashDepositRepo.update(deposit.id, {
+      match: true,
+      cash_payment_ids: payment.ids
+    });
   }
 }

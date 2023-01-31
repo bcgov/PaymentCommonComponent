@@ -1,9 +1,9 @@
-import { LocationService } from './../location/location.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, Repository, UpdateResult } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
+import { LocationService } from './../location/location.service';
 
 @Injectable()
 export class PosService {
@@ -37,22 +37,34 @@ export class PosService {
     }
   }
 
-  async queryPOSDeposits(location_id: number, date: string) {
-    const pos_deposits = await this.posDepositRepo.find({
-      select: {
-        id: true,
-        card_vendor: true,
-        transaction_date: true,
-        transaction_amt: true,
-        merchant_id: true
-      },
+  async queryPOSDeposits(
+    location_id: number,
+    date: string,
+    match: boolean,
+    program: string
+  ): Promise<POSDepositEntity[]> {
+    const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
+      location_id
+    );
+
+    return await this.posDepositRepo.find({
       where: {
-        transaction_date: date,
-        merchant_id: In(
-          await this.locationService.getMerchantIdsByLocationId(location_id)
-        )
+        match,
+        metadata: { program },
+        transaction_date: `${date}`,
+        merchant_id: In(merchant_ids)
       }
     });
-    return pos_deposits;
+  }
+
+  async markPOSDepositAsMatched(
+    payment: { id: string },
+    deposit: { id: string }
+  ): Promise<UpdateResult> {
+    const { id } = deposit;
+    return await this.posDepositRepo.update(id, {
+      match: true,
+      matched_payment_id: payment.id
+    });
   }
 }

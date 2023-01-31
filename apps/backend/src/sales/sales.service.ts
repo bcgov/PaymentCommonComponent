@@ -1,4 +1,3 @@
-import { LocationService } from './../location/location.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
@@ -8,6 +7,8 @@ import {
   PaymentEntity
 } from './entities';
 import { AppLogger } from '../common/logger.service';
+import { POSDepositEntity } from './../pos/entities/pos-deposit.entity';
+import { LocationService } from './../location/location.service';
 
 @Injectable()
 export class SalesService {
@@ -32,7 +33,6 @@ export class SalesService {
     return [];
   }
 
-  // TODO: typed for garms sales txn
   async createTransaction(data: TransactionEntity): Promise<TransactionEntity> {
     try {
       return await this.transactionRepo.save(this.transactionRepo.create(data));
@@ -56,64 +56,32 @@ export class SalesService {
 
   async queryCashTransactions(
     location_id: number,
-    date_range: { current_deposit_date: string; last_deposit_date: string },
-    date: string
-  ): Promise<TransactionEntity[]> {
-    //TO DO
-    // const qb = this.transactionRepo.createQueryBuilder('t');
-    // qb.innerJoinAndSelect('t.payments', 'p');
-    // qb.where('t.location_id = :location_id', { location_id })
-    //   .andWhere('p.method in(1,2,9,14,15)')
-    //   .andWhere('p.amount != 0')
-    //   .andWhere('t.fiscal_date BETWEEN ${date_range}', { date_range })
-    //   .groupBy('t.fiscal_date, t.location_id')
-    //   .orderBy('fiscal_date DESC, location_id asc');
-    const { current_deposit_date, last_deposit_date } = date_range;
-    const cash_transactions =
-      current_deposit_date && last_deposit_date
-        ? await this.transactionRepo.manager.query(`
-          SELECT distinct(t.fiscal_date), t.location_id,  SUM(p.amount) as amount
-          FROM transaction t join payment p ON p.transaction = t.id
-          WHERE p.method in(1,2,9,14,15)
-          AND t.location_id=${location_id}
-          AND t.fiscal_date < '${date_range.current_deposit_date}'
-          and t.fiscal_date >= '${date_range.last_deposit_date}'
-          and p.amount != '0'
-          GROUP BY  t.fiscal_date, t.location_id
-          ORDER BY fiscal_date DESC, location_id asc
-    `)
-        : await this.transactionRepo.manager.query(`
-          SELECT distinct(t.fiscal_date), t.location_id,  SUM(p.amount) as amount
-          FROM transaction t join payment p ON p.transaction = t.id
-          WHERE p.method in(1,2,9,14,15)
-          AND t.location_id=${location_id}
-          AND t.fiscal_date < '${date}'
-          and p.amount != '0'
-          GROUP BY  t.fiscal_date, t.location_id
-          ORDER BY fiscal_date DESC, location_id asc`);
-
-    return cash_transactions;
+    deposit_date: string
+  ): Promise<PaymentEntity[]> {
+    // TODO  CONVERT TO USE QUERY BUILDER
+    return await this.paymentRepo.manager.query(`
+      SELECT t.fiscal_date, SUM(p.amount) as amount, STRING_AGG(p.id::varchar, ','::varchar) as ids
+      FROM payment p 
+      JOIN transaction t on p."transaction" = t.id
+      WHERE p.method in(1, 2, 9, 14, 15)
+      AND p.amount != 0
+	    AND t.location_id = ${location_id}
+	    AND t.fiscal_date < '${deposit_date}'
+      AND p.match = false
+      GROUP BY t.fiscal_date
+      ORDER BY t.fiscal_date DESC
+    `);
   }
 
   async queryPOSTransactions(
     location_id: number,
-    date: string
+    date: string,
+    match: boolean
   ): Promise<PaymentEntity[]> {
     try {
       return await this.paymentRepo.find({
-        select: {
-          id: true,
-          amount: true,
-          method: true,
-          currency: true,
-          exchange_rate: true,
-          transaction: {
-            transaction_id: true,
-            transaction_date: true,
-            location_id: true
-          }
-        },
         where: {
+          match: match,
           method: In([17, 11, 13, 12, 18, 19]),
           transaction: {
             transaction_date: date,
@@ -124,5 +92,28 @@ export class SalesService {
     } catch (err) {
       throw err;
     }
+  }
+
+  async markPOSPaymentAsMatched(
+    payment: PaymentEntity,
+    deposit: POSDepositEntity
+  ): Promise<void> {
+    await this.paymentRepo.update(payment.id, {
+      match: true,
+      pos_deposit_id: deposit.id
+    });
+  }
+
+  async markCashPaymentAsMatched(payment: any, deposit: any): Promise<any> {
+    const { ids } = payment;
+    return Promise.all(
+      ids.split(',').map(
+        async (id: string) =>
+          await this.paymentRepo.update(id, {
+            match: true,
+            cash_deposit_id: deposit.id
+          })
+      )
+    );
   }
 }

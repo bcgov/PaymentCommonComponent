@@ -61,6 +61,9 @@ export class CashDepositEntity {
   @Column({ default: false })
   match: boolean;
 
+  @Column({ nullable: true })
+  cash_payment_ids?: string;
+
   constructor(data?: TDI17Details) {
     Object.assign(this, data?.resource);
   }
