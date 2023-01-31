@@ -39,15 +39,22 @@ use the `.env.example` to create `.env`
 
 Use the make commands under the `docker` section to start the project.
 
-#### Populate the database
+Install dependencies - `yarn`
+Run Project - `make build-local`
 
+#### Gettings Access to tools and credentials
+
+to run the project for development, the following is bare requirement: 
+
+- aws configuration for aws-pcc and minio [Example](./.config/credentials.example)
+- rclone configuration [Example](./.config/rclone.conf.example)
+- env file configuration [Example](./.config/.env.example)
+
+Refer [here](./docs/access.md)
+
+#### Populate the database
 - Ensure you are connected to the cisco VPN
 - Make sure the project is up and running by using the docker make commands
 - Run `make migration-run` for the database to be setup. 
 - Run `make sync` to update your local environment with all the necessary files
 - Run `make parse` to populate the db
-
-
-#### Gettings Access to tools and credentials
-
-Refer [here](./docs/access.md)

@@ -57,8 +57,8 @@ fi
 
 if [ ! $(aws configure list-profiles | grep -e pcc-aws -e minio | wc -l) -eq 2 ]
 then
-	echo "pcc-aws / minio Profile not found"
-    echo "pcc-aws keys are in secrets manager in aws"
+	echo "[pcc-aws] / [minio] Profile not found"
+    echo "minio and pcc-aws keys are in secrets manager in aws"
 fi
 
 if [ ! $(mdfind "kMDItemKind == 'Application'" | grep -c "Cisco AnyConnect Secure Mobility Client") -eq 1 ]

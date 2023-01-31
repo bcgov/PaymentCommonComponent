@@ -20,9 +20,10 @@
 
 #### Getting access to secrets and ssh keys: 
 
-Once you have access to AWS LZ2 platform, login to the any of the environemtns to get access to the follwing: 
+Once you have access to AWS LZ2 platform, login to the any of the environments to get access to the follwing: 
 
 - Terraform secret keys 
 - Database passwords
 - SSH keys for BCM SFTP 
-- AWS Service Account Tokens
+- AWS Local Config - Service Account Tokens
+- Minio Local Config

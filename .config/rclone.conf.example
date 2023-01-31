@@ -1,0 +1,21 @@
+[bcm]
+type = sftp
+host = <SSH_IP_ADDRESS>
+user = <SSH_USER_NAME>
+key_file = /Users/<USER_HOME_FOLDER>/.ssh/bcm
+shell_type = unix
+md5sum_command = none
+sha1sum_command = none
+
+[s3]
+type = s3
+provider = AWS
+env_auth = true
+
+[minio]
+type = s3
+provider = Minio
+env_auth = true
+access_key_id = pcc
+secret_access_key = <LOCAL_MINIO_PASSWORD>
+endpoint = http://localhost:9000
