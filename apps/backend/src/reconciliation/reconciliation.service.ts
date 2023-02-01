@@ -1,4 +1,3 @@
-import { PaymentEntity } from './../sales/entities/payment.entity';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
@@ -7,8 +6,9 @@ import { CashService } from './../cash/cash.service';
 import { PosService } from '../pos/pos.service';
 import { CashDepositEntity } from './../cash/entities/cash-deposit.entity';
 import { LocationService } from './../location/location.service';
+import { ILocation } from './../location/interface/location.interface';
+import { PaymentEntity } from './../sales/entities/payment.entity';
 
-//THIS FILE IS WIP
 @Injectable()
 export class ReconciliationService {
   constructor(
@@ -47,7 +47,16 @@ export class ReconciliationService {
   public async reconcilePOSBySalesLocation(
     date: string,
     location_id: number
-  ): Promise<unknown> {
+  ): Promise<{
+    date: string;
+    office: Partial<ILocation>;
+    total_pos_payments: number;
+    total_pos_deposits: number;
+    total_payments_amt: string;
+    total_deposit_amt: string;
+    print_matched: unknown[];
+    set_matched: any[];
+  }> {
     const pos_payments: PaymentEntity[] =
       await this.salesService.queryPosPayments(location_id, date);
 
@@ -107,7 +116,14 @@ export class ReconciliationService {
     date: string,
     location_id: number,
     program: string
-  ): Promise<unknown> {
+  ): Promise<{
+    office: string | undefined;
+    deposit_date: string;
+    matched: false | { deposit: CashDepositEntity | undefined; payment: any }[];
+    set_matched: false | any[];
+    total_cash_payments: number;
+    total_cash_deposits: number;
+  }> {
     const last_deposit_date = await this.cashService.queryLatestCashDeposit(
       location_id
     );
@@ -177,7 +193,18 @@ export class ReconciliationService {
   }
 
   // TODO define return type
-  async reconcileAllPOS(date: string): Promise<unknown> {
+  async reconcileAllPOS(date: string): Promise<
+    {
+      date: string;
+      office: Partial<ILocation>;
+      total_pos_payments: number;
+      total_pos_deposits: number;
+      total_payments_amt: string;
+      total_deposit_amt: string;
+      print_matched: unknown[];
+      set_matched: any[];
+    }[]
+  > {
     const locations =
       await this.locationService.getSBCLocationIDsAndOfficeList();
     return (

@@ -16,11 +16,16 @@ export class LocationService {
     location_id: number
   ): Promise<number[]> {
     const merchant_ids = await this.locationRepo.manager.query(`
-      SELECT DISTINCT "Merchant ID" 
-      FROM public.master_location_data ml 
-      WHERE ml."GARMS Location" = ${location_id} 
-      AND "Type" != '${LocationEnum.Bank}'
+      SELECT 
+        DISTINCT "Merchant ID" 
+      FROM 
+        public.master_location_data ml 
+      WHERE 
+        ml."GARMS Location" = ${location_id} 
+      AND 
+        "Type" != '${LocationEnum.Bank}'
     `);
+
     return merchant_ids.map((itm: any) => parseInt(itm['Merchant ID']));
   }
 

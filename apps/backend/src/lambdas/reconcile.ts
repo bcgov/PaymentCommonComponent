@@ -15,32 +15,33 @@ export const handler = async (event?: any, context?: Context) => {
   //TODO
   // const { date, location_id } = event;
   const date = '2023-01-23';
-  // const location_id = 14;
+  const location_id = 14;
 
   const program = 'SBC';
 
-  // const pos_reconciled_by_office =
-  //   await reconService.reconcilePOSBySalesLocation(date, location_id);
+  const pos_reconciled_by_office =
+    await reconService.reconcilePOSBySalesLocation(date, location_id);
 
-  // const cash_reconciled_by_office = await reconService.reconcileCash(
-  //   date,
-  //   location_id,
-  //   program
-  // );
+  const cash_reconciled_by_office = await reconService.reconcileCash(
+    date,
+    location_id,
+    program
+  );
+
+  //TODO update  with the program + match
 
   const allCash = await reconService.reconcileAllCash(date, program);
-  // //TODO update POS with the program + match
-  // const allPOS = await reconService.reconcileAllPOS(date);
+  const allPOS = await reconService.reconcileAllPOS(date);
+
   /*eslint-disable */
-  // console.log(pos_reconciled_by_office);
-  // console.log(cash_reconciled_by_office);
-  // const { matched } = cash_reconciled_by_office;
-  // console.log(matched);
-  // console.log(allPOS);
+  console.log(pos_reconciled_by_office);
+  console.log(cash_reconciled_by_office);
+  console.log(allPOS);
   console.log(allCash);
   return {
-    // pos_reconciled_by_office
-    // cash_reconciled_by_office
+    pos_reconciled_by_office,
+    cash_reconciled_by_office,
+    allPOS,
     allCash
   };
 };
