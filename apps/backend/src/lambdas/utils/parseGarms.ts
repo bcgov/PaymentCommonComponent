@@ -29,7 +29,7 @@ export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
           ({ method, amount, exchange_rate, currency }: IGarmsPayment) =>
             new PaymentEntity({
               method: parseInt(method),
-              amount: amount.toFixed(2),
+              amount: parseFloat(amount.toFixed(2)),
               exchange_rate,
               currency
             })

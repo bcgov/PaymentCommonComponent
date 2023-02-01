@@ -59,29 +59,44 @@ export class SalesService {
     deposit_date: string
   ): Promise<PaymentEntity[]> {
     // TODO  CONVERT TO USE QUERY BUILDER
-    return await this.paymentRepo.manager.query(`
-      SELECT t.fiscal_date, SUM(p.amount) as amount, STRING_AGG(p.id::varchar, ','::varchar) as ids
-      FROM payment p 
-      JOIN transaction t on p."transaction" = t.id
-      WHERE p.method in(1, 2, 9, 14, 15)
-      AND p.amount != 0
-	    AND t.location_id = ${location_id}
-	    AND t.fiscal_date < '${deposit_date}'
-      AND p.match = false
-      GROUP BY t.fiscal_date
-      ORDER BY t.fiscal_date DESC
-    `);
+    return await this.transactionRepo.manager.query(`
+      SELECT
+	      t.fiscal_date,    
+	      SUM(p.amount),
+	      STRING_AGG(p.id::varchar, ','::varchar) as ids
+      FROM
+	      transaction t
+      JOIN payment p 
+      ON
+	      p.transaction = t.id
+      WHERE
+	      p.method IN(1,2,9,14,15) 
+      AND 
+        t.location_id = ${location_id} 
+      AND 
+        p.amount !=0
+	    AND t.transaction_date <= '${deposit_date}'::date
+      AND t.transaction_date > '2023-01-09'
+      AND p.match = false::boolean
+	    GROUP BY t.fiscal_date 
+	    ORDER BY t.fiscal_date DESC
+  `);
   }
 
-  async queryPOSTransactions(
+  async queryPosPayments(
     location_id: number,
-    date: string,
-    match: boolean
+    date: string
   ): Promise<PaymentEntity[]> {
     try {
       return await this.paymentRepo.find({
+        select: {
+          transaction: { id: true, location_id: true, transaction_date: true },
+          amount: true,
+          method: true,
+          match: true
+        },
         where: {
-          match: match,
+          match: Boolean(false),
           method: In([17, 11, 13, 12, 18, 19]),
           transaction: {
             transaction_date: date,
@@ -97,23 +112,27 @@ export class SalesService {
   async markPOSPaymentAsMatched(
     payment: PaymentEntity,
     deposit: POSDepositEntity
-  ): Promise<void> {
-    await this.paymentRepo.update(payment.id, {
-      match: true,
+  ): Promise<PaymentEntity> {
+    const paymentEntity = await this.paymentRepo.findOne({
+      where: { id: payment.id }
+    });
+    return await this.paymentRepo.save({
+      ...paymentEntity,
+      match: Boolean(true),
       pos_deposit_id: deposit.id
     });
   }
 
-  async markCashPaymentAsMatched(payment: any, deposit: any): Promise<any> {
+  async markCashPaymentAsMatched(
+    payment: any,
+    deposit: any
+  ): Promise<PaymentEntity[]> {
     const { ids } = payment;
-    return Promise.all(
-      ids.split(',').map(
-        async (id: string) =>
-          await this.paymentRepo.update(id, {
-            match: true,
-            cash_deposit_id: deposit.id
-          })
-      )
-    );
+    return ids.split(',').map(async (id: string) => {
+      const paymentEntity = await this.paymentRepo.findOneByOrFail({ id });
+      paymentEntity.match = Boolean(true);
+      paymentEntity.cash_deposit_id = deposit.id;
+      return await this.paymentRepo.save(paymentEntity);
+    });
   }
 }

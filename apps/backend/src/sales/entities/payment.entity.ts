@@ -25,7 +25,7 @@ export class PaymentEntity {
   method: number;
 
   @Column({ type: 'numeric' })
-  amount: string;
+  amount: number;
 
   @Column({ nullable: true })
   currency?: string;

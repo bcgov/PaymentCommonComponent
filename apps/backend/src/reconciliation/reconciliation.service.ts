@@ -1,11 +1,10 @@
+import { PaymentEntity } from './../sales/entities/payment.entity';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
-import { PaymentEntity } from '../sales/entities/payment.entity';
 import { SalesService } from '../sales/sales.service';
 import { CashService } from './../cash/cash.service';
 import { PosService } from '../pos/pos.service';
-import { ILocation } from './../location/interface/location.interface';
 import { CashDepositEntity } from './../cash/entities/cash-deposit.entity';
 import { LocationService } from './../location/location.service';
 
@@ -24,74 +23,36 @@ export class ReconciliationService {
     private locationService: LocationService
   ) {}
 
-  async setPOSMatched(payment: PaymentEntity, deposit: POSDepositEntity) {
-    await this.posService.markPOSDepositAsMatched(payment, deposit);
-    await this.salesService.markPOSPaymentAsMatched(payment, deposit);
+  async setPOSMatched(payment: any, deposit: any): Promise<any> {
+    return {
+      deposit: await this.posService.markPOSDepositAsMatched(payment, deposit),
+      payment: await this.salesService.markPOSPaymentAsMatched(payment, deposit)
+    };
   }
 
-  async updateMatchedPOS(
+  async printMatchedPOS(
     pos_deposits: POSDepositEntity[],
     pos_payments: PaymentEntity[]
-  ): Promise<unknown> {
-    return pos_deposits.map((deposit: POSDepositEntity) =>
-      pos_payments.find(
-        (payment) =>
-          parseFloat(payment.amount) ===
-            parseFloat(deposit.transaction_amt.toString()) &&
-          this.setPOSMatched(payment, deposit)
-      )
-    );
+  ): Promise<unknown[]> {
+    return pos_deposits.map((deposit: POSDepositEntity) => {
+      return {
+        payment: pos_payments.find(
+          (payment) => payment.amount === deposit.transaction_amt
+        ),
+        deposit
+      };
+    });
   }
 
-  async updateMatchedCash(
-    cash_deposits: CashDepositEntity[],
-    cash_transactions: PaymentEntity[]
-  ): Promise<any | void> {
-    const setCashMatched = async (
-      payment: PaymentEntity,
-      deposit: CashDepositEntity
-    ) => {
-      await this.salesService.markCashPaymentAsMatched(payment, deposit);
-      await this.cashService.markCashDepositAsMatched(payment, deposit);
-      console.log('setCashMatched', payment, deposit);
-      return { payment, deposit };
-    };
-
-    if (cash_deposits.length > cash_transactions.length) {
-      return await Promise.all(
-        cash_deposits.map((deposit: CashDepositEntity) =>
-          cash_transactions.find(
-            async (payment: PaymentEntity) =>
-              parseFloat(payment.amount) === deposit.deposit_amt_cdn &&
-              (await setCashMatched(payment, deposit))
-          )
-        )
-      );
-    } else {
-      return await Promise.all(
-        cash_transactions.map((payment: PaymentEntity) => {
-          return cash_deposits.find(
-            async (deposit: CashDepositEntity) =>
-              deposit.deposit_amt_cdn === parseFloat(payment.amount) &&
-              (await setCashMatched(payment, deposit))
-          );
-        })
-      );
-    }
-  }
-
-  // TODO update return type - move to another file
   public async reconcilePOSBySalesLocation(
     date: string,
-    location_id: number,
-    match: boolean,
-    program: string
+    location_id: number
   ): Promise<unknown> {
     const pos_payments: PaymentEntity[] =
-      await this.salesService.queryPOSTransactions(location_id, date, match);
+      await this.salesService.queryPosPayments(location_id, date);
 
     const pos_deposits: POSDepositEntity[] =
-      await this.posService.queryPOSDeposits(location_id, date, match, program);
+      await this.posService.queryPOSDeposits(location_id, date);
 
     const total_payments_amt = pos_payments.reduce(
       (a: any, b: any) => a + parseFloat(b.amount),
@@ -103,6 +64,11 @@ export class ReconciliationService {
       0
     );
 
+    const print_matched = await this.printMatchedPOS(
+      pos_deposits,
+      pos_payments
+    );
+
     return {
       date,
       office: await this.locationService.getLocationByGARMSLocationID(
@@ -112,11 +78,31 @@ export class ReconciliationService {
       total_pos_deposits: pos_deposits?.length,
       total_payments_amt: `${total_payments_amt}`,
       total_deposit_amt: `${total_deposit_amt}`,
-      matched: await this.updateMatchedPOS(pos_deposits, pos_payments)
+      print_matched,
+      set_matched:
+        print_matched &&
+        (await Promise.all(
+          print_matched.map(async (itm: any) => {
+            return (
+              itm?.deposit &&
+              itm?.payment &&
+              (await this.setPOSMatched(itm?.payment, itm?.deposit))
+            );
+          })
+        ))
     };
   }
 
-  // TODO define return type
+  async setCashMatched(deposit: CashDepositEntity, payment: any): Promise<any> {
+    return {
+      payment: await this.salesService.markCashPaymentAsMatched(
+        payment,
+        deposit
+      ),
+      deposit: await this.cashService.markCashDepositAsMatched(payment, deposit)
+    };
+  }
+
   async reconcileCash(
     date: string,
     location_id: number,
@@ -126,7 +112,7 @@ export class ReconciliationService {
       location_id
     );
 
-    const deposit_date = last_deposit_date[0].deposit_date ?? date;
+    const deposit_date = last_deposit_date[0]?.deposit_date ?? date;
 
     const cash_transactions = await this.salesService.queryCashTransactions(
       location_id,
@@ -138,27 +124,42 @@ export class ReconciliationService {
       location_id,
       deposit_date
     );
-    console.log(cash_deposits, cash_transactions);
+
+    const matched =
+      cash_deposits.length > 0 &&
+      cash_transactions.length > 0 &&
+      cash_transactions.map((payment: any) => {
+        return {
+          deposit: cash_deposits.find(
+            (deposit: any) => deposit.deposit_amt_cdn === payment.sum
+          ),
+          payment
+        };
+      });
+
     return {
       office: (
         await this.locationService.getLocationByGARMSLocationID(location_id)
       ).office_name,
-      deposit_date
-      // matched: await this.updateMatchedCash(cash_deposits, cash_transactions),
-      // total_cash_payments: cash_transactions.length,
-      // total_cash_deposits: cash_deposits.length,
-      // total_cash_deposit_amt: cash_deposits.reduce(
-      //   (a, b) => a + parseFloat(b.deposit_amt_cdn.toString()),
-      //   0
-      // )
+      deposit_date,
+      matched,
+      set_matched:
+        matched &&
+        (await Promise.all(
+          matched.map(async (itm: any) => {
+            return (
+              itm?.deposit &&
+              itm?.payment &&
+              (await this.setCashMatched(itm?.deposit, itm?.payment))
+            );
+          })
+        )),
+      total_cash_payments: cash_transactions.length,
+      total_cash_deposits: cash_deposits.length
     };
   }
 
-  async reconcileAllCash(
-    date: string,
-    match: boolean,
-    program: string
-  ): Promise<unknown> {
+  async reconcileAllCash(date: string, program: string): Promise<unknown> {
     const locations =
       await this.locationService.getSBCLocationIDsAndOfficeList();
     try {
@@ -176,11 +177,7 @@ export class ReconciliationService {
   }
 
   // TODO define return type
-  async reconcileAllPOS(
-    date: string,
-    match: boolean,
-    program: string
-  ): Promise<unknown> {
+  async reconcileAllPOS(date: string): Promise<unknown> {
     const locations =
       await this.locationService.getSBCLocationIDsAndOfficeList();
     return (
@@ -188,12 +185,7 @@ export class ReconciliationService {
       (await Promise.all(
         locations.map(
           async (location: any) =>
-            await this.reconcilePOSBySalesLocation(
-              date,
-              location.sbc_location,
-              match,
-              program
-            )
+            await this.reconcilePOSBySalesLocation(date, location.sbc_location)
         )
       ))
     );

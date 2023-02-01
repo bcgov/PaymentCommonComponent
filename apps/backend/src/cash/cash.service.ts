@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 
@@ -50,28 +50,35 @@ export class CashService {
   //TODO convert to use query builder and re-evaluate: where date is "greater than" in the query
   async queryCashDeposit(
     program: string,
-
     location_id: number,
     deposit_date: string
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.manager.query(`
-      SELECT id, deposit_date, deposit_amt_cdn
-      FROM cash_deposit cd
-      WHERE location_id=${location_id}
-      AND cd.deposit_date <= '${deposit_date}'
-      AND cd.deposit_date >= '2023-01-12'
-      AND cd.match = false
+      SELECT
+        cd.deposit_date::varchar,
+        cd.deposit_amt_cdn,
+        cd.id
+      FROM
+        cash_deposit cd
+      WHERE
+        cd.location_id = ${location_id}
+      AND cd.deposit_date <= '${deposit_date}'::date
+      AND cd.deposit_date > '2023-01-09'::date
       AND cd.program = '${program}'
-      ORDER BY deposit_date DESC`);
+      AND cd.match = false::boolean
+      ORDER BY deposit_date DESC
+    `);
   }
 
   async markCashDepositAsMatched(
     payment: any,
     deposit: any
-  ): Promise<UpdateResult> {
-    return await this.cashDepositRepo.update(deposit.id, {
-      match: true,
-      cash_payment_ids: payment.ids
+  ): Promise<CashDepositEntity> {
+    const cashEntity = await this.cashDepositRepo.findOneByOrFail({
+      id: deposit.id
     });
+    cashEntity.match = Boolean(true);
+    cashEntity.cash_payment_ids = payment.ids;
+    return await this.cashDepositRepo.save(cashEntity);
   }
 }
