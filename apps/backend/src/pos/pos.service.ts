@@ -1,9 +1,10 @@
-import { LocationService } from './../location/location.service';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
+import { LocationService } from './../location/location.service';
+import { PaymentEntity } from './../sales/entities/payment.entity';
 
 @Injectable()
 export class PosService {
@@ -37,22 +38,45 @@ export class PosService {
     }
   }
 
-  async queryPOSDeposits(location_id: number, date: string) {
-    const pos_deposits = await this.posDepositRepo.find({
-      select: {
-        id: true,
-        card_vendor: true,
-        transaction_date: true,
-        transaction_amt: true,
-        merchant_id: true
-      },
-      where: {
-        transaction_date: date,
-        merchant_id: In(
-          await this.locationService.getMerchantIdsByLocationId(location_id)
-        )
-      }
+  async queryPOSDeposits(
+    location_id: number,
+    date: string
+  ): Promise<POSDepositEntity[]> {
+    const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
+      location_id
+    );
+    return (
+      merchant_ids &&
+      (await this.posDepositRepo.find({
+        select: {
+          transaction_date: true,
+          merchant_id: true,
+          transaction_amt: true,
+          id: true,
+          match: true,
+          metadata: { program: true }
+        },
+        where: {
+          match: Boolean(false),
+          metadata: { program: 'SBC' },
+          transaction_date: date,
+          merchant_id: In(merchant_ids)
+        }
+      }))
+    );
+  }
+
+  async markPOSDepositAsMatched(
+    payment: PaymentEntity,
+    deposit: POSDepositEntity
+  ): Promise<POSDepositEntity> {
+    const pos_deposit = await this.posDepositRepo.findOneByOrFail({
+      id: deposit.id
     });
-    return pos_deposits;
+
+    pos_deposit.match = Boolean(true);
+    pos_deposit.matched_payment_id = payment.id;
+
+    return await this.posDepositRepo.save(pos_deposit);
   }
 }

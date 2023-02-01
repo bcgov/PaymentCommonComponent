@@ -14,17 +14,25 @@ export const handler = async (event?: any, context?: Context) => {
 
   //TODO
   // const { date, location_id } = event;
-  const date = '2023-01-17';
-  const location_id = 61;
+  const date = '2023-01-23';
+  const location_id = 14;
+
+  const program = 'SBC';
+
   const pos_reconciled_by_office =
     await reconService.reconcilePOSBySalesLocation(date, location_id);
+
   const cash_reconciled_by_office = await reconService.reconcileCash(
     date,
-    location_id
+    location_id,
+    program
   );
 
-  const allCash = await reconService.reconcileAllCash(date);
+  //TODO update  with the program + match
+
+  const allCash = await reconService.reconcileAllCash(date, program);
   const allPOS = await reconService.reconcileAllPOS(date);
+
   /*eslint-disable */
   console.log(pos_reconciled_by_office);
   console.log(cash_reconciled_by_office);
@@ -33,7 +41,7 @@ export const handler = async (event?: any, context?: Context) => {
   return {
     pos_reconciled_by_office,
     cash_reconciled_by_office,
-    allCash,
-    allPOS
+    allPOS,
+    allCash
   };
 };
