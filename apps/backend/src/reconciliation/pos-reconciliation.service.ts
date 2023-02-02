@@ -25,7 +25,10 @@ export class POSReconciliationService {
   ) {
     if (!deposit || !payment) return;
     return {
-      deposit: await this.posDepositService.reconcilePOS(deposit, payment),
+      deposit: await this.posDepositService.updatePOSDepositEntity(
+        deposit,
+        payment
+      ),
       payment: await this.salesService.reconcilePOS(deposit, payment)
     };
   }
@@ -55,14 +58,11 @@ export class POSReconciliationService {
   public async reconcile(
     event: ReconciliationEvent
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
-    const merchant_ids =
-      await this.posDepositService.getMerchantIdsByLocationId(event);
-
-    if (!merchant_ids) return { error: 'Merchant ID is required' };
-
     const payments = await this.salesService.queryPosPayments(event);
 
-    const deposits = await this.posDepositService.queryPOS(event, merchant_ids);
+    const deposits = await this.posDepositService.findAllByLocationAndDate(
+      event
+    );
 
     const matched =
       payments && deposits && (await this.match(deposits, payments));

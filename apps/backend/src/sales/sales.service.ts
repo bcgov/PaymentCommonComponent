@@ -93,7 +93,7 @@ export class SalesService {
       DESC
     `);
   }
-
+  //TODO Update hardcoded methods
   async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
     return await this.paymentRepo.manager.query(`
       SELECT
