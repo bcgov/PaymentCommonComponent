@@ -5,7 +5,7 @@ import { AppLogger } from '../common/logger.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { EventTypeEnum, ReconciliationEvent } from '../reconciliation/const';
-
+import { LocationService } from '../location/location.service';
 export const handler = async (
   event?: ReconciliationEvent,
   context?: Context
@@ -14,7 +14,7 @@ export const handler = async (
 
   const cashRecon = app.get(CashReconciliationService);
   const posRecon = app.get(POSReconciliationService);
-  // const locationService = app.get(LocationService);
+  const locationService = app.get(LocationService);
   const appLogger = app.get(AppLogger);
 
   appLogger.log({ event });
@@ -32,8 +32,13 @@ export const handler = async (
   //   });
   // };
   /*eslint-disable */
+
   console.log(
-    event && (await posRecon.reconcile({ ...event, type: EventTypeEnum.POS }))
+    event &&
+      (await posRecon.reconcile(
+        { ...event, type: EventTypeEnum.POS },
+        await locationService.getMerchantIdsByLocationId(event.location_id)
+      ))
   );
   console.log(
     event && (await cashRecon.reconcile({ ...event, type: EventTypeEnum.CASH }))
@@ -46,7 +51,7 @@ export const handler = async (
 
 const reconciliationEvent: ReconciliationEvent = {
   date: '2023-01-16',
-  location_id: 31,
+  location_id: 8,
   program: 'SBC',
   type: EventTypeEnum.POS
 };

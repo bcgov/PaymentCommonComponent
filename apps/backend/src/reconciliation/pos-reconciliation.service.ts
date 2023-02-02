@@ -43,10 +43,11 @@ export class POSReconciliationService {
     };
   }
   async reconcile(
-    event: ReconciliationEvent
+    event: ReconciliationEvent,
+    merchant_ids: number[]
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
     const payments = await this.salesService.queryTransactions(event);
-    const deposits = await this.posDepositService.query(event);
+    const deposits = await this.posDepositService.query(event, merchant_ids);
     const matched = await this.match(deposits, payments);
 
     return {

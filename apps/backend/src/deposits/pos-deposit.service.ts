@@ -34,13 +34,11 @@ export class PosDepositService {
     return await this.posDepositRepo.save(this.posDepositRepo.create(data));
   }
 
-  async query(event: ReconciliationEvent): Promise<POSDepositEntity[]> {
-    const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
-      event.location_id
-    );
-    return (
-      merchant_ids &&
-      (await this.posDepositRepo.manager.query(`
+  async query(
+    event: ReconciliationEvent,
+    merchant_ids: number[]
+  ): Promise<POSDepositEntity[]> {
+    return await this.posDepositRepo.manager.query(`
       SELECT
         transaction_date,
         merchant_id,
@@ -54,13 +52,14 @@ export class PosDepositService {
       WHERE
         transaction_date = '${event.date}'::date
       AND 
-        merchant_id in (${merchant_ids})
+        merchant_id 
+      IN
+        ( ${merchant_ids} )
       AND
-        match='false'::boolean
+        match=false::boolean
       AND 
         program='${event.program}'
-      `))
-    );
+      `);
   }
 
   async reconcile(
