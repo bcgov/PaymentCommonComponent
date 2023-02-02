@@ -9,6 +9,8 @@ import {
   ReconciliationEventError
 } from './const';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import * as _ from 'underscore';
+
 @Injectable()
 export class POSReconciliationService {
   constructor(
@@ -17,38 +19,53 @@ export class POSReconciliationService {
     @Inject(SalesService) private salesService: SalesService
   ) {}
 
+  public async setMatched(
+    deposit: Partial<POSDepositEntity> | undefined,
+    payment: Partial<PaymentEntity> | undefined
+  ) {
+    if (!deposit || !payment) return;
+    return {
+      deposit: await this.posDepositService.reconcilePOS(deposit, payment),
+      payment: await this.salesService.reconcilePOS(deposit, payment)
+    };
+  }
+
   private async match(
     deposits: POSDepositEntity[],
     payments: PaymentEntity[]
   ): Promise<any[]> {
-    return payments.map(async (payment: PaymentEntity) => {
-      return await this.setMatched(
-        deposits.find(
-          (deposit: POSDepositEntity) =>
-            parseFloat(deposit.transaction_amt.toString()) ===
-            parseFloat(payment.amount.toString())
-        ),
-        payment
-      );
-    });
+    const filtered = deposits.map((deposit: POSDepositEntity) => ({
+      payment: _.findWhere(payments, {
+        amount: parseFloat(deposit.transaction_amt.toString()),
+        method: deposit.method
+      }),
+      deposit
+    }));
+
+    return (
+      filtered &&
+      (await Promise.all(
+        filtered.map(({ deposit, payment }: any) => {
+          return this.setMatched(deposit, payment);
+        })
+      ))
+    );
   }
-  private async setMatched(
-    deposit: POSDepositEntity | undefined,
-    payment: PaymentEntity | undefined
-  ) {
-    if (!payment || !deposit) return;
-    return {
-      deposit: await this.posDepositService.reconcile(payment, deposit),
-      payment: await this.salesService.reconcile(payment, deposit)
-    };
-  }
-  async reconcile(
-    event: ReconciliationEvent,
-    merchant_ids: number[]
+
+  public async reconcile(
+    event: ReconciliationEvent
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
-    const payments = await this.salesService.queryTransactions(event);
-    const deposits = await this.posDepositService.query(event, merchant_ids);
-    const matched = await Promise.all(await this.match(deposits, payments));
+    const merchant_ids =
+      await this.posDepositService.getMerchantIdsByLocationId(event);
+
+    if (!merchant_ids) return { error: 'Merchant ID is required' };
+
+    const payments = await this.salesService.queryPosPayments(event);
+
+    const deposits = await this.posDepositService.queryPOS(event, merchant_ids);
+
+    const matched =
+      payments && deposits && (await this.match(deposits, payments));
 
     return {
       event_type: event.type,

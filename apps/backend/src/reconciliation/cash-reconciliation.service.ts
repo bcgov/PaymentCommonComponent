@@ -9,6 +9,7 @@ import {
 import { PaymentEntity } from '../sales/entities/payment.entity';
 import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
 import { SalesService } from '../sales/sales.service';
+import * as _ from 'underscore';
 
 @Injectable()
 export class CashReconciliationService {
@@ -18,42 +19,53 @@ export class CashReconciliationService {
     @Inject(SalesService) private salesService: SalesService
   ) {}
 
-  private async setMatched(
-    deposit: CashDepositEntity | undefined,
-    payment: PaymentEntity | undefined
+  public async setMatched(
+    deposit: Partial<CashDepositEntity>,
+    payment: Partial<PaymentEntity>
   ) {
     if (!payment || !deposit) return;
     return {
-      deposit: await this.cashDepositService.reconcile(payment, deposit),
-      payment: payment.id
-        .split(',')
-        .forEach(
-          async (itm) =>
-            await this.salesService.reconcile({ ...payment, id: itm }, deposit)
-        )
+      deposit: await this.cashDepositService.reconcileCash(deposit, payment),
+      payment: payment?.id?.split(',').map(async (itm) => {
+        return await this.salesService.reconcileCash(deposit, {
+          ...payment,
+          id: itm
+        });
+      })
     };
   }
-  private async match(
-    deposits: CashDepositEntity[],
-    payments: PaymentEntity[]
-  ) {
-    return payments.map(async (payment: PaymentEntity) => {
-      return await this.setMatched(
-        deposits.find(
-          (deposit: CashDepositEntity) =>
-            parseFloat(deposit.deposit_amt_cdn?.toString()) ===
-            parseFloat(payment.amount?.toString())
-        ),
-        payment
-      );
-    });
+
+  public async match(deposits: CashDepositEntity[], payments: PaymentEntity[]) {
+    const matched = deposits.map((itm: CashDepositEntity) => ({
+      payment: _.findWhere(payments, {
+        amount: parseFloat(itm.deposit_amt_cdn.toString())
+      }),
+      deposit: itm
+    }));
+
+    return (
+      matched &&
+      (await Promise.all(
+        matched.map(({ deposit, payment }: any) => {
+          return this.setMatched(deposit, payment);
+        })
+      ))
+    );
   }
 
   async reconcile(
     event: ReconciliationEvent
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
-    const payments = await this.salesService.queryTransactions(event);
-    const deposits = await this.cashDepositService.query(event);
+    const deposit_dates = await this.cashDepositService.getCashDates(event);
+    if (!deposit_dates.current && deposit_dates.previous)
+      return { error: 'Deposit dates are required' };
+
+    const payments = await this.salesService.queryCashPayments(
+      event,
+      deposit_dates
+    );
+
+    const deposits = await this.cashDepositService.query(event, deposit_dates);
 
     const matched = await Promise.all(await this.match(deposits, payments));
 

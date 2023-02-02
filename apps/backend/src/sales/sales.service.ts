@@ -9,7 +9,6 @@ import {
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationService } from '../location/location.service';
-import { EventTypeEnum } from '../reconciliation/const';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { ReconciliationEvent } from '../reconciliation/const';
 
@@ -58,74 +57,75 @@ export class SalesService {
   }
 
   async queryCashPayments(
-    event: ReconciliationEvent
+    event: ReconciliationEvent,
+    deposit_dates: { current: string; previous: string }
   ): Promise<PaymentEntity[]> {
     // TODO  CONVERT TO USE QUERY BUILDER
-    return await this.transactionRepo.manager.query(`
+
+    return await this.transactionRepo.manager.query(`     
       SELECT
-	      t.fiscal_date,    
-	      SUM(p.amount) as amount,
-	      STRING_AGG(p.id::varchar, ','::varchar) as id
+        t.fiscal_date::varchar,    
+        SUM(p.amount) as amount,
+        STRING_AGG(p.id::varchar, ','::varchar) as id
       FROM
-	      transaction t
+        transaction t
       JOIN 
         payment p 
       ON
-	      p.transaction = t.id
+        p.transaction = t.id
       WHERE
-	      p.method IN(1,2,3,9,14,15) 
+        p.method 
+      IN(1,2,3,5,6,9,14,15)
       AND 
-        t.location_id = ${event.location_id} 
+        t.location_id = ${event?.location_id} 
       AND 
         p.amount !=0
-	    AND 
-        t.transaction_date <= '${event.date}'::date
       AND 
-        t.transaction_date > '2023-01-09'
+        t.fiscal_date <= '${deposit_dates?.current}'::date
       AND 
-        p.match = false::boolean
-	    GROUP BY 
+        t.fiscal_date > '${deposit_dates?.previous}'::date
+      AND 
+        p.match=false
+      GROUP BY 
         t.fiscal_date 
-	    ORDER BY 
-        t.fiscal_date DESC
-  `);
+      ORDER BY 
+        t.fiscal_date 
+      DESC
+    `);
   }
 
   async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
-    const payments = await this.paymentRepo.manager.query(`
-    SELECT
-	    p.amount,
-	    p.method,
-	    p.id,
-	    t.transaction_date,
-	    t.location_id
-    FROM
-	    payment p
-    JOIN 
-      transaction t 
-    ON
-	    p.transaction=t.id
-    JOIN 
-      payment_method pm 
-    ON 
-      pm.sbc_code=p.method
-    WHERE 
-      t.transaction_date='${event.date}'::date
-    AND 
-      t.location_id=${event.location_id}
-    AND 
-      p.amount !=0
-    AND
-      p.match=false::boolean
-    AND 
-      p.method in (11, 12,13,15,17)
+    return await this.paymentRepo.manager.query(`
+      SELECT
+	      p.amount,
+	      p.method,
+	      p.id,
+	      t.transaction_date,
+	      t.location_id
+      FROM
+	      payment p
+      JOIN 
+        transaction t 
+      ON
+	      p.transaction=t.id
+      JOIN 
+        payment_method pm 
+      ON 
+        pm.sbc_code=p.method
+      WHERE 
+        t.transaction_date='${event.date}'::date
+      AND 
+        t.location_id=${event.location_id}
+      AND
+        p.match=false::boolean
+      AND 
+        p.method in (11,12,13,15,17)
     `);
-    return payments;
   }
 
-  async reconcile(
-    payment: PaymentEntity,
-    deposit: CashDepositEntity | POSDepositEntity
+  async reconcilePOS(
+    deposit: Partial<POSDepositEntity>,
+    payment: Partial<PaymentEntity>
   ): Promise<PaymentEntity> {
     const paymentEntity = await this.paymentRepo.findOneByOrFail({
       id: payment.id
@@ -136,14 +136,15 @@ export class SalesService {
     return updated;
   }
 
-  async queryTransactions(
-    event: ReconciliationEvent
-  ): Promise<PaymentEntity[]> {
-    if (event.type === EventTypeEnum.POS) {
-      const payments = await this.queryPosPayments(event);
-      return payments;
-    } else {
-      return await this.queryCashPayments(event);
-    }
+  async reconcileCash(
+    deposit: Partial<CashDepositEntity>,
+    payment: Partial<PaymentEntity>
+  ): Promise<PaymentEntity> {
+    const paymentEntity = await this.paymentRepo.findOneByOrFail({
+      id: payment.id
+    });
+    paymentEntity.match = true;
+    paymentEntity.deposit_id = deposit.id;
+    return await this.paymentRepo.save(paymentEntity);
   }
 }
