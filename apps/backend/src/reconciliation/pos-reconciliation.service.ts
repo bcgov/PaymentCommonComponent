@@ -27,7 +27,7 @@ export class POSReconciliationService {
       return { deposit, payment };
     });
 
-    const set_matched = (await Promise.all(matched)).forEach(
+    const set_matched = (await Promise.all(matched)).map(
       async ({ deposit, payment }) => {
         if (deposit) {
           return {
