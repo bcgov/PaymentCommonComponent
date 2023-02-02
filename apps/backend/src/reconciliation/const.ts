@@ -1,17 +1,17 @@
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { PaymentEntity } from '../sales/entities/payment.entity';
-
-export enum EventTypeEnum {
+export enum ReconciliationTypes {
   CASH = 'CASH',
-  POS = 'POS'
+  POS = 'POS',
+  ALL = 'ALL'
 }
 
 export interface ReconciliationEvent {
-  date: string;
-  location_id: number;
+  fiscal_start_date: string;
+  fiscal_close_date: string;
+  date?: string;
+  location_ids?: number[];
+  location_id?: number;
   program: string;
-  type: EventTypeEnum;
+  type: ReconciliationTypes;
 }
 
 export interface ReconciliationEventError {
@@ -19,18 +19,8 @@ export interface ReconciliationEventError {
 }
 
 export interface ReconciliationEventOutput {
-  event_type: EventTypeEnum;
+  event_type: ReconciliationTypes;
   total_deposit: number;
   total_payments: number;
   total_matched: number;
-}
-
-export interface IReconciliationService {
-  reconcile(
-    match: (
-      deposit: CashDepositEntity[] | POSDepositEntity[],
-      payment: PaymentEntity
-    ) => unknown,
-    event: ReconciliationEvent
-  ): Promise<ReconciliationEventOutput | ReconciliationEventError>;
 }
