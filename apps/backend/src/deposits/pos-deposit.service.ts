@@ -46,7 +46,9 @@ export class PosDepositService {
         merchant_id,
         transaction_amt,
         id,
-        program
+        program,
+        match, 
+        matched_payment_id
       FROM
         pos_deposit
       WHERE
@@ -54,9 +56,9 @@ export class PosDepositService {
       AND 
         merchant_id in (${merchant_ids})
       AND
-        match = false
+        match='false'::boolean
       AND 
-        program = '${event.program}'
+        program='${event.program}'
       `))
     );
   }
@@ -70,6 +72,9 @@ export class PosDepositService {
     });
     depositEntity.match = true;
     depositEntity.matched_payment_id = payment.id;
-    return await this.posDepositRepo.save(depositEntity);
+
+    const updated = await this.posDepositRepo.save(depositEntity);
+
+    return updated;
   }
 }

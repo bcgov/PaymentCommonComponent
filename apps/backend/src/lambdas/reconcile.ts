@@ -1,4 +1,3 @@
-import { LocationService } from './../location/location.service';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
@@ -15,32 +14,39 @@ export const handler = async (
 
   const cashRecon = app.get(CashReconciliationService);
   const posRecon = app.get(POSReconciliationService);
-  const locationService = app.get(LocationService);
+  // const locationService = app.get(LocationService);
   const appLogger = app.get(AppLogger);
 
   appLogger.log({ event });
   appLogger.log({ context });
-
-  const reconcileAll = () => {
-    locationService.getSBCLocationIDsAndOfficeList().then((locations) => {
-      locations.forEach((location) => {
-        if (location.sbc_location && event) {
-          event.location_id = location.sbc_location;
-          posRecon.reconcile({ ...event, type: EventTypeEnum.POS });
-          cashRecon.reconcile({ ...event, type: EventTypeEnum.CASH });
-        }
-      });
-    });
-  };
+  /*eslint-disable */
+  // const reconcileAll = () => {
+  //   locationService.getSBCLocationIDsAndOfficeList().then((locations) => {
+  //     locations.forEach(async (location) => {
+  //       if (location.sbc_location && event) {
+  //         event.location_id = location.sbc_location;
+  //         await posRecon.reconcile({ ...event, type: EventTypeEnum.POS });
+  //         await cashRecon.reconcile({ ...event, type: EventTypeEnum.CASH });
+  //       }
+  //     });
+  //   });
+  // };
+  /*eslint-disable */
+  console.log(
+    event && (await posRecon.reconcile({ ...event, type: EventTypeEnum.POS }))
+  );
+  console.log(
+    event && (await cashRecon.reconcile({ ...event, type: EventTypeEnum.CASH }))
+  );
 
   return {
-    reconcileAll
+    message: 'Reconciliation complete'
   };
 };
 
 const reconciliationEvent: ReconciliationEvent = {
-  date: '2023-01-23',
-  location_id: 61,
+  date: '2023-01-16',
+  location_id: 31,
   program: 'SBC',
   type: EventTypeEnum.POS
 };

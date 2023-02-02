@@ -70,14 +70,15 @@ export class CashDepositService {
 
   async reconcile(
     payment: PaymentEntity,
-    deposit: any,
-    ids?: string
+    deposit: CashDepositEntity
   ): Promise<CashDepositEntity> {
     const cashEntity = await this.cashDepositRepo.findOneByOrFail({
       id: deposit.id
     });
     cashEntity.match = Boolean(true);
-    cashEntity.cash_payment_ids = ids;
-    return await this.cashDepositRepo.save(cashEntity);
+    cashEntity.cash_payment_ids = payment.id;
+    const updated = await this.cashDepositRepo.save(cashEntity);
+
+    return updated;
   }
 }

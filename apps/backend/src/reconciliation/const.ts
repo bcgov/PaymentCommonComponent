@@ -19,12 +19,10 @@ export interface ReconciliationEventError {
 }
 
 export interface ReconciliationEventOutput {
+  event_type: EventTypeEnum;
   total_deposit: number;
   total_payments: number;
-  total_deposit_amt: number;
-  total_payments_amt: number;
   total_matched: number;
-  matched: unknown[];
 }
 
 export interface IReconciliationService {

@@ -132,7 +132,8 @@ export class SalesService {
     });
     paymentEntity.match = true;
     paymentEntity.deposit_id = deposit.id;
-    return await this.paymentRepo.save(paymentEntity);
+    const updated = await this.paymentRepo.save(paymentEntity);
+    return updated;
   }
 
   async queryTransactions(

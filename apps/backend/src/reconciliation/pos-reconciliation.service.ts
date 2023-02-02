@@ -17,53 +17,43 @@ export class POSReconciliationService {
     @Inject(SalesService) private salesService: SalesService
   ) {}
 
-  private async match(deposits: POSDepositEntity[], payments: PaymentEntity[]) {
-    const matched = payments.map((payment: PaymentEntity) => {
-      const deposit = deposits.find(
-        (deposit: POSDepositEntity) =>
-          parseFloat(deposit.transaction_amt.toString()) ===
-          parseFloat(payment.amount.toString())
+  private async match(
+    deposits: POSDepositEntity[],
+    payments: PaymentEntity[]
+  ): Promise<any[]> {
+    return payments.map(async (payment: PaymentEntity) => {
+      return await this.setMatched(
+        deposits.find(
+          (deposit: POSDepositEntity) =>
+            parseFloat(deposit.transaction_amt.toString()) ===
+            parseFloat(payment.amount.toString())
+        ),
+        payment
       );
-      return { deposit, payment };
     });
-
-    const set_matched = (await Promise.all(matched)).map(
-      async ({ deposit, payment }) => {
-        if (deposit) {
-          return {
-            payment: await this.salesService.reconcile(payment, deposit),
-            deposit: await this.posDepositService.reconcile(payment, deposit)
-          };
-        }
-      }
-    );
-    return { matched, set_matched };
   }
-
+  private async setMatched(
+    deposit: POSDepositEntity | undefined,
+    payment: PaymentEntity | undefined
+  ) {
+    if (!payment || !deposit) return;
+    return {
+      deposit: await this.posDepositService.reconcile(payment, deposit),
+      payment: this.salesService.reconcile(payment, deposit)
+    };
+  }
   async reconcile(
     event: ReconciliationEvent
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
     const payments = await this.salesService.queryTransactions(event);
     const deposits = await this.posDepositService.query(event);
-
-    const { matched } =
-      payments && deposits && (await this.match(deposits, payments));
+    const matched = await this.match(deposits, payments);
 
     return {
+      event_type: event.type,
       total_deposit: deposits ? deposits.length : 0,
-      total_payments: payments.length,
-      total_deposit_amt: deposits.reduce(
-        (total: number, deposit: POSDepositEntity) =>
-          total + parseFloat(deposit.transaction_amt.toString()),
-        0
-      ),
-      total_payments_amt: payments.reduce(
-        (total: number, payment: PaymentEntity) =>
-          total + parseFloat(payment.amount.toString()),
-        0
-      ),
-      total_matched: matched.length,
-      matched
+      total_payments: payments ? payments.length : 0,
+      total_matched: matched.length
     };
   }
 }
