@@ -1,11 +1,13 @@
+import { PaymentEntity } from '../sales/entities/payment.entity';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
+import { ReconciliationEvent } from '../reconciliation/const';
 
 @Injectable()
-export class CashService {
+export class CashDepositService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
     @InjectRepository(CashDepositEntity)
@@ -48,37 +50,34 @@ export class CashService {
   }
 
   //TODO convert to use query builder and re-evaluate: where date is "greater than" in the query
-  async queryCashDeposit(
-    program: string,
-    location_id: number,
-    deposit_date: string
-  ): Promise<CashDepositEntity[]> {
+  async query(event: ReconciliationEvent): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.manager.query(`
       SELECT
         cd.deposit_date::varchar,
-        cd.deposit_amt_cdn,
+        cd.deposit_amt_cdn as amount,
         cd.id
       FROM
         cash_deposit cd
       WHERE
-        cd.location_id = ${location_id}
-      AND cd.deposit_date <= '${deposit_date}'::date
+        cd.location_id = ${event.location_id}
+      AND cd.deposit_date <= '${event.date}'::date
       AND cd.deposit_date > '2023-01-09'::date
-      AND cd.program = '${program}'
+      AND cd.program = '${event.program}'
       AND cd.match = false::boolean
       ORDER BY deposit_date DESC
     `);
   }
 
-  async markCashDepositAsMatched(
-    payment: any,
-    deposit: any
+  async reconcile(
+    payment: PaymentEntity,
+    deposit: any,
+    ids?: string
   ): Promise<CashDepositEntity> {
     const cashEntity = await this.cashDepositRepo.findOneByOrFail({
       id: deposit.id
     });
     cashEntity.match = Boolean(true);
-    cashEntity.cash_payment_ids = payment.ids;
+    cashEntity.cash_payment_ids = ids;
     return await this.cashDepositRepo.save(cashEntity);
   }
 }

@@ -1,11 +1,12 @@
+import { PaymentMethodEntity } from './payment-method.entity';
 import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
   JoinColumn,
-  ManyToOne
+  ManyToOne,
+  OneToOne
 } from 'typeorm';
-import { CashDepositEntity } from './../../cash/entities/cash-deposit.entity';
 import { TransactionEntity } from './transaction.entity';
 
 @Entity('payment')
@@ -20,6 +21,9 @@ export class PaymentEntity {
   )
   @JoinColumn({ name: 'transaction', referencedColumnName: 'id' })
   transaction: TransactionEntity;
+
+  @OneToOne(() => PaymentMethodEntity, (pm) => pm.sbc_code)
+  payment_method: PaymentMethodEntity;
 
   @Column()
   method: number;
@@ -36,16 +40,8 @@ export class PaymentEntity {
   @Column({ default: false })
   match?: boolean;
 
-  @ManyToOne(
-    () => CashDepositEntity,
-    (cashDeposit: CashDepositEntity) => cashDeposit.id,
-    { nullable: true }
-  )
-  @JoinColumn({ name: 'cash_deposit_id', referencedColumnName: 'id' })
-  cash_deposit_id?: string;
-
   @Column({ nullable: true })
-  pos_deposit_id?: string;
+  deposit_id?: string;
 
   constructor(payment: Partial<PaymentEntity>) {
     Object.assign(this, payment);
