@@ -54,17 +54,23 @@ export class CashDepositService {
     return await this.cashDepositRepo.manager.query(`
       SELECT
         cd.deposit_date::varchar,
-        cd.deposit_amt_cdn as amount,
+        cd.deposit_amt_cdn,
+        cd.match,
         cd.id
       FROM
         cash_deposit cd
       WHERE
         cd.location_id = ${event.location_id}
-      AND cd.deposit_date <= '${event.date}'::date
-      AND cd.deposit_date > '2023-01-09'::date
-      AND cd.program = '${event.program}'
-      AND cd.match = false::boolean
-      ORDER BY deposit_date DESC
+      AND 
+        cd.deposit_date <= '${event.date}'::date
+      AND 
+        cd.deposit_date > '2023-01-09'::date
+      AND 
+        cd.program = '${event.program}'
+      AND 
+        cd.match=false::boolean
+      ORDER BY 
+        deposit_date DESC
     `);
   }
 
@@ -75,7 +81,7 @@ export class CashDepositService {
     const cashEntity = await this.cashDepositRepo.findOneByOrFail({
       id: deposit.id
     });
-    cashEntity.match = Boolean(true);
+    cashEntity.match = true;
     cashEntity.cash_payment_ids = payment.id;
     const updated = await this.cashDepositRepo.save(cashEntity);
 

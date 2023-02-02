@@ -27,8 +27,9 @@ export class CashReconciliationService {
       deposit: await this.cashDepositService.reconcile(payment, deposit),
       payment: payment.id
         .split(',')
-        .forEach((itm) =>
-          this.salesService.reconcile({ ...payment, id: itm }, deposit)
+        .forEach(
+          async (itm) =>
+            await this.salesService.reconcile({ ...payment, id: itm }, deposit)
         )
     };
   }
@@ -54,7 +55,7 @@ export class CashReconciliationService {
     const payments = await this.salesService.queryTransactions(event);
     const deposits = await this.cashDepositService.query(event);
 
-    const matched = await this.match(deposits, payments);
+    const matched = await Promise.all(await this.match(deposits, payments));
 
     return {
       event_type: event.type,

@@ -50,7 +50,7 @@ export const handler = async (
 };
 
 const reconciliationEvent: ReconciliationEvent = {
-  date: '2023-01-16',
+  date: '2023-01-18',
   location_id: 8,
   program: 'SBC',
   type: EventTypeEnum.POS

@@ -39,7 +39,7 @@ export class POSReconciliationService {
     if (!payment || !deposit) return;
     return {
       deposit: await this.posDepositService.reconcile(payment, deposit),
-      payment: this.salesService.reconcile(payment, deposit)
+      payment: await this.salesService.reconcile(payment, deposit)
     };
   }
   async reconcile(
@@ -48,7 +48,7 @@ export class POSReconciliationService {
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
     const payments = await this.salesService.queryTransactions(event);
     const deposits = await this.posDepositService.query(event, merchant_ids);
-    const matched = await this.match(deposits, payments);
+    const matched = await Promise.all(await this.match(deposits, payments));
 
     return {
       event_type: event.type,

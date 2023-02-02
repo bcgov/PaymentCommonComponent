@@ -116,7 +116,7 @@ export class SalesService {
     AND 
       p.amount !=0
     AND
-      p.match = false::boolean
+      p.match=false::boolean
     AND 
       p.method in (11, 12,13,15,17)
     `);
