@@ -25,13 +25,13 @@ export const handler = async (event?: any, context?: Context) => {
       `${event.filepath}`
     );
 
-    await uploadParsedGarms(
-      event.type,
-      s3manager,
-      parseGarms(JSON.parse(contents?.Body?.toString() || '')),
-      appLogger,
-      event?.outputPath ?? undefined
-    );
+    // await uploadParsedGarms(
+    //   event.type,
+    //   s3manager,
+    //   parseGarms(JSON.parse(contents?.Body?.toString() || '')),
+    //   appLogger,
+    //   event?.outputPath ?? undefined
+    // );
   } catch (e) {
     appLogger.error(e);
   }

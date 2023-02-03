@@ -8,6 +8,7 @@ import {
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
 import { LocationModule } from '../location/location.module';
+import { PaymentMethodService } from './payment-method.service';
 @Module({
   imports: [
     LocationModule,
@@ -19,7 +20,7 @@ import { LocationModule } from '../location/location.module';
     ])
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, Logger],
-  exports: [TypeOrmModule, TransactionService]
+  providers: [TransactionService, PaymentMethodService, Logger],
+  exports: [TypeOrmModule, TransactionService, PaymentMethodService]
 })
 export class TransactionModule {}

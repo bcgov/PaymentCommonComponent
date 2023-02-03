@@ -3,7 +3,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { TransactionController } from '../src/transaction/transaction.controller';
 import { TransactionService } from '../src/transaction/transaction.service';
 
-describe('SalesController', () => {
+describe('TransactionController', () => {
   let controller: TransactionController;
 
   beforeEach(async () => {

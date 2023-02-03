@@ -217,7 +217,6 @@ close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
 
-
 # ===================================
 # Parse Local
 # ===================================
@@ -235,6 +234,10 @@ report:
 clear: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.payment"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.transaction"
+
+drop:
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"
 
 # ===================================
 # Migrations

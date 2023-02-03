@@ -1,17 +1,17 @@
-import { PaymentEntity } from './payment.entity';
-import { Column, PrimaryColumn, Entity, OneToOne } from 'typeorm';
+import { Column, PrimaryColumn, Entity } from 'typeorm';
 
 @Entity('payment_method')
 export class PaymentMethodEntity {
-  @PrimaryColumn()
+  @PrimaryColumn('varchar', { length: 10, nullable: false })
   method: string;
 
-  @Column()
+  @Column('varchar', { length: 50, nullable: true })
   description: string;
 
-  @OneToOne(() => PaymentEntity, (p) => p.method)
-  payment: PaymentEntity;
+  @Column('varchar', { length: 2, nullable: true })
+  sbc_code?: string;
 
-  @Column({ unique: true })
-  sbc_code: number;
+  constructor(paymentMethod: PaymentMethodEntity) {
+    Object.assign(this, paymentMethod);
+  }
 }

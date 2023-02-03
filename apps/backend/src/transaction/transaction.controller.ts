@@ -49,6 +49,7 @@ export class TransactionController {
     try {
       this.appLogger.log(transactionEvent);
       // TODO: Persist To The Database
+      // IF void is true, then UPDATE the transaction and don't create a new one
     } catch (e) {
       throw new InternalServerErrorException(
         'An unknown error occured while saving event'

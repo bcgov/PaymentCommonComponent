@@ -17,12 +17,14 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import * as _ from 'underscore';
 import { TransactionService } from '../transaction/transaction.service';
+import { PaymentMethodService } from '../transaction/payment-method.service';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
   const transactionService = app.get(TransactionService);
+  const paymentMethodService = app.get(PaymentMethodService);
   const s3 = app.get(S3ManagerService);
   const posService = app.get(PosDepositService);
   const cashService = app.get(CashDepositService);
@@ -35,16 +37,22 @@ export const handler = async (event?: any, context?: Context) => {
           `pcc-integration-data-files-${process.env.NODE_ENV}`
         )) || [];
 
+      const allUploadedFiles: string[] = [];
       const uploadedPosFiles = await posService.findAllUploadedFiles();
       const uploadedCashFiles = await cashService.findAllUploadedFiles();
+      const uploadedTransactionFiles = await transactionService.findAllUploadedFiles();
 
-      const allUploadedFiles: string[] = [];
+      // Filter out files that have already been parsed
       uploadedPosFiles.map((file) => {
         allUploadedFiles.push(file.pos_deposit_source_file_name);
       });
 
       uploadedCashFiles.map((file) => {
         allUploadedFiles.push(file.cash_deposit_source_file_name);
+      });
+
+      uploadedTransactionFiles.map((file) => {
+        allUploadedFiles.push(file.transaction_source_file_name);
       });
 
       const parseList = _.difference(fileList, allUploadedFiles);
@@ -100,13 +108,16 @@ export const handler = async (event?: any, context?: Context) => {
       })();
 
       if (fileType === FileTypes.SBC_SALES) {
-        const garmsSales: TransactionEntity[] = parseGarms(
-          (await JSON.parse(file.Body?.toString() || '{}')) as IGarmsJson[]
+        const paymentMethods = await paymentMethodService.getPaymentMethods();
+        const garmsSales: TransactionEntity[] = await parseGarms(
+          (await JSON.parse(file.Body?.toString() || '{}')) as IGarmsJson[],
+          filename,
+          paymentMethods
         );
 
         garmsSales.map(
           async (data: TransactionEntity) =>
-            await transactionService.createTransaction(data)
+            await transactionService.saveTransaction(data)
         );
       }
 

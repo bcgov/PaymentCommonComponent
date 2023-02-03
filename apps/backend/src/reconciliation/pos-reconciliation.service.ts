@@ -40,7 +40,7 @@ export class POSReconciliationService {
     const filtered = deposits.map((deposit: POSDepositEntity) => ({
       payment: _.findWhere(payments, {
         amount: parseFloat(deposit.transaction_amt.toString()),
-        method: deposit.method
+        method: deposit.method?.toString()
       }),
       deposit
     }));

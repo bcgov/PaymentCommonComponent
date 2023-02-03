@@ -9,7 +9,7 @@ export class ParseService {
   //TODO this is temporary for testing the parsed garms json only
   async readAndParseGarms(filename: string, filebuffer: Buffer) {
     try {
-      return parseGarms(JSON.parse(filebuffer.toString()));
+      return parseGarms(JSON.parse(filebuffer.toString()), '', []);
     } catch (e) {
       this.appLogger.error(e);
       throw e;

@@ -6,8 +6,9 @@ export enum PaymentChannel {
   ONLINE = 'online'
 }
 export interface PaymentMethod {
-  description: string;
   method: string;
+  description: string;
+  sbc_code: string;
 }
 
 export interface Payment {

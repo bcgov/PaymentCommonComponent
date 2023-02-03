@@ -18,7 +18,7 @@ import { SourceDTO } from './source.dto';
 
 export class TransactionDTO {
   @ApiProperty({
-    description: 'Unique id representing the transaction',
+    description: 'Unique id representing the transaction in the source system',
     example: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7'
   })
   @IsString()

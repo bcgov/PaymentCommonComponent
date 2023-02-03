@@ -26,14 +26,7 @@ export class TransactionService {
     private locationService: LocationService
   ) {}
 
-  async saveTransactionEvent(event: unknown[]) {
-    this.appLogger.log(
-      event ? 'Sales Event Received' : 'No Sales Event Received'
-    );
-    return [];
-  }
-
-  async createTransaction(data: TransactionEntity): Promise<TransactionEntity> {
+  async saveTransaction(data: TransactionEntity): Promise<TransactionEntity> {
     try {
       return await this.transactionRepo.save(this.transactionRepo.create(data));
     } catch (e) {
@@ -42,8 +35,18 @@ export class TransactionService {
     }
   }
 
+  async findAllUploadedFiles(): Promise<
+  { transaction_source_file_name: string }[]
+> {
+  return this.transactionRepo
+    .createQueryBuilder('transaction')
+    .select('transaction.source_file_name')
+    .distinct()
+    .getRawMany();
+}
+
   public async getPaymentMethodBySBCGarmsCode(
-    sbc_code: number
+    sbc_code: string
   ): Promise<PaymentMethodEntity> {
     try {
       return await this.paymentMethodRepo.findOneOrFail({

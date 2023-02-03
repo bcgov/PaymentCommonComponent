@@ -1,8 +1,20 @@
-import { TransactionEntity, PaymentEntity } from '../../transaction/entities';
+import {
+  TransactionEntity,
+  PaymentEntity,
+  PaymentMethodEntity
+} from '../../transaction/entities';
 import { IGarmsJson, IGarmsPayment } from '../../transaction/interface';
-
+import { Ministries } from '../../constants';
 // For parsing GARMS Sales JSON into PCC Sales
-export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
+
+// TODO: HIGH PRIO
+// 1. Make sure IDs are unique
+
+export const parseGarms = async (
+  garmsJson: IGarmsJson[],
+  source_file_name: string,
+  paymentMethods: PaymentMethodEntity[]
+): Promise<TransactionEntity[]> => {
   return garmsJson.map(
     ({
       sales_transaction_id,
@@ -13,7 +25,8 @@ export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
       source
     }: IGarmsJson) =>
       new TransactionEntity({
-        transaction_id: sales_transaction_id,
+        source_id: Ministries.SBC,
+        id: sales_transaction_id,
         transaction_date: sales_transaction_date
           .split('')
           .splice(0, 10)
@@ -23,17 +36,24 @@ export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {
           .splice(11, 10)
           .join(''),
         location_id: parseInt(source.location_id),
-        payment_total,
-        fiscal_date: fiscal_close_date,
+        amount: payment_total,
+        fiscal_close_date,
         payments: payments.map(
-          ({ method, amount, exchange_rate, currency }: IGarmsPayment) =>
-            new PaymentEntity({
-              method: parseInt(method),
+          ({ method, amount, exchange_rate, currency }: IGarmsPayment) => {
+            return new PaymentEntity({
+              method: paymentMethods.find((pm) => {
+                return pm.sbc_code === method;
+              })?.method,
               amount: parseFloat(amount.toFixed(2)),
               exchange_rate,
               currency
-            })
-        )
+            });
+          }
+        ),
+        // TODO: Populate by mapping garms json to txn interface
+        transactionJson: {},
+        migrated: true,
+        source_file_name
       })
   );
 };
