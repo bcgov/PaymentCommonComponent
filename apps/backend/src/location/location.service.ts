@@ -12,23 +12,6 @@ export class LocationService {
     private locationRepo: Repository<LocationEntity>
   ) {}
 
-  public async getMerchantIdsByLocationId(
-    location_id: number
-  ): Promise<number[]> {
-    const merchant_ids = await this.locationRepo.manager.query(`
-      SELECT 
-        DISTINCT "Merchant ID" 
-      FROM 
-        public.master_location_data ml 
-      WHERE 
-        ml."sbc_location" = ${location_id} 
-      AND 
-        "Type" != '${LocationEnum.Bank}'
-    `);
-
-    return merchant_ids.map((itm: any) => parseInt(itm.merchant_id));
-  }
-
   public async getPTLocdByGarmsLocId(location_id: number): Promise<number[]> {
     const pt_ids = await this.locationRepo.find({
       select: { location_id: true },

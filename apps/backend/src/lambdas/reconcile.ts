@@ -1,3 +1,4 @@
+import { LocationService } from './../location/location.service';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
@@ -14,6 +15,7 @@ export const handler = async (
   /*eslint-disable */
   const cashRecon = app.get(CashReconciliationService);
   const posRecon = app.get(POSReconciliationService);
+  const locationService = app.get(LocationService);
   const appLogger = app.get(AppLogger);
 
   appLogger.log({ event });
@@ -32,6 +34,15 @@ export const handler = async (
 
   const reconcile = async (event: ReconciliationEventInput) => {
     const dates = await getFiscalDates(event);
+    if (event.program === 'SBC' && event.location_ids.length === 0) {
+      const locations = await Promise.all(
+        await locationService.getSBCLocationIDsAndOfficeList()
+      );
+      const location_ids = locations.map(
+        ({ sbc_location }) =>
+          sbc_location && event?.location_ids?.push(sbc_location)
+      );
+    }
     dates.map((date) =>
       event.location_ids.map(async (location_id) => {
         console.log(
@@ -53,6 +64,7 @@ export const handler = async (
       })
     );
   };
+
   event && (await reconcile(event));
   return {
     message: 'Reconciliation complete'
@@ -61,9 +73,9 @@ export const handler = async (
 
 const reconciliationEvent: ReconciliationEventInput = {
   fiscal_start_date: '2023-01-09',
-  fiscal_end_date: '2023-01-26',
+  fiscal_end_date: '2023-01-09',
   program: 'SBC',
-  location_ids: [31, 61, 14]
+  location_ids: []
 };
 
 handler(reconciliationEvent);

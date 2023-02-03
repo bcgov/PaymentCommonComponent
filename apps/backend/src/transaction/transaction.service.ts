@@ -36,14 +36,14 @@ export class TransactionService {
   }
 
   async findAllUploadedFiles(): Promise<
-  { transaction_source_file_name: string }[]
-> {
-  return this.transactionRepo
-    .createQueryBuilder('transaction')
-    .select('transaction.source_file_name')
-    .distinct()
-    .getRawMany();
-}
+    { transaction_source_file_name: string }[]
+  > {
+    return this.transactionRepo
+      .createQueryBuilder('transaction')
+      .select('transaction.source_file_name')
+      .distinct()
+      .getRawMany();
+  }
 
   public async getPaymentMethodBySBCGarmsCode(
     sbc_code: string
@@ -76,7 +76,9 @@ export class TransactionService {
         p.transaction = t.id
       WHERE
         p.method 
-      IN(1,2,3,5,6,9,14,15)
+      NOT 
+      IN
+        ('AX', 'V', 'P', 'M')
       AND 
         t.location_id = ${event?.location_id} 
       AND 
@@ -102,26 +104,23 @@ export class TransactionService {
 	      p.method,
 	      p.id,
 	      t.transaction_date,
-	      t.location_id,
-        pm.method as method
+	      t.location_id
       FROM
 	      payment p
       JOIN 
         transaction t 
       ON
 	      p.transaction=t.id
-      JOIN 
-        payment_method pm 
-      ON 
-        pm.sbc_code=p.method
       WHERE 
         t.transaction_date='${event.date}'::date
       AND 
         t.location_id=${event.location_id}
       AND
-        p.match=false::boolean
-      AND 
-        p.method in (11,12,13,15,17)
+        p.match=false
+      AND p.method IN('AX', 'V', 'P', 'M')
+      ORDER BY 
+        t.transaction_date 
+      DESC
     `);
   }
 

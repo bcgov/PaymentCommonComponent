@@ -19,31 +19,10 @@ export class PosDepositService {
   findAll(): Promise<POSDepositEntity[]> {
     return this.findAll();
   }
-  async getMerchantIdsByLocationId(event: ReconciliationEvent) {
-    const merchantIds = await Promise.all(
-      await this.posDepositRepo.manager.query(
-        `SELECT 
-        "Merchant ID" as merchant_id 
-      FROM 
-        master_location_data 
-      WHERE 
-        "GARMS Location"=${event?.location_id} 
-      AND "Type" 
-        !='Bank'`
-      )
-    );
-    return merchantIds?.map(({ merchant_id }: { merchant_id: string }) =>
-      parseInt(merchant_id)
-    );
-  }
 
-  async queryPOS(
-    event: ReconciliationEvent,
-    merchant_ids: number[]
+  async findPOSDeposits(
+    event: ReconciliationEvent
   ): Promise<POSDepositEntity[]> {
-    if (merchant_ids.length === 0) {
-      return [];
-    }
     return await this.posDepositRepo.manager.query(`
     SELECT 
       pd.id, 
@@ -64,11 +43,21 @@ export class PosDepositService {
     AND 
       pd.program='${event?.program}'
     AND 
-      pd.merchant_id IN (${merchant_ids}) 
+      pd.merchant_id IN (
+        SELECT 
+          merchant_id 
+        FROM 
+          master_location_data 
+      WHERE 
+        sbc_location=${event?.location_id} 
+      AND "type" 
+        !='Bank'
+      ) 
     AND 
       pd.match=false 
     ORDER BY 
-      pd.transaction_amt
+      pd.transaction_date 
+    DESC
     `);
   }
   async findAllUploadedFiles(): Promise<
@@ -79,13 +68,6 @@ export class PosDepositService {
       .select('pos_deposit.metadata.source_file_name')
       .distinct()
       .getRawMany();
-  }
-
-  async findAllByLocationAndDate(event: ReconciliationEvent) {
-    return await this.queryPOS(
-      event,
-      await this.getMerchantIdsByLocationId(event)
-    );
   }
 
   async createPOSDepositEntity(

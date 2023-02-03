@@ -45,9 +45,7 @@ export class POSReconciliationService {
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
     const payments = await this.transactionService.queryPosPayments(event);
 
-    const deposits = await this.posDepositService.findAllByLocationAndDate(
-      event
-    );
+    const deposits = await this.posDepositService.findPOSDeposits(event);
 
     const matched =
       payments &&
