@@ -1183,8 +1183,7 @@ __metadata:
     axios: 1.2.3
     class-transformer: 0.5.1
     class-validator: 0.14.0
-    csv-parse: ^5.3.4
-    csvtojson: ^2.0.10
+    csvtojson: 2.0.10
     eslint: 8.32.0
     eslint-config-prettier: 8.6.0
     eslint-nibble: 8.1.0
@@ -3169,14 +3168,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"csv-parse@npm:^5.3.4":
-  version: 5.3.4
-  resolution: "csv-parse@npm:5.3.4"
-  checksum: 853648004d74dd02b06f51e45efff0cce79a4bbbd03eb344ae0f7e91733c90938b3fab424a9275d5b4cf7845c9d55acbdee90775a92bc8476a0d1d2cd335ec4e
-  languageName: node
-  linkType: hard
-
-"csvtojson@npm:^2.0.10":
+"csvtojson@npm:2.0.10":
   version: 2.0.10
   resolution: "csvtojson@npm:2.0.10"
   dependencies:
