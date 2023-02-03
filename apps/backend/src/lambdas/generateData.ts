@@ -10,12 +10,12 @@ import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
 import { TDI34Details } from '../flat-files';
 import { IGarmsJson } from '../sales/interface';
 import { SalesService } from '../sales/sales.service';
-import { CashService } from '../cash/cash.service';
-import { PosService } from '../pos/pos.service';
+import { CashDepositService } from '../deposits/cash-deposit.service';
+import { PosDepositService } from '../deposits/pos-deposit.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { CashDepositEntity } from '../cash/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
-import { TransactionEntity } from './../sales/entities/transaction.entity';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { TransactionEntity } from '../sales/entities/transaction.entity';
 import * as _ from 'underscore';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -24,8 +24,8 @@ export const handler = async (event?: any, context?: Context) => {
   const appLogger = app.get(AppLogger);
   const salesService = app.get(SalesService);
   const s3 = app.get(S3ManagerService);
-  const posService = app.get(PosService);
-  const cashService = app.get(CashService);
+  const posService = app.get(PosDepositService);
+  const cashService = app.get(CashDepositService);
   appLogger.log({ event });
 
   const processLocalFiles = async () => {
@@ -122,7 +122,9 @@ export const handler = async (event?: any, context?: Context) => {
           const tdi34Details = parsed as TDI34Details[];
           tdi34Details.map(
             async (item: TDI34Details) =>
-              await posService.createPOSDeposit(new POSDepositEntity(item))
+              await posService.createPOSDepositEntity(
+                new POSDepositEntity(item)
+              )
           );
         }
 

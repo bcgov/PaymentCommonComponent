@@ -222,8 +222,9 @@ close-test:
 parse:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/generateData.ts").handler({eventType: "make"})' 
 
+# TODO update handler to accept args
 reconcile:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts").handler({date: "2023-01-17", location_id: 14})'
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts")'
 
 clear: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.payment"

@@ -2,46 +2,37 @@ import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
-import { ReconciliationService } from './../reconciliation/reconciliation.service';
+import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
+import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
+import { ReconciliationEvent } from '../reconciliation/const';
 
-//WIP
-export const handler = async (event?: any, context?: Context) => {
+export const handler = async (
+  event?: ReconciliationEvent,
+  context?: Context
+) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const reconService = app.get(ReconciliationService);
+
+  const cashRecon = app.get(CashReconciliationService);
+  const posRecon = app.get(POSReconciliationService);
   const appLogger = app.get(AppLogger);
+
   appLogger.log({ event });
   appLogger.log({ context });
-
-  //TODO
-  // const { date, location_id } = event;
-  const date = '2023-01-23';
-  const location_id = 14;
-
-  const program = 'SBC';
-
-  const pos_reconciled_by_office =
-    await reconService.reconcilePOSBySalesLocation(date, location_id);
-
-  const cash_reconciled_by_office = await reconService.reconcileCash(
-    date,
-    location_id,
-    program
-  );
-
-  //TODO update  with the program + match
-
-  const allCash = await reconService.reconcileAllCash(date, program);
-  const allPOS = await reconService.reconcileAllPOS(date);
-
   /*eslint-disable */
-  console.log(pos_reconciled_by_office);
-  console.log(cash_reconciled_by_office);
-  console.log(allPOS);
-  console.log(allCash);
+
+  const reconcile = async (event: ReconciliationEvent) => {};
+
+  console.log(event && (await cashRecon.reconcile(event)));
+  console.log(event && (await posRecon.reconcile(event)));
   return {
-    pos_reconciled_by_office,
-    cash_reconciled_by_office,
-    allPOS,
-    allCash
+    message: 'Reconciliation complete'
   };
 };
+
+const reconciliationEvent: ReconciliationEvent = {
+  date: '2023-01-31',
+  program: 'SBC',
+  location_id: 61
+};
+
+handler(reconciliationEvent);

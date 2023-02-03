@@ -1,14 +1,16 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import {
   TransactionEntity,
   PaymentMethodEntity,
   PaymentEntity
 } from './entities';
 import { AppLogger } from '../common/logger.service';
-import { POSDepositEntity } from './../pos/entities/pos-deposit.entity';
-import { LocationService } from './../location/location.service';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { LocationService } from '../location/location.service';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { ReconciliationEvent } from '../reconciliation/const';
 
 @Injectable()
 export class SalesService {
@@ -54,85 +56,95 @@ export class SalesService {
     }
   }
 
-  async queryCashTransactions(
-    location_id: number,
-    deposit_date: string
+  async queryCashPayments(
+    event: ReconciliationEvent,
+    deposit_dates: { current: string; previous: string }
   ): Promise<PaymentEntity[]> {
     // TODO  CONVERT TO USE QUERY BUILDER
-    return await this.transactionRepo.manager.query(`
+
+    return await this.transactionRepo.manager.query(`     
       SELECT
-	      t.fiscal_date,    
-	      SUM(p.amount),
-	      STRING_AGG(p.id::varchar, ','::varchar) as ids
+        t.fiscal_date::varchar,    
+        SUM(p.amount) as amount,
+        STRING_AGG(p.id::varchar, ','::varchar) as id
       FROM
-	      transaction t
-      JOIN payment p 
+        transaction t
+      JOIN 
+        payment p 
       ON
-	      p.transaction = t.id
+        p.transaction = t.id
       WHERE
-	      p.method IN(1,2,9,14,15) 
+        p.method 
+      IN(1,2,3,5,6,9,14,15)
       AND 
-        t.location_id = ${location_id} 
+        t.location_id = ${event?.location_id} 
       AND 
         p.amount !=0
-	    AND t.transaction_date <= '${deposit_date}'::date
-      AND t.transaction_date > '2023-01-09'
-      AND p.match = false::boolean
-	    GROUP BY t.fiscal_date 
-	    ORDER BY t.fiscal_date DESC
-  `);
+      AND 
+        t.fiscal_date <= '${deposit_dates?.current}'::date
+      AND 
+        t.fiscal_date > '${deposit_dates?.previous}'::date
+      AND 
+        p.match=false
+      GROUP BY 
+        t.fiscal_date 
+      ORDER BY 
+        t.fiscal_date 
+      DESC
+    `);
   }
 
-  async queryPosPayments(
-    location_id: number,
-    date: string
-  ): Promise<PaymentEntity[]> {
-    try {
-      return await this.paymentRepo.find({
-        select: {
-          transaction: { id: true, location_id: true, transaction_date: true },
-          amount: true,
-          method: true,
-          match: true
-        },
-        where: {
-          match: Boolean(false),
-          method: In([17, 11, 13, 12, 18, 19]),
-          transaction: {
-            transaction_date: date,
-            location_id
-          }
-        }
-      });
-    } catch (err) {
-      throw err;
-    }
+  async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
+    return await this.paymentRepo.manager.query(`
+      SELECT
+	      p.amount,
+	      p.method,
+	      p.id,
+	      t.transaction_date,
+	      t.location_id,
+        pm.method as method
+      FROM
+	      payment p
+      JOIN 
+        transaction t 
+      ON
+	      p.transaction=t.id
+      JOIN 
+        payment_method pm 
+      ON 
+        pm.sbc_code=p.method
+      WHERE 
+        t.transaction_date='${event.date}'::date
+      AND 
+        t.location_id=${event.location_id}
+      AND
+        p.match=false::boolean
+      AND 
+        p.method in (11,12,13,15,17)
+    `);
   }
 
-  async markPOSPaymentAsMatched(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
+  async reconcilePOS(
+    deposit: Partial<POSDepositEntity>,
+    payment: Partial<PaymentEntity>
   ): Promise<PaymentEntity> {
-    const paymentEntity = await this.paymentRepo.findOne({
-      where: { id: payment.id }
+    const paymentEntity = await this.paymentRepo.findOneByOrFail({
+      id: payment.id
     });
-    return await this.paymentRepo.save({
-      ...paymentEntity,
-      match: Boolean(true),
-      pos_deposit_id: deposit.id
-    });
+    paymentEntity.match = true;
+    paymentEntity.deposit_id = deposit.id;
+    return await this.paymentRepo.save(paymentEntity);
   }
 
-  async markCashPaymentAsMatched(
-    payment: any,
-    deposit: any
-  ): Promise<PaymentEntity[]> {
-    const { ids } = payment;
-    return ids.split(',').map(async (id: string) => {
-      const paymentEntity = await this.paymentRepo.findOneByOrFail({ id });
-      paymentEntity.match = Boolean(true);
-      paymentEntity.cash_deposit_id = deposit.id;
-      return await this.paymentRepo.save(paymentEntity);
+  async reconcileCash(
+    deposit: Partial<CashDepositEntity>,
+    payment: Partial<PaymentEntity>
+  ): Promise<PaymentEntity> {
+    const paymentEntity = await this.paymentRepo.findOneByOrFail({
+      id: payment.id
     });
+    paymentEntity.match = true;
+    paymentEntity.deposit_id = deposit.id;
+    return await this.paymentRepo.save(paymentEntity);
   }
 }
