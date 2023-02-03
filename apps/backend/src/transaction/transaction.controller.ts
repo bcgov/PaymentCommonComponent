@@ -12,16 +12,16 @@ import {
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AppLogger } from '../common/logger.service';
-import { SalesService } from './sales.service';
 
 import transactionJson from '../../sample-files/transaction.json'; 
-import { SalesDTO } from './dto/sales.dto';
+import { TransactionService } from './transaction.service';
+import { TransactionDTO } from './dto/transaction.dto';
 @Controller('sale')
 @ApiTags('Sales API')
-export class SalesController {
+export class TransactionController {
   constructor(
-    @Inject(SalesService)
-    private readonly salesService: SalesService,
+    @Inject(TransactionService)
+    private readonly transactionService: TransactionService,
     @Inject(Logger) private readonly appLogger: AppLogger
   ) {}
 
@@ -45,10 +45,10 @@ export class SalesController {
     }
   })
   @HttpCode(HttpStatus.CREATED)
-  async saveSalesEvent(@Body() salesEvent: SalesDTO[]) {
+  async saveTransactionEvent(@Body() transactionEvent: TransactionDTO[]) {
     try {
-      this.appLogger.log(salesEvent);
-      // return this.salesService.saveSalesEvent(salesEvent);
+      this.appLogger.log(transactionEvent);
+      // TODO: Persist To The Database
     } catch (e) {
       throw new InternalServerErrorException(
         'An unknown error occured while saving event'

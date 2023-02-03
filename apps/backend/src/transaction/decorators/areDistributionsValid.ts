@@ -5,7 +5,7 @@ import {
   ValidatorConstraintInterface
 } from 'class-validator';
 import { DistributionDTO } from '../dto/accounting.dto';
-import { SalesDTO } from '../dto/sales.dto';
+import { TransactionDTO } from '../dto/transaction.dto';
 
 @ValidatorConstraint()
 export class AreDistributionsValid implements ValidatorConstraintInterface {
@@ -18,7 +18,7 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
     distributions: DistributionDTO[],
     args: ValidationArguments
   ) {
-    const sales = args.object as SalesDTO;
+    const sales = args.object as TransactionDTO;
     const credits: Array<DistributionDTO> = [];
     const debits: Array<DistributionDTO> = [];
 

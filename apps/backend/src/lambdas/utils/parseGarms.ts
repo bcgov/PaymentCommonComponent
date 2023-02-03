@@ -1,5 +1,5 @@
-import { TransactionEntity, PaymentEntity } from '../../sales/entities';
-import { IGarmsJson, IGarmsPayment } from '../../sales/interface';
+import { TransactionEntity, PaymentEntity } from '../../transaction/entities';
+import { IGarmsJson, IGarmsPayment } from '../../transaction/interface';
 
 // For parsing GARMS Sales JSON into PCC Sales
 export const parseGarms = (garmsJson: IGarmsJson[]): TransactionEntity[] => {

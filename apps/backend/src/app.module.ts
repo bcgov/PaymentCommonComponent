@@ -5,7 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AppLogger } from './common/logger.service';
-import { SalesModule } from './sales/sales.module';
+import { TransactionModule } from './transaction/transaction.module';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
@@ -21,7 +21,7 @@ import { ReportingModule } from './reporting/reporting.module';
     S3ManagerModule,
     ReconciliationModule,
     DepositModule,
-    SalesModule,
+    TransactionModule,
     ParseModule,
     LocationModule,
     ExceptionModule,
@@ -43,7 +43,7 @@ import { ReportingModule } from './reporting/reporting.module';
           : {})
       },
       services: [S3]
-    }),
+    })
   ],
   controllers: [AppController],
   providers: [AppService, AppLogger]

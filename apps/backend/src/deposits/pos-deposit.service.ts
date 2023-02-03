@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
-import { PaymentEntity } from '../sales/entities/payment.entity';
+import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { LocationService } from '../location/location.service';
 import { ReconciliationEvent } from '../reconciliation/const';
 @Injectable()

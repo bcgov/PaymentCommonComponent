@@ -1,9 +1,9 @@
-import { SalesDTO } from '../../sales/dto/sales.dto';
+import { TransactionDTO } from '../../transaction/dto/transaction.dto';
 
 export interface ResourceBase<T> {
   resourceType?: string;
   transformSalesEvent?(
-    record: SalesDTO,
+    record: TransactionDTO,
     options: transformSalesEventOptions
   ): T;
 }

@@ -4,7 +4,7 @@ import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { PaymentEntity, TransactionEntity } from '../sales/entities';
+import { PaymentEntity, TransactionEntity } from '../transaction/entities';
 
 export class ExceptionService {
   constructor(

@@ -15,9 +15,8 @@ import {
 import { AccountingDTO } from './accounting.dto';
 import { PaymentDTO } from './payment.dto';
 import { SourceDTO } from './source.dto';
-import transactionJson from '../../../sample-files/transaction.json';
 
-export class SalesDTO {
+export class TransactionDTO {
   @ApiProperty({
     description: 'Unique id representing the transaction',
     example: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7'

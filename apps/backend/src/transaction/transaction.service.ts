@@ -13,7 +13,7 @@ import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { ReconciliationEvent } from '../reconciliation/const';
 
 @Injectable()
-export class SalesService {
+export class TransactionService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
     @InjectRepository(TransactionEntity)
@@ -26,9 +26,7 @@ export class SalesService {
     private locationService: LocationService
   ) {}
 
-  // validateDistributions()
-  // TODO update the sales api endpoint distributions data
-  async saveSalesEvent(event: any[]) {
+  async saveTransactionEvent(event: unknown[]) {
     this.appLogger.log(
       event ? 'Sales Event Received' : 'No Sales Event Received'
     );

@@ -8,21 +8,21 @@ import { getLambdaEventSource } from './utils/eventTypes';
 import { FileNames, FileTypes, LOCAL, Ministries } from '../constants';
 import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
 import { TDI34Details } from '../flat-files';
-import { IGarmsJson } from '../sales/interface';
-import { SalesService } from '../sales/sales.service';
+import { IGarmsJson } from '../transaction/interface';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { TransactionEntity } from '../sales/entities/transaction.entity';
+import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import * as _ from 'underscore';
+import { TransactionService } from '../transaction/transaction.service';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
-  const salesService = app.get(SalesService);
+  const transactionService = app.get(TransactionService);
   const s3 = app.get(S3ManagerService);
   const posService = app.get(PosDepositService);
   const cashService = app.get(CashDepositService);
@@ -106,7 +106,7 @@ export const handler = async (event?: any, context?: Context) => {
 
         garmsSales.map(
           async (data: TransactionEntity) =>
-            await salesService.createTransaction(data)
+            await transactionService.createTransaction(data)
         );
       }
 

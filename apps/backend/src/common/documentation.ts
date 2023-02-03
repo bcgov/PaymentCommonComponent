@@ -1,6 +1,6 @@
 import { INestApplication } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { SalesModule } from '../sales/sales.module';
+import { TransactionModule } from '../transaction/transaction.module';
 import { ReconciliationModule } from '../reconciliation/reconciliation.module';
 import { AppModule } from '../app.module';
 
@@ -13,7 +13,7 @@ export const Documentation = (app: INestApplication) => {
     .build();
 
   const baseDocument = SwaggerModule.createDocument(app, options, {
-    include: [SalesModule, ReconciliationModule, AppModule]
+    include: [TransactionModule, ReconciliationModule, AppModule]
   });
 
   SwaggerModule.setup('api', app, baseDocument, {

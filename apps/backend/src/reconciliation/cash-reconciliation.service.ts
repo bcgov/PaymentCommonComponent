@@ -6,17 +6,17 @@ import {
   ReconciliationEventOutput,
   ReconciliationEventError
 } from './const';
-import { PaymentEntity } from '../sales/entities/payment.entity';
+import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
-import { SalesService } from '../sales/sales.service';
 import * as _ from 'underscore';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Injectable()
 export class CashReconciliationService {
   constructor(
     @Inject(Logger) private logger: AppLogger,
     @Inject(CashDepositService) private cashDepositService: CashDepositService,
-    @Inject(SalesService) private salesService: SalesService
+    @Inject(TransactionService) private transactionService: TransactionService
   ) {}
 
   public async setMatched(
@@ -27,7 +27,7 @@ export class CashReconciliationService {
     return {
       deposit: await this.cashDepositService.reconcileCash(deposit, payment),
       payment: payment?.id?.split(',').map(async (itm) => {
-        return await this.salesService.reconcileCash(deposit, {
+        return await this.transactionService.reconcileCash(deposit, {
           ...payment,
           id: itm
         });
@@ -60,7 +60,7 @@ export class CashReconciliationService {
     if (!deposit_dates.current && deposit_dates.previous)
       return { error: 'Deposit dates are required' };
 
-    const payments = await this.salesService.queryCashPayments(
+    const payments = await this.transactionService.queryCashPayments(
       event,
       deposit_dates
     );

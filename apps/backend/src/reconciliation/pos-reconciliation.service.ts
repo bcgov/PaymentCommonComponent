@@ -1,7 +1,7 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { PaymentEntity } from '../sales/entities/payment.entity';
+import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { POSDepositEntity } from './../deposits/entities/pos-deposit.entity';
-import { SalesService } from '../sales/sales.service';
+import { TransactionService } from '../transaction/transaction.service';
 import { AppLogger } from '../common/logger.service';
 import {
   ReconciliationEvent,
@@ -16,7 +16,7 @@ export class POSReconciliationService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(PosDepositService) private posDepositService: PosDepositService,
-    @Inject(SalesService) private salesService: SalesService
+    @Inject(TransactionService) private transactionService: TransactionService
   ) {}
 
   public async setMatched(
@@ -29,7 +29,7 @@ export class POSReconciliationService {
         deposit,
         payment
       ),
-      payment: await this.salesService.reconcilePOS(deposit, payment)
+      payment: await this.transactionService.reconcilePOS(deposit, payment)
     };
   }
 
@@ -58,7 +58,7 @@ export class POSReconciliationService {
   public async reconcile(
     event: ReconciliationEvent
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
-    const payments = await this.salesService.queryPosPayments(event);
+    const payments = await this.transactionService.queryPosPayments(event);
 
     const deposits = await this.posDepositService.findAllByLocationAndDate(
       event

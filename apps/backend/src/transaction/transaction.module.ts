@@ -5,8 +5,8 @@ import {
   PaymentMethodEntity,
   PaymentEntity
 } from './entities';
-import { SalesController } from './sales.controller';
-import { SalesService } from './sales.service';
+import { TransactionController } from './transaction.controller';
+import { TransactionService } from './transaction.service';
 import { LocationModule } from '../location/location.module';
 @Module({
   imports: [
@@ -18,8 +18,8 @@ import { LocationModule } from '../location/location.module';
       LocationModule
     ])
   ],
-  controllers: [SalesController],
-  providers: [SalesService, Logger],
-  exports: [TypeOrmModule, SalesService]
+  controllers: [TransactionController],
+  providers: [TransactionService, Logger],
+  exports: [TypeOrmModule, TransactionService]
 })
-export class SalesModule {}
+export class TransactionModule {}

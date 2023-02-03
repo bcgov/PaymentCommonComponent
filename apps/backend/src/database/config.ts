@@ -6,7 +6,7 @@ import {
   TransactionEntity,
   PaymentEntity,
   PaymentMethodEntity
-} from '../sales/entities/index';
+} from '../transaction/entities/index';
 
 export default new DataSource({
   type: 'postgres',
