@@ -70,31 +70,30 @@ export const handler = async (
         );
       })
     );
-    event &&
-      console.log(
-        '\n\nReconciling for:\n',
-        event,
-        await statsQuery(db, event.fiscal_start_date, event.fiscal_end_date)
-      );
-
-    console.log(event && (await reconcile(event)));
-
-    event &&
-      console.log(
-        '\n\nReconciling complete for:\n',
-        event,
-        statsQuery(db, event.fiscal_start_date, event.fiscal_end_date)
-      );
   };
+  event &&
+    console.log(
+      '\n\nReconciling for:\n',
+      event,
+      await statsQuery(db, event.fiscal_start_date, event.fiscal_end_date)
+    );
 
+  console.log(event && (await reconcile(event)));
+
+  event &&
+    console.log(
+      '\n\nReconciling complete for:\n',
+      event,
+      await statsQuery(db, event.fiscal_start_date, event.fiscal_end_date)
+    );
   return {
     message: 'Reconciliation complete'
   };
 };
 
 const reconciliationEvent: ReconciliationEventInput = {
-  fiscal_start_date: '2023-01-15',
-  fiscal_end_date: '2023-01-20',
+  fiscal_start_date: '2023-01-10',
+  fiscal_end_date: '2023-01-15',
   program: 'SBC',
   location_ids: []
 };
