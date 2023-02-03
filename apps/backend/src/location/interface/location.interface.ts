@@ -1,6 +1,14 @@
 export interface ILocation {
   sbc_location: number;
-  pt_location_id: number;
+  type: string;
+  location_id: number;
+  description: string;
+  program_code: number;
+  program_desc: string;
+  ministry_client: number;
+  resp_code: string;
+  service_line_code: number;
+  stob_code: number;
+  project_code: number;
   merchant_id: number;
-  office_name: string;
 }

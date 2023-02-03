@@ -1,15 +1,15 @@
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
-import { MasterLocationDataEntity } from './entities/master-location-data.entity';
+import { LocationEntity } from './entities/master-location-data.entity';
 import { ILocation } from './interface/location.interface';
 import { LocationEnum } from './const';
 
 @Injectable()
 export class LocationService {
   constructor(
-    @InjectRepository(MasterLocationDataEntity)
-    private locationRepo: Repository<MasterLocationDataEntity>
+    @InjectRepository(LocationEntity)
+    private locationRepo: Repository<LocationEntity>
   ) {}
 
   public async getMerchantIdsByLocationId(
@@ -21,39 +21,39 @@ export class LocationService {
       FROM 
         public.master_location_data ml 
       WHERE 
-        ml."GARMS Location" = ${location_id} 
+        ml."sbc_location" = ${location_id} 
       AND 
         "Type" != '${LocationEnum.Bank}'
     `);
 
-    return merchant_ids.map((itm: any) => parseInt(itm['Merchant ID']));
+    return merchant_ids.map((itm: any) => parseInt(itm.merchant_id));
   }
 
   public async getPTLocdByGarmsLocId(location_id: number): Promise<number[]> {
     const pt_ids = await this.locationRepo.find({
-      select: { Location: true },
+      select: { location_id: true },
       where: {
-        'GARMS Location': location_id
+        sbc_location: location_id
       }
     });
-    return pt_ids?.map((itm: MasterLocationDataEntity) => itm['Location']);
+    return pt_ids?.map((itm: LocationEntity) => itm.location_id);
   }
 
   public async getSBCLocationIDsAndOfficeList(): Promise<Partial<ILocation>[]> {
     const locations = await this.locationRepo.find({
       select: {
-        'GARMS Location': true,
+        sbc_location: true,
         description: true
       },
       where: {
-        Type: `${LocationEnum.Bank}`
+        type: `${LocationEnum.Bank}`
       }
     });
 
     return (
       locations &&
-      locations.map((itm: Partial<MasterLocationDataEntity>) => ({
-        sbc_location: itm['GARMS Location'],
+      locations.map((itm: Partial<LocationEntity>) => ({
+        sbc_location: itm.sbc_location,
         office_name: itm.description
       }))
     );

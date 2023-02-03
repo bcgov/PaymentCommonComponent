@@ -4,7 +4,7 @@ import * as csv from 'csvtojson';
 import { PaymentMethod } from '../../transaction/transaction.interface';
 import { PaymentMethodEntity } from '../../transaction/entities';
 
-export class migration1675398692487 implements MigrationInterface {
+export class migration2524636800000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const paymentMethodMasterFile = path.resolve(
       __dirname,

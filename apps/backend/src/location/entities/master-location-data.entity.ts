@@ -1,46 +1,47 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('master_location_data')
-export class MasterLocationDataEntity {
+export class LocationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true })
-  'GARMS Location': number;
+  @Column({ type: 'numeric', nullable: true })
+  sbc_location: number;
 
-  @Column({ nullable: true })
-  'Type': string;
+  @Column('varchar', { length: 15, nullable: false })
+  type: string;
 
-  @Column({ nullable: true })
-  'Location': number;
+  @Column({ type: 'numeric', nullable: false })
+  location_id: number;
 
-  @Column({ nullable: true })
+  @Column('varchar', { length: 255, nullable: false })
   description: string;
 
-  @Column({ nullable: true })
-  'Program': number;
+  @Column('varchar', { length: 10, nullable: false })
+  program_code: number;
 
-  @Column({ nullable: true })
-  'Program Description': string;
+  @Column('varchar', { length: 255, nullable: false })
+  program_desc: string;
 
-  @Column({ nullable: true })
-  'Min Client': number;
+  @Column('varchar', { length: 3, nullable: false })
+  ministry_client: number;
 
-  @Column({ nullable: true })
-  'Responsibility Code': string;
+  @Column('varchar', { length: 5, nullable: false })
+  resp_code: string;
 
-  @Column({ nullable: true })
-  'Service Line': number;
+  @Column('varchar', { length: 5, nullable: false })
+  service_line_code: number;
 
-  @Column({ nullable: true })
-  stob: number;
+  @Column('varchar', { length: 4, nullable: false })
+  stob_code: number;
+  
+  @Column('varchar', { length: 7, nullable: false })
+  project_code: number;
 
-  @Column({ nullable: true })
-  'Project No.': number;
-
-  @Column({ nullable: true })
-  'Merchant ID': string;
-
-  @Column({ nullable: true })
-  notes: string;
+  @Column({ type: 'numeric', nullable: false })
+  merchant_id: number;
+  
+  constructor(data: Partial<LocationEntity>) {
+    Object.assign(this, data);
+  }
 }

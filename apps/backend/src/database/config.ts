@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { MasterLocationDataEntity } from '../location/entities';
+import { LocationEntity } from '../location/entities';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import {
@@ -21,7 +21,7 @@ export default new DataSource({
     TransactionEntity,
     POSDepositEntity,
     CashDepositEntity,
-    MasterLocationDataEntity
+    LocationEntity
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   synchronize: false
