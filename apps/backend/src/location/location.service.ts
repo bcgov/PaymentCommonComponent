@@ -16,7 +16,7 @@ export class LocationService {
     const pt_ids = await this.locationRepo.find({
       select: { location_id: true },
       where: {
-        sbc_location: location_id
+        location_id: location_id
       }
     });
     return pt_ids?.map((itm: LocationEntity) => itm.location_id);
@@ -25,7 +25,7 @@ export class LocationService {
   public async getSBCLocationIDsAndOfficeList(): Promise<Partial<ILocation>[]> {
     const locations = await this.locationRepo.find({
       select: {
-        sbc_location: true,
+        location_id: true,
         description: true
       },
       where: {
@@ -36,7 +36,7 @@ export class LocationService {
     return (
       locations &&
       locations.map((itm: Partial<LocationEntity>) => ({
-        sbc_location: itm.sbc_location,
+        location_id: itm.location_id,
         office_name: itm.description
       }))
     );
@@ -47,7 +47,7 @@ export class LocationService {
   ): Promise<Partial<ILocation>> {
     try {
       const location = (await this.getSBCLocationIDsAndOfficeList()).find(
-        (location: Partial<ILocation>) => location.sbc_location === location_id
+        (location: Partial<ILocation>) => location.location_id === location_id
       );
       if (location) {
         return location;

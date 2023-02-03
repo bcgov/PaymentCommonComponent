@@ -49,7 +49,7 @@ export class PosDepositService {
         FROM 
           master_location_data 
       WHERE 
-        sbc_location=${event?.location_id} 
+        location_id=${event?.location_id} 
       AND "type" 
         !='Bank'
       ) 

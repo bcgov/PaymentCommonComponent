@@ -1,7 +1,7 @@
 export interface ILocation {
-  sbc_location: number;
-  type: string;
   location_id: number;
+  type: string;
+  pt_location_id: number;
   description: string;
   program_code: number;
   program_desc: string;

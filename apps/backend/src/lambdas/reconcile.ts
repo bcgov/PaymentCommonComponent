@@ -39,8 +39,8 @@ export const handler = async (
         await locationService.getSBCLocationIDsAndOfficeList()
       );
       const location_ids = locations.map(
-        ({ sbc_location }) =>
-          sbc_location && event?.location_ids?.push(sbc_location)
+        ({ location_id }) =>
+          location_id && event?.location_ids?.push(location_id)
       );
     }
     dates.map((date) =>

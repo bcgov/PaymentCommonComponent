@@ -8,7 +8,7 @@ export class migration2524636800001 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const sbcLocationsMasterDataFile = path.resolve(
       __dirname,
-      '../../../master_data/sbc_locations.csv'
+      '../../../master_data/location_ids.csv'
     );
     const sbcLocationMaster = (await csv
       .default()
