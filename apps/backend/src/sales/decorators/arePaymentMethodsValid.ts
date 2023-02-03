@@ -4,7 +4,7 @@ import {
   ValidationArguments,
   isArray
 } from 'class-validator';
-import { PaymentMethodDTO } from '../dto/paymentMethod.dto';
+import { PaymentDTO } from '../dto/payment.dto';
 import { SalesDTO } from '../dto/sales.dto';
 
 @ValidatorConstraint()
@@ -15,7 +15,7 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
   }
 
   public async validate(
-    paymentMethods: PaymentMethodDTO[],
+    paymentMethods: PaymentDTO[],
     args: ValidationArguments
   ) {
     const sales = args.object as SalesDTO;
@@ -29,7 +29,7 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
       return sum + method.amount;
     }, 0);
 
-    if (sales.total_amount !== paymentMethodSum) {
+    if (sales.amount !== paymentMethodSum) {
       this.errorMessage = `Sum Of Amounts by Payment Method does not equal Sale total.`;
       return false;
     }

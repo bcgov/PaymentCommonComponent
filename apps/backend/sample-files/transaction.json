@@ -1,0 +1,176 @@
+[
+    {
+      "transaction_id": "72cbe1da-b08e-49d4-9a87-69afd660d14b",
+      "transaction_date": "2023-01-01",
+      "transaction_time": "13.33.31.875973",
+      "fiscal_close_date": "2023-01-02",
+      "amount": 25.20,
+      "void_indicator": false,
+      "miscellaneous": {
+        "employee_id": "SC61350"
+      },
+      "source": {
+        "source_id": "SBC",
+        "location_id": 61,
+        "accepted_payment_methods": ["CASH", "CHQ", "P", "M", "V"]
+      },
+      "payments": [
+        {
+          "amount": 10.20,
+          "currency": "CAD",
+          "exchange_rate": 0,
+          "payment_method": "CASH",
+          "payment_channel": "in-person"
+        },
+        {
+          "amount": 15.00,
+          "currency": "CAD",
+          "exchange_rate": 0,
+          "payment_method": "V",
+          "payment_channel": "in-person",
+          "terminal": {
+            "card_no": "5253",
+            "merchant_id": "20777441",
+            "device_id": "GA2077744108",
+            "invoice_no": ""
+          },
+          "online": {
+            "tran_id": "",
+            "order_no": ""
+          },
+          "pos": {
+            "approval_code": "ASWQD24342"
+          }
+        }
+      ],
+      "accounting": {
+        "items": [
+          {
+            "sequence": "001",
+            "details": {
+              "code": "1234",
+              "description": "passport photocopy"
+            },
+            "distributions": [
+              {
+                "line_number": "00001",
+                "line_description": "passport photocopy",
+                "line_dollar_amount": 10.00,
+                "disbursment_gl_account": {
+                  "dist_client_code": "074",
+                  "dist_resp_code": "66020",
+                  "dist_service_line_code": "44275",
+                  "dist_stob_code": "1278",
+                  "dist_project_code": "6600000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000",
+                  "EFT": {
+                    "vendor": "xxx"
+                  }
+                },
+                "revenue_gl_account": {
+                  "dist_client_code": "074",
+                  "dist_resp_code": "66020",
+                  "dist_service_line_code": "44275",
+                  "dist_stob_code": "1474",
+                  "dist_project_code": "6600000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000"
+                }
+              },
+              {
+                "line_number": "00002",
+                "line_description": "PST G/L            ",
+                "line_dollar_amount": 0.70,
+                "disbursment_gl_account": {
+                  "dist_client_code": "022",
+                  "dist_resp_code": "12345",
+                  "dist_service_line_code": "66123",
+                  "dist_stob_code": "4123",
+                  "dist_project_code": "3200000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000"
+                },
+                "revenue_gl_account": {
+                  "dist_client_code": "074",
+                  "dist_resp_code": "66020",
+                  "dist_service_line_code": "44275",
+                  "dist_stob_code": "1474",
+                  "dist_project_code": "6600000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000"
+                }
+              },
+              {
+                "line_number": "00003",
+                "line_dollar_amount": 0.50,
+                "line_description": "GST G/L            ",
+                "disbursment_gl_account": {
+                  "dist_client_code": "022",
+                  "dist_resp_code": "4567",
+                  "dist_service_line_code": "88123",
+                  "dist_stob_code": "4123",
+                  "dist_project_code": "3200000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000"
+                },
+                "revenue_gl_account": {
+                  "dist_client_code": "074",
+                  "dist_resp_code": "66020",
+                  "dist_service_line_code": "44275",
+                  "dist_stob_code": "1474",
+                  "dist_project_code": "6600000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000"
+                }
+              }
+            ]
+          },
+          {
+            "sequence": "002",
+            "details": {
+              "code": "1234",
+              "description": "driving lic renewal"
+            },
+            "distributions": [
+              {
+                "line_number": "00001",
+                "line_description": "driving lic renewal",
+                "line_dollar_amount": 14.00,
+                "disbursment_gl_account": {
+                  "dist_client_code": "010",
+                  "dist_resp_code": "66213",
+                  "dist_service_line_code": "44275",
+                  "dist_stob_code": "1278",
+                  "dist_project_code": "6600000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000",
+                  "EFT": {
+                      "vendor": "xxx"
+                    }
+                },
+                "revenue_gl_account": {
+                  "dist_client_code": "074",
+                  "dist_resp_code": "66020",
+                  "dist_service_line_code": "44275",
+                  "dist_stob_code": "1474",
+                  "dist_project_code": "6600000",
+                  "dist_location_code": "000000",
+                  "dist_future_code": "0000",
+                  "supplier_code": "000000"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+  

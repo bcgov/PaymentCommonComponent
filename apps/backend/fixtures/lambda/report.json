@@ -1,0 +1,12 @@
+{
+  "program": "SBC",
+  "locations": [10],
+  "period": {
+    "from": "2023-01-10",
+    "to": "2023-01-31"
+  },
+  "exceptions": {
+    "send": false
+  },
+  "reports": true
+}
