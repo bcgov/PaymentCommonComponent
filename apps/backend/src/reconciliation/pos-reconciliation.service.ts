@@ -68,7 +68,6 @@ export class POSReconciliationService {
       payments && deposits && (await this.match(deposits, payments));
 
     return {
-      event_type: event.type,
       total_deposit: deposits ? deposits.length : 0,
       total_payments: payments ? payments.length : 0,
       total_matched: matched.length

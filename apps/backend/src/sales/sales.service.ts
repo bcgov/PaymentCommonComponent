@@ -93,7 +93,7 @@ export class SalesService {
       DESC
     `);
   }
-  //TODO Update hardcoded methods
+
   async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
     return await this.paymentRepo.manager.query(`
       SELECT
@@ -101,7 +101,8 @@ export class SalesService {
 	      p.method,
 	      p.id,
 	      t.transaction_date,
-	      t.location_id
+	      t.location_id,
+        pm.method as method
       FROM
 	      payment p
       JOIN 
@@ -132,8 +133,7 @@ export class SalesService {
     });
     paymentEntity.match = true;
     paymentEntity.deposit_id = deposit.id;
-    const updated = await this.paymentRepo.save(paymentEntity);
-    return updated;
+    return await this.paymentRepo.save(paymentEntity);
   }
 
   async reconcileCash(

@@ -122,7 +122,9 @@ export const handler = async (event?: any, context?: Context) => {
           const tdi34Details = parsed as TDI34Details[];
           tdi34Details.map(
             async (item: TDI34Details) =>
-              await posService.createPOSDeposit(new POSDepositEntity(item))
+              await posService.createPOSDepositEntity(
+                new POSDepositEntity(item)
+              )
           );
         }
 

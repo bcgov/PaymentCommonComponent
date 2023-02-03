@@ -58,7 +58,7 @@ export class CashDepositService {
       WHERE 
         location_id=${event?.location_id} 
       AND 
-        deposit_date<='${event?.date}'::date 
+        deposit_date<='${event?.date}'::date
       AND 
         deposit_date>= '2023-01-09'::date 
       AND 
@@ -92,9 +92,9 @@ export class CashDepositService {
     WHERE
       cd.location_id=${event?.location_id}
     AND 
-      cd.deposit_date<='${deposit_dates.current}'::date
+      cd.deposit_date<='${deposit_dates.current}'
     AND 
-      cd.deposit_date>'${deposit_dates.previous}'::date
+      cd.deposit_date>'${deposit_dates.previous}'
     AND 
       cd.program='${event?.program}'
     AND 

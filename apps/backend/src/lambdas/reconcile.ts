@@ -4,10 +4,7 @@ import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
-import {
-  ReconciliationTypes,
-  ReconciliationEvent
-} from '../reconciliation/const';
+import { ReconciliationEvent } from '../reconciliation/const';
 
 export const handler = async (
   event?: ReconciliationEvent,
@@ -23,60 +20,19 @@ export const handler = async (
   appLogger.log({ context });
   /*eslint-disable */
 
-  const getAllDatesInFiscalPeriod = (event: ReconciliationEvent) => {
-    const dates = [];
-    const start = new Date(event.fiscal_start_date);
-    const end = new Date(event.fiscal_close_date);
-    while (start <= end) {
-      dates.push(new Date(start));
-      start.setDate(start.getDate() + 1);
-    }
-    return dates;
-  };
+  const reconcile = async (event: ReconciliationEvent) => {};
 
-  const reconcile = async (event: ReconciliationEvent) => {
-    const dates = getAllDatesInFiscalPeriod(event);
-    event.location_ids?.forEach((location) => {
-      dates.forEach((date) => {
-        ReconciliationTypes.CASH ||
-          (ReconciliationTypes.ALL &&
-            cashRecon.reconcile({
-              ...event,
-              location_id: location,
-              date: date.toString(),
-              type: ReconciliationTypes.CASH
-            }));
-        ReconciliationTypes.POS ||
-          (ReconciliationTypes.ALL &&
-            posRecon.reconcile({
-              ...event,
-              location_id: location,
-              date: date.toString(),
-              type: ReconciliationTypes.POS
-            }));
-      });
-    });
-  };
-  event && reconcile(event);
+  console.log(event && (await cashRecon.reconcile(event)));
+  console.log(event && (await posRecon.reconcile(event)));
   return {
     message: 'Reconciliation complete'
   };
 };
 
 const reconciliationEvent: ReconciliationEvent = {
-  fiscal_start_date: '2023-01-11',
-  fiscal_close_date: '2023-01-31',
+  date: '2023-01-31',
   program: 'SBC',
-  location_ids: [],
-  type: ReconciliationTypes.ALL
-};
-
-const reconciliationEvent2: ReconciliationEvent = {
-  fiscal_start_date: '2023-01-11',
-  fiscal_close_date: '2023-01-11',
-  program: 'SBC',
-  location_ids: [31],
-  type: ReconciliationTypes.POS
+  location_id: 61
 };
 
 handler(reconciliationEvent);

@@ -70,7 +70,6 @@ export class CashReconciliationService {
     const matched = await Promise.all(await this.match(deposits, payments));
 
     return {
-      event_type: event.type,
       total_deposit: deposits ? deposits.length : 0,
       total_payments: payments.length,
       total_matched: matched.length
