@@ -4,7 +4,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface
 } from 'class-validator';
-import { DistributionDTO } from '../dto/distribution.dto';
+import { DistributionDTO } from '../dto/accounting.dto';
 import { SalesDTO } from '../dto/sales.dto';
 
 @ValidatorConstraint()
@@ -25,10 +25,6 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
     if (!isArray(distributions)) {
       this.errorMessage = `Distributions must be an array`;
       return false;
-    }
-
-    for (const dist of distributions) {
-      (dist.line_code === 'C' ? credits : debits).push(dist);
     }
 
     const creditSum = credits.reduce((sum, dist) => {
@@ -58,11 +54,6 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
       this.errorMessage = `Credit and Debit Sums must match. There is a difference of ${
         debitSum - creditSum
       } found`;
-      return false;
-    }
-
-    if (sales.total_amount !== creditSum || sales.total_amount !== debitSum) {
-      this.errorMessage = `Credit and Debit Sums do not match the Sales Total`;
       return false;
     }
 

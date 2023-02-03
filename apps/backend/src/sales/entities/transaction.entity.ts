@@ -1,4 +1,5 @@
 import { OneToMany, Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Transaction } from '../transaction.interface';
 import { PaymentEntity } from './payment.entity';
 
 @Entity('transaction')
@@ -17,13 +18,25 @@ export class TransactionEntity {
   fiscal_date: string;
 
   @Column({ nullable: true })
-  transaction_time?: string;
+  transaction_time: string;
+  
+  @Column({ type: 'date' })
+  fiscal_close_date: string;
 
   @Column({ type: 'numeric' })
   payment_total: number;
 
+  @Column({ type: 'boolean', default: false})
+  void_indicator: boolean;
+
+  // @Column({ type: 'string'})
+  // source_id:string;
+  
   @Column()
   location_id: number;
+
+  @Column({type: 'jsonb'})
+  transaction: Transaction;
 
   @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
     cascade: true

@@ -38,6 +38,9 @@ export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-co
 export GIT_LOCAL_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
 export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
 
+# data 
+REPORT_JSON:=$(shell cat ./apps/backend/fixtures/lambda/report.json | jq '.' -c)
+
 # Terraform variables
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
@@ -225,6 +228,9 @@ parse:
 # TODO update handler to accept args
 reconcile:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts")'
+
+report:
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler($(REPORT_JSON))'
 
 clear: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.payment"
