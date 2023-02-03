@@ -1,11 +1,13 @@
-import { TransactionEntity } from './transaction.entity';
+import { PaymentMethodEntity } from './payment-method.entity';
 import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
   JoinColumn,
-  ManyToOne
+  ManyToOne,
+  OneToOne
 } from 'typeorm';
+import { TransactionEntity } from './transaction.entity';
 
 @Entity('payment')
 export class PaymentEntity {
@@ -20,6 +22,9 @@ export class PaymentEntity {
   @JoinColumn({ name: 'transaction', referencedColumnName: 'id' })
   transaction: TransactionEntity;
 
+  @OneToOne(() => PaymentMethodEntity, (pm) => pm.sbc_code)
+  payment_method: PaymentMethodEntity;
+
   @Column()
   method: number;
 
@@ -32,11 +37,11 @@ export class PaymentEntity {
   @Column({ type: 'numeric', nullable: true })
   exchange_rate?: number;
 
-  @Column({ nullable: true })
-  deposit_id?: string;
-
   @Column({ default: false })
   match?: boolean;
+
+  @Column({ nullable: true })
+  deposit_id?: string;
 
   constructor(payment: Partial<PaymentEntity>) {
     Object.assign(this, payment);

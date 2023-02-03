@@ -11,15 +11,15 @@ import {
 import { ApiOperation, ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AppLogger } from '../common/logger.service';
-import { ReconciliationService } from './reconciliation.service';
+import { ParseService } from './parse.service';
 
 @Controller('parse')
 @ApiTags('Parser API')
 @UseInterceptors(ClassSerializerInterceptor)
-export class ReconciliationController {
+export class ParseController {
   constructor(
-    @Inject(ReconciliationService)
-    private readonly reconService: ReconciliationService,
+    @Inject(ParseService)
+    private readonly parseService: ParseService,
     @Inject(Logger) private readonly appLogger: AppLogger
   ) {}
 
@@ -52,7 +52,7 @@ export class ReconciliationController {
     @Body() body: { program: string; fileType: string },
     @UploadedFile() file: Express.Multer.File
   ) {
-    return this.reconService.readAndParseFile(
+    return this.parseService.readAndParseFile(
       body.fileType,
       body.program,
       file.originalname,
@@ -79,6 +79,6 @@ export class ReconciliationController {
   })
   @UseInterceptors(FileInterceptor('file'))
   uploadGarmsJsonFile(@UploadedFile() file: Express.Multer.File) {
-    return this.reconService.readAndParseGarms(file.originalname, file.buffer);
+    return this.parseService.readAndParseGarms(file.originalname, file.buffer);
   }
 }

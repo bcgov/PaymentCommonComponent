@@ -1,3 +1,4 @@
+import { DepositModule } from './deposits/deposit.module';
 import { S3ManagerModule } from './s3-manager/s3-manager.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -9,17 +10,18 @@ import { AwsSdkModule } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { DatabaseModule } from './database/database.module';
-import { PosModule } from './pos/pos.module';
-import { CashModule } from './cash/cash.module';
+import { LocationModule } from './location/location.module';
+import { ParseModule } from './parse/parse.module';
 
 @Module({
   imports: [
-    CashModule,
     DatabaseModule,
     S3ManagerModule,
     ReconciliationModule,
-    PosModule,
+    DepositModule,
     SalesModule,
+    ParseModule,
+    LocationModule,
     ConfigModule.forRoot({
       ignoreEnvFile:
         process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'ci'

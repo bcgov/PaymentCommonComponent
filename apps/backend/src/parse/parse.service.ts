@@ -4,9 +4,8 @@ import { parseTDI } from '../lambdas/utils/parseTDI';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 
 @Injectable()
-export class ReconciliationService {
+export class ParseService {
   constructor(@Inject(Logger) private readonly appLogger: AppLogger) {}
-
   //TODO this is temporary for testing the parsed garms json only
   async readAndParseGarms(filename: string, filebuffer: Buffer) {
     try {

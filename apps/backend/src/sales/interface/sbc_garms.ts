@@ -5,13 +5,14 @@ export interface IGarmsPayment {
   currency: string;
 }
 
-interface ISource {
+export interface ISource {
   location_id: string;
 }
 
 export interface IGarmsJson {
   sales_transaction_id: string;
   sales_transaction_date: string;
+  fiscal_close_date: string;
   payment_total: number;
   payments: IGarmsPayment[];
   source: ISource;

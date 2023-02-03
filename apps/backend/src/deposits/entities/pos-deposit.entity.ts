@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { TDI34Details } from '../../flat-files';
-import { FileMetadata } from '../../reconciliation/columns/metadata.col';
+import { FileMetadata } from '../../common/columns';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {
@@ -42,6 +42,11 @@ export class POSDepositEntity {
 
   @Column({ default: false })
   match: boolean;
+
+  @Column({ nullable: true })
+  matched_payment_id?: string;
+
+  method?: number;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

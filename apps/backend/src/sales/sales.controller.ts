@@ -10,15 +10,16 @@ import {
   Post,
   UseInterceptors
 } from '@nestjs/common';
-import { SalesService } from './sales.service';
-import { AppLogger } from '../common/logger.service';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { AppLogger } from '../common/logger.service';
+import { SalesService } from './sales.service';
 
 @Controller('sale')
 @ApiTags('Sales API')
 export class SalesController {
   constructor(
-    @Inject(SalesService) private readonly salesService: SalesService,
+    @Inject(SalesService)
+    private readonly salesService: SalesService,
     @Inject(Logger) private readonly appLogger: AppLogger
   ) {}
 

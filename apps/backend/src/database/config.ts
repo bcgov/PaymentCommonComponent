@@ -1,12 +1,12 @@
 import { DataSource } from 'typeorm';
-import { MasterLocationDataEntity } from '../reconciliation/entities';
-import { CashDepositEntity } from '../cash/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
+import { MasterLocationDataEntity } from '../location/entities';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import {
   TransactionEntity,
   PaymentEntity,
   PaymentMethodEntity
-} from '../sales/entities';
+} from '../sales/entities/index';
 
 export default new DataSource({
   type: 'postgres',
