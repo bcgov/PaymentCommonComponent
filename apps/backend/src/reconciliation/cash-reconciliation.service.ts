@@ -8,7 +8,6 @@ import {
 } from './const';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
-import * as _ from 'underscore';
 import { TransactionService } from '../transaction/transaction.service';
 
 @Injectable()
@@ -19,38 +18,29 @@ export class CashReconciliationService {
     @Inject(TransactionService) private transactionService: TransactionService
   ) {}
 
-  public async setMatched(
-    deposit: Partial<CashDepositEntity>,
-    payment: Partial<PaymentEntity>
-  ) {
-    if (!payment || !deposit) return;
-    return {
-      deposit: await this.cashDepositService.reconcileCash(deposit, payment),
-      payment: payment?.id?.split(',').map(async (itm) => {
-        return await this.transactionService.reconcileCash(deposit, {
-          ...payment,
-          id: itm
-        });
-      })
-    };
-  }
-
-  public async match(deposits: CashDepositEntity[], payments: PaymentEntity[]) {
-    const matched = deposits.map((itm: CashDepositEntity) => ({
-      payment: _.findWhere(payments, {
-        amount: parseFloat(itm.deposit_amt_cdn.toString())
-      }),
-      deposit: itm
-    }));
-
-    return (
-      matched &&
-      (await Promise.all(
-        matched.map(({ deposit, payment }: any) => {
-          return this.setMatched(deposit, payment);
-        })
-      ))
-    );
+  private async match(
+    deposits: CashDepositEntity[],
+    payments: PaymentEntity[]
+  ): Promise<any[]> {
+    return deposits.map(async (deposit: CashDepositEntity) => {
+      const payment = payments.find(
+        (itm) => itm.amount == parseFloat(deposit.deposit_amt_cdn.toString())
+      );
+      if (payment) {
+        return {
+          deposit: await this.cashDepositService.updateCashDepositEntity(
+            deposit,
+            payment
+          ),
+          payment: payment?.id?.split(',').map(async (itm) => {
+            return await this.transactionService.reconcileCash(deposit, {
+              ...payment,
+              id: itm
+            });
+          })
+        };
+      }
+    });
   }
 
   async reconcile(
@@ -72,7 +62,7 @@ export class CashReconciliationService {
     return {
       total_deposit: deposits ? deposits.length : 0,
       total_payments: payments.length,
-      total_matched: matched.length
+      matched
     };
   }
 }

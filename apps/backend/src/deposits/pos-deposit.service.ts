@@ -41,6 +41,9 @@ export class PosDepositService {
     event: ReconciliationEvent,
     merchant_ids: number[]
   ): Promise<POSDepositEntity[]> {
+    if (merchant_ids.length === 0) {
+      return [];
+    }
     return await this.posDepositRepo.manager.query(`
     SELECT 
       pd.id, 

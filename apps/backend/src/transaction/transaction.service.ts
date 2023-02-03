@@ -65,7 +65,7 @@ export class TransactionService {
 
     return await this.transactionRepo.manager.query(`     
       SELECT
-        t.fiscal_date::varchar,    
+        t.fiscal_close_date::varchar,    
         SUM(p.amount) as amount,
         STRING_AGG(p.id::varchar, ','::varchar) as id
       FROM
@@ -82,15 +82,15 @@ export class TransactionService {
       AND 
         p.amount !=0
       AND 
-        t.fiscal_date <= '${deposit_dates?.current}'::date
+        t.fiscal_close_date <= '${deposit_dates?.current}'::date
       AND 
-        t.fiscal_date > '${deposit_dates?.previous}'::date
+        t.fiscal_close_date > '${deposit_dates?.previous}'::date
       AND 
         p.match=false
       GROUP BY 
-        t.fiscal_date 
+        t.fiscal_close_date 
       ORDER BY 
-        t.fiscal_date 
+        t.fiscal_close_date 
       DESC
     `);
   }
@@ -133,7 +133,7 @@ export class TransactionService {
       id: payment.id
     });
     paymentEntity.match = true;
-    paymentEntity.deposit_id = deposit.id;
+    paymentEntity.deposit_id = `${deposit.id}`;
     return await this.paymentRepo.save(paymentEntity);
   }
 

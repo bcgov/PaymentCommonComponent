@@ -104,7 +104,7 @@ export class CashDepositService {
   `);
   }
 
-  async reconcileCash(
+  async updateCashDepositEntity(
     deposit: Partial<CashDepositEntity>,
     payment: Partial<PaymentEntity>
   ): Promise<CashDepositEntity> {

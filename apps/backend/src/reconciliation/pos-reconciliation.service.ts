@@ -9,7 +9,6 @@ import {
   ReconciliationEventError
 } from './const';
 import { PosDepositService } from '../deposits/pos-deposit.service';
-import * as _ from 'underscore';
 
 @Injectable()
 export class POSReconciliationService {
@@ -19,40 +18,26 @@ export class POSReconciliationService {
     @Inject(TransactionService) private transactionService: TransactionService
   ) {}
 
-  public async setMatched(
-    deposit: Partial<POSDepositEntity> | undefined,
-    payment: Partial<PaymentEntity> | undefined
-  ) {
-    if (!deposit || !payment) return;
-    return {
-      deposit: await this.posDepositService.updatePOSDepositEntity(
-        deposit,
-        payment
-      ),
-      payment: await this.transactionService.reconcilePOS(deposit, payment)
-    };
-  }
-
   private async match(
     deposits: POSDepositEntity[],
     payments: PaymentEntity[]
   ): Promise<any[]> {
-    const filtered = deposits.map((deposit: POSDepositEntity) => ({
-      payment: _.findWhere(payments, {
-        amount: parseFloat(deposit.transaction_amt.toString()),
-        method: deposit.method?.toString()
-      }),
-      deposit
-    }));
-
-    return (
-      filtered &&
-      (await Promise.all(
-        filtered.map(({ deposit, payment }: any) => {
-          return this.setMatched(deposit, payment);
-        })
-      ))
-    );
+    return deposits.map(async (deposit: POSDepositEntity) => {
+      const payment = payments.find(
+        (itm) =>
+          itm.amount == parseFloat(deposit.transaction_amt.toString()) &&
+          itm.method == deposit.method
+      );
+      if (payment) {
+        return {
+          deposit: await this.posDepositService.updatePOSDepositEntity(
+            deposit,
+            payment
+          ),
+          payment: await this.transactionService.reconcilePOS(deposit, payment)
+        };
+      }
+    });
   }
 
   public async reconcile(
@@ -65,12 +50,14 @@ export class POSReconciliationService {
     );
 
     const matched =
-      payments && deposits && (await this.match(deposits, payments));
+      payments &&
+      deposits &&
+      (await Promise.all(await this.match(deposits, payments)));
 
     return {
       total_deposit: deposits ? deposits.length : 0,
       total_payments: payments ? payments.length : 0,
-      total_matched: matched.length
+      matched
     };
   }
 }
