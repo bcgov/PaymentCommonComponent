@@ -26,7 +26,7 @@ export class POSReconciliationService {
       const payment = payments.find(
         (itm) =>
           itm.amount == parseFloat(deposit.transaction_amt.toString()) &&
-          itm.method == deposit.method
+          itm.method == deposit.card_vendor
       );
       if (payment) {
         return {
