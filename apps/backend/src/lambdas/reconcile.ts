@@ -6,6 +6,8 @@ import { AppLogger } from '../common/logger.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationEventInput } from '../reconciliation/const';
+import datasource from '../database/config';
+import { statsQuery } from './queries';
 
 export const handler = async (
   event?: ReconciliationEventInput,
@@ -17,6 +19,7 @@ export const handler = async (
   const posRecon = app.get(POSReconciliationService);
   const locationService = app.get(LocationService);
   const appLogger = app.get(AppLogger);
+  const db = await datasource.initialize();
 
   appLogger.log({ event });
   appLogger.log({ context });
@@ -38,7 +41,7 @@ export const handler = async (
       const locations = await Promise.all(
         await locationService.getSBCLocationIDsAndOfficeList()
       );
-      const location_ids = locations.map(
+      locations.map(
         ({ location_id }) =>
           location_id && event?.location_ids?.push(location_id)
       );
@@ -46,34 +49,52 @@ export const handler = async (
     dates.map((date) =>
       event.location_ids.map(async (location_id) => {
         console.log(
-          event &&
-            (await cashRecon.reconcile({
-              date,
-              location_id,
-              program: event.program
-            }))
+          event && date,
+          'location_id: ',
+          location_id,
+          await cashRecon.reconcile({
+            date,
+            location_id,
+            program: event.program
+          })
         );
         console.log(
-          event &&
-            (await posRecon.reconcile({
-              date,
-              location_id,
-              program: event.program
-            }))
+          event && date,
+          'location_id: ',
+          location_id,
+          await posRecon.reconcile({
+            date,
+            location_id,
+            program: event.program
+          })
         );
       })
     );
+    event &&
+      console.log(
+        '\n\nReconciling for:\n',
+        event,
+        await statsQuery(db, event.fiscal_start_date, event.fiscal_end_date)
+      );
+
+    console.log(event && (await reconcile(event)));
+
+    event &&
+      console.log(
+        '\n\nReconciling complete for:\n',
+        event,
+        statsQuery(db, event.fiscal_start_date, event.fiscal_end_date)
+      );
   };
 
-  event && (await reconcile(event));
   return {
     message: 'Reconciliation complete'
   };
 };
 
 const reconciliationEvent: ReconciliationEventInput = {
-  fiscal_start_date: '2023-01-09',
-  fiscal_end_date: '2023-01-09',
+  fiscal_start_date: '2023-01-15',
+  fiscal_end_date: '2023-01-20',
   program: 'SBC',
   location_ids: []
 };

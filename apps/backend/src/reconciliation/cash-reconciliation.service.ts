@@ -61,8 +61,8 @@ export class CashReconciliationService {
 
     return {
       total_deposit: deposits ? deposits.length : 0,
-      total_payments: payments.length,
-      matched
+      total_payments: payments ? payments.length : 0,
+      total_matched: matched.length
     };
   }
 }
