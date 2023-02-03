@@ -1,9 +1,9 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { CashDepositEntity } from '../cash/entities/cash-deposit.entity';
 import { AppLogger } from '../common/logger.service';
-import { POSDepositEntity } from '../pos/entities/pos-deposit.entity';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PaymentEntity, TransactionEntity } from '../sales/entities';
 import { ReportConfig } from './interfaces';
 

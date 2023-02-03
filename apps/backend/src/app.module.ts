@@ -12,8 +12,6 @@ import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { DatabaseModule } from './database/database.module';
 import { LocationModule } from './location/location.module';
 import { ParseModule } from './parse/parse.module';
-import { PosModule } from './pos/pos.module';
-import { CashModule } from './cash/cash.module';
 import { ExceptionModule } from './exception/exception.module';
 import { ReportingModule } from './reporting/reporting.module';
 
