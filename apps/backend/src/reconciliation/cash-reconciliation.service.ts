@@ -9,6 +9,7 @@ import {
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
 import { TransactionService } from '../transaction/transaction.service';
+import { PosPaymentPosDepositPair } from './reconciliation.interfaces';
 
 @Injectable()
 export class CashReconciliationService {
@@ -18,51 +19,38 @@ export class CashReconciliationService {
     @Inject(TransactionService) private transactionService: TransactionService
   ) {}
 
-  private async match(
+  private allOrNoneMatchForPayments(
     deposits: CashDepositEntity[],
     payments: PaymentEntity[]
-  ): Promise<any[]> {
-    return deposits.map(async (deposit: CashDepositEntity) => {
-      const payment = payments.find(
-        (itm) => itm.amount == parseFloat(deposit.deposit_amt_cdn.toString())
-      );
-      if (payment) {
-        return {
-          deposit: await this.cashDepositService.updateCashDepositEntity(
-            deposit,
-            payment
-          ),
-          payment: payment?.id?.split(',').map(async (itm) => {
-            return await this.transactionService.markCashPaymentAsMatched(deposit, {
-              ...payment,
-              id: itm
-            });
-          })
-        };
+  ): PosPaymentPosDepositPair[] {
+
+    const sumOfPayments = payments.reduce((sum, payment) => sum + payment.amount, 0);
+
+
+    for (const deposit of deposits) {
+      if (deposit.deposit_amt_cdn === sumOfPayments) {
+        console.log('Found a matching deposit', deposit.deposit_amt_cdn, sumOfPayments)
       }
-    });
+    }
+
+    return []
   }
 
   async reconcile(
     event: ReconciliationEvent
   ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
-    const deposit_dates = await this.cashDepositService.getCashDates(event);
-    if (!deposit_dates.current && deposit_dates.previous)
-      return { error: 'Deposit dates are required' };
+    const payments = await this.transactionService.queryCashPayments(event);
+    const deposits = await this.cashDepositService.findCashDeposits(event);
 
-    const payments = await this.transactionService.queryCashPayments(
-      event,
-      deposit_dates
-    );
+    console.log('payments', payments);
+    console.log('deposits', deposits);
 
-    const deposits = await this.cashDepositService.query(event, deposit_dates);
-
-    const matched = await Promise.all(await this.match(deposits, payments));
+    const matched =  this.allOrNoneMatchForPayments(deposits, payments);
 
     return {
       total_deposit: deposits ? deposits.length : 0,
-      total_payments: payments ? payments.length : 0,
-      total_matched: matched.length
+      total_payments: payments ? payments.length : 0
+      // total_matched: matched.length
     };
   }
 }

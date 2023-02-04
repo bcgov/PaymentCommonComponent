@@ -7,9 +7,7 @@ import { CashReconciliationService } from '../reconciliation/cash-reconciliation
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationEventInput } from '../reconciliation/const';
 import datasource from '../database/config';
-import { statsQuery } from './queries';
 import { Ministries } from '../constants';
-import { match } from 'assert';
 
 export const handler = async (
   event: ReconciliationEventInput,
@@ -74,11 +72,11 @@ export const handler = async (
 
         console.log(posReconciliation);
 
-        // await cashRecon.reconcile({
-        //   date,
-        //   location_id,
-        //   program: event.program
-        // });
+        await cashRecon.reconcile({
+          date,
+          location_id,
+          program: event.program
+        });
       }
     }
   };
@@ -95,7 +93,7 @@ const reconciliationEvent: ReconciliationEventInput = {
   fiscal_start_date: '2023-01-15',
   fiscal_end_date: '2023-01-16',
   program: 'SBC',
-  location_ids: [19]
+  location_ids: [61]
 };
 
 handler(reconciliationEvent);

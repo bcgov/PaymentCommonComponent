@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
-import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { LocationService } from '../location/location.service';
 import { ReconciliationEvent } from '../reconciliation/const';
+import { PosPaymentPosDepositPair } from '../reconciliation/reconciliation.interfaces';
 @Injectable()
 export class PosDepositService {
   constructor(
@@ -40,41 +40,8 @@ export class PosDepositService {
         merchant_id: In(merchant_ids)
       }
     });
-    // return await this.posDepositRepo.manager.query(`
-    // SELECT
-    //   pd.id,
-    //   pd.transaction_amt,
-    //   pd.match,
-    //   pd.card_vendor,
-    //   pd.transaction_date::varchar,
-    //   pd.transaction_time::varchar,
-    //   pm.method as method
-    // FROM
-    //   pos_deposit pd
-    // JOIN
-    //   payment_method pm
-    // ON
-    //   pm.method=pd.card_vendor
-    // WHERE
-    //   transaction_date='${event?.date}'::date
-    // AND
-    //   pd.program='${event?.program}'
-    // AND
-    //   pd.merchant_id IN (
-    //     SELECT
-    //       merchant_id
-    //     FROM
-    //       master_location_data
-    //   WHERE
-    //     location_id=${event?.location_id}
-    //   AND "type"
-    //     !='Bank'
-    //   )
-    // ORDER BY
-    //   pd.transaction_date
-    // DESC
-    // `);
   }
+
   async findAllUploadedFiles(): Promise<
     { pos_deposit_source_file_name: string }[]
   > {
@@ -91,19 +58,20 @@ export class PosDepositService {
     return await this.posDepositRepo.save(this.posDepositRepo.create(data));
   }
 
-  // TODO: This should be name markPosDepositAsMatchedById(pos_id, payment_id)
-  // TODO: we also need these: markCashDepositAsMarchedById(cash_id, payment_id), markPaymentAsMatchedById(payment_id, deposit_id)
-  // TODO: update this query to just update the match column.
 
-  async updatePOSDepositEntity(
-    deposit: Partial<POSDepositEntity>,
-    payment: Partial<PaymentEntity>
-  ): Promise<POSDepositEntity> {
-    const depositEntity = await this.posDepositRepo.findOneByOrFail({
-      id: deposit.id
-    });
-    depositEntity.match = true;
-    depositEntity.matched_payment_id = `${payment.id}`;
-    return await this.posDepositRepo.save(depositEntity);
+  // TODO: update this query to just update the match column.
+  async markPosDepositsAsMatched(
+    posPaymentDepostPair: PosPaymentPosDepositPair[]
+  ) {
+    await Promise.all(
+      posPaymentDepostPair.map(async (pair) => {
+        const depositEntity = await this.posDepositRepo.findOneByOrFail({
+          id: pair.deposit.id
+        });
+        depositEntity.match = true;
+        depositEntity.matched_payment_id = `${pair.payment.id}`;
+        return await this.posDepositRepo.save(depositEntity);
+      })
+    );
   }
 }

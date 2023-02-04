@@ -1,6 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { TDI17Details } from '../../flat-files';
 import { FileMetadata } from '../../common/columns/metadata';
+import { PaymentMethodEntity } from '../../transaction/entities';
 
 @Entity('cash_deposit')
 export class CashDepositEntity {
@@ -43,7 +44,7 @@ export class CashDepositEntity {
   @Column({ type: 'numeric', nullable: true })
   exchange_adj_amt: number;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', precision: 16, scale: 4 })
   deposit_amt_cdn: number;
 
   @Column()

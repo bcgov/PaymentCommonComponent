@@ -49,6 +49,7 @@ export class CashDepositService {
     `);
   }
 
+  // TODO- Make typeorm
   async getCashDates(event: ReconciliationEvent) {
     const cash_deposit_window = await this.cashDepositRepo.query(`
       SELECT 
@@ -72,6 +73,21 @@ export class CashDepositService {
       current: cash_deposit_window[0]?.deposit_date ?? event?.date,
       previous: cash_deposit_window[1]?.deposit_date ?? '2023-01-09'
     };
+  }
+
+  async findCashDeposits(
+    event: ReconciliationEvent
+  ): Promise<CashDepositEntity[]> {
+    return await this.cashDepositRepo.find({
+      relationLoadStrategy: 'query',
+      where: {
+        deposit_date: event?.date,
+        location_id: event?.location_id,
+        metadata: {
+          program: event?.program
+        }
+      }
+    });
   }
 
   //TODO convert to use query builder and re-evaluate: where date is "greater than" in the query

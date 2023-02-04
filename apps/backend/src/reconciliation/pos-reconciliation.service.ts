@@ -37,16 +37,23 @@ export class POSReconciliationService {
       for (const deposit of deposits) {
 
         console.log(`Processing deposit ${deposit.id} for ${deposit.transaction_amt} - ${deposit.timestamp}`)
+
+        // TODO:make this a strategy pattern
         if (
           payment.amount === deposit.transaction_amt &&
           payment.method === deposit.card_vendor && 
-          differenceInSeconds(payment.timestamp, deposit.timestamp) < 60
+          differenceInSeconds(payment.timestamp, deposit.timestamp) < 180
         ) {
           allMatchesForThisPayment.push({
             payment,
             deposit
           });
         }
+      }
+
+
+      if (allMatchesForThisPayment.length > 1) {
+        console.log(`More than one match found for ${payment.id}`);
       }
 
       // Link matches
@@ -58,10 +65,6 @@ export class POSReconciliationService {
         allMatchesForThisPayment[0].deposit.matched_payment_id =
           allMatchesForThisPayment[0].payment.id;
         matches.push(...allMatchesForThisPayment);
-      }
-
-      if (matches.length > 1) {
-        console.log(`More than one match found for ${payment.id}`);
       }
     }
 
@@ -86,7 +89,8 @@ export class POSReconciliationService {
       yetToBeMatchedPosDeposits
     );
 
-    // Mark as matched here:
+    await this.transactionService.markPosPaymentsAsMatched(matched_in_this_run);
+    await this.posDepositService.markPosDepositsAsMatched(matched_in_this_run);
 
     return {
       pos_payments_total: posPayments.length,

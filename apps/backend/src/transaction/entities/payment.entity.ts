@@ -8,7 +8,7 @@ import {
   OneToOne
 } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
-import { format, parse, parseISO } from 'date-fns';
+import { parse } from 'date-fns';
 
 @Entity('payment')
 export class PaymentEntity {
@@ -45,6 +45,7 @@ export class PaymentEntity {
   @Column('varchar', { length: 25, nullable: true })
   invoice_no?: string;
 
+  // This needs to have a better name 
   @Column('varchar', { length: 25, nullable: true })
   tran_id?: string;
 
@@ -63,7 +64,7 @@ export class PaymentEntity {
   deposit_id?: string;
 
   // TODO: Check if this creates fk constraint
-  @OneToOne(() => PaymentMethodEntity, (pm) => pm.method)
+  @ManyToOne(() => PaymentMethodEntity, (pm) => pm.method)
   @JoinColumn({ name: 'method' })
   payment_method: PaymentMethodEntity;
 
