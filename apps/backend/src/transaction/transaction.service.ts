@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import {
   TransactionEntity,
   PaymentMethodEntity,
@@ -57,12 +57,12 @@ export class TransactionService {
     }
   }
 
+  // TODO: conver to typeorm
+  // move this to payments service
   async queryCashPayments(
     event: ReconciliationEvent,
     deposit_dates: { current: string; previous: string }
   ): Promise<PaymentEntity[]> {
-    // TODO  CONVERT TO USE QUERY BUILDER
-
     return await this.transactionRepo.manager.query(`     
       SELECT
         t.fiscal_close_date::varchar,    
@@ -97,34 +97,51 @@ export class TransactionService {
     `);
   }
 
+  // convert to typeorm
+  // move this to payments service
+  
+  // we need the entities, so cannot work with raw queries! 
   async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
-    return await this.paymentRepo.manager.query(`
-      SELECT
-	      p.amount,
-	      p.method,
-	      p.id,
-	      t.transaction_date,
-	      t.location_id
-      FROM
-	      payment p
-      JOIN 
-        transaction t 
-      ON
-	      p.transaction=t.id
-      WHERE 
-        t.transaction_date='${event.date}'::date
-      AND 
-        t.location_id=${event.location_id}
-      AND
-        p.match=false
-      AND p.method IN('AX', 'V', 'P', 'M')
-      ORDER BY 
-        t.transaction_date 
-      DESC
-    `);
+    return await this.paymentRepo.find({
+      relationLoadStrategy: 'join',
+      relations: {
+        transaction: true, 
+        payment_method: true
+      },
+      where: {
+        method: In(['AX', 'V', 'P', 'M']),
+        transaction: {
+          transaction_date: event.date,
+          location_id: event.location_id
+        }
+      }
+    });
+
+    // return await this.paymentRepo.manager.query(`
+    //   SELECT
+    //     p.amount,
+    //     p.method,
+    //     p.id,
+    //     t.transaction_date,
+    //     t.location_id
+    //   FROM
+    //     payment p
+    //   JOIN
+    //     transaction t
+    //   ON
+    //     p.transaction=t.id
+    //   WHERE
+    //     t.transaction_date='${event.date}'::date
+    //   AND
+    //     t.location_id=${event.location_id}
+    //   AND p.method IN('AX', 'V', 'P', 'M')
+    //   ORDER BY
+    //     t.transaction_date
+    //   DESC
+    // `);
   }
 
-  async reconcilePOS(
+  async markPosPaymentAsMatched(
     deposit: Partial<POSDepositEntity>,
     payment: Partial<PaymentEntity>
   ): Promise<PaymentEntity> {
@@ -136,7 +153,7 @@ export class TransactionService {
     return await this.paymentRepo.save(paymentEntity);
   }
 
-  async reconcileCash(
+  async markCashPaymentAsMatched(
     deposit: Partial<CashDepositEntity>,
     payment: Partial<PaymentEntity>
   ): Promise<PaymentEntity> {

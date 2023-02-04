@@ -34,7 +34,7 @@ export class CashDepositEntity {
   @Column()
   location_desc: string;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', precision: 16, scale: 4 })
   deposit_amt_curr: number;
 
   @Column({ nullable: true })

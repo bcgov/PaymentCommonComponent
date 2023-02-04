@@ -1,8 +1,8 @@
 {
   "compilerOptions": {
-    "lib": ["es2020"],
+    "lib": ["ES2022"],
     "module": "commonjs",
-    "target": "es2020",
+    "target": "es2022",
     "declaration": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,

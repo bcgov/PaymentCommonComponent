@@ -2,8 +2,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { LocationEntity } from './entities/master-location-data.entity';
-import { ILocation } from './interface/location.interface';
 import { LocationEnum } from './const';
+import { Ministries } from '../constants';
 
 @Injectable()
 export class LocationService {
@@ -12,51 +12,32 @@ export class LocationService {
     private locationRepo: Repository<LocationEntity>
   ) {}
 
-  public async getPTLocdByGarmsLocId(location_id: number): Promise<number[]> {
+  public async getPtLocationIdsByLocationId(
+    location_id: number
+  ): Promise<number[]> {
     const pt_ids = await this.locationRepo.find({
-      select: { location_id: true },
       where: {
-        location_id: location_id
+        location_id: location_id,
+        type: 'Visa' // Replace with select distinct
       }
     });
-    return pt_ids?.map((itm: LocationEntity) => itm.location_id);
+    return pt_ids?.map((itm: LocationEntity) => itm.merchant_id);
   }
 
-  public async getSBCLocationIDsAndOfficeList(): Promise<Partial<ILocation>[]> {
-    const locations = await this.locationRepo.find({
+  // TODO: Get Distinct Locations
+  // Remove bank
+  public async getLocationsBySource(
+    source: Ministries
+  ): Promise<LocationEntity[]> {
+    return await this.locationRepo.find({
       select: {
         location_id: true,
         description: true
       },
       where: {
         type: `${LocationEnum.Bank}`,
-        source_id: 'SBC'
+        source_id: source
       }
     });
-
-    return (
-      locations &&
-      locations.map((itm: Partial<LocationEntity>) => ({
-        location_id: itm.location_id,
-        office_name: itm.description
-      }))
-    );
-  }
-
-  public async getLocationByGARMSLocationID(
-    location_id: number
-  ): Promise<Partial<ILocation>> {
-    try {
-      const location = (await this.getSBCLocationIDsAndOfficeList()).find(
-        (location: Partial<ILocation>) => location.location_id === location_id
-      );
-      if (location) {
-        return location;
-      } else {
-        throw new Error('Location not found');
-      }
-    } catch (err) {
-      throw err;
-    }
   }
 }

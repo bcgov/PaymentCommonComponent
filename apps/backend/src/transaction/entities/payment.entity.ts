@@ -8,19 +8,23 @@ import {
   OneToOne
 } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
+import { format, parse, parseISO } from 'date-fns';
 
 @Entity('payment')
 export class PaymentEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ type: 'numeric' })
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
+  // https://typeorm.io/entities#column-options - For better numeric representation.
+  // 16+4 should be standard for amounts in PCC
+  @Column({ type: 'numeric', precision: 16, scale: 4 })
   amount: number;
 
   @Column({ nullable: true })
   currency?: string;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ type: 'numeric', precision: 16, scale: 4, nullable: true })
   exchange_rate?: number;
 
   @Column({ nullable: true })
@@ -60,6 +64,7 @@ export class PaymentEntity {
 
   // TODO: Check if this creates fk constraint
   @OneToOne(() => PaymentMethodEntity, (pm) => pm.method)
+  @JoinColumn({ name: 'method' })
   payment_method: PaymentMethodEntity;
 
   @ManyToOne(
@@ -72,5 +77,13 @@ export class PaymentEntity {
 
   constructor(payment: Partial<PaymentEntity>) {
     Object.assign(this, payment);
+  }
+
+  public get timestamp(): Date {
+    return parse(
+      `${this.transaction.transaction_date}${this.transaction.transaction_time}`,
+      'yyyy-MM-ddHH:mm:ss',
+      new Date()
+    );
   }
 }

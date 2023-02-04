@@ -33,7 +33,7 @@ export class CashReconciliationService {
             payment
           ),
           payment: payment?.id?.split(',').map(async (itm) => {
-            return await this.transactionService.reconcileCash(deposit, {
+            return await this.transactionService.markCashPaymentAsMatched(deposit, {
               ...payment,
               id: itm
             });

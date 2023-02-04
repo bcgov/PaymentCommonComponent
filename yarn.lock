@@ -1184,6 +1184,7 @@ __metadata:
     class-transformer: 0.5.1
     class-validator: 0.14.0
     csvtojson: 2.0.10
+    date-fns: 2.29.3
     eslint: 8.32.0
     eslint-config-prettier: 8.6.0
     eslint-nibble: 8.1.0
@@ -3181,7 +3182,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"date-fns@npm:^2.28.0":
+"date-fns@npm:2.29.3, date-fns@npm:^2.28.0":
   version: 2.29.3
   resolution: "date-fns@npm:2.29.3"
   checksum: e01cf5b62af04e05dfff921bb9c9933310ed0e1ae9a81eb8653452e64dc841acf7f6e01e1a5ae5644d0337e9a7f936175fd2cb6819dc122fdd9c5e86c56be484

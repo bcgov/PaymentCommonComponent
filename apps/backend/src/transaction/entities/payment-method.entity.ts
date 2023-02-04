@@ -1,4 +1,5 @@
-import { Column, PrimaryColumn, Entity } from 'typeorm';
+import { Column, PrimaryColumn, Entity, ManyToOne } from 'typeorm';
+import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 
 @Entity('payment_method')
 export class PaymentMethodEntity {
