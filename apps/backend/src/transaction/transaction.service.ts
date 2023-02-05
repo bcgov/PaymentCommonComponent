@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Not,In, Repository } from 'typeorm';
+import { Not, In, Repository } from 'typeorm';
 import {
   TransactionEntity,
   PaymentMethodEntity,
@@ -11,7 +11,10 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationService } from '../location/location.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { ReconciliationEvent } from '../reconciliation/const';
-import { PosPaymentPosDepositPair } from '../reconciliation/reconciliation.interfaces';
+import {
+  CashPaymentsCashDepositPair,
+  PosPaymentPosDepositPair
+} from '../reconciliation/reconciliation.interfaces';
 
 @Injectable()
 export class TransactionService {
@@ -61,7 +64,7 @@ export class TransactionService {
   // TODO: conver to typeorm
   // move this to payments service
   async queryCashPayments(
-    event: ReconciliationEvent,
+    event: ReconciliationEvent
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       relationLoadStrategy: 'join',
@@ -100,6 +103,7 @@ export class TransactionService {
     });
   }
 
+  // Error handling?
   async markPosPaymentsAsMatched(
     posPaymentDepostPair: PosPaymentPosDepositPair[]
   ) {
@@ -115,15 +119,19 @@ export class TransactionService {
     );
   }
 
-  async markCashPaymentAsMatched(
-    deposit: CashDepositEntity,
-    payment: PaymentEntity
-  ): Promise<PaymentEntity> {
-    const paymentEntity = await this.paymentRepo.findOneByOrFail({
-      id: payment.id
-    });
-    paymentEntity.match = true;
-    paymentEntity.deposit_id = deposit.id;
-    return await this.paymentRepo.save(paymentEntity);
+  // Error handling?
+  async markCashPaymentsAsMatched(
+    cashPaymentsCashDepositPair: CashPaymentsCashDepositPair
+  ) {
+    await Promise.all(
+      cashPaymentsCashDepositPair.payments.map(async (payment) => {
+        const paymentEntity = await this.paymentRepo.findOneByOrFail({
+          id: payment.id
+        });
+        paymentEntity.match = true;
+        paymentEntity.deposit_id = `${cashPaymentsCashDepositPair.deposit.id}`;
+        return await this.paymentRepo.save(paymentEntity);
+      })
+    );
   }
 }

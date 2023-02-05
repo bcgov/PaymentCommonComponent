@@ -2,6 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 't
 import { TDI17Details } from '../../flat-files';
 import { FileMetadata } from '../../common/columns/metadata';
 import { PaymentMethodEntity } from '../../transaction/entities';
+import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('cash_deposit')
 export class CashDepositEntity {
@@ -35,7 +36,7 @@ export class CashDepositEntity {
   @Column()
   location_desc: string;
 
-  @Column({ type: 'numeric', precision: 16, scale: 4 })
+  @Column({ type: 'numeric', precision: 16, scale: 4, transformer: new ColumnNumericTransformer(), })
   deposit_amt_curr: number;
 
   @Column({ nullable: true })
@@ -44,7 +45,7 @@ export class CashDepositEntity {
   @Column({ type: 'numeric', nullable: true })
   exchange_adj_amt: number;
 
-  @Column({ type: 'numeric', precision: 16, scale: 4 })
+  @Column({ type: 'numeric', precision: 16, scale: 4, transformer: new ColumnNumericTransformer(), })
   deposit_amt_cdn: number;
 
   @Column()

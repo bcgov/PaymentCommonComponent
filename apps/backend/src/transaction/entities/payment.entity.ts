@@ -5,10 +5,10 @@ import {
   PrimaryGeneratedColumn,
   JoinColumn,
   ManyToOne,
-  OneToOne
 } from 'typeorm';
 import { TransactionEntity } from './transaction.entity';
 import { parse } from 'date-fns';
+import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('payment')
 export class PaymentEntity {
@@ -17,14 +17,15 @@ export class PaymentEntity {
 
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
   // https://typeorm.io/entities#column-options - For better numeric representation.
+  // https://github.com/typeorm/typeorm/issues/873#issuecomment-424643086 - And make this column return proper number
   // 16+4 should be standard for amounts in PCC
-  @Column({ type: 'numeric', precision: 16, scale: 4 })
+  @Column({ type: 'numeric', precision: 16, scale: 4, transformer: new ColumnNumericTransformer(), })
   amount: number;
 
   @Column({ nullable: true })
   currency?: string;
 
-  @Column({ type: 'numeric', precision: 16, scale: 4, nullable: true })
+  @Column({ type: 'numeric', precision: 16, scale: 4, nullable: true, transformer: new ColumnNumericTransformer() })
   exchange_rate?: number;
 
   @Column({ nullable: true })

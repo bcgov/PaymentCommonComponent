@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { ReconciliationEvent } from '../reconciliation/const';
+import { CashPaymentsCashDepositPair } from '../reconciliation/reconciliation.interfaces';
 
 @Injectable()
 export class CashDepositService {
@@ -35,6 +36,17 @@ export class CashDepositService {
       this.appLogger.error(err);
       throw err;
     }
+  }
+
+  async markCashDepositAsMatched(
+    cashPaymentsCashDepositPair: CashPaymentsCashDepositPair
+  ) {
+    const cashDeposit = await this.cashDepositRepo.findOneByOrFail({
+      id: cashPaymentsCashDepositPair.deposit.id
+    });
+    cashDeposit.match = true;
+    // cashDeposit.cash_payment_ids = [all payment ids];
+    await this.cashDepositRepo.save(cashDeposit);
   }
 
   async queryLatestCashDeposit(
@@ -75,13 +87,12 @@ export class CashDepositService {
     };
   }
 
-  async findCashDeposits(
+  async findAllPendingCashDeposits(
     event: ReconciliationEvent
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       relationLoadStrategy: 'query',
       where: {
-        deposit_date: event?.date,
         location_id: event?.location_id,
         metadata: {
           program: event?.program
@@ -118,19 +129,5 @@ export class CashDepositService {
     ORDER BY 
       deposit_date DESC
   `);
-  }
-
-  async updateCashDepositEntity(
-    deposit: Partial<CashDepositEntity>,
-    payment: Partial<PaymentEntity>
-  ): Promise<CashDepositEntity> {
-    const cashEntity = await this.cashDepositRepo.findOneByOrFail({
-      id: deposit.id
-    });
-    cashEntity.match = true;
-    cashEntity.cash_payment_ids = payment.id;
-    const updated = await this.cashDepositRepo.save(cashEntity);
-
-    return updated;
   }
 }
