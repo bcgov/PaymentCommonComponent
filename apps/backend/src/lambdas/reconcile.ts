@@ -64,13 +64,13 @@ export const handler = async (
           '>>>>>> Processing Reconciliation for location_id: ',
           location_id
         );
-        const posReconciliation = await posRecon.reconcile({
-          date,
-          location_id,
-          program: event.program
-        });
 
-        console.log(posReconciliation);
+        // const posReconciliation = await posRecon.reconcile({
+        //   date,
+        //   location_id,
+        //   program: event.program
+        // });
+        // console.log(posReconciliation);
 
         await cashRecon.reconcile({
           date,
@@ -90,10 +90,17 @@ export const handler = async (
 };
 
 const reconciliationEvent: ReconciliationEventInput = {
-  fiscal_start_date: '2023-01-15',
-  fiscal_end_date: '2023-01-16',
+  fiscal_start_date: '2023-01-12',
+  fiscal_end_date: '2023-01-12',
   program: 'SBC',
-  location_ids: [61]
+  location_ids: []
 };
 
-handler(reconciliationEvent);
+const reconcileAll: ReconciliationEventInput = {
+  fiscal_start_date: '2023-01-10',
+  fiscal_end_date: '2023-02-02',
+  program: 'SBC',
+  location_ids: []
+};
+
+handler(reconcileAll);

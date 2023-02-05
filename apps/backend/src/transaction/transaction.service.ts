@@ -99,6 +99,14 @@ export class TransactionService {
           transaction_date: event.date,
           location_id: event.location_id
         }
+      },
+      // This is very important for match accuracy, if not ordered, different transaction might match first leading to multi matches
+      order: {
+        amount: 'ASC',
+        method: 'ASC',
+        transaction: {
+          transaction_time: 'ASC'
+        }
       }
     });
   }

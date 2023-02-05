@@ -12,16 +12,18 @@ export class LocationService {
     private locationRepo: Repository<LocationEntity>
   ) {}
 
-  public async getPtLocationIdsByLocationId(
+  public async getMerchantIdsByLocationId(
     location_id: number
   ): Promise<number[]> {
-    const pt_ids = await this.locationRepo.find({
+    const merchantIds = await this.locationRepo.find({
+      select: {
+        merchant_id: true
+      },
       where: {
         location_id: location_id,
-        type: 'Visa' // Replace with select distinct
       }
     });
-    return pt_ids?.map((itm: LocationEntity) => itm.merchant_id);
+    return merchantIds?.map((itm: LocationEntity) => itm.merchant_id);
   }
 
   // TODO: Get Distinct Locations

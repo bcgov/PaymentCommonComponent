@@ -24,7 +24,7 @@ export class PosDepositService {
     event: ReconciliationEvent
   ): Promise<POSDepositEntity[]> {
     const merchant_ids =
-      await this.locationService.getPtLocationIdsByLocationId(
+      await this.locationService.getMerchantIdsByLocationId(
         event?.location_id || 0
       ); // TODO: Fix || 0
     return await this.posDepositRepo.find({
@@ -38,6 +38,13 @@ export class PosDepositService {
           program: event?.program
         },
         merchant_id: In(merchant_ids)
+      },
+      // Order by needs to be in this order for matching logic. 
+      // We need to batch them using order to ease matches
+      order: {
+        transaction_amt:'ASC', 
+        card_vendor: 'ASC',
+        transaction_time: 'ASC'
       }
     });
   }
@@ -57,7 +64,6 @@ export class PosDepositService {
   ): Promise<POSDepositEntity> {
     return await this.posDepositRepo.save(this.posDepositRepo.create(data));
   }
-
 
   // TODO: update this query to just update the match column.
   async markPosDepositsAsMatched(

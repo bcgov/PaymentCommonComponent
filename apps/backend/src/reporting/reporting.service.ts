@@ -7,7 +7,6 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PaymentEntity, TransactionEntity } from '../transaction/entities';
 import { ReportConfig } from './interfaces';
 
-
 export class ReportingService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
@@ -24,7 +23,16 @@ export class ReportingService {
   async generateReport(config: ReportConfig) {
     this.appLogger.log(config);
     this.appLogger.log('Generating report');
+  }
 
-    
+  async posPaymentposDepositCountCheck(
+    locations: string[],
+    startDate: string,
+    endDate: string
+  ): Promise<number> {
+    const posPaymentposDepositCount = await this.posDepositRepo.manager.query(
+      `select count(*) from pos_deposit pd where  transaction_date = '2023-01-10'`
+    );
+    return posPaymentposDepositCount;
   }
 }

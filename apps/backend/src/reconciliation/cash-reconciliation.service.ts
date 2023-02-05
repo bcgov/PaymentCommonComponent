@@ -10,6 +10,7 @@ import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
 import { TransactionService } from '../transaction/transaction.service';
 import { CashPaymentsCashDepositPair } from './reconciliation.interfaces';
+import { checkPaymentsForFullMatch, checkPaymentsForPartialMatch } from './util';
 
 @Injectable()
 export class CashReconciliationService {
@@ -32,7 +33,7 @@ export class CashReconciliationService {
 
     // TODO: This does a eager match, update to be more look around
     for (const deposit of deposits) {
-      console.log('checking for deposit amt:', deposit.deposit_amt_cdn);
+      // console.log('checking for deposit amt:', deposit.deposit_amt_cdn);
       if (deposit.deposit_amt_cdn === sumOfPayments) {
         const cashPaymentPair: CashPaymentsCashDepositPair = {
           payments,
@@ -46,31 +47,19 @@ export class CashReconciliationService {
     return;
   }
 
-  checkCashPaymentsForFullMatch = (payments: PaymentEntity[]) => {
-    return payments.every((payment) => payment.match === true);
-  };
-
-  checkCashPaymentsForPartialMatch = (payments: PaymentEntity[]) => {
-    return payments.some((payment) => payment.match === true);
-  };
-
-  checkCashPaymentsForZeroMatch = (payments: PaymentEntity[]) => {
-    return payments.every((payment) => payment.match === false);
-  };
-
   async reconcile(
     event: ReconciliationEvent
   ): Promise<ReconciliationEventOutput | ReconciliationEventError | void> {
     const payments = await this.transactionService.queryCashPayments(event);
 
     // All payments are already matched, skipping...
-    if (this.checkCashPaymentsForFullMatch(payments)) {
+    if (checkPaymentsForFullMatch(payments)) {
       console.log('All payments are already matched, skipping...');
       return;
     }
 
     // if partial match found, then log and skip
-    if (this.checkCashPaymentsForFullMatch(payments)) {
+    if (checkPaymentsForPartialMatch(payments)) {
       console.log('Partial match found, handle in v2 heuristic layer...');
       return;
     }
@@ -80,8 +69,8 @@ export class CashReconciliationService {
       event
     );
 
-    console.log('payments', payments);
-    console.table(deposits, ['deposit_amt_cdn', 'deposit_date']);
+    // console.log('payments', payments);
+    // console.table(deposits, ['deposit_amt_cdn', 'deposit_date']);
 
     const matched = this.allOrNoneMatchForPayments(deposits, payments);
 
