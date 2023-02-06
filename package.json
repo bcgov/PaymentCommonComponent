@@ -10,6 +10,7 @@
   },
   "scripts": {
     "start:backend:local": "yarn workspace @payment/backend start:dev",
+    "build:backend": "yarn workspace @payment/backend build",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test"
   },
   "devDependencies": {

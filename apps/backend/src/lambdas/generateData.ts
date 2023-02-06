@@ -84,13 +84,16 @@ export const handler = async (event?: unknown, context?: Context) => {
       const filename = (() => {
         if (eventType === LOCAL) {
           const localEvent = event as LocalEvent;
-          return localEvent?.filename;
+          return localEvent.filename;
         }
-        if (eventType === 'isS3') {
-          // TODO: use types here
-          const s3NotificationEvent = event;
-          return s3NotificationEvent?.records[0]?.s3?.object?.key;
-        }
+
+        // TODO: use types here
+        // TODO: Implement S3 event notification processing
+        // if (eventType === 'isS3') {
+        //   const s3NotificationEvent = event;
+        //   return s3NotificationEvent?.records[0]?.s3?.object?.key;
+        // }
+        process.exit(0);
       })();
 
       const file = await s3.getObject(
