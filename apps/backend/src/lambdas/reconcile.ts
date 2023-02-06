@@ -95,13 +95,6 @@ export const handler = async (
   };
 };
 
-// const reconciliationEvent: ReconciliationEventInput = {
-//   fiscal_start_date: '2023-01-12',
-//   fiscal_end_date: '2023-01-12',
-//   program: 'SBC',
-//   location_ids: []
-// };
-
 const reconcileAll: ReconciliationEventInput = {
   fiscal_start_date: '2023-01-10',
   fiscal_end_date: '2023-02-02',

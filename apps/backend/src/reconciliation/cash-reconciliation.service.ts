@@ -69,9 +69,6 @@ export class CashReconciliationService {
       event
     );
 
-    // console.log('payments', payments);
-    // console.table(deposits, ['deposit_amt_cdn', 'deposit_date']);
-
     const matched = this.allOrNoneMatchForPayments(deposits, payments);
 
     if (matched) {

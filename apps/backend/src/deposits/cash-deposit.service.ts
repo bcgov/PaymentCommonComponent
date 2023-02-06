@@ -44,10 +44,12 @@ export class CashDepositService {
       id: cashPaymentsCashDepositPair.deposit.id
     });
     cashDeposit.match = true;
+    // TODO: link cash deposit with all payments with proper db design
     // cashDeposit.cash_payment_ids = [all payment ids];
     await this.cashDepositRepo.save(cashDeposit);
   }
 
+  // TODO - Assess if needed - Make typeorm
   async queryLatestCashDeposit(
     location_id: number
   ): Promise<{ deposit_date: string }[]> {
@@ -60,7 +62,7 @@ export class CashDepositService {
     `);
   }
 
-  // TODO- Make typeorm
+  // TODO - Assess if needed - Make typeorm
   async getCashDates(event: ReconciliationEvent) {
     const cash_deposit_window = await this.cashDepositRepo.query(`
       SELECT 
@@ -100,7 +102,7 @@ export class CashDepositService {
     });
   }
 
-  //TODO convert to use query builder and re-evaluate: where date is "greater than" in the query
+  // TODO convert to use query builder and re-evaluate: where date is "greater than" in the query
   async query(
     event: ReconciliationEvent,
     deposit_dates: { previous: string; current: string }

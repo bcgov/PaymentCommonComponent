@@ -22,7 +22,8 @@ export class POSReconciliationService {
   ) {}
 
   // TODO: move the save as matched seaparetly..
-
+  // TODO: implement as layer 
+  // TODO: possible to config time diffs?
   private matchPosPaymentToPosDeposits(
     payments: PaymentEntity[],
     deposits: POSDepositEntity[]

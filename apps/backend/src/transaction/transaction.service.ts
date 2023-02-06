@@ -47,6 +47,7 @@ export class TransactionService {
       .getRawMany();
   }
 
+  // TODO: payment methods service
   public async getPaymentMethodBySBCGarmsCode(
     sbc_code: string
   ): Promise<PaymentMethodEntity> {
@@ -59,8 +60,7 @@ export class TransactionService {
     }
   }
 
-  // TODO: conver to typeorm
-  // move this to payments service
+  // TODO: move this to payments service
   async queryCashPayments(
     event: ReconciliationEvent
   ): Promise<PaymentEntity[]> {
@@ -80,10 +80,8 @@ export class TransactionService {
     });
   }
 
-  // convert to typeorm
-  // move this to payments service
-
-  // we need the entities, so cannot work with raw queries!
+  // TODO: move this to payments service
+  // TODO: we need the entities, so cannot work with raw queries!
   async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       relationLoadStrategy: 'join',
