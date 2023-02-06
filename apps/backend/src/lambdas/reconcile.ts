@@ -6,8 +6,8 @@ import { AppLogger } from '../common/logger.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationEventInput } from '../reconciliation/const';
-import datasource from '../database/config';
 import { Ministries } from '../constants';
+import { ReportingService } from '../reporting/reporting.service';
 
 export const handler = async (
   event: ReconciliationEventInput,
@@ -18,7 +18,8 @@ export const handler = async (
   const posRecon = app.get(POSReconciliationService);
   const locationService = app.get(LocationService);
   const appLogger = app.get(AppLogger);
-  const db = await datasource.initialize();
+  const reportingService = app.get(ReportingService);
+  
   /*eslint-disable */
 
   appLogger.log({ event });
@@ -65,13 +66,14 @@ export const handler = async (
           location_id
         );
 
-        // const posReconciliation = await posRecon.reconcile({
-        //   date,
-        //   location_id,
-        //   program: event.program
-        // });
-        // console.log(posReconciliation);
+        const posReconciliation = await posRecon.reconcile({
+          date,
+          location_id,
+          program: event.program
+        });
 
+        console.log(posReconciliation);
+        
         await cashRecon.reconcile({
           date,
           location_id,
@@ -84,6 +86,12 @@ export const handler = async (
   await reconcile(event);
 
   console.log('\n\n=========Reconcile Run Complete=========\n');
+
+  console.log('\n\n=========Summary Report: =========\n');
+  const posSummaryReport = await reportingService.reportPosMatchSummaryByDate();
+  const cashSummaryReport = await reportingService.reportCashMatchSummaryByDate();
+  console.table(posSummaryReport);
+  console.table(cashSummaryReport);
   return {
     message: 'Reconciliation complete'
   };
