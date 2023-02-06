@@ -21,7 +21,7 @@ export class ParseService {
     program: string,
     fileName: string,
     data: Buffer
-  ): Promise<any> {
+  ): Promise<unknown> {
     try {
       return parseTDI(type, data.toString(), fileName, program);
     } catch (err) {

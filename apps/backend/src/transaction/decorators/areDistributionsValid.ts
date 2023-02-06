@@ -1,11 +1,9 @@
 import {
   isArray,
-  ValidationArguments,
   ValidatorConstraint,
   ValidatorConstraintInterface
 } from 'class-validator';
 import { DistributionDTO } from '../dto/accounting.dto';
-import { TransactionDTO } from '../dto/transaction.dto';
 
 @ValidatorConstraint()
 export class AreDistributionsValid implements ValidatorConstraintInterface {
@@ -16,9 +14,7 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
 
   public async validate(
     distributions: DistributionDTO[],
-    args: ValidationArguments
   ) {
-    const sales = args.object as TransactionDTO;
     const credits: Array<DistributionDTO> = [];
     const debits: Array<DistributionDTO> = [];
 

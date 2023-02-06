@@ -18,6 +18,7 @@ export class Resource<T extends ResourceBase<T>> implements ResourceBase<T> {
     if (data instanceof Resource) {
       data = data.resource;
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const resourceType = (this.constructor as any).resourceType;
     if (resourceType) {
       data.resourceType = resourceType;

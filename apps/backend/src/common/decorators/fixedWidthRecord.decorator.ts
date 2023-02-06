@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+// TODO: Can we type more here?
 import 'reflect-metadata';
 
 export interface ColumnOptions {

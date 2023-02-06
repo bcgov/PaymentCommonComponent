@@ -1,7 +1,6 @@
-import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 import { TDI17Details } from '../../flat-files';
 import { FileMetadata } from '../../common/columns/metadata';
-import { PaymentMethodEntity } from '../../transaction/entities';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('cash_deposit')

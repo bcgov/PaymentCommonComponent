@@ -62,7 +62,7 @@ export class POSReconciliationService {
 
   public async reconcile(
     event: ReconciliationEvent
-  ): Promise<any | ReconciliationEventOutput | ReconciliationEventError> {
+  ): Promise<unknown | ReconciliationEventOutput | ReconciliationEventError> {
     const posPayments = await this.transactionService.queryPosPayments(event);
 
     if (checkPaymentsForFullMatch(posPayments)) {

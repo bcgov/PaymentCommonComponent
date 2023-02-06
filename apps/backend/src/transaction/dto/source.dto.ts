@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsIn, Length, IsNumber } from 'class-validator';
+import { IsString, IsNotEmpty, Length, IsNumber } from 'class-validator';
 
 export class SourceDTO {
   @ApiProperty({ description: 'Ministry Code', example: 'SBC' })

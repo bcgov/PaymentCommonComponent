@@ -12,7 +12,7 @@ describe('FixedWidthRecord', () => {
     }
     try {
       new TestResource({});
-    } catch (e: any) {
+    } catch (e) {
       expect(e instanceof Error).toBeTruthy();
       expect(e?.message).toBe(
         'no delimiter options specified for TestResource'

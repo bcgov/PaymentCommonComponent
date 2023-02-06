@@ -19,5 +19,5 @@ export interface ReconciliationEventOutput {
   total_deposit: number;
   total_payments: number;
   total_matched?: number;
-  matched?: any[];
+  matched?: unknown[];
 }

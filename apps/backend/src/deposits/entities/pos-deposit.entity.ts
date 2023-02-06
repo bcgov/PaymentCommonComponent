@@ -3,12 +3,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn
 } from 'typeorm';
 import { TDI34Details } from '../../flat-files';
 import { FileMetadata } from '../../common/columns';
-import { format, parse } from 'date-fns';
+import { parse } from 'date-fns';
 import { PaymentMethodEntity } from '../../transaction/entities';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 

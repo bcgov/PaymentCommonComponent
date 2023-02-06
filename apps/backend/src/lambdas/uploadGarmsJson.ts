@@ -4,12 +4,14 @@ import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { parseGarms } from './utils/parseGarms';
 
+
+// TODO: What does this file do? Delete ?
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event?: any, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
-  const s3manager = app.get(S3ManagerService);
+  // const s3manager = app.get(S3ManagerService);
 
   appLogger.log({ event });
   appLogger.log({ context });
@@ -20,10 +22,10 @@ export const handler = async (event?: any, context?: Context) => {
   try {
     appLogger.log(`...start ${event.type} Parsing`);
 
-    const contents = await s3manager.getObject(
-      `pcc-integration-data-files-${process.env.NODE_ENV}`,
-      `${event.filepath}`
-    );
+    // const contents = await s3manager.getObject(
+    //   `pcc-integration-data-files-${process.env.NODE_ENV}`,
+    //   `${event.filepath}`
+    // );
 
     // await uploadParsedGarms(
     //   event.type,

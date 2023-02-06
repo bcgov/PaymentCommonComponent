@@ -6,14 +6,22 @@ import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { parseTDI } from './utils/parseTDI';
 
-export const handler = async (event?: any, context?: Context) => {
+export interface parseFlatFileEvent {
+  type: string;
+  program: string;
+  filepath: string;
+  filename: string;
+  outputPath: string;
+}
+
+export const handler = async (event: parseFlatFileEvent, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
   const s3manager = app.get(S3ManagerService);
 
   appLogger.log({ event });
   appLogger.log({ context });
-
+  
   if (!event.type || !event.filepath) {
     throw new BadRequestException();
   }

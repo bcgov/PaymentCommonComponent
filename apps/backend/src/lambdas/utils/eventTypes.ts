@@ -1,5 +1,6 @@
 // From: https://gist.github.com/jeshan/52cb021fd20d871c56ad5ce6d2654d7b
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getLambdaEventSource = (event?: any) => {
 
   if (event.Records && event.Records[0].cf) return 'isCloudfront';

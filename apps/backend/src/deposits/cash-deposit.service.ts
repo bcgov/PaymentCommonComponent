@@ -1,4 +1,3 @@
-import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';

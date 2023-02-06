@@ -1,6 +1,7 @@
+import { DataSource } from 'typeorm';
 import { LocationEntity } from './../location/entities/master-location-data.entity';
 export const statsQuery = async (
-  db: any,
+  db: DataSource,
   start_date: string,
   end_date: string
 ) => {
@@ -79,7 +80,7 @@ export const statsQuery = async (
   };
 };
 
-export const locations = async (db: any): Promise<LocationEntity[]> =>
+export const locations = async (db: DataSource): Promise<LocationEntity[]> =>
   await db.query(`
     SELECT
     DISTINCT(location_id)
