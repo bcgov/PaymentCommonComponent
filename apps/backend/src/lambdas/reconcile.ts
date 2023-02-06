@@ -20,11 +20,9 @@ export const handler = async (
   const appLogger = app.get(AppLogger);
   const reportingService = app.get(ReportingService);
   
-  /*eslint-disable */
-
   appLogger.log({ event });
   appLogger.log({ context });
-  /*eslint-disable */
+  
   const getFiscalDates = (event: ReconciliationEventInput) => {
     const fiscalStart = new Date(event.fiscal_start_date);
     const fiscalEnd = new Date(event.fiscal_end_date);
@@ -97,12 +95,12 @@ export const handler = async (
   };
 };
 
-const reconciliationEvent: ReconciliationEventInput = {
-  fiscal_start_date: '2023-01-12',
-  fiscal_end_date: '2023-01-12',
-  program: 'SBC',
-  location_ids: []
-};
+// const reconciliationEvent: ReconciliationEventInput = {
+//   fiscal_start_date: '2023-01-12',
+//   fiscal_end_date: '2023-01-12',
+//   program: 'SBC',
+//   location_ids: []
+// };
 
 const reconcileAll: ReconciliationEventInput = {
   fiscal_start_date: '2023-01-10',
