@@ -1,16 +1,18 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, In, Repository } from 'typeorm';
 import {
   TransactionEntity,
   PaymentMethodEntity,
   PaymentEntity
 } from './entities';
 import { AppLogger } from '../common/logger.service';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationService } from '../location/location.service';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { ReconciliationEvent } from '../reconciliation/const';
+import {
+  CashPaymentsCashDepositPair,
+  PosPaymentPosDepositPair
+} from '../reconciliation/reconciliation.interfaces';
 
 @Injectable()
 export class TransactionService {
@@ -36,15 +38,16 @@ export class TransactionService {
   }
 
   async findAllUploadedFiles(): Promise<
-  { transaction_source_file_name: string }[]
-> {
-  return this.transactionRepo
-    .createQueryBuilder('transaction')
-    .select('transaction.source_file_name')
-    .distinct()
-    .getRawMany();
-}
+    { transaction_source_file_name: string }[]
+  > {
+    return this.transactionRepo
+      .createQueryBuilder('transaction')
+      .select('transaction.source_file_name')
+      .distinct()
+      .getRawMany();
+  }
 
+  // TODO: payment methods service
   public async getPaymentMethodBySBCGarmsCode(
     sbc_code: string
   ): Promise<PaymentMethodEntity> {
@@ -57,95 +60,82 @@ export class TransactionService {
     }
   }
 
+  // TODO: move this to payments service
   async queryCashPayments(
-    event: ReconciliationEvent,
-    deposit_dates: { current: string; previous: string }
+    event: ReconciliationEvent
   ): Promise<PaymentEntity[]> {
-    // TODO  CONVERT TO USE QUERY BUILDER
-
-    return await this.transactionRepo.manager.query(`     
-      SELECT
-        t.fiscal_date::varchar,    
-        SUM(p.amount) as amount,
-        STRING_AGG(p.id::varchar, ','::varchar) as id
-      FROM
-        transaction t
-      JOIN 
-        payment p 
-      ON
-        p.transaction = t.id
-      WHERE
-        p.method 
-      IN(1,2,3,5,6,9,14,15)
-      AND 
-        t.location_id = ${event?.location_id} 
-      AND 
-        p.amount !=0
-      AND 
-        t.fiscal_date <= '${deposit_dates?.current}'::date
-      AND 
-        t.fiscal_date > '${deposit_dates?.previous}'::date
-      AND 
-        p.match=false
-      GROUP BY 
-        t.fiscal_date 
-      ORDER BY 
-        t.fiscal_date 
-      DESC
-    `);
+    return await this.paymentRepo.find({
+      relationLoadStrategy: 'join',
+      relations: {
+        transaction: true,
+        payment_method: true
+      },
+      where: {
+        method: Not(In(['AX', 'V', 'P', 'M'])),
+        transaction: {
+          fiscal_close_date: event.date,
+          location_id: event.location_id
+        }
+      }
+    });
   }
 
+  // TODO: move this to payments service
+  // TODO: we need the entities, so cannot work with raw queries!
   async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
-    return await this.paymentRepo.manager.query(`
-      SELECT
-	      p.amount,
-	      p.method,
-	      p.id,
-	      t.transaction_date,
-	      t.location_id,
-        pm.method as method
-      FROM
-	      payment p
-      JOIN 
-        transaction t 
-      ON
-	      p.transaction=t.id
-      JOIN 
-        payment_method pm 
-      ON 
-        pm.sbc_code=p.method
-      WHERE 
-        t.transaction_date='${event.date}'::date
-      AND 
-        t.location_id=${event.location_id}
-      AND
-        p.match=false::boolean
-      AND 
-        p.method in (11,12,13,15,17)
-    `);
+    return await this.paymentRepo.find({
+      relationLoadStrategy: 'join',
+      relations: {
+        transaction: true,
+        payment_method: true
+      },
+      where: {
+        method: In(['AX', 'V', 'P', 'M']),
+        transaction: {
+          transaction_date: event.date,
+          location_id: event.location_id
+        }
+      },
+      // This is very important for match accuracy, if not ordered, different transaction might match first leading to multi matches
+      order: {
+        amount: 'ASC',
+        method: 'ASC',
+        transaction: {
+          transaction_time: 'ASC'
+        }
+      }
+    });
   }
 
-  async reconcilePOS(
-    deposit: Partial<POSDepositEntity>,
-    payment: Partial<PaymentEntity>
-  ): Promise<PaymentEntity> {
-    const paymentEntity = await this.paymentRepo.findOneByOrFail({
-      id: payment.id
-    });
-    paymentEntity.match = true;
-    paymentEntity.deposit_id = deposit.id;
-    return await this.paymentRepo.save(paymentEntity);
+  // Error handling?
+  async markPosPaymentsAsMatched(
+    posPaymentDepostPair: PosPaymentPosDepositPair[]
+  ) {
+    await Promise.all(
+      posPaymentDepostPair.map(async (pair) => {
+        const paymentEntity = await this.paymentRepo.findOneByOrFail({
+          id: pair.payment.id
+        });
+        paymentEntity.match = true;
+        paymentEntity.deposit_id = `${pair.deposit.id}`;
+        return await this.paymentRepo.save(paymentEntity);
+      })
+    );
   }
 
-  async reconcileCash(
-    deposit: Partial<CashDepositEntity>,
-    payment: Partial<PaymentEntity>
-  ): Promise<PaymentEntity> {
-    const paymentEntity = await this.paymentRepo.findOneByOrFail({
-      id: payment.id
-    });
-    paymentEntity.match = true;
-    paymentEntity.deposit_id = deposit.id;
-    return await this.paymentRepo.save(paymentEntity);
+  // Error handling?
+  async markCashPaymentsAsMatched(
+    cashPaymentsCashDepositPair: CashPaymentsCashDepositPair
+  ) {
+    await Promise.all(
+      cashPaymentsCashDepositPair.payments.map(async (payment) => {
+        const paymentEntity = await this.paymentRepo.findOneByOrFail({
+          id: payment.id
+        });
+        paymentEntity.match = true;
+        paymentEntity.deposit_id = `${cashPaymentsCashDepositPair.deposit.id}`;
+        return await this.paymentRepo.save(paymentEntity);
+      })
+    );
   }
 }

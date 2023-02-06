@@ -2,8 +2,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
 import { Repository } from 'typeorm';
 import { LocationEntity } from './entities/master-location-data.entity';
-import { ILocation } from './interface/location.interface';
 import { LocationEnum } from './const';
+import { Ministries } from '../constants';
 
 @Injectable()
 export class LocationService {
@@ -15,64 +15,31 @@ export class LocationService {
   public async getMerchantIdsByLocationId(
     location_id: number
   ): Promise<number[]> {
-    const merchant_ids = await this.locationRepo.manager.query(`
-      SELECT 
-        DISTINCT "Merchant ID" 
-      FROM 
-        public.master_location_data ml 
-      WHERE 
-        ml."sbc_location" = ${location_id} 
-      AND 
-        "Type" != '${LocationEnum.Bank}'
-    `);
-
-    return merchant_ids.map((itm: any) => parseInt(itm.merchant_id));
-  }
-
-  public async getPTLocdByGarmsLocId(location_id: number): Promise<number[]> {
-    const pt_ids = await this.locationRepo.find({
-      select: { location_id: true },
+    const merchantIds = await this.locationRepo.find({
+      select: {
+        merchant_id: true
+      },
       where: {
-        sbc_location: location_id
+        location_id: location_id,
       }
     });
-    return pt_ids?.map((itm: LocationEntity) => itm.location_id);
+    return merchantIds?.map((itm: LocationEntity) => itm.merchant_id);
   }
 
-  public async getSBCLocationIDsAndOfficeList(): Promise<Partial<ILocation>[]> {
-    const locations = await this.locationRepo.find({
+  // TODO: Get Distinct Locations
+  // Remove bank
+  public async getLocationsBySource(
+    source: Ministries
+  ): Promise<LocationEntity[]> {
+    return await this.locationRepo.find({
       select: {
-        sbc_location: true,
+        location_id: true,
         description: true
       },
       where: {
-        type: `${LocationEnum.Bank}`
+        type: `${LocationEnum.Bank}`,
+        source_id: source
       }
     });
-
-    return (
-      locations &&
-      locations.map((itm: Partial<LocationEntity>) => ({
-        sbc_location: itm.sbc_location,
-        office_name: itm.description
-      }))
-    );
-  }
-
-  public async getLocationByGARMSLocationID(
-    location_id: number
-  ): Promise<Partial<ILocation>> {
-    try {
-      const location = (await this.getSBCLocationIDsAndOfficeList()).find(
-        (location: Partial<ILocation>) => location.sbc_location === location_id
-      );
-      if (location) {
-        return location;
-      } else {
-        throw new Error('Location not found');
-      }
-    } catch (err) {
-      throw err;
-    }
   }
 }

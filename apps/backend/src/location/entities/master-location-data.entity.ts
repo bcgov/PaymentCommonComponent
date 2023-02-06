@@ -5,14 +5,17 @@ export class LocationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column('varchar', { length: 15, nullable: false })
+  source_id: string;
+
   @Column({ type: 'numeric', nullable: true })
-  sbc_location: number;
+  location_id: number;
 
   @Column('varchar', { length: 15, nullable: false })
   type: string;
 
   @Column({ type: 'numeric', nullable: false })
-  location_id: number;
+  pt_location_id: number;
 
   @Column('varchar', { length: 255, nullable: false })
   description: string;
@@ -34,13 +37,13 @@ export class LocationEntity {
 
   @Column('varchar', { length: 4, nullable: false })
   stob_code: number;
-  
+
   @Column('varchar', { length: 7, nullable: false })
   project_code: number;
 
   @Column({ type: 'numeric', nullable: false })
   merchant_id: number;
-  
+
   constructor(data: Partial<LocationEntity>) {
     Object.assign(this, data);
   }

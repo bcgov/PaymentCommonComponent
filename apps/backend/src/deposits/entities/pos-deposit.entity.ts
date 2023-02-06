@@ -1,6 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 import { TDI34Details } from '../../flat-files';
 import { FileMetadata } from '../../common/columns';
+import { parse } from 'date-fns';
+import { PaymentMethodEntity } from '../../transaction/entities';
+import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {
@@ -22,7 +31,7 @@ export class POSDepositEntity {
   @Column()
   card_id: string;
 
-  @Column({ type: 'numeric' })
+  @Column({ type: 'numeric', precision: 16, scale: 4, transformer: new ColumnNumericTransformer(), })
   transaction_amt: number;
 
   @Column({ type: 'date' })
@@ -43,12 +52,23 @@ export class POSDepositEntity {
   @Column({ default: false })
   match: boolean;
 
+  // rename this to just payment id?
   @Column({ nullable: true })
   matched_payment_id?: string;
 
-  method?: number;
+  @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method)
+  @JoinColumn({ name: 'card_vendor' })
+  payment_method: PaymentMethodEntity;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);
+  }
+
+  public get timestamp(): Date {
+    return parse(
+      `${this.transaction_date}${this.transaction_time}`,
+      'yyyy-MM-ddHH:mm:ss',
+      new Date()
+    );
   }
 }

@@ -1,10 +1,10 @@
-import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AppLogger } from '../common/logger.service';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { ReconciliationEvent } from '../reconciliation/const';
+import { CashPaymentsCashDepositPair } from '../reconciliation/reconciliation.interfaces';
 
 @Injectable()
 export class CashDepositService {
@@ -37,6 +37,19 @@ export class CashDepositService {
     }
   }
 
+  async markCashDepositAsMatched(
+    cashPaymentsCashDepositPair: CashPaymentsCashDepositPair
+  ) {
+    const cashDeposit = await this.cashDepositRepo.findOneByOrFail({
+      id: cashPaymentsCashDepositPair.deposit.id
+    });
+    cashDeposit.match = true;
+    // TODO: link cash deposit with all payments with proper db design
+    // cashDeposit.cash_payment_ids = [all payment ids];
+    await this.cashDepositRepo.save(cashDeposit);
+  }
+
+  // TODO - Assess if needed - Make typeorm
   async queryLatestCashDeposit(
     location_id: number
   ): Promise<{ deposit_date: string }[]> {
@@ -49,6 +62,7 @@ export class CashDepositService {
     `);
   }
 
+  // TODO - Assess if needed - Make typeorm
   async getCashDates(event: ReconciliationEvent) {
     const cash_deposit_window = await this.cashDepositRepo.query(`
       SELECT 
@@ -74,7 +88,21 @@ export class CashDepositService {
     };
   }
 
-  //TODO convert to use query builder and re-evaluate: where date is "greater than" in the query
+  async findAllPendingCashDeposits(
+    event: ReconciliationEvent
+  ): Promise<CashDepositEntity[]> {
+    return await this.cashDepositRepo.find({
+      relationLoadStrategy: 'query',
+      where: {
+        location_id: event?.location_id,
+        metadata: {
+          program: event?.program
+        }
+      }
+    });
+  }
+
+  // TODO convert to use query builder and re-evaluate: where date is "greater than" in the query
   async query(
     event: ReconciliationEvent,
     deposit_dates: { previous: string; current: string }
@@ -102,19 +130,5 @@ export class CashDepositService {
     ORDER BY 
       deposit_date DESC
   `);
-  }
-
-  async reconcileCash(
-    deposit: Partial<CashDepositEntity>,
-    payment: Partial<PaymentEntity>
-  ): Promise<CashDepositEntity> {
-    const cashEntity = await this.cashDepositRepo.findOneByOrFail({
-      id: deposit.id
-    });
-    cashEntity.match = true;
-    cashEntity.cash_payment_ids = payment.id;
-    const updated = await this.cashDepositRepo.save(cashEntity);
-
-    return updated;
   }
 }

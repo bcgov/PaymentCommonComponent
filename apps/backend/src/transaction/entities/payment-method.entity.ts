@@ -1,5 +1,4 @@
 import { Column, PrimaryColumn, Entity } from 'typeorm';
-
 @Entity('payment_method')
 export class PaymentMethodEntity {
   @PrimaryColumn('varchar', { length: 10, nullable: false })

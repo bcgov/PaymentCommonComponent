@@ -19,8 +19,13 @@ import * as _ from 'underscore';
 import { TransactionService } from '../transaction/transaction.service';
 import { PaymentMethodService } from '../transaction/payment-method.service';
 
+export interface LocalEvent {
+  eventType: string;
+  filename: string;
+}
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const handler = async (event?: any, context?: Context) => {
+export const handler = async (event?: unknown, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
   const transactionService = app.get(TransactionService);
@@ -73,18 +78,22 @@ export const handler = async (event?: any, context?: Context) => {
     }
   };
 
-  const processEvent = async (event: any) => {
+  const processEvent = async (event: unknown) => {
     try {
       const eventType = getLambdaEventSource(event);
       const filename = (() => {
         if (eventType === LOCAL) {
-          return event?.filename;
+          const localEvent = event as LocalEvent;
+          return localEvent.filename;
         }
-        if (eventType === 'isS3') {
-          // TODO: use types here
-          const s3NotificationEvent = event;
-          return s3NotificationEvent?.records[0]?.s3?.object?.key;
-        }
+
+        // TODO: use types here
+        // TODO: Implement S3 event notification processing
+        // if (eventType === 'isS3') {
+        //   const s3NotificationEvent = event;
+        //   return s3NotificationEvent?.records[0]?.s3?.object?.key;
+        // }
+        process.exit(0);
       })();
 
       const file = await s3.getObject(
@@ -152,7 +161,8 @@ export const handler = async (event?: any, context?: Context) => {
     }
   };
 
-  if (event?.eventType === 'make') {
+  const eventRouting = event as LocalEvent
+  if (eventRouting?.eventType === 'make') {
     await processLocalFiles();
     return;
   }

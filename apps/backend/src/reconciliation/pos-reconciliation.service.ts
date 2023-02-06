@@ -9,7 +9,9 @@ import {
   ReconciliationEventError
 } from './const';
 import { PosDepositService } from '../deposits/pos-deposit.service';
-import * as _ from 'underscore';
+import { PosPaymentPosDepositPair } from './reconciliation.interfaces';
+import { differenceInSeconds } from 'date-fns';
+import { checkPaymentsForFullMatch } from './util';
 
 @Injectable()
 export class POSReconciliationService {
@@ -19,58 +21,83 @@ export class POSReconciliationService {
     @Inject(TransactionService) private transactionService: TransactionService
   ) {}
 
-  public async setMatched(
-    deposit: Partial<POSDepositEntity> | undefined,
-    payment: Partial<PaymentEntity> | undefined
-  ) {
-    if (!deposit || !payment) return;
-    return {
-      deposit: await this.posDepositService.updatePOSDepositEntity(
-        deposit,
-        payment
-      ),
-      payment: await this.transactionService.reconcilePOS(deposit, payment)
-    };
-  }
+  // TODO: move the save as matched seaparetly..
+  // TODO: implement as layer 
+  // TODO: possible to config time diffs?
+  private matchPosPaymentToPosDeposits(
+    payments: PaymentEntity[],
+    deposits: POSDepositEntity[]
+  ): PosPaymentPosDepositPair[] {
+    const matches: PosPaymentPosDepositPair[] = [];
 
-  private async match(
-    deposits: POSDepositEntity[],
-    payments: PaymentEntity[]
-  ): Promise<any[]> {
-    const filtered = deposits.map((deposit: POSDepositEntity) => ({
-      payment: _.findWhere(payments, {
-        amount: parseFloat(deposit.transaction_amt.toString()),
-        method: deposit.method?.toString()
-      }),
-      deposit
-    }));
+    // Basic EAGER! 1:1 matching
 
-    return (
-      filtered &&
-      (await Promise.all(
-        filtered.map(({ deposit, payment }: any) => {
-          return this.setMatched(deposit, payment);
-        })
-      ))
-    );
+    for (const payment of payments) {
+      // console.log(`Processing payment for ${payment.amount} - ${payment.id} - ${payment.timestamp}`)
+      for (const deposit of deposits) {
+        // console.log(`Processing deposit ${deposit.id} for ${deposit.transaction_amt} - ${deposit.timestamp}`)
+
+        // TODO:make this a strategy pattern
+        if (
+          payment.amount === deposit.transaction_amt &&
+          payment.method === deposit.card_vendor &&
+          differenceInSeconds(payment.timestamp, deposit.timestamp) < 240
+        ) {
+          matches.push({
+            payment,
+            deposit
+          });
+          break;
+        }
+      }
+    }
+
+    for (const match of matches) {
+      match.payment.match = true;
+      match.deposit.match = true;
+      match.payment.deposit_id = match.deposit.id;
+      match.deposit.matched_payment_id = match.payment.id;
+    }
+    return matches;
   }
 
   public async reconcile(
     event: ReconciliationEvent
-  ): Promise<ReconciliationEventOutput | ReconciliationEventError> {
-    const payments = await this.transactionService.queryPosPayments(event);
+  ): Promise<unknown | ReconciliationEventOutput | ReconciliationEventError> {
+    const posPayments = await this.transactionService.queryPosPayments(event);
 
-    const deposits = await this.posDepositService.findAllByLocationAndDate(
-      event
+    if (checkPaymentsForFullMatch(posPayments)) {
+      console.log(`****All payments are already matched for this event`);
+      return;
+    }
+    const alreadyMatchedPosPayments = posPayments.filter((itm) => itm.match);
+    if (posPayments.length === 0) {
+    }
+    const yetToBeMatchedPosPayments = posPayments.filter((itm) => !itm.match);
+
+    const deposits = await this.posDepositService.findPOSDeposits(event);
+    const alreadyMatchedPosDeposits = deposits.filter((itm) => itm.match);
+    const yetToBeMatchedPosDeposits = deposits.filter((itm) => !itm.match);
+
+    const matched_in_this_run = this.matchPosPaymentToPosDeposits(
+      yetToBeMatchedPosPayments,
+      yetToBeMatchedPosDeposits
     );
 
-    const matched =
-      payments && deposits && (await this.match(deposits, payments));
+    await this.transactionService.markPosPaymentsAsMatched(matched_in_this_run);
+    await this.posDepositService.markPosDepositsAsMatched(matched_in_this_run);
 
     return {
-      total_deposit: deposits ? deposits.length : 0,
-      total_payments: payments ? payments.length : 0,
-      total_matched: matched.length
+      pos_payments_total: posPayments.length,
+      pos_deposit_total: deposits.length,
+
+      pos_payments_already_matched: alreadyMatchedPosPayments.length,
+      pos_deposit_already_matched: alreadyMatchedPosDeposits.length,
+
+      pos_payments_yet_to_be_matched: yetToBeMatchedPosPayments.length,
+      pos_deposit_yet_to_be_matched: yetToBeMatchedPosDeposits.length,
+
+      pos_payments_matched_now: matched_in_this_run.length
     };
   }
 }

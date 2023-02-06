@@ -27,14 +27,13 @@ export const parseGarms = async (
       new TransactionEntity({
         source_id: Ministries.SBC,
         id: sales_transaction_id,
-        transaction_date: sales_transaction_date
+        transaction_date: sales_transaction_date // TODO: just use slice here
           .split('')
           .splice(0, 10)
           .join(''),
         transaction_time: sales_transaction_date
-          .split('')
-          .splice(11, 10)
-          .join(''),
+          .slice(11, 19)
+          .replaceAll('.', ':'),
         location_id: parseInt(source.location_id),
         amount: payment_total,
         fiscal_close_date,

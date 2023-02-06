@@ -229,6 +229,9 @@ reconcile:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts")'
 
 report:
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler()'
+
+report2:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler($(REPORT_JSON))'
 
 clear: 
@@ -238,6 +241,9 @@ clear:
 drop:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"
+
+unmark: 
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update pos_deposit set match=false; update cash_deposit set match=false; update payment set match=false;"
 
 # ===================================
 # Migrations
