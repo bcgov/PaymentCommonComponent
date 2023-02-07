@@ -84,13 +84,18 @@ export class TransactionService {
   // TODO: we need the entities, so cannot work with raw queries!
   async queryPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
-      relationLoadStrategy: 'join',
+      select: {
+        transaction: { transaction_date: true, location_id: true },
+        payment_method: { method: true, sbc_code: true },
+        method: true,
+        amount: true
+      },
       relations: {
         transaction: true,
         payment_method: true
       },
       where: {
-        method: In(['AX', 'V', 'P', 'M']),
+        method: In([17, 11, 13, 12, 18]),
         transaction: {
           transaction_date: event.date,
           location_id: event.location_id

@@ -37,15 +37,19 @@ export const handler = async (
   const reconcile = async (event: ReconciliationEventInput) => {
     const dates = getFiscalDates(event);
 
-    // TODO: simply this later on..
-    if (event.program === 'SBC' && event.location_ids.length === 0) {
+    const getLocations = async (): Promise<number[]> => {
       const locations = await locationService.getLocationsBySource(
         Ministries.SBC
       );
-      locations.map(({ location_id }) =>
-        event?.location_ids?.push(location_id)
+      return await Promise.all(
+        locations.map(({ location_id }) =>
+          event?.location_ids?.push(location_id)
+        )
       );
-    }
+    };
+
+    const locations =
+      event.location_ids.length === 0 ? getLocations() : event.location_ids;
 
     console.log('-------------------------------------------------');
     console.log(
@@ -58,7 +62,7 @@ export const handler = async (
       console.log('-------------------------------------------------');
       console.log('Processing Reconciliation for date: ', date);
       console.log('-------------------------------------------------');
-      for (const location_id of event.location_ids) {
+      for (const location_id of await locations) {
         console.log(
           '>>>>>> Processing Reconciliation for location_id: ',
           location_id
@@ -97,10 +101,10 @@ export const handler = async (
 };
 
 const reconcileAll: ReconciliationEventInput = {
-  fiscal_start_date: '2023-01-10',
+  fiscal_start_date: '2023-02-02',
   fiscal_end_date: '2023-02-02',
   program: 'SBC',
-  location_ids: []
+  location_ids: [12]
 };
 
 handler(reconcileAll);
