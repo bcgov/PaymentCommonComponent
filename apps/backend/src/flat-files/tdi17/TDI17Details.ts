@@ -102,7 +102,7 @@ export class TDI17Details
     this.resource.location_id = data;
   }
 
-  @Column({ start: 20, width: 4 })
+  @Column({ start: 20, width: 4, format: { type: DataType.Time } })
   public get deposit_time() {
     return this.resource.deposit_time;
   }

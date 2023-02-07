@@ -24,10 +24,9 @@ export const transactionCode = (code: string) => {
 export const timeFormat = (value: string): string => {
   const time = {
     hour: value.slice(0, 2),
-    minute: value.slice(2, 4),
-    second: value.slice(4, 6)
+    minute: value.slice(2, 4)
   };
-  return `${time.hour}:${time.minute}:${time.second}`;
+  return `${time.hour}:${time.minute}`;
 };
 
 export const dateFormat = (value: string): string => {
