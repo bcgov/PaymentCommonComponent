@@ -33,7 +33,7 @@ export class CashReconciliationService {
     );
 
     console.log('Sum of payments: ', sumOfPayments);
-    console.log('test');
+
     // TODO: This does a eager match, update to be more look around
     for (const deposit of deposits) {
       // console.log('checking for deposit amt:', deposit.deposit_amt_cdn);
