@@ -1,8 +1,8 @@
-import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { LocationEntity } from './entities/master-location-data.entity';
 import { LocationEnum } from './const';
+import { LocationEntity } from './entities/master-location-data.entity';
 import { Ministries } from '../constants';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class LocationService {
         merchant_id: true
       },
       where: {
-        location_id: location_id,
+        location_id: location_id
       }
     });
     return merchantIds?.map((itm: LocationEntity) => itm.merchant_id);

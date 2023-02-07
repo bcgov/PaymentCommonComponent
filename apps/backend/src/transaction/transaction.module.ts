@@ -1,14 +1,14 @@
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Logger, Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   TransactionEntity,
   PaymentMethodEntity,
   PaymentEntity
 } from './entities';
+import { PaymentMethodService } from './payment-method.service';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
 import { LocationModule } from '../location/location.module';
-import { PaymentMethodService } from './payment-method.service';
 @Module({
   imports: [
     LocationModule,

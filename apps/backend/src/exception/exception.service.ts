@@ -17,8 +17,5 @@ export class ExceptionService {
     private paymentsRepo: Repository<PaymentEntity>,
     @InjectRepository(TransactionEntity)
     private transactionsRepo: Repository<TransactionEntity>
-  ) {
-
-
-  }
+  ) {}
 }
