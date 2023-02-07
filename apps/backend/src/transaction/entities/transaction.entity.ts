@@ -1,7 +1,7 @@
 import { OneToMany, Entity, Column, PrimaryColumn } from 'typeorm';
-import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
-import { Transaction } from '../transaction.interface';
 import { PaymentEntity } from './payment.entity';
+import { Transaction } from '../transaction.interface';
+import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('transaction')
 export class TransactionEntity {
@@ -17,7 +17,12 @@ export class TransactionEntity {
   @Column({ type: 'date' })
   fiscal_close_date: string;
 
-  @Column({ type: 'numeric', precision: 16, scale: 4, transformer: new ColumnNumericTransformer(), })
+  @Column({
+    type: 'numeric',
+    precision: 16,
+    scale: 4,
+    transformer: new ColumnNumericTransformer()
+  })
   amount: number;
 
   @Column({ type: 'boolean', default: false })

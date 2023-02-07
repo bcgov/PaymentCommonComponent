@@ -1,8 +1,8 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
-import { AppLogger } from '../common/logger.service';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
+import { AppLogger } from '../common/logger.service';
 import { LocationService } from '../location/location.service';
 import { ReconciliationEvent } from '../reconciliation/const';
 import { PosPaymentPosDepositPair } from '../reconciliation/reconciliation.interfaces';
@@ -23,10 +23,9 @@ export class PosDepositService {
   async findPOSDeposits(
     event: ReconciliationEvent
   ): Promise<POSDepositEntity[]> {
-    const merchant_ids =
-      await this.locationService.getMerchantIdsByLocationId(
-        event?.location_id || 0
-      ); // TODO: Fix || 0
+    const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
+      event?.location_id || 0
+    ); // TODO: Fix || 0
     return await this.posDepositRepo.find({
       relationLoadStrategy: 'query',
       relations: {
@@ -39,10 +38,10 @@ export class PosDepositService {
         },
         merchant_id: In(merchant_ids)
       },
-      // Order by needs to be in this order for matching logic. 
+      // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
       order: {
-        transaction_amt:'ASC', 
+        transaction_amt: 'ASC',
         card_vendor: 'ASC',
         transaction_time: 'ASC'
       }

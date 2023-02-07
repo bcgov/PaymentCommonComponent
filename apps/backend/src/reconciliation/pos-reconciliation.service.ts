@@ -1,17 +1,17 @@
 import { Injectable, Logger, Inject } from '@nestjs/common';
-import { PaymentEntity } from '../transaction/entities/payment.entity';
-import { POSDepositEntity } from './../deposits/entities/pos-deposit.entity';
-import { TransactionService } from '../transaction/transaction.service';
-import { AppLogger } from '../common/logger.service';
+import { differenceInSeconds } from 'date-fns';
 import {
   ReconciliationEvent,
   ReconciliationEventOutput,
   ReconciliationEventError
 } from './const';
-import { PosDepositService } from '../deposits/pos-deposit.service';
 import { PosPaymentPosDepositPair } from './reconciliation.interfaces';
-import { differenceInSeconds } from 'date-fns';
 import { checkPaymentsForFullMatch } from './util';
+import { AppLogger } from '../common/logger.service';
+import { PosDepositService } from '../deposits/pos-deposit.service';
+import { PaymentEntity } from '../transaction/entities/payment.entity';
+import { TransactionService } from '../transaction/transaction.service';
+import { POSDepositEntity } from './../deposits/entities/pos-deposit.entity';
 
 @Injectable()
 export class POSReconciliationService {
@@ -22,7 +22,7 @@ export class POSReconciliationService {
   ) {}
 
   // TODO: move the save as matched seaparetly..
-  // TODO: implement as layer 
+  // TODO: implement as layer
   // TODO: possible to config time diffs?
   private matchPosPaymentToPosDeposits(
     payments: PaymentEntity[],

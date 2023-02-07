@@ -1,10 +1,10 @@
-import { NestFactory } from '@nestjs/core';
 import {
   BadRequestException,
   ValidationError,
   ValidationPipe,
   ValidationPipeOptions
 } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import {
   ExpressAdapter,
   NestExpressApplication
@@ -12,12 +12,12 @@ import {
 import express from 'express';
 
 import { AppModule } from './app.module';
+import { Documentation } from './common/documentation';
+import { ErrorExceptionFilter } from './common/error-exception.filter';
+import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
 import { AppLogger } from './common/logger.service';
 import { API_PREFIX } from './config';
 import { TrimPipe } from './trim.pipe';
-import { Documentation } from './common/documentation';
-import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
-import { ErrorExceptionFilter } from './common/error-exception.filter';
 
 interface ValidationErrorMessage {
   property: string;

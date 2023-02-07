@@ -1,3 +1,4 @@
+import { parse } from 'date-fns';
 import {
   Column,
   Entity,
@@ -5,11 +6,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn
 } from 'typeorm';
-import { TDI34Details } from '../../flat-files';
 import { FileMetadata } from '../../common/columns';
-import { parse } from 'date-fns';
-import { PaymentMethodEntity } from '../../transaction/entities';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
+import { TDI34Details } from '../../flat-files';
+import { PaymentMethodEntity } from '../../transaction/entities';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {
@@ -31,7 +31,12 @@ export class POSDepositEntity {
   @Column()
   card_id: string;
 
-  @Column({ type: 'numeric', precision: 16, scale: 4, transformer: new ColumnNumericTransformer(), })
+  @Column({
+    type: 'numeric',
+    precision: 16,
+    scale: 4,
+    transformer: new ColumnNumericTransformer()
+  })
   transaction_amt: number;
 
   @Column({ type: 'date' })

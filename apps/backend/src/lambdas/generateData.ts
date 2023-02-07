@@ -1,23 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import { parseTDI } from './utils/parseTDI';
+import * as _ from 'underscore';
+import { getLambdaEventSource } from './utils/eventTypes';
 import { parseGarms } from './utils/parseGarms';
+import { parseTDI } from './utils/parseTDI';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
-import { getLambdaEventSource } from './utils/eventTypes';
 import { FileNames, FileTypes, LOCAL, Ministries } from '../constants';
-import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
-import { TDI34Details } from '../flat-files';
-import { IGarmsJson } from '../transaction/interface';
 import { CashDepositService } from '../deposits/cash-deposit.service';
-import { PosDepositService } from '../deposits/pos-deposit.service';
-import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { PosDepositService } from '../deposits/pos-deposit.service';
+import { TDI34Details } from '../flat-files';
+import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
+import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { TransactionEntity } from '../transaction/entities/transaction.entity';
-import * as _ from 'underscore';
-import { TransactionService } from '../transaction/transaction.service';
+import { IGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
+import { TransactionService } from '../transaction/transaction.service';
 
 export interface LocalEvent {
   eventType: string;
@@ -25,7 +25,7 @@ export interface LocalEvent {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const handler = async (event?: unknown, context?: Context) => {
+export const handler = async (event?: unknown, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
   const transactionService = app.get(TransactionService);
@@ -45,7 +45,8 @@ export const handler = async (event?: unknown, context?: Context) => {
       const allUploadedFiles: string[] = [];
       const uploadedPosFiles = await posService.findAllUploadedFiles();
       const uploadedCashFiles = await cashService.findAllUploadedFiles();
-      const uploadedTransactionFiles = await transactionService.findAllUploadedFiles();
+      const uploadedTransactionFiles =
+        await transactionService.findAllUploadedFiles();
 
       // Filter out files that have already been parsed
       uploadedPosFiles.map((file) => {
@@ -161,7 +162,7 @@ export const handler = async (event?: unknown, context?: Context) => {
     }
   };
 
-  const eventRouting = event as LocalEvent
+  const eventRouting = event as LocalEvent;
   if (eventRouting?.eventType === 'make') {
     await processLocalFiles();
     return;

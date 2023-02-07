@@ -1,7 +1,7 @@
 import { LoggerService } from '@nestjs/common';
+import axios from 'axios';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
-import axios from 'axios';
 
 export class AppLogger implements LoggerService {
   private logger;
@@ -16,7 +16,7 @@ export class AppLogger implements LoggerService {
   log(message: unknown, context?: string) {
     this.logger.log(message, context);
   }
-  
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async error(e: any, context?: string) {
     const error = e as Error & { response?: Error };

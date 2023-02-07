@@ -1,10 +1,10 @@
+import { Ministries } from '../../constants';
 import {
   TransactionEntity,
   PaymentEntity,
   PaymentMethodEntity
 } from '../../transaction/entities';
 import { IGarmsJson, IGarmsPayment } from '../../transaction/interface';
-import { Ministries } from '../../constants';
 // For parsing GARMS Sales JSON into PCC Sales
 
 // TODO: HIGH PRIO

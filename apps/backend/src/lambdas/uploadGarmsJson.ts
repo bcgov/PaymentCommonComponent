@@ -5,7 +5,6 @@ import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
-
 // TODO: What does this file do? Delete ?
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const handler = async (event?: any, context?: Context) => {

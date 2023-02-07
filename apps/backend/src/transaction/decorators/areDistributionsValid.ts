@@ -12,9 +12,7 @@ export class AreDistributionsValid implements ValidatorConstraintInterface {
     this.errorMessage = `Distribution Values are incorrect.`;
   }
 
-  public async validate(
-    distributions: DistributionDTO[],
-  ) {
+  public async validate(distributions: DistributionDTO[]) {
     const credits: Array<DistributionDTO> = [];
     const debits: Array<DistributionDTO> = [];
 

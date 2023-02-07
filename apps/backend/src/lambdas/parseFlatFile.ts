@@ -1,10 +1,10 @@
 import { BadRequestException } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
+import { parseTDI } from './utils/parseTDI';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { parseTDI } from './utils/parseTDI';
 
 export interface parseFlatFileEvent {
   type: string;
@@ -21,7 +21,7 @@ export const handler = async (event: parseFlatFileEvent, context?: Context) => {
 
   appLogger.log({ event });
   appLogger.log({ context });
-  
+
   if (!event.type || !event.filepath) {
     throw new BadRequestException();
   }

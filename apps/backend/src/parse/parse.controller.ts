@@ -8,10 +8,10 @@ import {
   Inject,
   Logger
 } from '@nestjs/common';
-import { ApiOperation, ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { AppLogger } from '../common/logger.service';
+import { ApiOperation, ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
+import { AppLogger } from '../common/logger.service';
 
 @Controller('parse')
 @ApiTags('Parser API')
