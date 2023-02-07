@@ -1,41 +1,3 @@
-export const transactionType = (value: string) => {
-  switch (value) {
-    case '200':
-      return { code: 200, description: 'Cash' };
-    case '201':
-      return { code: 201, description: 'Service BC' };
-    case '202':
-      return { code: 202, description: 'Debit' };
-    case '203':
-      return { code: 203, description: 'Mastercard POS' };
-    case '204':
-      return { code: 204, description: 'Mastercard' };
-    case '205':
-      return { code: 205, description: 'Mastercard POS' };
-    case '206':
-      return { code: 206, description: 'Visa' };
-    default:
-      return { code: value, description: 'N/A' };
-  }
-};
-
-export const cardVendor = (type: string) => {
-  switch (type) {
-    case 'M':
-      return { type: type, vendor: 'MasterCard' };
-    case 'V':
-      return { type: type, vendor: 'VISA' };
-    case 'AX':
-      return { type: type, vendor: 'Amex' };
-    case 'PV':
-      return { type: type, vendor: 'VISA Debit' };
-    case 'MD':
-      return { type: type, vendor: 'Debit MasterCard' };
-    default:
-      return { type: type, vendor: 'N/A' };
-  }
-};
-
 export const transactionCode = (code: string) => {
   switch (code) {
     case '10':
@@ -59,11 +21,30 @@ export const transactionCode = (code: string) => {
   }
 };
 
-export const timeFormat = (value: string[]) =>
-  `${value[0]}${value[1]}:${value[2]}${value[3]}`;
+export const timeFormat = (value: string): string => {
+  const time = {
+    hour: value.slice(0, 2),
+    minute: value.slice(2, 4),
+    second: value.slice(4, 6)
+  };
+  return `${time.hour}:${time.minute}:${time.second}`;
+};
 
-export const dateFormat = (value: string[]) =>
-  `${[value[0], value[1], value[2], value[3]].join('')}-${[
-    value[4],
-    value[5]
-  ].join('')}-${[value[6], value[7]].join('')}`;
+export const dateFormat = (value: string): string => {
+  const date = {
+    year: value.slice(0, 4),
+    month: value.slice(4, 6),
+    day: value.slice(6, 8)
+  };
+  return `${date.year}-${date.month}-${date.day}`;
+};
+
+export const decimalFormat = (value: string): string => {
+  const stringLength = value.split('').length;
+  const decimalPlace = stringLength - 2;
+  return (
+    parseInt(value.slice(0, decimalPlace)) +
+    '.' +
+    value.slice(decimalPlace, stringLength)
+  );
+};
