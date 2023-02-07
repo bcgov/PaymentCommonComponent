@@ -1,13 +1,13 @@
-import { LocationService } from './../location/location.service';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../common/logger.service';
-import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
-import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
-import { ReconciliationEventInput } from '../reconciliation/const';
 import { Ministries } from '../constants';
+import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
+import { ReconciliationEventInput } from '../reconciliation/const';
+import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReportingService } from '../reporting/reporting.service';
+import { LocationService } from './../location/location.service';
 
 export const handler = async (
   event: ReconciliationEventInput,
@@ -19,10 +19,10 @@ export const handler = async (
   const locationService = app.get(LocationService);
   const appLogger = app.get(AppLogger);
   const reportingService = app.get(ReportingService);
-  
+
   appLogger.log({ event });
   appLogger.log({ context });
-  
+
   const getFiscalDates = (event: ReconciliationEventInput) => {
     const fiscalStart = new Date(event.fiscal_start_date);
     const fiscalEnd = new Date(event.fiscal_end_date);
@@ -71,7 +71,7 @@ export const handler = async (
         });
 
         console.log(posReconciliation);
-        
+
         await cashRecon.reconcile({
           date,
           location_id,
@@ -87,7 +87,8 @@ export const handler = async (
 
   console.log('\n\n=========Summary Report: =========\n');
   const posSummaryReport = await reportingService.reportPosMatchSummaryByDate();
-  const cashSummaryReport = await reportingService.reportCashMatchSummaryByDate();
+  const cashSummaryReport =
+    await reportingService.reportCashMatchSummaryByDate();
   console.table(posSummaryReport);
   console.table(cashSummaryReport);
   return {

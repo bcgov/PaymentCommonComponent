@@ -1,16 +1,19 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { AppLogger } from './../common/logger.service';
-import { CashDepositService } from '../deposits/cash-deposit.service';
 import {
   ReconciliationEvent,
   ReconciliationEventOutput,
   ReconciliationEventError
 } from './const';
-import { PaymentEntity } from '../transaction/entities/payment.entity';
-import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
-import { TransactionService } from '../transaction/transaction.service';
 import { CashPaymentsCashDepositPair } from './reconciliation.interfaces';
-import { checkPaymentsForFullMatch, checkPaymentsForPartialMatch } from './util';
+import {
+  checkPaymentsForFullMatch,
+  checkPaymentsForPartialMatch
+} from './util';
+import { AppLogger } from '../common/logger.service';
+import { CashDepositService } from '../deposits/cash-deposit.service';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { PaymentEntity } from '../transaction/entities/payment.entity';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Injectable()
 export class CashReconciliationService {

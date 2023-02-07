@@ -1,13 +1,13 @@
-import { PaymentMethodEntity } from './payment-method.entity';
+import { parse } from 'date-fns';
 import {
   Column,
   Entity,
   PrimaryGeneratedColumn,
   JoinColumn,
-  ManyToOne,
+  ManyToOne
 } from 'typeorm';
+import { PaymentMethodEntity } from './payment-method.entity';
 import { TransactionEntity } from './transaction.entity';
-import { parse } from 'date-fns';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('payment')
@@ -19,13 +19,24 @@ export class PaymentEntity {
   // https://typeorm.io/entities#column-options - For better numeric representation.
   // https://github.com/typeorm/typeorm/issues/873#issuecomment-424643086 - And make this column return proper number
   // 16+4 should be standard for amounts in PCC
-  @Column({ type: 'numeric', precision: 16, scale: 4, transformer: new ColumnNumericTransformer(), })
+  @Column({
+    type: 'numeric',
+    precision: 16,
+    scale: 4,
+    transformer: new ColumnNumericTransformer()
+  })
   amount: number;
 
   @Column({ nullable: true })
   currency?: string;
 
-  @Column({ type: 'numeric', precision: 16, scale: 4, nullable: true, transformer: new ColumnNumericTransformer() })
+  @Column({
+    type: 'numeric',
+    precision: 16,
+    scale: 4,
+    nullable: true,
+    transformer: new ColumnNumericTransformer()
+  })
   exchange_rate?: number;
 
   @Column({ nullable: true })
@@ -46,7 +57,7 @@ export class PaymentEntity {
   @Column('varchar', { length: 25, nullable: true })
   invoice_no?: string;
 
-  // This needs to have a better name 
+  // This needs to have a better name
   @Column('varchar', { length: 25, nullable: true })
   tran_id?: string;
 

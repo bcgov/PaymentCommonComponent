@@ -1,6 +1,6 @@
-import { LocationEntity } from './entities/master-location-data.entity';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { LocationEntity } from './entities/master-location-data.entity';
 import { LocationService } from './location.service';
 
 @Module({

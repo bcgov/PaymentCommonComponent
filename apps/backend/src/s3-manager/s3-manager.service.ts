@@ -3,8 +3,8 @@ https://docs.nestjs.com/providers#services
 */
 
 import { Injectable } from '@nestjs/common';
-import { InjectAwsService } from 'nest-aws-sdk';
 import { S3 } from 'aws-sdk';
+import { InjectAwsService } from 'nest-aws-sdk';
 
 @Injectable()
 export class S3ManagerService {

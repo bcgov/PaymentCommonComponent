@@ -1,6 +1,6 @@
+import * as csv from 'csvtojson';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as path from 'path';
-import * as csv from 'csvtojson';
 import { LocationEntity } from '../../location/entities';
 import { ILocation } from '../../location/interface/location.interface';
 
