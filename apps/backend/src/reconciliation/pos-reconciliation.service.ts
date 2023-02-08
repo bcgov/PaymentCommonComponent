@@ -32,31 +32,34 @@ export class POSReconciliationService {
 
     // Basic EAGER! 1:1 matching
 
-    for (const payment of payments) {
+    for (const [pindex, payment] of payments.entries()) {
       // console.log(`Processing payment for ${payment.amount} - ${payment.id} - ${payment.timestamp}`)
-      for (const deposit of deposits) {
+      for (const [dindex, deposit] of deposits.entries()) {
         // console.log(`Processing deposit ${deposit.id} for ${deposit.transaction_amt} - ${deposit.timestamp}`)
 
         // TODO:make this a strategy pattern
         if (
           payment.amount === deposit.transaction_amt &&
           payment.method === deposit.card_vendor &&
+          deposit.match === false &&
           differenceInSeconds(payment.timestamp, deposit.timestamp) < 240
         ) {
+
+          // mutate the original array to use in next heurisitc match
+          // after this deposit is used up, mark it as true and don't use it again
+          payments[pindex].match = true;
+          deposits[dindex].match = true;
+          payments[pindex].deposit_id = deposit.id;
+          deposits[dindex].matched_payment_id = payment.id;
+
           matches.push({
             payment,
             deposit
           });
+
           break;
         }
       }
-    }
-
-    for (const match of matches) {
-      match.payment.match = true;
-      match.deposit.match = true;
-      match.payment.deposit_id = match.deposit.id;
-      match.deposit.matched_payment_id = match.payment.id;
     }
     return matches;
   }
