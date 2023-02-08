@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { PaymentMethodEntity } from './entities';
-import { AppLogger } from '../common/logger.service';
+import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
 export class PaymentMethodService {

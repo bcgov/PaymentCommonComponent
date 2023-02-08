@@ -4,11 +4,11 @@ import { S3 } from 'aws-sdk';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { AppLogger } from './common/logger.service';
 import { DatabaseModule } from './database/database.module';
 import { DepositModule } from './deposits/deposit.module';
 import { ExceptionModule } from './exception/exception.module';
 import { LocationModule } from './location/location.module';
+import { LoggerModule } from './logger/logger.module';
 import { ParseModule } from './parse/parse.module';
 import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { ReportingModule } from './reporting/reporting.module';
@@ -17,6 +17,7 @@ import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
+    LoggerModule,
     DatabaseModule,
     S3ManagerModule,
     ReconciliationModule,
@@ -46,6 +47,6 @@ import { TransactionModule } from './transaction/transaction.module';
     })
   ],
   controllers: [AppController],
-  providers: [AppService, AppLogger]
+  providers: [AppService]
 })
 export class AppModule {}

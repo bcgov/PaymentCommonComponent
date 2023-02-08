@@ -6,8 +6,8 @@ import {
   PaymentMethodEntity,
   PaymentEntity
 } from './entities';
-import { AppLogger } from '../common/logger.service';
 import { LocationService } from '../location/location.service';
+import { AppLogger } from '../logger/logger.service';
 import { ReconciliationEvent } from '../reconciliation/const';
 import {
   CashPaymentsCashDepositPair,

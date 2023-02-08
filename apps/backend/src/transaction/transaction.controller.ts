@@ -14,7 +14,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { TransactionDTO } from './dto/transaction.dto';
 import { TransactionService } from './transaction.service';
-import { AppLogger } from '../common/logger.service';
+import { AppLogger } from '../logger/logger.service';
 import transactionJson from '../../sample-files/transaction.json';
 @Controller('sale')
 @ApiTags('Sales API')

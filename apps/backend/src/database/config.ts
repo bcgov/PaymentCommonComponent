@@ -1,7 +1,9 @@
 import { DataSource } from 'typeorm';
+import { DatabaseLogger } from './database-logger';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
+import { LogEntity } from '../logger/entities/log.entity';
 import {
   TransactionEntity,
   PaymentEntity,
@@ -16,6 +18,7 @@ export default new DataSource({
   password: process.env.DB_PASWORD ?? 'postgres',
   database: process.env.DB_NAME ?? 'pcc',
   entities: [
+    LogEntity,
     PaymentMethodEntity,
     PaymentEntity,
     TransactionEntity,
@@ -24,5 +27,9 @@ export default new DataSource({
     LocationEntity
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-  synchronize: false
+  synchronize: false,
+  logging:
+    process.env.DB_LOGS_ENABLED === 'true' ? ['query', 'error'] : ['error'],
+  logger:
+    process.env.DB_LOGS_ENABLED === 'true' ? new DatabaseLogger() : undefined
 });

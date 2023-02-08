@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
-import { AppLogger } from '../common/logger.service';
+import { AppLogger } from '../logger/logger.service';
 import { ReportConfig } from '../reporting/interfaces';
 import { ReportingService } from '../reporting/reporting.service';
 

@@ -54,7 +54,8 @@
     "typeorm": "0.3.11",
     "underscore": "1.13.6",
     "webpack": "5.75.0",
-    "winston": "3.8.2"
+    "winston": "3.8.2",
+    "winston-daily-rotate-file": "4.7.1"
   },
   "devDependencies": {
     "@nestjs/cli": "9.1.8",
