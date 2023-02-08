@@ -7,7 +7,11 @@ import {
   ColumnVariableKey,
   DataType
 } from '../decorators/fixedWidthRecord.decorator';
-import { timeFormat, dateFormat } from '../utils/formatFixedWidth';
+import {
+  decimalFormat,
+  timeFormat,
+  dateFormat
+} from '../utils/formatFixedWidth';
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
@@ -53,12 +57,6 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
         field
       );
 
-      const makeDecimal = (arr: string[]): string => {
-        return `${arr.splice(0, arr.length - 2).join('')}.${arr
-          .splice(arr.length - 2, 2)
-          .join('')}`;
-      };
-
       const value = line
         .substring(options.start, options.start + options.width)
         .trim();
@@ -71,13 +69,11 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
             options.format.precision || 2
           );
         } else if (options.format.type === DataType.Date) {
-          (target as any)[field] = dateFormat(value.split(''));
+          (target as any)[field] = value ? dateFormat(value) : '';
         } else if (options.format.type === DataType.Time) {
-          (target as any)[field] = value ? timeFormat(value.split('')) : '';
+          (target as any)[field] = value ? timeFormat(value) : '';
         } else if (options.format.type === DataType.Decimal) {
-          (target as any)[field] = makeDecimal(
-            parseInt(value).toString().split('')
-          );
+          (target as any)[field] = value ? decimalFormat(value) : '';
         }
       }
     }

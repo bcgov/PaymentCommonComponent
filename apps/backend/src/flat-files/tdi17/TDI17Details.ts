@@ -8,7 +8,7 @@ import {
 } from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
-  metadata: any;
+  metadata: unknown;
   rcd_type: number;
   ministry_no: string;
   program_code: string;
@@ -40,7 +40,7 @@ export class TDI17Details
     super(init);
   }
 
-  public get metadata(): any {
+  public get metadata(): unknown {
     return this.resource.metadata;
   }
 
@@ -108,7 +108,7 @@ export class TDI17Details
   }
 
   public set deposit_time(data) {
-    this.resource.deposit_time = data ?? '--:--';
+    this.resource.deposit_time = data;
   }
 
   @Column({
@@ -207,6 +207,7 @@ export class TDI17Details
   public set jv_no(data) {
     this.resource.jv_no = data;
   }
+
   @Column({ start: 131, width: 0, format: { type: DataType.Date } })
   public get transaction_date() {
     return this.resource.transaction_date;

@@ -8,7 +8,7 @@ import {
 } from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
-  metadata: any;
+  metadata: unknown;
   rcd_type: number;
   merchant_id: string;
   terminal_no: string;
