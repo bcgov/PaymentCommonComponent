@@ -82,10 +82,10 @@ export class PaymentEntity {
 
   @ManyToOne(
     () => TransactionEntity,
-    (transaction: TransactionEntity) => transaction.id,
+    (transaction: TransactionEntity) => transaction.transaction_id,
     { eager: true }
   )
-  @JoinColumn({ name: 'transaction', referencedColumnName: 'id' })
+  @JoinColumn({ name: 'transaction', referencedColumnName: 'transaction_id' })
   transaction: TransactionEntity;
 
   constructor(payment: Partial<PaymentEntity>) {

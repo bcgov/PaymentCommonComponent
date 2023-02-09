@@ -60,7 +60,7 @@ export class ReportingService {
       from
         payment p
       join "transaction" t on
-        t.id = p."transaction"
+        t.transaction_id = p."transaction"
         and p."method" in ('P', 'V', 'AX', 'M')
       group by
         t.transaction_date
@@ -79,7 +79,7 @@ export class ReportingService {
       from
         payment p
       join "transaction" t on
-        t.id = p."transaction"
+        t.transaction_id = p."transaction"
         and p."method" in ('P', 'V', 'AX', 'M')
           and "match" = true
         group by
@@ -107,7 +107,7 @@ export class ReportingService {
         from
           payment p
         join "transaction" t on
-          t.id = p."transaction"
+          t.transaction_id = p."transaction"
           and p."method" not in ('P', 'V', 'AX', 'M')
         group by
           t.fiscal_close_date
@@ -123,7 +123,7 @@ export class ReportingService {
         from
           payment p
         join "transaction" t on
-          t.id = p."transaction"
+          t.transaction_id = p."transaction"
           and p."method" not in ('P', 'V', 'AX', 'M')
             and "match" = true
           group by

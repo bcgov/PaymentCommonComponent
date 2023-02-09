@@ -12,7 +12,7 @@ export class LocationEntity {
   location_id: number;
 
   @Column('varchar', { length: 15, nullable: false })
-  type: string;
+  method: string;
 
   @Column({ type: 'numeric', nullable: false })
   pt_location_id: number;
