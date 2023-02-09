@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DatabaseLogger } from './database-logger';
+import { dbLogger, logLevels } from './helpers';
 
 @Module({
   imports: [
@@ -12,14 +12,8 @@ import { DatabaseLogger } from './database-logger';
         username: process.env.DB_USERNAME ?? 'postgres',
         password: process.env.DB_PASWORD ?? 'postgres',
         database: process.env.DB_NAME ?? 'pcc',
-        logging:
-          process.env.DB_LOGS_ENABLED === 'true'
-            ? ['query', 'error']
-            : ['error'],
-        logger:
-          process.env.DB_LOGS_ENABLED === 'true'
-            ? new DatabaseLogger()
-            : undefined,
+        logging: logLevels,
+        logger: dbLogger,
         autoLoadEntities: true,
         synchronize: false
       })

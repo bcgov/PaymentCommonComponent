@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm';
-import { DatabaseLogger } from './database-logger';
+import { dbLogger, logLevels } from './helpers';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
@@ -28,8 +28,6 @@ export default new DataSource({
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   synchronize: false,
-  logging:
-    process.env.DB_LOGS_ENABLED === 'true' ? ['query', 'error'] : ['error'],
-  logger:
-    process.env.DB_LOGS_ENABLED === 'true' ? new DatabaseLogger() : undefined
+  logging: logLevels,
+  logger: dbLogger
 });
