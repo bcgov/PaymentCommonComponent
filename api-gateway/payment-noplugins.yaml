@@ -1,7 +1,14 @@
 services:
   - name: PaymentAPI
-    url: https://ee1uqiu7x1.execute-api.ca-central-1.amazonaws.com/api/
+    host: ee1uqiu7x1.execute-api.ca-central-1.amazonaws.com
+    port: 443
+    protocol: https
+    path: /
     tags: [ ns.payment ]
+    plugins:
+      - name: request-transformer
+        tags: [ ns.payment]
+        config: {}
     routes:
       - tags:
           - OAS3_import
