@@ -29,3 +29,5 @@ postgres
 data
 .env.test
 testdata
+sqlfile.sql
+sqlfile.dbml
