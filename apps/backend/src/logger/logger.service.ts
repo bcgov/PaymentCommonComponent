@@ -1,45 +1,19 @@
 import { LoggerService } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import axios from 'axios';
 import { WinstonModule } from 'nest-winston';
-import { Repository } from 'typeorm';
-import winston from 'winston';
-import DailyRotateFile from 'winston-daily-rotate-file';
-import { join } from 'path';
 import * as util from 'util';
-import { LogEntity } from './entities/log.entity';
-import { logFileFormat, consoleLogFormat } from './format';
+import { transports } from './format';
 
 export class AppLogger implements LoggerService {
   private readonly logger;
 
-  constructor(
-    @InjectRepository(LogEntity) private logsRepository: Repository<LogEntity>
-  ) {
+  constructor() {
     this.logger = WinstonModule.createLogger({
-      transports: [
-        new winston.transports.Console({
-          level: 'info',
-          format: consoleLogFormat
-        }),
-        new DailyRotateFile({
-          filename: join(__dirname, 'logs/%DATE%.log'),
-          datePattern: 'YYYY-MM-DD',
-          zippedArchive: true,
-          level: 'info',
-          format: logFileFormat
-        })
-      ],
+      transports,
       exitOnError: false
     });
   }
-  async createLog(log: Partial<LogEntity>) {
-    return await this.logsRepository.save(this.logsRepository.create(log), {
-      data: {
-        isCreatingLogs: true
-      }
-    });
-  }
+
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   log(message: unknown, context?: any) {
     this.logger.log(util.format(message ?? '', context ?? ''));

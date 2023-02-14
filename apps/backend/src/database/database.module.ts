@@ -15,7 +15,7 @@ import { dbLogger, logLevels } from './helpers';
         logging: logLevels,
         logger: dbLogger,
         autoLoadEntities: true,
-        synchronize: false
+        synchronize: process.env.APP_ENV === 'local'
       })
     })
   ]
