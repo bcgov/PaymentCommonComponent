@@ -49,7 +49,7 @@ export class TransactionDTO {
   @ApiProperty({ description: 'Total Value of the Txn', example: 150.5 })
   @IsNumber()
   @IsNotEmpty()
-  total_payment_amount!: number;
+  total_transaction_amount!: number;
 
   @ApiProperty({ description: 'Transaction Cancelled', example: true })
   @IsBoolean()

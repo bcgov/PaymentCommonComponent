@@ -1,4 +1,8 @@
-import { SBCGarmsDistribution, SBCGarmsPayment, IGarmsJson } from './sbc_garms';
+import {
+  SBCGarmsDistribution,
+  SBCGarmsPayment,
+  SBCGarmsJsonJson
+} from './sbc_garms';
 
 export enum PaymentChannel {
   INPERSON = 'in-person',
@@ -123,7 +127,7 @@ export class Transaction {
   payments: Payment[];
   accounting?: AccountingItem[];
 
-  constructor(data: IGarmsJson) {
+  constructor(data: SBCGarmsJsonJson) {
     this.transaction_id = data.sales_transaction_id;
     this.transaction_date = data.sales_transaction_date;
     this.fiscal_close_date = data.fiscal_close_date;

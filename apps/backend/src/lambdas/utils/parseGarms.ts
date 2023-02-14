@@ -4,7 +4,7 @@ import {
   PaymentEntity,
   PaymentMethodEntity
 } from '../../transaction/entities';
-import { IGarmsJson, SBCGarmsPayment } from '../../transaction/interface';
+import { SBCGarmsJsonJson, SBCGarmsPayment } from '../../transaction/interface';
 import { Transaction } from '../../transaction/interface/transaction.interface';
 {
   /*
@@ -13,7 +13,7 @@ import { Transaction } from '../../transaction/interface/transaction.interface';
 }
 
 export const parseGarms = async (
-  garmsJson: IGarmsJson[],
+  garmsJson: SBCGarmsJsonJson[],
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[]
 ): Promise<TransactionEntity[]> => {
@@ -28,7 +28,7 @@ export const parseGarms = async (
       misc,
       distributions,
       revAccounts
-    }: IGarmsJson) =>
+    }: SBCGarmsJsonJson) =>
       new TransactionEntity({
         source_id: Ministries.SBC,
         transaction_id: sales_transaction_id,
@@ -40,7 +40,7 @@ export const parseGarms = async (
           .slice(11, 19)
           .replaceAll('.', ':'),
         location_id: parseInt(source.location_id),
-        total_payment_amount: payment_total,
+        total_transaction_amount: payment_total,
         fiscal_close_date,
         payments: payments.map(
           ({ method, amount, exchange_rate, currency }: SBCGarmsPayment) => {

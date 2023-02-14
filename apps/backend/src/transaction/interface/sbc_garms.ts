@@ -45,7 +45,7 @@ export interface SBCGarmsSource {
 interface Misc {
   employee_id: string;
 }
-export interface IGarmsJson {
+export interface SBCGarmsJsonJson {
   sales_transaction_id: string;
   sales_transaction_date: string;
   fiscal_close_date: string;

@@ -23,7 +23,7 @@ export class TransactionEntity {
     scale: 4,
     transformer: new ColumnNumericTransformer()
   })
-  total_payment_amount: number;
+  total_transaction_amount: number;
 
   @Column({ type: 'boolean', default: false })
   void_indicator: boolean;

@@ -4,7 +4,7 @@
     "transaction_date": "2023-01-01",
     "transaction_time": "13.33.31.875973",
     "fiscal_close_date": "2023-01-02",
-    "total_payment_amount": 25.2,
+    " total_transaction_amount": 25.2,
     "void_indicator": false,
     "miscellaneous": {
       "employee_id": "SC61350"
