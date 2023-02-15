@@ -37,7 +37,7 @@ export class LocationService {
         description: true
       },
       where: {
-        type: `${LocationEnum.Bank}`,
+        method: `${LocationEnum.Bank}`,
         source_id: source
       }
     });

@@ -1,12 +1,12 @@
 import { OneToMany, Entity, Column, PrimaryColumn } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
-import { Transaction } from '../transaction.interface';
+import { Transaction } from '../interface/transaction.interface';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('transaction')
 export class TransactionEntity {
   @PrimaryColumn({ unique: true })
-  id: string;
+  transaction_id: string;
 
   @Column({ type: 'date' })
   transaction_date: string;
@@ -23,7 +23,7 @@ export class TransactionEntity {
     scale: 4,
     transformer: new ColumnNumericTransformer()
   })
-  amount: number;
+  total_transaction_amount: number;
 
   @Column({ type: 'boolean', default: false })
   void_indicator: boolean;
@@ -35,10 +35,9 @@ export class TransactionEntity {
   location_id: number;
 
   @Column({ type: 'jsonb', nullable: false })
-  transactionJson: Partial<Transaction>;
+  transactionJson?: Transaction;
 
   // PCC Internals
-
   @Column({ type: 'boolean', default: false })
   migrated?: boolean;
 

@@ -4,14 +4,16 @@ import {
   PaymentEntity,
   PaymentMethodEntity
 } from '../../transaction/entities';
-import { IGarmsJson, IGarmsPayment } from '../../transaction/interface';
-// For parsing GARMS Sales JSON into PCC Sales
-
-// TODO: HIGH PRIO
-// 1. Make sure IDs are unique
+import { SBCGarmsJsonJson, SBCGarmsPayment } from '../../transaction/interface';
+import { Transaction } from '../../transaction/interface/transaction.interface';
+{
+  /*
+   * For parsing GARMS Sales JSON into PCC Sales
+   */
+}
 
 export const parseGarms = async (
-  garmsJson: IGarmsJson[],
+  garmsJson: SBCGarmsJsonJson[],
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[]
 ): Promise<TransactionEntity[]> => {
@@ -22,11 +24,14 @@ export const parseGarms = async (
       fiscal_close_date,
       payment_total,
       payments,
-      source
-    }: IGarmsJson) =>
+      source,
+      misc,
+      distributions,
+      revAccounts
+    }: SBCGarmsJsonJson) =>
       new TransactionEntity({
         source_id: Ministries.SBC,
-        id: sales_transaction_id,
+        transaction_id: sales_transaction_id,
         transaction_date: sales_transaction_date // TODO: just use slice here
           .split('')
           .splice(0, 10)
@@ -35,24 +40,33 @@ export const parseGarms = async (
           .slice(11, 19)
           .replaceAll('.', ':'),
         location_id: parseInt(source.location_id),
-        amount: payment_total,
+        total_transaction_amount: payment_total,
         fiscal_close_date,
         payments: payments.map(
-          ({ method, amount, exchange_rate, currency }: IGarmsPayment) => {
+          ({ method, amount, exchange_rate, currency }: SBCGarmsPayment) => {
             return new PaymentEntity({
               method: paymentMethods.find((pm) => {
                 return pm.sbc_code === method;
               })?.method,
-              amount: parseFloat(amount.toFixed(2)),
+              amount: parseFloat(amount?.toFixed(2)),
               exchange_rate,
               currency
             });
           }
         ),
-        // TODO: Populate by mapping garms json to txn interface
-        transactionJson: {},
         migrated: true,
-        source_file_name
+        source_file_name,
+        transactionJson: new Transaction({
+          sales_transaction_id,
+          sales_transaction_date,
+          fiscal_close_date,
+          payment_total,
+          payments,
+          source,
+          misc,
+          distributions,
+          revAccounts
+        })
       })
   );
 };

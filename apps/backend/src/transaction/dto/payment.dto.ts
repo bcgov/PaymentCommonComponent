@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString, IsNotEmpty, IsNumber } from 'class-validator';
-import { PaymentChannel } from '../transaction.interface';
+import { PaymentChannel } from '../interface/transaction.interface';
 
 export class TerminalDTO {
   @ApiProperty({ description: 'Card Number', example: '1234' })

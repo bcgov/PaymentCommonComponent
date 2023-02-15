@@ -2,7 +2,7 @@ import * as csv from 'csvtojson';
 import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as path from 'path';
 import { PaymentMethodEntity } from '../../transaction/entities';
-import { PaymentMethod } from '../../transaction/transaction.interface';
+import { PaymentMethod } from '../../transaction/interface/transaction.interface';
 
 export class migration2524636800000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {

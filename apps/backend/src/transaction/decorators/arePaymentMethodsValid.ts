@@ -29,7 +29,7 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
       return sum + method.amount;
     }, 0);
 
-    if (sales.amount !== paymentMethodSum) {
+    if (sales.total_transaction_amount !== paymentMethodSum) {
       this.errorMessage = `Sum Of Amounts by Payment Method does not equal Sale total.`;
       return false;
     }
