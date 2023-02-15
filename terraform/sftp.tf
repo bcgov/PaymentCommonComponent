@@ -1,9 +1,9 @@
 resource "aws_transfer_server" "sftp" {
-  domain                 = "S3"
-  protocols              = ["SFTP"]
-  endpoint_type          = "PUBLIC"
-  identity_provider_type = "SERVICE_MANAGED"
-  security_policy_name   = "TransferSecurityPolicy-2022-03"
+  domain                           = "S3"
+  protocols                        = ["SFTP"]
+  endpoint_type                    = "PUBLIC"
+  identity_provider_type           = "SERVICE_MANAGED"
+  security_policy_name             = "TransferSecurityPolicy-2022-03"
   post_authentication_login_banner = "Logged into ~~~~ ENV: ${var.target_env} ~~~~~ Payment Common Components SFTP"
   tags = {
     Name = "sftp"
@@ -72,10 +72,10 @@ resource "aws_s3_bucket_acl" "sftp_storage_acl" {
 }
 
 resource "aws_transfer_user" "sbc" {
-  server_id      = aws_transfer_server.sftp.id
-  user_name      = "sbc"
-  role           = aws_iam_role.sftp_user.arn
-  home_directory_type       = "LOGICAL"
+  server_id           = aws_transfer_server.sftp.id
+  user_name           = "sbc"
+  role                = aws_iam_role.sftp_user.arn
+  home_directory_type = "LOGICAL"
 
   home_directory_mappings {
     entry  = "/"
@@ -90,10 +90,10 @@ resource "aws_transfer_ssh_key" "sbc" {
 }
 
 resource "aws_transfer_user" "pcc" {
-  server_id      = aws_transfer_server.sftp.id
-  user_name      = "pcc"
-  role           = aws_iam_role.sftp_user.arn
-  home_directory_type       = "LOGICAL"
+  server_id           = aws_transfer_server.sftp.id
+  user_name           = "pcc"
+  role                = aws_iam_role.sftp_user.arn
+  home_directory_type = "LOGICAL"
   home_directory_mappings {
     entry  = "/"
     target = "/${aws_s3_bucket.sftp_storage.id}/sbc"
@@ -104,6 +104,23 @@ resource "aws_transfer_ssh_key" "pcc" {
   server_id = aws_transfer_server.sftp.id
   user_name = aws_transfer_user.pcc.user_name
   body      = data.aws_ssm_parameter.sftp_user_pcc.value
+}
+
+resource "aws_transfer_user" "bcm" {
+  server_id           = aws_transfer_server.sftp.id
+  user_name           = "bcm"
+  role                = aws_iam_role.sftp_user.arn
+  home_directory_type = "LOGICAL"
+  home_directory_mappings {
+    entry  = "/"
+    target = "/${aws_s3_bucket.sftp_storage.id}/bcm"
+  }
+}
+
+resource "aws_transfer_ssh_key" "bcm" {
+  server_id = aws_transfer_server.sftp.id
+  user_name = aws_transfer_user.bcm.user_name
+  body      = data.aws_ssm_parameter.sftp_user_bcm.value
 }
 
 
