@@ -1,13 +1,16 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
+import * as Console from 'console';
 import { AppModule } from '../app.module';
-import { AppLogger } from '../common/logger.service';
 import { Ministries } from '../constants';
+import { AppLogger } from '../logger/logger.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { ReconciliationEventInput } from '../reconciliation/const';
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReportingService } from '../reporting/reporting.service';
 import { LocationService } from './../location/location.service';
+
+const consoleTable = Console.table;
 
 export const handler = async (
   event: ReconciliationEventInput,
@@ -46,23 +49,22 @@ export const handler = async (
         event?.location_ids?.push(location_id)
       );
     }
-
-    console.log('-------------------------------------------------');
-    console.log(
-      `Processing Reconciliation for fiscal date range ${event.fiscal_start_date} to ${event.fiscal_end_date}`
-    );
-    console.log('Total Locations Found for SBC: ', event.location_ids.length);
-    console.log('-------------------------------------------------\n\n');
+    console.log(`\n-------------------------------------------------\n`);
+    appLogger.log(`Processing Reconciliation for fiscal date range ${event.fiscal_start_date} 
+      to ${event.fiscal_end_date}\n
+      Total Locations Found for SBC:  ${event.location_ids.length}`);
+    console.log(`\n-------------------------------------------------\n`);
 
     for (const date of dates) {
-      console.log('-------------------------------------------------');
-      console.log('Processing Reconciliation for date: ', date);
-      console.log('-------------------------------------------------');
+      console.log(`\n-------------------------------------------------\n`);
+      appLogger.log(`Processing Reconciliation for date:  ${date}`);
+      console.log(`\n-------------------------------------------------\n`);
       for (const location_id of event.location_ids) {
-        console.log(
-          '>>>>>> Processing Reconciliation for location_id: ',
-          location_id
+        console.log(`\n-------------------------------------------------\n`);
+        appLogger.log(
+          `Processing Reconciliation for location_id: ${location_id}`
         );
+        console.log(`\n-------------------------------------------------\n`);
 
         const posReconciliation = await posRecon.reconcile({
           date,
@@ -70,7 +72,7 @@ export const handler = async (
           program: event.program
         });
 
-        console.log(posReconciliation);
+        appLogger.log(posReconciliation);
 
         await cashRecon.reconcile({
           date,
@@ -83,24 +85,24 @@ export const handler = async (
 
   await reconcile(event);
 
-  console.log('\n\n=========Reconcile Run Complete=========\n');
+  console.log('\n=========Reconcile Run Complete=========\n');
+  console.log('\n=========Summary Report: =========\n');
 
-  console.log('\n\n=========Summary Report: =========\n');
   const posSummaryReport = await reportingService.reportPosMatchSummaryByDate();
   const cashSummaryReport =
     await reportingService.reportCashMatchSummaryByDate();
-  console.table(posSummaryReport);
-  console.table(cashSummaryReport);
+  consoleTable(posSummaryReport);
+  consoleTable(cashSummaryReport);
   return {
     message: 'Reconciliation complete'
   };
 };
 
 const reconcileAll: ReconciliationEventInput = {
-  fiscal_start_date: '2023-01-10',
+  fiscal_start_date: '2023-02-01',
   fiscal_end_date: '2023-02-02',
   program: 'SBC',
-  location_ids: []
+  location_ids: [31, 61]
 };
 
 handler(reconcileAll);

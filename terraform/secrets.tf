@@ -8,6 +8,10 @@ data "aws_ssm_parameter" "sftp_user_pcc" {
   name = "/${var.project_code}/${var.target_env}/sftp/user/pcc"
 }
 
+data "aws_ssm_parameter" "sftp_user_bcm" {
+  name = "/${var.project_code}/${var.target_env}/sftp/user/bcm"
+}
+
 data "aws_ssm_parameter" "postgres_password" {
   name = "/${var.project_code}/${var.target_env}/postgres/password"
 }

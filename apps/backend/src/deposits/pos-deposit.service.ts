@@ -2,8 +2,8 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
-import { AppLogger } from '../common/logger.service';
 import { LocationService } from '../location/location.service';
+import { AppLogger } from '../logger/logger.service';
 import { ReconciliationEvent } from '../reconciliation/const';
 import { PosPaymentPosDepositPair } from '../reconciliation/reconciliation.interfaces';
 @Injectable()

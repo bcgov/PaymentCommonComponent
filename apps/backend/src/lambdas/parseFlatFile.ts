@@ -3,7 +3,7 @@ import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { parseTDI } from './utils/parseTDI';
 import { AppModule } from '../app.module';
-import { AppLogger } from '../common/logger.service';
+import { AppLogger } from '../logger/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
 export interface parseFlatFileEvent {
