@@ -194,6 +194,9 @@ deploy-backend:
 build-local:
 	@docker-compose up --build -d --force-recreate
 
+make clean: 
+	@rm -rf apps/backend/dist 
+
 start: 
 	docker-compose up -d 
 
