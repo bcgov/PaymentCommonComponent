@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { AppLogger } from '../common/logger.service';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI } from '../lambdas/utils/parseTDI';
+import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
 export class ParseService {

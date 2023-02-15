@@ -9,9 +9,9 @@ import {
   checkPaymentsForFullMatch,
   checkPaymentsForPartialMatch
 } from './util';
-import { AppLogger } from '../common/logger.service';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { TransactionService } from '../transaction/transaction.service';
 

@@ -11,7 +11,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiOperation, ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
-import { AppLogger } from '../common/logger.service';
+import { AppLogger } from '../logger/logger.service';
 
 @Controller('parse')
 @ApiTags('Parser API')

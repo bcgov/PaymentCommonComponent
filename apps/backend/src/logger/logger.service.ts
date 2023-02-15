@@ -1,22 +1,23 @@
 import { LoggerService } from '@nestjs/common';
 import axios from 'axios';
 import { WinstonModule } from 'nest-winston';
-import winston from 'winston';
+import * as util from 'util';
+import { transports } from './format';
 
 export class AppLogger implements LoggerService {
-  private logger;
+  private readonly logger;
 
   constructor() {
     this.logger = WinstonModule.createLogger({
-      transports: [new winston.transports.Console({})],
+      transports,
       exitOnError: false
     });
   }
 
-  log(message: unknown, context?: string) {
-    this.logger.log(message, context);
+  /*eslint-disable @typescript-eslint/no-explicit-any*/
+  log(message: unknown, context?: any) {
+    this.logger.log(util.format(message ?? '', context ?? ''));
   }
-
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async error(e: any, context?: string) {
     const error = e as Error & { response?: Error };
@@ -34,7 +35,6 @@ export class AppLogger implements LoggerService {
         ...(response?.data ? { data: response.data } : {})
       };
     }
-
     // For handling manually crafted validation error message arrays, see 'exceptionFactory' in 'app.config.ts'
     if (error.response?.message) {
       message = error.response?.message;

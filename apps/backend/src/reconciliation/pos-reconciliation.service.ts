@@ -7,8 +7,8 @@ import {
 } from './const';
 import { PosPaymentPosDepositPair } from './reconciliation.interfaces';
 import { checkPaymentsForFullMatch } from './util';
-import { AppLogger } from '../common/logger.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { TransactionService } from '../transaction/transaction.service';
 import { POSDepositEntity } from './../deposits/entities/pos-deposit.entity';
@@ -44,7 +44,6 @@ export class POSReconciliationService {
           deposit.match === false &&
           differenceInSeconds(payment.timestamp, deposit.timestamp) < 240
         ) {
-
           // mutate the original array to use in next heurisitc match
           // after this deposit is used up, mark it as true and don't use it again
           payments[pindex].match = true;

@@ -1,4 +1,5 @@
 import { DataSource } from 'typeorm';
+import { dbLogger, logLevels } from './helpers';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
@@ -24,5 +25,7 @@ export default new DataSource({
     LocationEntity
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-  synchronize: false
+  synchronize: process.env.APP_ENV === 'local',
+  logging: logLevels,
+  logger: dbLogger
 });

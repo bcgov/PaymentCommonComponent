@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { dbLogger, logLevels } from './helpers';
 
 @Module({
   imports: [
@@ -11,8 +12,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
         username: process.env.DB_USERNAME ?? 'postgres',
         password: process.env.DB_PASWORD ?? 'postgres',
         database: process.env.DB_NAME ?? 'pcc',
+        logging: logLevels,
+        logger: dbLogger,
         autoLoadEntities: true,
-        synchronize: false
+        synchronize: process.env.APP_ENV === 'local'
       })
     })
   ]

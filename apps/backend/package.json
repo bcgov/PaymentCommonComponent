@@ -23,10 +23,10 @@
     "lint-staged": "lint-staged",
     "nibble": "eslint-nibble --ext .ts src/",
     "typeorm": "ts-node ../../../../node_modules/.bin/typeorm",
-    "typeorm:run-migrations": "yarn run typeorm migration:run -d ./src/database/config.ts",
-    "typeorm:generate-migration": "yarn run typeorm migration:generate -d ./src/database/config.ts ./src/database/migrations/migration",
+    "typeorm:run-migrations": "yarn run typeorm migration:run -d ./src/database/datasource.ts",
+    "typeorm:generate-migration": "yarn run typeorm migration:generate -d ./src/database/datasource.ts ./src/database/migrations/migration",
     "typeorm:create-migration": "yarn run typeorm migration:create ./src/database/migrations/migration",
-    "typeorm:revert-migration": "yarn run typeorm -d ./src/database/config.ts migration:revert"
+    "typeorm:revert-migration": "yarn run typeorm -d ./src/database/datasource.ts migration:revert"
   },
   "dependencies": {
     "@nestjs/common": "9.2.1",
@@ -54,7 +54,8 @@
     "typeorm": "0.3.11",
     "underscore": "1.13.6",
     "webpack": "5.75.0",
-    "winston": "3.8.2"
+    "winston": "3.8.2",
+    "winston-daily-rotate-file": "4.7.1"
   },
   "devDependencies": {
     "@nestjs/cli": "9.1.8",

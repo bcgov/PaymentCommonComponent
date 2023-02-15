@@ -15,8 +15,8 @@ import { AppModule } from './app.module';
 import { Documentation } from './common/documentation';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
-import { AppLogger } from './common/logger.service';
 import { API_PREFIX } from './config';
+import { AppLogger } from './logger/logger.service';
 import { TrimPipe } from './trim.pipe';
 
 interface ValidationErrorMessage {
@@ -70,7 +70,7 @@ export async function createNestApp(): Promise<{
     process.env.RUNTIME_ENV === 'test'
   ) {
     app = await NestFactory.create(AppModule, {
-      logger: new AppLogger()
+      bufferLogs: true
     });
   } else {
     app = await NestFactory.create<NestExpressApplication>(
@@ -78,7 +78,7 @@ export async function createNestApp(): Promise<{
       new ExpressAdapter(expressApp)
     );
     // Adding winston logger
-    app.useLogger(new AppLogger());
+    app.useLogger(app.get(AppLogger));
   }
 
   // Validation pipe
