@@ -1,3 +1,6 @@
+/**
+ * NOTE: This file is generated from the SBC Garms JSON which we receive from our sftp server. This file is temporary and will be removed once we begin to recieve SBC transaction data via the api instead of the sftp server.
+ */
 export interface SBCGarmsRevenueAccount {
   dist_client_code: string;
   dist_resp_code: string;
@@ -45,7 +48,7 @@ export interface SBCGarmsSource {
 interface Misc {
   employee_id: string;
 }
-export interface SBCGarmsJsonJson {
+export interface SBCGarmsJson {
   sales_transaction_id: string;
   sales_transaction_date: string;
   fiscal_close_date: string;

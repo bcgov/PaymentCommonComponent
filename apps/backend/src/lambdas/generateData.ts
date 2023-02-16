@@ -15,7 +15,7 @@ import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
 import { AppLogger } from '../logger/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { TransactionEntity } from '../transaction/entities/transaction.entity';
-import { SBCGarmsJsonJson } from '../transaction/interface';
+import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
 import { TransactionService } from '../transaction/transaction.service';
 
@@ -120,9 +120,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
       if (fileType === FileTypes.SBC_SALES) {
         const paymentMethods = await paymentMethodService.getPaymentMethods();
         const garmsSales: TransactionEntity[] = await parseGarms(
-          (await JSON.parse(
-            file.Body?.toString() || '{}'
-          )) as SBCGarmsJsonJson[],
+          (await JSON.parse(file.Body?.toString() || '{}')) as SBCGarmsJson[],
           filename,
           paymentMethods
         );

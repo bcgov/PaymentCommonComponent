@@ -1,7 +1,7 @@
 import {
   SBCGarmsDistribution,
   SBCGarmsPayment,
-  SBCGarmsJsonJson
+  SBCGarmsJson
 } from './sbc_garms';
 
 export enum PaymentChannel {
@@ -127,7 +127,7 @@ export class Transaction {
   payments: Payment[];
   accounting?: AccountingItem[];
 
-  constructor(data: SBCGarmsJsonJson) {
+  constructor(data: SBCGarmsJson) {
     this.transaction_id = data.sales_transaction_id;
     this.transaction_date = data.sales_transaction_date;
     this.fiscal_close_date = data.fiscal_close_date;
