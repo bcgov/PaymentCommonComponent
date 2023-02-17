@@ -1,9 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { join } from 'path';
+
 import { LoggerOptions } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
-import DatabaseLogger from './database-logger';
+import { join } from 'path';
+import { DatabaseLogger } from './database-logger';
 
 const config: PostgresConnectionOptions = {
   type: 'postgres',
@@ -37,7 +38,6 @@ const getEnvironmentSpecificConfig = (env?: string) => {
       };
   }
 };
-
 
 const nodeEnv = process.env.NODE_ENV;
 const environmentSpecificConfig = getEnvironmentSpecificConfig(nodeEnv);
