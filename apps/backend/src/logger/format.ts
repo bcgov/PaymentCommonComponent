@@ -19,14 +19,14 @@ export const consoleLogFormat = winston.format.combine(
 );
 
 const consoleTransport = new winston.transports.Console({
-  level: 'info',
+  level: 'INFO',
   format: consoleLogFormat
 });
 const fileTransport = new DailyRotateFile({
   filename: join(__dirname, 'logs/%DATE%.log'),
   datePattern: 'YYYY-MM-DD',
   zippedArchive: true,
-  level: 'info',
+  level: 'INFO',
   format: logFileFormat
 });
 export const transports =
