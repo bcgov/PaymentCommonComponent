@@ -1,0 +1,21 @@
+services:
+  - name: PaymentAPI
+    host: ee1uqiu7x1.execute-api.ca-central-1.amazonaws.com
+    port: 443
+    protocol: https
+    path: /
+    tags: [ ns.payment ]
+    plugins:
+      - name: request-transformer
+        tags: [ ns.payment]
+        config: {}
+    routes:
+      - tags: [ ns.payment ]
+        name: SalesController_saveSalesEvent
+        methods:
+          - POST
+        paths:
+          - /api/v1/sale
+        strip_path: false
+        hosts:
+          - payment.api.gov.bc.ca

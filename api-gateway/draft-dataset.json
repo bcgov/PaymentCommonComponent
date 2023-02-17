@@ -1,0 +1,12 @@
+{
+  "name": "payments",
+  "license_title": "Open Government Licence - British Columbia",
+  "security_class": "PUBLIC",
+  "view_audience": "Public",
+  "download_audience": "Public",
+  "record_publish_date": "2023-02-16",
+  "notes": "Incoming data for Payments API",
+  "title": "Payments",
+  "organization": "ministry-of-citizens-services",
+  "organizationUnit": "databc"
+}

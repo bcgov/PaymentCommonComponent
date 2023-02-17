@@ -8,13 +8,10 @@ services:
     routes:
       - tags: [ ns.payment ]
         name: SalesController_saveSalesEvent
-        methods:
-          - POST
-        paths:
-          - /api/v1/sale
+        methods: [ POST ]
+        paths: [ /api/v1/sale ]
         strip_path: false
-        hosts:
-          - payment.api.gov.bc.ca
+        hosts: [ payment.api.gov.bc.ca ]
     plugins:
       - name: request-transformer
         tags: [ ns.payment]
@@ -22,11 +19,4 @@ services:
       - name: key-auth
         tags: [ ns.payment]
         config:
-          key_names:
-          - X-API-KEY
-    consumers:
-    - username: tester
-      custom_id: tester
-    keyauth_credentials:
-    - consumer: tester
-      key: secret123
+          key_names: [ X-API-KEY ]
