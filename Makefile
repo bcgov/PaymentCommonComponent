@@ -147,6 +147,10 @@ build-backend: pre-build
 	@echo 'Updating prod dependencies...\n'
 	@yarn workspaces focus @payment/backend --production
 
+	@echo 'Pruning node modules...\n'
+	@npx --yes node-prune
+	@npx --yes modclean -n default:safe,default:caution -r
+
 	@echo 'Deleting existing build dir...\n'
 	@rm -rf ./.build || true
 
@@ -165,7 +169,7 @@ build-backend: pre-build
 	@echo 'Creating Zip ...\n'
 	@cd .build && zip -r backend.zip .
 	@cd ..
-	
+
 	@echo 'Copying to terraform build location...\n'
 	@mv .build/backend.zip ./terraform/build/backend.zip
 

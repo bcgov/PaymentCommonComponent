@@ -1,6 +1,4 @@
 #!/bin/bash
-set -e
-
 
 ENV=${1?"Environment Parameter Missing !"}
 HOST=${2?"Host Parameter Missing !"}
