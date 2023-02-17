@@ -256,16 +256,16 @@ unmark:
 # ===================================
 
 migration-create:
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:create-migration
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:create-migration
 
 migration-revert: 
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:revert-migration
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:revert-migration
 
 migration-run:
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:run-migrations
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:run-migrations
 
 migration-generate:	  
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:generate-migration
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:generate-migration
 	
     
 # ===================================
