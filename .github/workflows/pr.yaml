@@ -34,3 +34,9 @@ jobs:
       - name: Build Check
         run: yarn build:backend
 
+      - name: Run Docker Compose
+        run: make build-local 
+
+      - name: Migrations Check 
+        run: make migration-run
+
