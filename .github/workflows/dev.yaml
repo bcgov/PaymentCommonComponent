@@ -4,7 +4,6 @@ on:
     tags:
       - dev
 env:
-  TF_VERSION: 1.2.4
   ENV_NAME: dev
 
 jobs:
@@ -15,23 +14,15 @@ jobs:
     environment:
       name: dev
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
         name: checkout
 
-      - uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-          cli_config_credentials_token: ${{ secrets.TFC_TEAM_TOKEN }}
-
-      - name: Setup Infra
-        run: make apply
-
-      - uses: actions/cache@v2
+      - uses: actions/cache@v3
         name: Cache yarn
         with:
           path: ./.yarn/cache
-          key: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
-          restore-keys: ${{ runner.os }}-yarn-${{ hashFiles('./yarn.lock') }}
+          key: pcc-backend
+          restore-keys: pcc-backend
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -42,7 +33,7 @@ jobs:
           aws-region: ca-central-1
           role-to-assume: ${{ secrets.AWS_SA_ROLE_ARN }}
           role-duration-seconds: 900
-          role-session-name: ci-deployment
+          role-session-name: ci-dev-deployment
 
       - name: Install dependencies
         run: yarn

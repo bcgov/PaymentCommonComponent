@@ -140,7 +140,7 @@ pre-build:
 	@mkdir -p ./terraform/build
 	@echo "++\n*****"
 
-build-backend:
+build-backend: pre-build
 	@echo 'Building backend package... \n' 
 	@yarn workspace @payment/backend build
 
@@ -180,12 +180,6 @@ sync-app:
 # Full redirection to /dev/null is required to not leak env variables
 deploy-api:
 	aws lambda update-function-code --function-name Payment_Common_Component_API --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
-
-deploy-gl:
-	aws lambda update-function-code --function-name glGenerator --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
-
-deploy-backend: 
-	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./terraform/build/empty_lambda.zip --region $(AWS_REGION) > /dev/null
 
 # ===================================
 # Local Dev Environment

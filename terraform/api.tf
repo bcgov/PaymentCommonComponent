@@ -28,7 +28,7 @@ resource "aws_lambda_function" "api" {
       RUNTIME_ENV       = "hosted"
     #   TARGET_ENV        = var.target_env
     #   BUILD_ID          = var.build_id
-    #   BUILD_INFO        = var.build_info
+    #   BUILD_INFO        = var.build_info 
         DB_USERNAME = var.db_username
         DB_PASWORD = data.aws_ssm_parameter.postgres_password.value
         DB_HOST     = aws_rds_cluster.pgsql.endpoint
