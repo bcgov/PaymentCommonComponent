@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, Not } from 'typeorm';
 import { LocationEnum } from './const';
 import { LocationEntity } from './entities/master-location-data.entity';
 import { Ministries } from '../constants';
@@ -15,31 +15,34 @@ export class LocationService {
   public async getMerchantIdsByLocationId(
     location_id: number
   ): Promise<number[]> {
-    const merchantIds = await this.locationRepo.find({
+    const merchant_ids = await this.locationRepo.find({
       select: {
         merchant_id: true
       },
       where: {
-        location_id: location_id
+        location_id: location_id,
+        method: Not('Bank')
+      },
+      order: {
+        location_id: 'ASC'
       }
     });
-    return merchantIds?.map((itm: LocationEntity) => itm.merchant_id);
+    return merchant_ids.map((itm) => itm.merchant_id) as number[];
   }
 
-  // TODO: Get Distinct Locations
-  // Remove bank
-  public async getLocationsBySource(
-    source: Ministries
-  ): Promise<LocationEntity[]> {
-    return await this.locationRepo.find({
+  public async getLocationsBySource(source: Ministries): Promise<number[]> {
+    const locations = await this.locationRepo.find({
       select: {
-        location_id: true,
-        description: true
+        location_id: true
       },
       where: {
-        method: `${LocationEnum.Bank}`,
-        source_id: source
+        source_id: source,
+        method: `${LocationEnum.Bank}`
+      },
+      order: {
+        location_id: 'ASC'
       }
     });
+    return locations.map((itm) => itm.location_id) as number[];
   }
 }

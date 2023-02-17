@@ -2,10 +2,14 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
+import { MatchStatus } from '../common/const';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
-import { ReconciliationEvent } from '../reconciliation/const';
-import { PosPaymentPosDepositPair } from '../reconciliation/reconciliation.interfaces';
+import {
+  ReconciliationEvent,
+  PosPaymentPosDepositPair
+} from '../reconciliation/types';
+
 @Injectable()
 export class PosDepositService {
   constructor(
@@ -24,7 +28,7 @@ export class PosDepositService {
     event: ReconciliationEvent
   ): Promise<POSDepositEntity[]> {
     const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
-      event?.location_id || 0
+      event?.location_id
     ); // TODO: Fix || 0
     return await this.posDepositRepo.find({
       relationLoadStrategy: 'query',
@@ -67,16 +71,26 @@ export class PosDepositService {
   // TODO: update this query to just update the match column.
   async markPosDepositsAsMatched(
     posPaymentDepostPair: PosPaymentPosDepositPair[]
-  ) {
-    await Promise.all(
+  ): Promise<POSDepositEntity[]> {
+    return await Promise.all(
       posPaymentDepostPair.map(async (pair) => {
         const depositEntity = await this.posDepositRepo.findOneByOrFail({
           id: pair.deposit.id
         });
-        depositEntity.match = true;
-        depositEntity.matched_payment_id = `${pair.payment.id}`;
+        depositEntity.status = MatchStatus.MATCH;
+        depositEntity.payment_id = pair.payment.id;
         return await this.posDepositRepo.save(depositEntity);
       })
     );
+  }
+
+  async markPosDepositAsException(
+    deposit: POSDepositEntity
+  ): Promise<POSDepositEntity> {
+    const depositEntity = await this.posDepositRepo.findOneByOrFail({
+      id: deposit.id
+    });
+    depositEntity.status = MatchStatus.EXCEPTION;
+    return await this.posDepositRepo.save(depositEntity);
   }
 }

@@ -18,7 +18,7 @@ export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   transaction_date: string;
   transaction_time: string;
   settlement_date: string;
-  transaction_cd: string;
+  transaction_code: string;
   fill2: string;
   approval_code: string;
   fill3: string;
@@ -33,7 +33,7 @@ export class TDI34Details
   implements ITDI34Details
 {
   public static readonly resourceType = 'TDI34Details';
-
+  /*eslint-disable */
   constructor(init?: any) {
     super(init);
   }
@@ -132,12 +132,12 @@ export class TDI34Details
   }
 
   @Column({ start: 67, width: 2 })
-  public get transaction_cd() {
-    return this.resource.transaction_cd;
+  public get transaction_code() {
+    return this.resource.transaction_code;
   }
 
-  public set transaction_cd(data) {
-    this.resource.transaction_cd = data;
+  public set transaction_code(data) {
+    this.resource.transaction_code = data;
   }
 
   @Column({ start: 69, width: 3 })

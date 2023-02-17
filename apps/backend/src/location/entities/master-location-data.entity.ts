@@ -8,7 +8,7 @@ export class LocationEntity {
   @Column('varchar', { length: 15, nullable: false })
   source_id: string;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({ type: 'int4', nullable: false })
   location_id: number;
 
   @Column('varchar', { length: 15, nullable: false })
@@ -41,7 +41,7 @@ export class LocationEntity {
   @Column('varchar', { length: 7, nullable: false })
   project_code: number;
 
-  @Column({ type: 'numeric', nullable: false })
+  @Column({ type: 'int4', nullable: false })
   merchant_id: number;
 
   constructor(data: Partial<LocationEntity>) {
