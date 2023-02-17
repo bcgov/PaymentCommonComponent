@@ -1,4 +1,4 @@
-name: Check PR For JIRA Issue
+name: JIRA Check
 
 on:
   workflow_dispatch:

@@ -35,7 +35,7 @@ jobs:
         run: yarn build:backend
 
       - name: Setup ENV file
-        run: cp ./config/.env.example ./.env
+        run: cp ./.config/.env.example ./.env
 
       - name: Run DB
         run: docker-compose up -d db
