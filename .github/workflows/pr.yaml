@@ -34,8 +34,11 @@ jobs:
       - name: Build Check
         run: yarn build:backend
 
-      - name: Run Docker Compose
-        run: make build-local 
+      - name: Setup ENV file
+        run: cp ./config/.env.example ./.env
+
+      - name: Run DB
+        run: docker-compose up -d db
 
       - name: Migrations Check 
         run: make migration-run
