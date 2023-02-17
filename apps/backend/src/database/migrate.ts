@@ -1,9 +1,15 @@
 import { MigrationExecutor } from 'typeorm';
 import db from './datasource';
+import { Context } from 'aws-lambda';
 
-export async function migrateDatabase() {
+export const handler = async (event?: unknown, context?: Context) => {
+  console.log('Starting migrations...');
   try {
-    await db.initialize();
+
+    if (!db.isInitialized) {
+      await db.initialize();
+    }
+    
     const migrationExecutor = new MigrationExecutor(db, db.createQueryRunner());
 
     const executed = await migrationExecutor.getExecutedMigrations();
@@ -16,19 +22,17 @@ export async function migrateDatabase() {
     console.log(pending.map((mig) => mig.name));
 
     const run = await migrationExecutor.executePendingMigrations();
-    
+
     console.log('---> ran now:');
     console.log(run.map((mig) => mig.name));
 
-    await db.destroy();
-
     console.log('Migration complete.');
     return 'success';
-
   } catch (e) {
     console.log(e);
-    db.destroy();
     console.log('Migration failure.');
     return 'failure';
   }
-}
+};
+
+handler();

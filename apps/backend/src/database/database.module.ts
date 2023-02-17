@@ -46,7 +46,7 @@ export const appOrmConfig: PostgresConnectionOptions = {
   ...config,
   ...environmentSpecificConfig,
   synchronize: false,
-  migrationsRun: true
+  migrationsRun: false
 };
 
 console.log(appOrmConfig);

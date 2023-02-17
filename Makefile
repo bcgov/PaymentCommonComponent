@@ -141,6 +141,8 @@ pre-build:
 	@echo "++\n*****"
 
 build-backend: pre-build
+	@yarn 
+
 	@echo 'Building backend package... \n' 
 	@yarn workspace @payment/backend build
 
@@ -148,8 +150,8 @@ build-backend: pre-build
 	@yarn workspaces focus @payment/backend --production
 
 	@echo 'Pruning node modules...\n'
-	@npx --yes node-prune
-	@npx --yes modclean -n default:safe,default:caution -r
+	# @npx --yes node-prune
+	# @npx --yes modclean -n default:safe,default:caution -r
 
 	@echo 'Deleting existing build dir...\n'
 	@rm -rf ./.build || true
