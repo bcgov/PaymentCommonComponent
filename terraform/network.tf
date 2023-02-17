@@ -32,8 +32,7 @@ locals {
 data "aws_vpc" "main" {
   filter {
     name = "tag:Name"
-    values = [
-    local.vpc_name]
+    values = [local.vpc_name]
   }
 }
 
