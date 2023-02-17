@@ -42,7 +42,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
 const nodeEnv = process.env.NODE_ENV;
 const environmentSpecificConfig = getEnvironmentSpecificConfig(nodeEnv);
 
-const appOrmConfig: PostgresConnectionOptions = {
+export const appOrmConfig: PostgresConnectionOptions = {
   ...config,
   ...environmentSpecificConfig,
   synchronize: false,
