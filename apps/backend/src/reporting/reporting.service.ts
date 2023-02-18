@@ -183,7 +183,7 @@ export class ReportingService {
       SELECT
         cd.location_id,
         cd.status,
-	      COUNT(*)::int,
+	      COUNT(*)::int
       FROM
 	      cash_deposit cd
       WHERE
@@ -212,8 +212,7 @@ export class ReportingService {
       SELECT 
         t.location_id,
         p.status, 
-        COUNT(*)::int as count, 
-        ROUND(SUM(p.amount), 2)::numeric as payment_amount
+        COUNT(*)::int as count 
       FROM
         payment p
       JOIN 
@@ -227,7 +226,7 @@ export class ReportingService {
       AND
          t.fiscal_close_date < '${fiscal_close_date}'::date
       AND 
-        t.fiscal_close_date > '${fiscal_start_date}'::date
+        t.fiscal_close_date >= '${fiscal_start_date}'::date
       GROUP BY 
         p.status, 
         t.location_id  
