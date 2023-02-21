@@ -66,7 +66,7 @@ endif
 
 ifeq ($(ENV_NAME), test) 
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
-DB_HOST = $(DB_HOST_PROD_TEST)
+DB_HOST = $(DB_HOST_TEST)
 endif
 
 ifeq ($(ENV_NAME), prod)
@@ -102,6 +102,8 @@ apply: init
 destroy: init
 	@terraform -chdir=$(TERRAFORM_DIR) destroy
 
+output: 
+	@terraform -chdir=$(TERRAFORM_DIR) output
 
 # ===================================
 # Tag Based Deployments
@@ -306,11 +308,11 @@ sync:
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
-	@echo "Host Instance Id: $(BASTION_INSTANCE_ID) | $(BASTION_INSTANCE_ID_DEV) | $(DOMAIN)\n"
+	@echo "Host Instance Id: $(BASTION_INSTANCE_ID) | $(BASTION_INSTANCE_ID) | $(DOMAIN)\n"
 	@echo "DB HOST URL: $(DB_HOST)\n"
 	# Checking you have the SSM plugin for the AWS cli installed
 	session-manager-plugin
 	rm ssh-keypair ssh-keypair.pub || true
 	ssh-keygen -t rsa -f ssh-keypair -N ''
-	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID) --availability-zone ca-central-1b --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
+	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID) --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
 	ssh -i ssh-keypair ec2-user@$(BASTION_INSTANCE_ID) -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
