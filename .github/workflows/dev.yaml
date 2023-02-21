@@ -25,7 +25,7 @@ jobs:
           restore-keys: pcc-backend
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1-node16
         with:
           role-skip-session-tagging: true
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}

@@ -1,28 +1,55 @@
-name: Run tests for the API
-
+name: TEST - Deploy Apps
+on:
+  push:
+    tags:
+      - test
 env:
-  GIT_LOCAL_BRANCH: ${{ github.sha }}
-
-# Disable test temporarily
-# on: [push]
+  ENV_NAME: test
 
 jobs:
-  build-test:
+  deploy:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
+    concurrency: ci-${{ github.ref }}-test
+    environment:
+      name: test
     steps:
-      - name: checkout
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+        name: checkout
 
-      - name: env
-        run: touch .env
+      - uses: actions/cache@v3
+        name: Cache yarn
+        with:
+          path: ./.yarn/cache
+          key: pcc-backend-test
+          restore-keys: pcc-backend-test
 
-      - name: Build Test
-        run: make run-test
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1-node16
+        with:
+          role-skip-session-tagging: true
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_ID }}
+          aws-region: ca-central-1
+          role-to-assume: ${{ secrets.AWS_SA_ROLE_ARN }}
+          role-duration-seconds: 900
+          role-session-name: ci-test-deployment
 
-      - name: Run Test
-        run: make run-test-pipeline
+      - name: Install dependencies
+        run: yarn
 
-      - name: Stop containers
-        run: make close-test
-        if: ${{ always() }}
+      - name: Setup ENV file
+        run: cp ./.config/.env.example ./.env
+
+      - name: Build
+        run: make build-backend
+
+      - name: Deploy Migrations
+        run: make aws-deploy-migrator
+
+      - name: Run Migrations
+        run: make aws-run-migrator
+
+      - name: Deploy API
+        run: make aws-deploy-api
+
