@@ -123,7 +123,7 @@ ifndef version
 	@echo "++\n***** ERROR: version not set.\n++"
 	@exit 1
 else
-	@git tag -fa $(version) -m "IEN release version: $(version)"
+	@git tag -fa $(version) -m "Release version: $(version)"
 	@git push --force origin refs/tags/$(version):refs/tags/$(version)
 	@git tag -fa prod -m "Deploy prod: $(version)"
 	@git push --force origin refs/tags/prod:refs/tags/prod
