@@ -30,6 +30,6 @@ variable "root_block_device" {
 
 locals {
   namespace = "${var.project_code}_${var.target_env}"
-  pcc_api_name = "Payment_Common_Component_API"
+  pcc_api_name = "paycocoapi"
   db_name = "${var.project_code}-db"
 }

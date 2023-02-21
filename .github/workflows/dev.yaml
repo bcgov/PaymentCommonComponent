@@ -39,7 +39,14 @@ jobs:
         run: yarn
 
       - name: Build
-        run: make build
+        run: make build-backend
 
-      - name: Deploy
-        run: make deploy-backend
+      - name: Deploy Migrations
+        run: make aws-deploy-migrator
+
+      - name: Run Migrations
+        run: make aws-run-migrator
+
+      - name: Deploy API
+        run: make aws-deploy-api
+

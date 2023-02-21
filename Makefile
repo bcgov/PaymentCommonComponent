@@ -183,9 +183,21 @@ build-backend: pre-build
 sync-app:
 	aws s3 sync ./.build/pkg s3://$(APP_SRC_BUCKET) --delete
 
+aws-run-migrator: 
+	@rm migration-results || true
+	@aws lambda invoke --function-name migrator --payload '{}' migration-results --region ca-central-1
+	@cat migration-results | grep "success"
+
 # Full redirection to /dev/null is required to not leak env variables
-deploy-api:
-	aws lambda update-function-code --function-name Payment_Common_Component_API --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
+
+aws-deploy-api:
+	aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1
+
+aws-deploy-migrator:
+	aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1
+
+aws-deploy-reconciler:
+	aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1
 
 # ===================================
 # Local Dev Environment

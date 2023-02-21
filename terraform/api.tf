@@ -2,7 +2,7 @@ resource "aws_lambda_function" "api" {
   description      = "API for ${local.pcc_api_name}"
   function_name    = local.pcc_api_name
   role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
   handler          = "src/lambda.handler"
@@ -96,4 +96,8 @@ resource "aws_lambda_permission" "api_allow_gateway" {
   function_name = aws_lambda_function.api.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_stage.api.execution_arn}/*"
+}
+
+output "api_gw_url" {
+  value = aws_apigatewayv2_api.api.api_endpoint
 }

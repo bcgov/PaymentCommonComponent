@@ -31,3 +31,5 @@ data
 testdata
 sqlfile.sql
 sqlfile.dbml
+
+migration-results
