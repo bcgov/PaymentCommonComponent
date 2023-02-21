@@ -2,14 +2,14 @@ import { MigrationExecutor } from 'typeorm';
 import db from './datasource';
 import { Context } from 'aws-lambda';
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 export const handler = async (event?: unknown, context?: Context) => {
   console.log('Starting migrations...');
   try {
-
     if (!db.isInitialized) {
       await db.initialize();
     }
-    
+
     const migrationExecutor = new MigrationExecutor(db, db.createQueryRunner());
 
     const executed = await migrationExecutor.getExecutedMigrations();
