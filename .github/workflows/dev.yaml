@@ -1,4 +1,4 @@
-name: DEV - Deploy Apps
+name: Deployment - DEV
 on:
   push:
     tags:

@@ -1,4 +1,4 @@
-name: TEST - Deploy Apps
+name: Deployment - TEST
 on:
   push:
     tags:

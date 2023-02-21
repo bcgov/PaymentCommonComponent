@@ -1,4 +1,4 @@
-name: PROD - Deploy Apps
+name: Deployment - PROD
 on:
   push:
     tags:

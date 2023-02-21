@@ -1,4 +1,4 @@
-name: JIRA Check
+name: PR - JIRA Check
 
 on:
   workflow_dispatch:
