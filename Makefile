@@ -197,8 +197,12 @@ aws-deploy-reconciler:
 	aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 # ======================================================================
-# Lambda Invocations
+# AWS Interactions
 # ======================================================================
+
+aws-sync-data-from-prod: 
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test
 
 aws-run-migrator: 
 	@rm migration-results || true

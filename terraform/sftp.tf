@@ -66,6 +66,34 @@ resource "aws_s3_bucket" "sftp_storage" {
   bucket = "pcc-integration-data-files-${var.target_env}"
 }
 
+resource "aws_s3_bucket_policy" "allow_prod_to_access_other_envs" {
+  bucket = aws_s3_bucket.sftp_storage.id
+  policy = data.aws_iam_policy_document.allow_prod_to_access_other_envs.json
+}
+
+data "aws_iam_policy_document" "allow_prod_to_access_other_envs" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["953134788580"] # Allow prod to access dev and test buckets
+    }
+
+    actions = [
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:PutObjectAcl",
+      "s3:PutObject",
+      "s3:GetBucketLocation",
+      "s3:DeleteObject"
+    ]
+
+    resources = [
+      aws_s3_bucket.sftp_storage.arn,
+      "${aws_s3_bucket.sftp_storage.arn}/*",
+    ]
+  }
+}
+
 resource "aws_s3_bucket_acl" "sftp_storage_acl" {
   bucket = aws_s3_bucket.sftp_storage.id
   acl    = "private"
