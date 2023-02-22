@@ -37,8 +37,8 @@ jobs:
       - name: Setup ENV file
         run: cp ./.config/.env.example ./.env
 
-      - name: Run DB
-        run: make build-local
+      - name: Run Docker containers
+        run: make build
 
       - name: Migrations Check 
         run: make migration-run
