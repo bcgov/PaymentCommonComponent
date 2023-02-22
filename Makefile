@@ -187,14 +187,10 @@ build-backend: pre-build
 
 # Full redirection to /dev/null is required to not leak env variables
 
-aws-deploy-api:
-	aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-
-aws-deploy-migrator:
-	aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-
-aws-deploy-reconciler:
-	aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+aws-deploy-all:
+	@aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 # ======================================================================
 # AWS Interactions
@@ -230,6 +226,9 @@ close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
 
+lint: 
+	@yarn workspace @payment/backend lint
+
 # ======================================================================
 # Local Development Environment & Testing
 # ======================================================================
@@ -250,7 +249,7 @@ be-logs:
 	@docker logs $(PROJECT)-backend --follow --tail 25
 
 # ===================================
-# Parse Local
+# Local
 # ===================================
 
 parse:

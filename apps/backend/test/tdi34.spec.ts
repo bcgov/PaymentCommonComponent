@@ -1,8 +1,8 @@
-import { tdi34Keys } from './fixtures/flatFileKeys';
-import tdi34 from './outputs/TDI34.json';
-import tdi34Sample from './fixtures/samples/tdi34Sample.json';
 import * as fs from 'fs';
 import path from 'path';
+import { tdi34Keys } from './fixtures/flatFileKeys';
+import tdi34Sample from './fixtures/samples/tdi34Sample.json';
+import tdi34 from './outputs/TDI34.json';
 
 describe('TDI34', () => {
   it('Verifies TDI TXT to TDI json', () => {

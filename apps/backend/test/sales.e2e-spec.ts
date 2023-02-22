@@ -1,9 +1,9 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
-import { validationPipeConfig } from '../src/app.config';
-import { TrimPipe } from '../src/trim.pipe';
 import request from 'supertest';
+import { validationPipeConfig } from '../src/app.config';
 import { AppModule } from '../src/app.module';
+import { TrimPipe } from '../src/trim.pipe';
 
 describe('Sales Controller (e2e)', () => {
   let app: INestApplication;
