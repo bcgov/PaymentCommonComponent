@@ -80,9 +80,9 @@ endif
 check: 
 	@./bin/tools.sh
 
-# ===================================
+# ======================================================================
 # Terraform commands
-# ===================================
+# ======================================================================
 
 config:
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
@@ -105,9 +105,9 @@ destroy: init
 output: 
 	@terraform -chdir=$(TERRAFORM_DIR) output
 
-# ===================================
+# ======================================================================
 # Tag Based Deployments
-# ===================================
+# ======================================================================
 
 pre-tag:
 	@./scripts/check_rebase.sh
@@ -132,9 +132,12 @@ else
 endif
 
 
-# ===================================
-# Build application stack
-# ===================================
+# ======================================================================
+# Builds
+# ======================================================================
+
+make clean: 
+	@rm -rf apps/backend/dist 
 
 pre-build:
 	@echo "++\n***** Pre-build Clean Build Artifact\n++"
@@ -178,17 +181,9 @@ build-backend: pre-build
 	@mv .build/backend.zip ./terraform/build/backend.zip
 
 
-# ===================================
+# ======================================================================
 # AWS Deployments
-# ===================================
-
-sync-app:
-	aws s3 sync ./.build/pkg s3://$(APP_SRC_BUCKET) --delete
-
-aws-run-migrator: 
-	@rm migration-results || true
-	@aws lambda invoke --function-name migrator --payload '{}' migration-results --region ca-central-1
-	@cat migration-results | grep "success"
+# ======================================================================
 
 # Full redirection to /dev/null is required to not leak env variables
 
@@ -201,30 +196,22 @@ aws-deploy-migrator:
 aws-deploy-reconciler:
 	aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
-# ===================================
-# Local Dev Environment
-# ===================================
+# ======================================================================
+# Lambda Invocations
+# ======================================================================
 
-build-local:
-	@docker-compose up --build -d --force-recreate
+aws-run-migrator: 
+	@rm migration-results || true
+	@aws lambda invoke --function-name migrator --payload '{}' migration-results --region ca-central-1
+	@cat migration-results | grep "success"
 
-make clean: 
-	@rm -rf apps/backend/dist 
+aws-run-reconciler:
 
-start: 
-	docker-compose up -d 
+aws-run-parser: 
 
-stop: 
-	@docker-compose down
-
-wipe: 
-	@docker-compose down -v --remove-orphans
-
-local-backend-workspace:
-	@docker exec -it $(PROJECT)-backend sh
-
-local-backend-logs:
-	@docker logs $(PROJECT)-backend --follow --tail 25
+# ======================================================================
+# CI 
+# ======================================================================
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
@@ -236,6 +223,25 @@ run-test-pipeline:
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
+
+# ======================================================================
+# Local Development Environment & Testing
+# ======================================================================
+
+build:
+	@docker-compose up --build -d --force-recreate
+
+start: 
+	docker-compose up -d 
+
+stop: 
+	@docker-compose down
+
+wipe: 
+	@docker-compose down -v --remove-orphans
+
+be-logs:
+	@docker logs $(PROJECT)-backend --follow --tail 25
 
 # ===================================
 # Parse Local
@@ -264,6 +270,7 @@ drop:
 
 unmark: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update pos_deposit set match=false; update cash_deposit set match=false; update payment set match=false;"
+
 
 # ===================================
 # Migrations
@@ -302,7 +309,7 @@ sync:
 	@./bin/sync.sh
 
 # ===================================
-# AWS Management
+# AWS Database Connection
 # ===================================
 
 open-db-tunnel:
