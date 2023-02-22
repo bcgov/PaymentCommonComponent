@@ -1,4 +1,4 @@
-export const LOCAL = 'local';
+export const ALL = 'all';
 
 export enum Ministries {
   SBC = 'SBC',

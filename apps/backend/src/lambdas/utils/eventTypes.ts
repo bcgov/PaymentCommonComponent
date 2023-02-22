@@ -2,7 +2,6 @@
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getLambdaEventSource = (event?: any) => {
-
   if (event.Records && event.Records[0].cf) return 'isCloudfront';
 
   if (event.configRuleId && event.configRuleName && event.configRuleArn)
@@ -60,6 +59,5 @@ export const getLambdaEventSource = (event?: any) => {
   if (event.Records && event.Records[0].eventSource === 'aws:sqs')
     return 'isSqs';
 
-  if (event.eventType === 'local')
-    return 'local';
+  if (event.eventType === 'all') return 'all';
 };

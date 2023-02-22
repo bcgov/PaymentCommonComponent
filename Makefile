@@ -136,7 +136,7 @@ endif
 # Builds
 # ======================================================================
 
-make clean: 
+clean: 
 	@rm -rf apps/backend/dist 
 
 pre-build:
@@ -210,8 +210,10 @@ aws-run-migrator:
 	@cat migration-results | grep "success"
 
 aws-run-reconciler:
+	@aws lambda invoke --function-name reconciler --payload '{}' reconcile-results --region ca-central-1
 
 aws-run-parser: 
+	@aws lambda invoke --function-name reconciler --payload '{}' reconcile-results --region ca-central-1
 
 # ======================================================================
 # CI 
@@ -252,7 +254,7 @@ be-logs:
 # ===================================
 
 parse:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/generateData.ts").handler({eventType: "make"})' 
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/generateData.ts").handler({eventType: "all"})' 
 
 # TODO update handler to accept args
 reconcile:

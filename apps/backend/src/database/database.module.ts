@@ -9,15 +9,13 @@ import { DatabaseLogger } from './database-logger';
 const config: PostgresConnectionOptions = {
   type: 'postgres',
   port: +(process.env.DB_PORT || 5432),
-  connectTimeoutMS: 5000,
+  connectTimeoutMS: 10000,
   host: process.env.DB_HOST || 'db',
   database: process.env.DB_NAME || 'pcc',
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD,
-  entities: ['dist/src/**/entity/*.entity.js'],
-  migrations: ['dist/src/database/migrations/*.js'],
   synchronize: false,
-  migrationsRun: true,
+  migrationsRun: false,
   logging: !!process.env.DEBUG,
   logger: process.env.DEBUG ? new DatabaseLogger() : undefined
 };
@@ -32,8 +30,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
       };
     default:
       return {
-        entities: ['dist/**/*.entity.js'],
-        migrations: ['dist/src/database/migrations/*.js'],
+        autoLoadEntities: true,
         logging: ['error', 'warn', 'migration'] as LoggerOptions
       };
   }
@@ -48,8 +45,6 @@ export const appOrmConfig: PostgresConnectionOptions = {
   synchronize: false,
   migrationsRun: false
 };
-
-console.log(appOrmConfig);
 
 @Module({
   imports: [
