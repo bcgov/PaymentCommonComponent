@@ -39,7 +39,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
     try {
       const fileList =
         (await s3.listBucketContents(
-          `pcc-integration-data-files-${process.env.NODE_ENV}`
+          `pcc-integration-data-files-${process.env.RUNTIME_ENV}`
         )) || [];
 
       const allUploadedFiles: string[] = [];
@@ -98,7 +98,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
       })();
 
       const file = await s3.getObject(
-        `pcc-integration-data-files-${process.env.NODE_ENV}`,
+        `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
         filename
       );
 

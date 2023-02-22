@@ -18,7 +18,7 @@ resource "aws_lambda_function" "parser" {
   environment {
     variables = {
       NODE_ENV    = "production"
-      RUNTIME_ENV = "hosted"
+      RUNTIME_ENV = var.target_env
       DB_USER     = var.db_username
       DB_PASSWORD = data.aws_ssm_parameter.postgres_password.value
       DB_HOST     = aws_rds_cluster.pgsql.endpoint

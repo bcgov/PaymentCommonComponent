@@ -29,7 +29,7 @@ export const handler = async (event: parseFlatFileEvent, context?: Context) => {
     appLogger.log(`...start ${event.type} Parsing`);
 
     const contents = await s3manager.getObject(
-      `pcc-integration-data-files-${process.env.NODE_ENV}`,
+      `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
       `${event.filepath}`
     );
 
@@ -59,7 +59,7 @@ export const uploadParsedTDI = async (
 ) => {
   try {
     await s3manager.putObject(
-      `pcc-integration-data-files-${process.env.NODE_ENV}`,
+      `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
       outputPath ?? `outputs/${type}/${Date.now()}_${type}.json`,
       Buffer.from(JSON.stringify(output))
     );

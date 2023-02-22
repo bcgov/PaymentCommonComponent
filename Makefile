@@ -212,7 +212,7 @@ aws-run-reconciler:
 	@aws lambda invoke --function-name reconciler --payload '{}' reconcile-results --region ca-central-1
 
 aws-run-parser: 
-	@aws lambda invoke --function-name reconciler --payload '{}' reconcile-results --region ca-central-1
+	@aws lambda invoke --function-name parser  --payload '{ "eventType": "all" }' parse-results --region ca-central-1 --cli-binary-format raw-in-base64-out --log-type Tail 
 
 # ======================================================================
 # CI 
