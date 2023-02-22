@@ -189,8 +189,11 @@ build-backend: pre-build
 
 aws-deploy-all:
 	@aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name parser --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+
+aws-deploy-migrator:
+	aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 # ======================================================================
 # AWS Interactions
@@ -253,7 +256,7 @@ be-logs:
 # ===================================
 
 parse:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/generateData.ts").handler({eventType: "all"})' 
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler({eventType: "all"})' 
 
 # TODO update handler to accept args
 reconcile:
