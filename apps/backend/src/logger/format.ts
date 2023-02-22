@@ -22,14 +22,14 @@ const consoleTransport = new winston.transports.Console({
   level: 'INFO',
   format: consoleLogFormat
 });
-const fileTransport = new DailyRotateFile({
-  filename: join(__dirname, 'logs/%DATE%.log'),
-  datePattern: 'YYYY-MM-DD',
-  zippedArchive: true,
-  level: 'INFO',
-  format: logFileFormat
-});
+
 export const transports =
   process.env.APP_ENV === 'local'
-    ? [consoleTransport, fileTransport]
+    ? [consoleTransport, new DailyRotateFile({
+      filename: join(__dirname, 'logs/%DATE%.log'),
+      datePattern: 'YYYY-MM-DD',
+      zippedArchive: true,
+      level: 'info',
+      format: logFileFormat
+    })]
     : [consoleTransport];

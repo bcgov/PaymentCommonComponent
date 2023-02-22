@@ -1,11 +1,11 @@
 resource "aws_lambda_function" "api" {
   description      = "API for ${local.pcc_api_name}"
-  function_name    = "${local.pcc_api_name}"
+  function_name    = local.pcc_api_name
   role             = aws_iam_role.lambda.arn
-  runtime          = "nodejs14.x"
+  runtime          = "nodejs18.x"
   filename         = "./build/empty_lambda.zip"
   source_code_hash = filebase64sha256("./build/empty_lambda.zip")
-  handler          = "backend/lambda.handler"
+  handler          = "src/lambda.handler"
   memory_size      = 512
   timeout          = 30
 
@@ -24,15 +24,12 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      NODE_ENV          = "production"
-      RUNTIME_ENV       = "hosted"
-    #   TARGET_ENV        = var.target_env
-    #   BUILD_ID          = var.build_id
-    #   BUILD_INFO        = var.build_info
-        DB_USERNAME = var.db_username
-        DB_PASWORD = data.aws_ssm_parameter.postgres_password.value
-        DB_HOST     = aws_rds_cluster.pgsql.endpoint
-        DB_NAME = aws_rds_cluster.pgsql.database_name
+      NODE_ENV    = "production"
+      RUNTIME_ENV = "hosted"
+      DB_USER     = var.db_username
+      DB_PASSWORD = data.aws_ssm_parameter.postgres_password.value
+      DB_HOST     = aws_rds_cluster.pgsql.endpoint
+      DB_NAME     = aws_rds_cluster.pgsql.database_name
     }
   }
 }
@@ -99,4 +96,8 @@ resource "aws_lambda_permission" "api_allow_gateway" {
   function_name = aws_lambda_function.api.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_stage.api.execution_arn}/*"
+}
+
+output "api_gw_url" {
+  value = aws_apigatewayv2_api.api.api_endpoint
 }

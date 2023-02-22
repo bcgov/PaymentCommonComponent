@@ -1,0 +1,27 @@
+name: PR - Run Tests
+on:
+  pull_request:
+
+env:
+  GIT_LOCAL_BRANCH: ${{ github.sha }}
+
+jobs:
+  build-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+
+      # - name: env
+      #   run: touch .env
+
+      # - name: Build Test
+      #   run: make run-test
+
+      # - name: Run Test
+      #   run: make run-test-pipeline
+
+      # - name: Stop containers
+      #   run: make close-test
+      #   if: ${{ always() }}

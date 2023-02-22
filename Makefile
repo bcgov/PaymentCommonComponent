@@ -66,7 +66,7 @@ endif
 
 ifeq ($(ENV_NAME), test) 
 BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
-DB_HOST = $(DB_HOST_PROD_TEST)
+DB_HOST = $(DB_HOST_TEST)
 endif
 
 ifeq ($(ENV_NAME), prod)
@@ -80,9 +80,9 @@ endif
 check: 
 	@./bin/tools.sh
 
-# ===================================
+# ======================================================================
 # Terraform commands
-# ===================================
+# ======================================================================
 
 config:
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
@@ -102,10 +102,12 @@ apply: init
 destroy: init
 	@terraform -chdir=$(TERRAFORM_DIR) destroy
 
+output: 
+	@terraform -chdir=$(TERRAFORM_DIR) output
 
-# ===================================
+# ======================================================================
 # Tag Based Deployments
-# ===================================
+# ======================================================================
 
 pre-tag:
 	@./scripts/check_rebase.sh
@@ -123,16 +125,19 @@ ifndef version
 	@echo "++\n***** ERROR: version not set.\n++"
 	@exit 1
 else
-	@git tag -fa $(version) -m "IEN release version: $(version)"
+	@git tag -fa $(version) -m "Release version: $(version)"
 	@git push --force origin refs/tags/$(version):refs/tags/$(version)
 	@git tag -fa prod -m "Deploy prod: $(version)"
 	@git push --force origin refs/tags/prod:refs/tags/prod
 endif
 
 
-# ===================================
-# Build application stack
-# ===================================
+# ======================================================================
+# Builds
+# ======================================================================
+
+make clean: 
+	@rm -rf apps/backend/dist 
 
 pre-build:
 	@echo "++\n***** Pre-build Clean Build Artifact\n++"
@@ -140,12 +145,18 @@ pre-build:
 	@mkdir -p ./terraform/build
 	@echo "++\n*****"
 
-build-backend:
+build-backend: pre-build
+	@yarn 
+
 	@echo 'Building backend package... \n' 
 	@yarn workspace @payment/backend build
 
 	@echo 'Updating prod dependencies...\n'
 	@yarn workspaces focus @payment/backend --production
+
+	@echo 'Pruning node modules...\n'
+	# @npx --yes node-prune
+	# @npx --yes modclean -n default:safe,default:caution -r
 
 	@echo 'Deleting existing build dir...\n'
 	@rm -rf ./.build || true
@@ -165,46 +176,46 @@ build-backend:
 	@echo 'Creating Zip ...\n'
 	@cd .build && zip -r backend.zip .
 	@cd ..
-	
+
 	@echo 'Copying to terraform build location...\n'
 	@mv .build/backend.zip ./terraform/build/backend.zip
 
 
-# ===================================
+# ======================================================================
 # AWS Deployments
-# ===================================
-
-sync-app:
-	aws s3 sync ./.build/pkg s3://$(APP_SRC_BUCKET) --delete
+# ======================================================================
 
 # Full redirection to /dev/null is required to not leak env variables
-deploy-api:
-	aws lambda update-function-code --function-name Payment_Common_Component_API --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
 
-deploy-gl:
-	aws lambda update-function-code --function-name glGenerator --zip-file fileb://./.build/pkg/backend.zip --region $(AWS_REGION) > /dev/null
+aws-deploy-api:
+	aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
-deploy-backend: 
-	aws lambda update-function-code --function-name csvTransformer --zip-file fileb://./terraform/build/empty_lambda.zip --region $(AWS_REGION) > /dev/null
+aws-deploy-migrator:
+	aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
-# ===================================
-# Local Dev Environment
-# ===================================
+aws-deploy-reconciler:
+	aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
-build-local:
-	@docker-compose up --build -d --force-recreate
+# ======================================================================
+# AWS Interactions
+# ======================================================================
 
-start: 
-	docker-compose up -d 
+aws-sync-data-from-prod: 
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test
 
-stop: 
-	@docker-compose down -v --remove-orphans
+aws-run-migrator: 
+	@rm migration-results || true
+	@aws lambda invoke --function-name migrator --payload '{}' migration-results --region ca-central-1
+	@cat migration-results | grep "success"
 
-local-backend-workspace:
-	@docker exec -it $(PROJECT)-backend sh
+aws-run-reconciler:
 
-local-backend-logs:
-	@docker logs $(PROJECT)-backend --follow --tail 25
+aws-run-parser: 
+
+# ======================================================================
+# CI 
+# ======================================================================
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
@@ -216,6 +227,25 @@ run-test-pipeline:
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
+
+# ======================================================================
+# Local Development Environment & Testing
+# ======================================================================
+
+build:
+	@docker-compose up --build -d --force-recreate
+
+start: 
+	docker-compose up -d 
+
+stop: 
+	@docker-compose down
+
+wipe: 
+	@docker-compose down -v --remove-orphans
+
+be-logs:
+	@docker logs $(PROJECT)-backend --follow --tail 25
 
 # ===================================
 # Parse Local
@@ -245,21 +275,22 @@ drop:
 unmark: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update pos_deposit set match=false; update cash_deposit set match=false; update payment set match=false;"
 
+
 # ===================================
 # Migrations
 # ===================================
 
 migration-create:
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:create-migration
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:create-migration
 
 migration-revert: 
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:revert-migration
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:revert-migration
 
 migration-run:
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:run-migrations
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:run-migrations
 
 migration-generate:	  
-	@docker exec -it $(PROJECT)-backend yarn workspace @payment/backend typeorm:generate-migration
+	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:generate-migration
 	
     
 # ===================================
@@ -282,17 +313,17 @@ sync:
 	@./bin/sync.sh
 
 # ===================================
-# AWS Management
+# AWS Database Connection
 # ===================================
 
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
-	@echo "Host Instance Id: $(BASTION_INSTANCE_ID) | $(BASTION_INSTANCE_ID_DEV) | $(DOMAIN)\n"
+	@echo "Host Instance Id: $(BASTION_INSTANCE_ID) | $(BASTION_INSTANCE_ID) | $(DOMAIN)\n"
 	@echo "DB HOST URL: $(DB_HOST)\n"
 	# Checking you have the SSM plugin for the AWS cli installed
 	session-manager-plugin
 	rm ssh-keypair ssh-keypair.pub || true
 	ssh-keygen -t rsa -f ssh-keypair -N ''
-	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID) --availability-zone ca-central-1b --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
+	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID) --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
 	ssh -i ssh-keypair ec2-user@$(BASTION_INSTANCE_ID) -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"

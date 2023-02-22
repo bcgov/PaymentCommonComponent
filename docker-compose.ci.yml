@@ -11,9 +11,9 @@ services:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_ROOT_PASSWORD=postgres
     ports:
-      - "5432:5432"
+      - "5454:5432"
     networks:
-      - pcc
+      - pcc-test
   backend:
     image: pcc-backend:latest
     container_name: pcc-backend
@@ -24,7 +24,7 @@ services:
     stdin_open: true
     command: 'yarn start:test'
     ports:
-      - "3000:3000"
+      - "3100:3000"
     environment:
       - DB_HOST=db
       - DB_NAME=bcpcc
@@ -47,14 +47,14 @@ services:
     depends_on:
       - db
     networks:
-      - pcc
+      - pcc-test
 
   minio:
     image: minio/minio
     container_name: pcc-minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - "9100:9000"
+      - "9101:9001"
     volumes:
       - minio_storage:/data
     environment:
@@ -62,12 +62,12 @@ services:
       MINIO_ROOT_PASSWORD: password
     command: server --console-address ":9001" /data
     networks:
-      - pcc
+      - pcc-test
 
 networks:
-  pcc:
+  pcc-test:
     driver: bridge
-    name: pcc
+    name: pcc-test
 volumes:
   minio_storage: {}
   pg_data: {}

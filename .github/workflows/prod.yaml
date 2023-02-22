@@ -1,18 +1,18 @@
-name: Deployment - DEV
+name: Deployment - PROD
 on:
   push:
     tags:
-      - dev
+      - prod
 env:
-  ENV_NAME: dev
+  ENV_NAME: prod
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    concurrency: ci-${{ github.ref }}-dev
+    concurrency: ci-${{ github.ref }}-prod
     environment:
-      name: dev
+      name: prod
     steps:
       - uses: actions/checkout@v3
         name: checkout
@@ -21,8 +21,8 @@ jobs:
         name: Cache yarn
         with:
           path: ./.yarn/cache
-          key: pcc-backend
-          restore-keys: pcc-backend
+          key: pcc-backend-prod
+          restore-keys: pcc-backend-prod
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1-node16
@@ -33,7 +33,7 @@ jobs:
           aws-region: ca-central-1
           role-to-assume: ${{ secrets.AWS_SA_ROLE_ARN }}
           role-duration-seconds: 900
-          role-session-name: ci-dev-deployment
+          role-session-name: ci-prod-deployment
 
       - name: Install dependencies
         run: yarn

@@ -10,7 +10,7 @@
 #/.pnp.*
 dist
 node_modules
-.DS_Store
+**/.DS_Store
 .env
 .idea
 
@@ -31,3 +31,5 @@ data
 testdata
 sqlfile.sql
 sqlfile.dbml
+
+migration-results

@@ -40,7 +40,7 @@ use the `.env.example` to create `.env`
 Use the make commands under the `docker` section to start the project.
 
 Install dependencies - `yarn`
-Run Project - `make build-local`
+Run Project - `make build`
 
 #### Gettings Access to tools and credentials
 

@@ -1,4 +1,4 @@
-name: PR Checks
+name: PR - All Checks
 
 on:
   pull_request:
@@ -33,4 +33,13 @@ jobs:
 
       - name: Build Check
         run: yarn build:backend
+
+      - name: Setup ENV file
+        run: cp ./.config/.env.example ./.env
+
+      - name: Run Docker containers
+        run: make build
+
+      - name: Migrations Check 
+        run: make migration-run
 

@@ -12,17 +12,13 @@ export class DatabaseLogger implements TypeOrmLogger {
 
   logQueryError(error: string, query: string, parameters?: unknown[]) {
     this.logger.error(
-      `${query} -- Parameters: ${this.stringifyParameters(
-        parameters
-      )} -- ${error}`
+      `${query} -- Parameters: ${this.stringifyParameters(parameters)} -- ${error}`,
     );
   }
 
   logQuerySlow(time: number, query: string, parameters?: unknown[]) {
     this.logger.warn(
-      `Time: ${time} -- Parameters: ${this.stringifyParameters(
-        parameters
-      )} -- ${query}`
+      `Time: ${time} -- Parameters: ${this.stringifyParameters(parameters)} -- ${query}`,
     );
   }
 
