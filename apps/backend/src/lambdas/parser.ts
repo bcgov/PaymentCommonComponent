@@ -25,7 +25,7 @@ export interface ParseEvent {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export const handler = async (event?: unknown, _context?: Context) => {
+export const handler = async (event?: any, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
   const transactionService = app.get(TransactionService);
