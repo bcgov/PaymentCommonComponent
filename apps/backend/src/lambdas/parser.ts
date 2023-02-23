@@ -124,7 +124,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           filename,
           paymentMethods
         );
-
+        appLogger.log(`txn count: ${garmsSales.length}`);
         await transactionService.saveTransactions(garmsSales);
       }
 

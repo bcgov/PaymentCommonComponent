@@ -28,7 +28,7 @@ export class TransactionService {
     private locationService: LocationService
   ) {}
 
-  async saveTransactions(data: TransactionEntity[]): Promise<TransactionEntity[]> {
+  async saveTransactions(data: TransactionEntity[]) {
     try {
       const entities = data.map((d) => this.transactionRepo.create(d));
       return await this.transactionRepo.save(entities);
