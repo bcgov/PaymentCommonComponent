@@ -33,10 +33,18 @@ data "aws_iam_policy_document" "lambda" {
     sid    = "allowS3Access"
     effect = "Allow"
     actions = [
-      "s3:*",
+      "s3:GetObject",
+      "s3:ListBucket",
+      "s3:PutObjectAcl",
+      "s3:PutObject",
+      "s3:GetBucketLocation",
+      "s3:DeleteObjectVersion",
+      "s3:DeleteObject",
+      "s3:GetObjectVersion"
     ]
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.sftp_storage.id}/*"
+      aws_s3_bucket.sftp_storage.arn,
+      "${aws_s3_bucket.sftp_storage.arn}/*",
     ]
   }
 }

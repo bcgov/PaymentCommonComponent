@@ -5,7 +5,7 @@ import { getLambdaEventSource } from './utils/eventTypes';
 import { parseGarms } from './utils/parseGarms';
 import { parseTDI } from './utils/parseTDI';
 import { AppModule } from '../app.module';
-import { FileNames, FileTypes, LOCAL, Ministries } from '../constants';
+import { FileNames, FileTypes, ALL, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -19,7 +19,7 @@ import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
 import { TransactionService } from '../transaction/transaction.service';
 
-export interface LocalEvent {
+export interface ParseEvent {
   eventType: string;
   filename: string;
 }
@@ -33,13 +33,13 @@ export const handler = async (event?: unknown, _context?: Context) => {
   const s3 = app.get(S3ManagerService);
   const posService = app.get(PosDepositService);
   const cashService = app.get(CashDepositService);
-  appLogger.log({ event });
 
-  const processLocalFiles = async () => {
+  const processAllFiles = async () => {
+    appLogger.log('Processing all files...');
     try {
       const fileList =
         (await s3.listBucketContents(
-          `pcc-integration-data-files-${process.env.NODE_ENV}`
+          `pcc-integration-data-files-${process.env.RUNTIME_ENV}`
         )) || [];
 
       const allUploadedFiles: string[] = [];
@@ -71,7 +71,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         appLogger.log(`Parsing ${filename}..`);
-        const event = { eventType: 'local', filename: filename };
+        const event = { eventType: 'all', filename: filename };
         await processEvent(event);
       }
     } catch (err) {
@@ -83,9 +83,9 @@ export const handler = async (event?: unknown, _context?: Context) => {
     try {
       const eventType = getLambdaEventSource(event);
       const filename = (() => {
-        if (eventType === LOCAL) {
-          const localEvent = event as LocalEvent;
-          return localEvent.filename;
+        if (eventType === ALL) {
+          const thisEvent = event as ParseEvent;
+          return thisEvent.filename;
         }
 
         // TODO: use types here
@@ -98,7 +98,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
       })();
 
       const file = await s3.getObject(
-        `pcc-integration-data-files-${process.env.NODE_ENV}`,
+        `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
         filename
       );
 
@@ -124,11 +124,8 @@ export const handler = async (event?: unknown, _context?: Context) => {
           filename,
           paymentMethods
         );
-
-        garmsSales.map(
-          async (data: TransactionEntity) =>
-            await transactionService.saveTransaction(data)
-        );
+        appLogger.log(`txn count: ${garmsSales.length}`);
+        await transactionService.saveTransactions(garmsSales);
       }
 
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
@@ -162,11 +159,16 @@ export const handler = async (event?: unknown, _context?: Context) => {
     }
   };
 
-  const eventRouting = event as LocalEvent;
-  if (eventRouting?.eventType === 'make') {
-    await processLocalFiles();
+  const eventRouting = event as ParseEvent;
+  appLogger.log({ eventRouting });
+  if (eventRouting?.eventType === 'all') {
+    await processAllFiles();
     return;
   }
 
-  await processEvent(event);
+  try {
+    await processEvent(event);
+  } catch (err) {
+    appLogger.error(err);
+  }
 };

@@ -19,7 +19,7 @@ export const consoleLogFormat = winston.format.combine(
 );
 
 const consoleTransport = new winston.transports.Console({
-  level: 'INFO',
+  level: 'debug',
   format: consoleLogFormat
 });
 

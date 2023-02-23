@@ -1,9 +1,9 @@
+import { Context } from 'aws-lambda';
 import { MigrationExecutor } from 'typeorm';
 import db from './datasource';
-import { Context } from 'aws-lambda';
 
-/* eslint-disable @typescript-eslint/no-unused-vars */
-export const handler = async (event?: unknown, context?: Context) => {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const handler = async (_event?: unknown, _context?: Context) => {
   console.log('Starting migrations...');
   try {
     if (!db.isInitialized) {

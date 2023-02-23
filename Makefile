@@ -136,7 +136,7 @@ endif
 # Builds
 # ======================================================================
 
-make clean: 
+clean: 
 	@rm -rf apps/backend/dist 
 
 pre-build:
@@ -187,22 +187,21 @@ build-backend: pre-build
 
 # Full redirection to /dev/null is required to not leak env variables
 
-aws-deploy-api:
-	aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+aws-deploy-all:
+	@aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name parser --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 aws-deploy-migrator:
 	aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-
-aws-deploy-reconciler:
-	aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 # ======================================================================
 # AWS Interactions
 # ======================================================================
 
 aws-sync-data-from-prod: 
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test --acl bucket-owner-full-control
 
 aws-run-migrator: 
 	@rm migration-results || true
@@ -210,8 +209,10 @@ aws-run-migrator:
 	@cat migration-results | grep "success"
 
 aws-run-reconciler:
+	@aws lambda invoke --function-name reconciler --payload file://./apps/backend/fixtures/lambda/reconcile.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
 
 aws-run-parser: 
+	@aws lambda invoke --function-name parser  --payload '{ "eventType": "all" }' --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
 
 # ======================================================================
 # CI 
@@ -227,6 +228,9 @@ run-test-pipeline:
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.test.yml down
+
+lint: 
+	@yarn workspace @payment/backend lint
 
 # ======================================================================
 # Local Development Environment & Testing
@@ -248,11 +252,11 @@ be-logs:
 	@docker logs $(PROJECT)-backend --follow --tail 25
 
 # ===================================
-# Parse Local
+# Local
 # ===================================
 
 parse:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/generateData.ts").handler({eventType: "make"})' 
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler({eventType: "all"})' 
 
 # TODO update handler to accept args
 reconcile:

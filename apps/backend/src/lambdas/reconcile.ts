@@ -99,10 +99,10 @@ export const handler = async (
 };
 
 const reconcileAll: ReconciliationEventInput = {
-  fiscal_start_date: '2023-02-01',
-  fiscal_end_date: '2023-02-02',
+  fiscal_start_date: '2023-01-01',
+  fiscal_end_date: '2023-02-22',
   program: 'SBC',
-  location_ids: [31, 61]
+  location_ids: []
 };
 
 handler(reconcileAll);

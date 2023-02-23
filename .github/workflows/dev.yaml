@@ -50,6 +50,5 @@ jobs:
       - name: Run Migrations
         run: make aws-run-migrator
 
-      - name: Deploy API
-        run: make aws-deploy-api
-
+      - name: Deploy All
+        run: make aws-deploy-all

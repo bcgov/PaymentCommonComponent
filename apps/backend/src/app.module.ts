@@ -29,13 +29,13 @@ import { TransactionModule } from './transaction/transaction.module';
     ReportingModule,
     ConfigModule.forRoot({
       ignoreEnvFile:
-        process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'ci'
+        process.env.RUNTIME_ENV === 'local' || process.env.RUNTIME_ENV === 'ci'
           ? false
           : true
     }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
-        ...(process.env.NODE_ENV === 'local' || process.env.NODE_ENV === 'ci'
+        ...(process.env.RUNTIME_ENV === 'local' || process.env.RUNTIME_ENV === 'ci'
           ? {
               endpoint: process.env.AWS_ENDPOINT || 'http://localhost:9000',
               region: 'ca-central-1',

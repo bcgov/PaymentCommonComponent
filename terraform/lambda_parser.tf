@@ -1,13 +1,13 @@
-resource "aws_lambda_function" "reconciler" {
-  description                    = "Reconciliation function ${local.namespace}"
-  function_name                  = "reconciler"
+resource "aws_lambda_function" "parser" {
+  description                    = "Parser function ${local.namespace}"
+  function_name                  = "parser"
   role                           = aws_iam_role.lambda.arn
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
-  handler                        = "src/lambdas/reconcile.handler"
+  handler                        = "src/lambdas/parser.handler"
   memory_size                    = 1024
-  timeout                        = 300
+  timeout                        = 120
   reserved_concurrent_executions = 1
 
   vpc_config {
