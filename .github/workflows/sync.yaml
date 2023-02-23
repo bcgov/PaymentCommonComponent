@@ -29,5 +29,8 @@ jobs:
           role-duration-seconds: 900
           role-session-name: ci-prod-sync
 
+      - name: Setup ENV file
+        run: cp ./.config/.env.example ./.env
+        
       - name: Sync data from prod to other env
         run: make aws-sync-data-from-prod
