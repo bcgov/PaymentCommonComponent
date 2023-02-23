@@ -200,8 +200,8 @@ aws-deploy-migrator:
 # ======================================================================
 
 aws-sync-data-from-prod: 
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test --acl bucket-owner-full-control
 
 aws-run-migrator: 
 	@rm migration-results || true
