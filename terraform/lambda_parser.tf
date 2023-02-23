@@ -7,7 +7,7 @@ resource "aws_lambda_function" "parser" {
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
   handler                        = "src/lambdas/parser.handler"
   memory_size                    = 1024
-  timeout                        = 60
+  timeout                        = 120
   reserved_concurrent_executions = 1
 
   vpc_config {

@@ -209,10 +209,10 @@ aws-run-migrator:
 	@cat migration-results | grep "success"
 
 aws-run-reconciler:
-	@aws lambda invoke --function-name reconciler --payload '{}' reconcile-results --region ca-central-1
+	@aws lambda invoke --function-name reconciler --payload file://./apps/backend/fixtures/lambda/reconcile.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
 
 aws-run-parser: 
-	@aws lambda invoke --function-name parser  --payload '{ "eventType": "all" }' parse-results --region ca-central-1 --cli-binary-format raw-in-base64-out --log-type Tail 
+	@aws lambda invoke --function-name parser  --payload '{ "eventType": "all" }' --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
 
 # ======================================================================
 # CI 

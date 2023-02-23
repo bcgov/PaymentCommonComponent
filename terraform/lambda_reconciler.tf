@@ -6,8 +6,8 @@ resource "aws_lambda_function" "reconciler" {
   filename                       = "build/empty_lambda.zip"
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
   handler                        = "src/lambdas/reconcile.handler"
-  memory_size                    = 128
-  timeout                        = 60
+  memory_size                    = 1024
+  timeout                        = 300
   reserved_concurrent_executions = 1
 
   vpc_config {

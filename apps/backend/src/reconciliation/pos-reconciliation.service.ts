@@ -68,8 +68,13 @@ export class POSReconciliationService {
   ): Promise<unknown | ReconciliationEventOutput | ReconciliationEventError> {
     const posPayments = await this.transactionService.queryPosPayments(event);
 
+    if (posPayments.length === 0) {
+      console.log(`****0 POS Payments Found, Skipping****`);
+      return;
+    }
+
     if (checkPaymentsForFullMatch(posPayments)) {
-      console.log(`****All payments are already matched for this event`);
+      console.log(`****All payments are already matched /for this event****`);
       return;
     }
     const alreadyMatchedPosPayments = posPayments.filter((itm) => itm.match);
