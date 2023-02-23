@@ -125,10 +125,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           paymentMethods
         );
 
-        garmsSales.map(
-          async (data: TransactionEntity) =>
-            await transactionService.saveTransaction(data)
-        );
+        await transactionService.saveTransactions(garmsSales);
       }
 
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
