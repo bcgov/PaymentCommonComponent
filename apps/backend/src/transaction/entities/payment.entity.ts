@@ -4,11 +4,16 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   JoinColumn,
-  ManyToOne
+  ManyToOne,
+  OneToOne,
+  Relation
 } from 'typeorm';
 import { PaymentMethodEntity } from './payment-method.entity';
 import { TransactionEntity } from './transaction.entity';
+import { POSDepositEntity } from './../../deposits/entities/pos-deposit.entity';
+import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
+import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 
 @Entity('payment')
 export class PaymentEntity {
@@ -45,6 +50,9 @@ export class PaymentEntity {
   @Column('varchar', { length: 10, nullable: false })
   method: string;
 
+  @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
+  status?: MatchStatus;
+
   @Column('varchar', { length: 4, nullable: true })
   card_no?: string;
 
@@ -69,16 +77,9 @@ export class PaymentEntity {
 
   // PCC - Internals
 
-  @Column({ type: 'boolean', default: false })
-  match?: boolean;
-
-  @Column('varchar', { length: 50, nullable: true })
-  deposit_id?: string;
-
-  // TODO: Check if this creates fk constraint
   @ManyToOne(() => PaymentMethodEntity, (pm) => pm.method)
   @JoinColumn({ name: 'method' })
-  payment_method: PaymentMethodEntity;
+  payment_method: Relation<PaymentMethodEntity>;
 
   @ManyToOne(
     () => TransactionEntity,
@@ -86,7 +87,31 @@ export class PaymentEntity {
     { eager: true }
   )
   @JoinColumn({ name: 'transaction', referencedColumnName: 'transaction_id' })
-  transaction: TransactionEntity;
+  transaction: Relation<TransactionEntity>;
+
+  @ManyToOne(
+    () => CashDepositEntity,
+    (cashDeposit: CashDepositEntity) => cashDeposit.payment_match,
+    {
+      nullable: true
+    }
+  )
+  @JoinColumn({
+    name: 'cash_deposit_match',
+    referencedColumnName: 'id'
+  })
+  cash_deposit_match?: Relation<CashDepositEntity>;
+
+  @OneToOne(
+    () => POSDepositEntity,
+    (posDeposit: POSDepositEntity) => posDeposit.payment_match,
+    { nullable: true }
+  )
+  @JoinColumn({
+    referencedColumnName: 'id',
+    name: 'pos_deposit_match'
+  })
+  pos_deposit_match?: Relation<POSDepositEntity>;
 
   constructor(payment: Partial<PaymentEntity>) {
     Object.assign(this, payment);
