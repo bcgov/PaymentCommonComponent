@@ -40,7 +40,7 @@ You are all set to start using our API.
 ## Authentication
 The API is secured using API keys and you need to be authenticated to receive a key.
 
-## Working with CURL
+## Working with cURL
 Curl is a command-line tool used to transfer data over various protocols such as HTTP, HTTPS, FTP, FTPS, SFTP, etc. Here is a beginner's guide to using the curl command line:
 
 ### Basic GET request:
@@ -106,7 +106,7 @@ You can modify the data and URL to match the specific requirements of the API yo
 These are some of the basic features of curl. There are many more options and configurations available, so it's worth reading the documentation to learn more.
 
 ## Transaction API
-### Send your first API request
+### Send your first API request using cURL
 ### Endpoints
 
 #### Submit Transaction
@@ -138,6 +138,20 @@ Content-Type: application/json
     }
   ]
 }
+### Postman
+In the Postman app, complete the following:
+
+Set the verb to POST.
+Enter https://api-m.sandbox.paypal.com/v1/oauth2/token as the request URL.
+Select the Authorization tab.
+From the TYPE list, select Basic Auth.
+In the Username field, enter your client ID.
+In the Password field, enter your secret.
+Select the Body tab.
+Select the x-www-form-urlencoded option.
+In the KEY field, enter grant_type.
+In the VALUE field, enter client_credentials.
+Select Send.
 
 ### View logs and events
 ### Store your API keys

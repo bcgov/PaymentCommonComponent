@@ -1,6 +1,8 @@
 # Introduction
 
 ## Overview
+This document provides guidance for onboarding to the Common Component for Payments' APIs.
+ 
 ### What is the Common Component for Payments?
 
 The Common Component for Payments is an API-driven system designed to streamline and automate the repetitive and manual tasks that ministries face when receiving and sending payments. The system aims to enhance the quality of data and traceability of payment transactions, while reducing the possibility of errors when re-entering data between systems.
