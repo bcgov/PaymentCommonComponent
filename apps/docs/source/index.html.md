@@ -1,15 +1,12 @@
 ---
-title: Payment Common Components
+title: Common Component for Payments
 language_tabs:
   - typescript: Typescript
   
 
 toc_footers: []
 includes:
-  - intro
-  - developers
-  - userguide
-  - api
+  - Getting Started
   - readme.md
 
 search: true
