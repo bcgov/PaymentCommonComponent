@@ -1,4 +1,4 @@
-import { Ministries } from "../constants";
+import { Ministries } from '../constants';
 
 export interface ReportConfig {
   program: Ministries;

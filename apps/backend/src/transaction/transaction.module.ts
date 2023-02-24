@@ -6,12 +6,15 @@ import {
   PaymentEntity
 } from './entities';
 import { PaymentMethodService } from './payment-method.service';
+import { PaymentService } from './payment.service';
 import { TransactionController } from './transaction.controller';
 import { TransactionService } from './transaction.service';
+import { DepositModule } from '../deposits/deposit.module';
 import { LocationModule } from '../location/location.module';
 @Module({
   imports: [
     LocationModule,
+    DepositModule,
     TypeOrmModule.forFeature([
       TransactionEntity,
       PaymentEntity,
@@ -20,7 +23,7 @@ import { LocationModule } from '../location/location.module';
     ])
   ],
   controllers: [TransactionController],
-  providers: [TransactionService, PaymentMethodService, Logger],
+  providers: [TransactionService, PaymentService, PaymentMethodService, Logger],
   exports: [TypeOrmModule, TransactionService, PaymentMethodService]
 })
 export class TransactionModule {}

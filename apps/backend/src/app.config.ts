@@ -72,12 +72,12 @@ export async function createNestApp(): Promise<{
     app = await NestFactory.create(AppModule, {
       bufferLogs: true
     });
+    app.useLogger(app.get(AppLogger));
   } else {
     app = await NestFactory.create<NestExpressApplication>(
       AppModule,
       new ExpressAdapter(expressApp)
     );
-    // Adding winston logger
     app.useLogger(app.get(AppLogger));
   }
 
@@ -107,6 +107,7 @@ export async function createNestApp(): Promise<{
     runtimeEnv: process.env.RUNTIME_ENV,
     alertsEnabled: Boolean(false)
   });
+
   return {
     app,
     expressApp

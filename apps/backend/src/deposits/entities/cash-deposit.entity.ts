@@ -1,8 +1,15 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Relation,
+  OneToMany,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn
+} from 'typeorm';
 import { FileMetadata } from '../../common/columns/metadata';
+import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { TDI17Details } from '../../flat-files';
-
+import { PaymentEntity } from '../../transaction/entities/payment.entity';
 @Entity('cash_deposit')
 export class CashDepositEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -20,19 +27,19 @@ export class CashDepositEntity {
   @Column({ type: 'date' })
   deposit_date: string;
 
-  @Column()
+  @Column({ type: 'int4' })
   transaction_type: number;
 
-  @Column()
+  @Column({ type: 'int4' })
   location_id: number;
 
   @Column({ nullable: true })
   deposit_time: string;
 
-  @Column()
+  @Column('varchar', { length: 3 })
   seq_no: string;
 
-  @Column()
+  @Column('varchar', { length: 40 })
   location_desc: string;
 
   @Column({
@@ -46,7 +53,12 @@ export class CashDepositEntity {
   @Column({ nullable: true })
   currency: string;
 
-  @Column({ type: 'numeric', nullable: true })
+  @Column({
+    type: 'numeric',
+    precision: 16,
+    scale: 4,
+    transformer: new ColumnNumericTransformer()
+  })
   exchange_adj_amt: number;
 
   @Column({
@@ -57,7 +69,7 @@ export class CashDepositEntity {
   })
   deposit_amt_cdn: number;
 
-  @Column()
+  @Column('varchar', { length: 4 })
   destination_bank_no: string;
 
   @Column({ nullable: true })
@@ -69,11 +81,13 @@ export class CashDepositEntity {
   @Column({ nullable: true })
   jv_no: string;
 
-  @Column({ default: false })
-  match: boolean;
+  @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
+  status?: MatchStatus;
 
-  @Column({ nullable: true })
-  cash_payment_ids?: string;
+  @OneToMany(() => PaymentEntity, (payment) => payment.cash_deposit_match, {
+    nullable: true
+  })
+  payment_match?: Relation<PaymentEntity[]>;
 
   constructor(data?: TDI17Details) {
     Object.assign(this, data?.resource);
