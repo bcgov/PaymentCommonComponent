@@ -5,8 +5,7 @@ import { ReportConfig } from './interfaces';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { AppLogger } from '../logger/logger.service';
-import { PaymentEntity, TransactionEntity } from '../transaction/entities';
-
+import { PaymentEntity } from '../transaction/entities';
 export class ReportingService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
@@ -15,9 +14,7 @@ export class ReportingService {
     @InjectRepository(CashDepositEntity)
     private cashDepositRepo: Repository<CashDepositEntity>,
     @InjectRepository(PaymentEntity)
-    private paymentsRepo: Repository<PaymentEntity>,
-    @InjectRepository(TransactionEntity)
-    private transactionsRepo: Repository<TransactionEntity>
+    private paymentRepo: Repository<PaymentEntity>
   ) {}
 
   async generateReport(config: ReportConfig) {
@@ -26,114 +23,159 @@ export class ReportingService {
   }
 
   async reportPosMatchSummaryByDate(): Promise<unknown> {
-    const results = await this.posDepositRepo.manager.query(
-      `select
-      pos.transaction_date,
-      pos.count_tdi34_deposits,
-      pay.count_pos_payments,
-      (pay.count_pos_payments- pos.count_tdi34_deposits) as difference,
-      pos_dep_sum,
-      pos_pay_sum,
-      pos_matched.count_matched_pos,
-      ROUND((pos_matched.count_matched_pos::numeric / pay.count_pos_payments::numeric)* 100, 2) as percent_match
-    from
-      (
-      select
+    const results = await this.posDepositRepo.manager.query(`
+    SELECT
+        pos.transaction_date,
+        pos.count_tdi34_deposits,
+        pay.count_pos_payments,
+        (pay.count_pos_payments- pos.count_tdi34_deposits) 
+          AS 
+            difference,
+        pos_dep_sum,
+        pos_pay_sum,
+        pos_matched.count_matched_pos,
+      ROUND((pos_matched.count_matched_pos::numeric / pay.count_pos_payments::numeric)* 100, 2) 
+        AS 
+          percent_match
+    FROM
+    (
+      SELECT
         transaction_date,
-        count(*) as count_tdi34_deposits,
-        sum(transaction_amt) as pos_dep_sum
-      from
+        COUNT(*) 
+          AS 
+            count_tdi34_deposits,
+        SUM(transaction_amt) 
+          AS 
+            pos_dep_sum
+      FROM
         pos_deposit pd
-      where
+      WHERE
         "program" = 'SBC'
-      group by
+      GROUP BY
         transaction_date
-      order by
-        transaction_date asc) as pos
-    left join 
-    
-    (
-      select
-        t.transaction_date ,
-        count(*) as count_pos_payments,
-        sum(p.amount) as pos_pay_sum
-      from
-        payment p
-      join "transaction" t on
-        t.transaction_id = p."transaction"
-        and p."method" in ('P', 'V', 'AX', 'M')
-      group by
-        t.transaction_date
-      order by
-        t.transaction_date asc) as pay
-    
-    
-    on
-      pos.transaction_date = pay.transaction_date
-    left join 
-    
-    (
-      select
-        t.transaction_date,
-        count(*) as count_matched_pos
-      from
-        payment p
-      join "transaction" t on
-        t.transaction_id = p."transaction"
-        and p."method" in ('P', 'V', 'AX', 'M')
-          and "match" = true
-        group by
-          t.transaction_date) as pos_matched
-    
-    on
-      pos.transaction_date = pos_matched.transaction_date`
-    );
+      ORDER BY
+        transaction_date asc) 
+        AS 
+          pos
+      LEFT JOIN(
+        SELECT
+          t.transaction_date,
+          COUNT(*) 
+            AS 
+              count_pos_payments,
+          SUM(p.amount) 
+            AS 
+              pos_pay_sum
+        FROM
+          payment p
+        JOIN 
+          "transaction" t
+        ON
+          t.transaction_id = p."transaction"
+        AND 
+          p."method" in ('P', 'V', 'AX', 'M')
+        GROUP BY
+          t.transaction_date
+        ORDER BY
+          t.transaction_date asc) as pay
+
+      ON
+        pos.transaction_date = pay.transaction_date
+      LEFT JOIN(
+        SELECT
+          t.transaction_date,
+          count(*) as count_matched_pos
+        FROM
+          payment p
+        JOIN 
+          "transaction" t 
+          ON
+            t.transaction_id = p."transaction"
+          AND 
+            p."method" in ('P', 'V', 'AX', 'M')
+          AND 
+            "status" = 'MATCH'
+          GROUP BY
+            t.transaction_date
+          )
+          AS 
+            pos_matched
+      ON
+        pos.transaction_date = pos_matched.transaction_date
+  `);
     return results;
   }
-
   async reportCashMatchSummaryByDate(): Promise<number> {
     const results = await this.posDepositRepo.manager.query(`
-    select
-        cash_pay.fiscal_close_date,
-        count_cash_payments,
-        count_matched_cash,
-        (count_cash_payments - count_matched_cash) as difference,
-        ROUND((count_matched_cash::numeric / count_cash_payments::numeric)* 100, 2) as percent_match
-      from
+      SELECT
+      cash_pay.fiscal_close_date,
+      count_cash_payments,
+      count_matched_cash,
+      (count_cash_payments - count_matched_cash) 
+        AS 
+          difference,
+      ROUND((count_matched_cash::numeric / count_cash_payments::numeric)* 100, 2) 
+        AS 
+          percent_match
+      FROM
         (
-        select
-          t.fiscal_close_date ,
-          count(*) as count_cash_payments
-        from
-          payment p
-        join "transaction" t on
-          t.transaction_id = p."transaction"
-          and p."method" not in ('P', 'V', 'AX', 'M')
-        group by
-          t.fiscal_close_date
-        order by
-          t.fiscal_close_date asc
-      ) as cash_pay
-      left join 
-
-      (
-        select
-          t.fiscal_close_date ,
-          count(*) as count_matched_cash
-        from
-          payment p
-        join "transaction" t on
-          t.transaction_id = p."transaction"
-          and p."method" not in ('P', 'V', 'AX', 'M')
-            and "match" = true
-          group by
+          SELECT
+            t.fiscal_close_date ,
+            COUNT(*) 
+              AS 
+                count_cash_payments
+          FROM
+            payment p
+          JOIN 
+            "transaction" t 
+          ON
+            t.transaction_id = p."transaction"
+            
+          AND 
+            p."method" 
+          NOT IN 
+            ('P', 'V', 'AX', 'M')
+            AND 
+              p."amount" > 0.000
+            AND t.fiscal_close_date > '2023-01-15'::date
+          GROUP BY
             t.fiscal_close_date
-      ) as cash_matched
-
-      on
-        cash_pay.fiscal_close_date = cash_matched.fiscal_close_date
-      order by
-        cash_pay.fiscal_close_date`);
+          ORDER BY
+            t.fiscal_close_date 
+              ASC
+        ) 
+        AS 
+          cash_pay
+        LEFT JOIN
+        (
+          SELECT
+            t.fiscal_close_date,
+            COUNT(*) 
+              AS 
+                count_matched_cash
+          FROM
+            payment p
+          JOIN "transaction" t 
+            ON
+              t.transaction_id = p."transaction"
+            AND 
+              p."method" 
+                NOT IN 
+                  ('P', 'V', 'AX', 'M')
+            AND 
+              p."status" = 'MATCH'
+            AND p."amount" > 0.000
+            AND t.fiscal_close_date > '2023-01-15'::date
+          GROUP BY
+            t.fiscal_close_date
+        ) 
+        AS 
+          cash_matched
+        ON
+          cash_pay.fiscal_close_date = cash_matched.fiscal_close_date
+        ORDER BY
+          cash_pay.fiscal_close_date
+    `);
     return results;
   }
 }

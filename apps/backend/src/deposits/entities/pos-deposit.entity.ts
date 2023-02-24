@@ -4,9 +4,11 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
+  Relation
 } from 'typeorm';
 import { FileMetadata } from '../../common/columns';
+import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { TDI34Details } from '../../flat-files';
 import { PaymentMethodEntity } from '../../transaction/entities';
@@ -19,16 +21,19 @@ export class POSDepositEntity {
   @Column(() => FileMetadata, { prefix: false })
   metadata: FileMetadata;
 
+  @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
+  status?: MatchStatus;
+
   @Column({ default: 'TDI34' })
   source_file_type: string;
 
-  @Column()
+  @Column({ type: 'int4' })
   merchant_id: number;
 
-  @Column()
+  @Column('varchar', { length: 2 })
   card_vendor: string;
 
-  @Column()
+  @Column('varchar', { length: 19 })
   card_id: string;
 
   @Column({
@@ -42,10 +47,10 @@ export class POSDepositEntity {
   @Column({ type: 'date' })
   transaction_date: string;
 
-  @Column({ nullable: true, type: 'time' })
+  @Column({ type: 'time', nullable: true })
   transaction_time: string;
 
-  @Column()
+  @Column('varchar', { length: 19 })
   terminal_no: string;
 
   @Column({ nullable: true, type: 'date' })
@@ -57,13 +62,9 @@ export class POSDepositEntity {
   @Column({ default: false })
   match: boolean;
 
-  // rename this to just payment id?
-  @Column({ nullable: true })
-  matched_payment_id?: string;
-
   @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method)
   @JoinColumn({ name: 'card_vendor' })
-  payment_method: PaymentMethodEntity;
+  payment_method: Relation<PaymentMethodEntity>;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

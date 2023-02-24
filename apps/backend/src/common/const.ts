@@ -1,0 +1,6 @@
+export enum MatchStatus {
+  PENDING = 'PENDING',
+  IN_PROGRESS = 'IN_PROGRESS',
+  MATCH = 'MATCH',
+  EXCEPTION = 'EXCEPTION'
+}

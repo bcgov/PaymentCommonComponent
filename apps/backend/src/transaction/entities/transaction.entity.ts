@@ -1,4 +1,4 @@
-import { OneToMany, Entity, Column, PrimaryColumn } from 'typeorm';
+import { Relation, OneToMany, Entity, Column, PrimaryColumn } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
@@ -31,7 +31,7 @@ export class TransactionEntity {
   @Column('varchar', { length: 10 })
   source_id: string;
 
-  @Column()
+  @Column({ type: 'int4' })
   location_id: number;
 
   @Column({ type: 'jsonb', nullable: false })
@@ -47,7 +47,7 @@ export class TransactionEntity {
   @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
     cascade: true
   })
-  payments: PaymentEntity[];
+  payments: Relation<PaymentEntity[]>;
 
   constructor(transaction: Partial<TransactionEntity>) {
     Object.assign(this, transaction);

@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository, Not } from 'typeorm';
 import { LocationEnum } from './const';
 import { LocationEntity } from './entities/master-location-data.entity';
 import { Ministries } from '../constants';
+import { ReconciliationEventInput } from '../reconciliation/types';
 
 @Injectable()
 export class LocationService {
@@ -15,21 +16,22 @@ export class LocationService {
   public async getMerchantIdsByLocationId(
     location_id: number
   ): Promise<number[]> {
-    const merchantIds = await this.locationRepo.find({
+    const merchant_ids = await this.locationRepo.find({
       select: {
         merchant_id: true
       },
       where: {
-        location_id: location_id
+        location_id,
+        method: Not('Bank')
+      },
+      order: {
+        location_id: 'ASC'
       }
     });
-    return merchantIds?.map((itm: LocationEntity) => itm.merchant_id);
+    return merchant_ids.map((itm) => itm.merchant_id) as number[];
   }
-
-  // TODO: Get Distinct Locations
-  // Remove bank
-  public async getLocationsBySource(
-    source: Ministries
+  public async getLocationsByID(
+    event: ReconciliationEventInput
   ): Promise<LocationEntity[]> {
     return await this.locationRepo.find({
       select: {
@@ -37,8 +39,26 @@ export class LocationService {
         description: true
       },
       where: {
+        source_id: event.program,
         method: `${LocationEnum.Bank}`,
-        source_id: source
+        location_id: In(event.location_ids)
+      },
+      order: {
+        location_id: 'ASC'
+      }
+    });
+  }
+
+  public async getLocationsBySource(
+    source: Ministries
+  ): Promise<LocationEntity[]> {
+    return await this.locationRepo.find({
+      where: {
+        source_id: source,
+        method: `${LocationEnum.Bank}`
+      },
+      order: {
+        location_id: 'ASC'
       }
     });
   }

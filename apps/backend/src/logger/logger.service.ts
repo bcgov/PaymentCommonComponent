@@ -1,15 +1,37 @@
 import { LoggerService } from '@nestjs/common';
 import axios from 'axios';
 import { WinstonModule } from 'nest-winston';
+import winston from 'winston';
+import DailyRotateFile from 'winston-daily-rotate-file';
+import { join } from 'path';
 import * as util from 'util';
-import { transports } from './format';
 
 export class AppLogger implements LoggerService {
   private readonly logger;
-
   constructor() {
     this.logger = WinstonModule.createLogger({
-      transports,
+      transports: [
+        new winston.transports.Console({
+          format: winston.format.combine(
+            winston.format.simple(),
+            winston.format.colorize()
+          ),
+          level: 'debug',
+          silent: process.env.NODE_ENV !== 'local' ? true : false
+        }),
+        new DailyRotateFile({
+          format: winston.format.combine(
+            winston.format.timestamp(),
+            winston.format.simple(),
+            winston.format.colorize()
+          ),
+          level: 'info',
+          silent: process.env.NODE_ENV !== 'local' ? true : false,
+          filename: join(__dirname, 'logs/%DATE%.log'),
+          datePattern: 'YYYY-MM-DD',
+          zippedArchive: true
+        })
+      ],
       exitOnError: false
     });
   }
