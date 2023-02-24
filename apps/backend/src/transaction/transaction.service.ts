@@ -28,7 +28,6 @@ export class TransactionService {
       throw e;
     }
   }
-
   async saveTransaction(data: TransactionEntity): Promise<TransactionEntity> {
     try {
       return await this.transactionRepo.save(this.transactionRepo.create(data));
@@ -37,7 +36,6 @@ export class TransactionService {
       throw e;
     }
   }
-
   async findAllUploadedFiles(): Promise<
     { transaction_source_file_name: string }[]
   > {
@@ -76,10 +74,9 @@ export class TransactionService {
 
   async findCashPayments(
     event: ReconciliationEvent,
-    current: string,
-    previous: string
+    depositDate: string[]
   ): Promise<AggregatedPayment[]> {
-    return await this.paymentService.findCashPayments(event, current, previous);
+    return await this.paymentService.findCashPayments(event, depositDate);
   }
   async updatePaymentStatus(payment: PaymentEntity): Promise<PaymentEntity> {
     return await this.paymentService.updatePayment(payment);

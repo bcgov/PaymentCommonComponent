@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Raw, Repository } from 'typeorm';
+import { In, Repository, MoreThanOrEqual } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { AppLogger } from '../logger/logger.service';
@@ -67,6 +67,31 @@ export class CashDepositService {
 
     return result as GroupedPaymentsAndDeposits[];
   }
+
+  async getCashDepositDates(event: ReconciliationEvent): Promise<string[]> {
+    const {
+      program,
+      location: { location_id }
+    } = event;
+    /**
+     * @description This query is returning the 3rd most recent deposit date
+     */
+    const dates = await this.cashDepositRepo
+      .createQueryBuilder('cash_deposit')
+      .select('distinct deposit_date')
+      .where('cash_deposit.location_id = :location_id', { location_id })
+      .andWhere('cash_deposit.deposit_date <= :deposit_date', {
+        deposit_date: event.date
+      })
+      .andWhere('cash_deposit.program = :program', { program })
+      .orderBy({
+        'cash_deposit.deposit_date': 'DESC'
+      })
+      .limit(3)
+      .getRawMany();
+
+    return dates.map((itm) => itm.deposit_date);
+  }
   /**
    * @param event
    * @returns CashDepositEntity[]
@@ -77,27 +102,26 @@ export class CashDepositService {
   ): Promise<CashDepositEntity[]> {
     const {
       program,
-      location: { location_id },
-      fiscal_close_date: current,
-      fiscal_start_date: previous
+      location: { location_id }
     } = event;
-    //TODO fix RAW query
-    return await this.cashDepositRepo.find({
+
+    /**
+     * @description This query is returning the deposits from the three most recent deposit dates
+     */
+    const date = await this.getCashDepositDates(event);
+    const deposits = await this.cashDepositRepo.find({
       where: {
         location_id,
         metadata: { program },
-        status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
-        deposit_date: Raw(
-          (alias) =>
-            `${alias} <= :current::date AND ${alias} > :previous::date`,
-          { current, previous }
-        )
+        deposit_date: MoreThanOrEqual(date[1]),
+        status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS])
       },
       order: {
         deposit_date: 'DESC',
         location_id: 'ASC'
       }
     });
+    return deposits;
   }
 
   async updateDepositStatus(

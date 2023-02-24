@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
-import { Ministries } from '../constants';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
@@ -43,16 +42,15 @@ export const handler = async (
         : await locationService.getLocationsByID(event);
 
     for (const location of locations) {
-      console.log(
-        '>>>>>> Processing Reconciliation for location_id: ',
-        location.location_id,
+      appLogger.log(
+        '>>>>>> Processing Reconciliation for: ',
         location.description
       );
 
       for (const date of dates) {
-        console.log('-------------------------------------------------');
-        console.log('Processing POS Reconciliation for date: ', date);
-        console.log('-------------------------------------------------');
+        appLogger.log('-------------------------------------------------');
+        appLogger.log('Processing POS Reconciliation for date: ', date);
+        appLogger.log('-------------------------------------------------');
 
         console.table(
           await posRecon.reconcile({
@@ -61,39 +59,29 @@ export const handler = async (
             program: event.program
           })
         );
-      }
-    }
 
-    for (const location of locations) {
-      console.log('-------------------------------------------------');
-      console.log(
-        'Processing Cash Reconciliation for date: ',
-        event.fiscal_start_date,
-        event.fiscal_close_date
-      );
-      console.log('-------------------------------------------------');
-      const cashEvent = {
-        fiscal_start_date: event.fiscal_start_date,
-        fiscal_close_date: event.fiscal_close_date,
-        location,
-        program: event.program
-      };
-      console.table(await cashRecon.reconcile(cashEvent));
+        appLogger.log('-------------------------------------------------');
+        appLogger.log('Processing CASH Reconciliation for date: ', date);
+        appLogger.log('-------------------------------------------------');
+
+        console.table(
+          await cashRecon.reconcile({ date, location, program: event.program })
+        );
+      }
     }
   };
   await reconcile(event);
 
-  console.log('\n\n=========Reconcile Run Complete=========\n');
+  appLogger.log('\n\n=========Reconcile Run Complete=========\n');
 
-  console.log('\n\n=========Summary Report: =========\n');
+  appLogger.log('\n\n=========Summary Report: =========\n');
 
   const posSummaryReport = await reportingService.reportPosMatchSummaryByDate();
 
   console.table(posSummaryReport);
 
-  console.log('\n\n=========Cash Summary Report: =========\n');
+  appLogger.log('\n\n=========Cash Summary Report: =========\n');
   const cashSummaryReport =
     await reportingService.reportCashMatchSummaryByDate();
   console.table(cashSummaryReport);
 };
-
