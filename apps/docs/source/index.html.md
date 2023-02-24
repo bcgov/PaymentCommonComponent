@@ -2,11 +2,10 @@
 title: Common Component for Payments
 language_tabs:
   - typescript: Typescript
-  
 
 toc_footers: []
 includes:
-  - Getting Started
+  - gettingstarted
   - readme.md
 
 search: true

@@ -2,7 +2,7 @@
 
 ## Common Component for Payments REST APIs
 
-###  Overview
+### Overview
 
 The Common Component for Payments is an API-driven system designed to streamline and automate the repetitive and manual tasks that ministries face when receiving and sending payments. The system aims to enhance the quality of data and traceability of payment transactions, while reducing the possibility of errors when re-entering data between systems.
 
@@ -12,8 +12,6 @@ The initial use cases for this project have been provided by Service BC to suppo
 
 <a rel="noopener noreferrer" target="_blank" href="https://google.com">Link Name</a>
 
-
 ## 1.3 Diagrams
 
-![Architecture Diagram](../images/placeholder.jpeg?raw=true 'Architecture')
-
+![Architecture Diagram](../images/placeholder.jpeg?raw=true "Architecture")
