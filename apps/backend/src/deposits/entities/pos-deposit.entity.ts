@@ -4,7 +4,6 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   Relation
 } from 'typeorm';
@@ -13,7 +12,6 @@ import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { TDI34Details } from '../../flat-files';
 import { PaymentMethodEntity } from '../../transaction/entities';
-import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {
@@ -67,9 +65,6 @@ export class POSDepositEntity {
   @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method)
   @JoinColumn({ name: 'card_vendor' })
   payment_method: Relation<PaymentMethodEntity>;
-
-  @OneToOne(() => PaymentEntity, (p) => p.pos_deposit_match, { nullable: true })
-  payment_match: Relation<PaymentEntity>;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);
