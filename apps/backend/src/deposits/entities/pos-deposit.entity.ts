@@ -12,6 +12,7 @@ import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { TDI34Details } from '../../flat-files';
 import { PaymentMethodEntity } from '../../transaction/entities';
+import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {
