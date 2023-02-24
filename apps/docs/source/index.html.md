@@ -5,7 +5,12 @@ language_tabs:
 
 toc_footers: []
 includes:
-  - gettingstarted
+  - introduction
+  - restapi
+  - developers
+  - troubleshooting
+  - support
+  - glossary
   - readme.md
 
 search: true
@@ -16,5 +21,5 @@ code_clipboard: true
 
 meta:
   - name: description
-    content: Documentation for PCC
+    content: Documentation for CCFP
 ---
