@@ -38,13 +38,6 @@ export const handler = async (
       ? await locationService.getLocationsBySource(event.program)
       : await locationService.getLocationsByID(event);
 
-  /*
-   * 1. Loop over dates
-   * 2. Get all deposits for the date
-   * 3. Get all payments for the date
-   * 4. Reconcile starting with the earliest date
-   */
-
   const reconcile = async (event: ReconciliationEventInput) => {
     const dates = getFiscalDatesForPOS(event);
 

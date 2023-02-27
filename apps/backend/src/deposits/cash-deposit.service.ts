@@ -66,7 +66,9 @@ export class CashDepositService {
     });
   }
 
-  public async findPastDueDate(event: ReconciliationEvent) {
+  public async findPastDueDate(
+    event: ReconciliationEvent
+  ): Promise<{ currentDate: string; pastDueDate: string | null }> {
     const {
       date,
       program,
@@ -87,7 +89,11 @@ export class CashDepositService {
     const distinctDepositDates = Array.from(
       new Set(dates.map((item) => item.deposit_date))
     );
-    if (distinctDepositDates.length < 4) return null;
+    if (distinctDepositDates.length < 4)
+      return {
+        currentDate: date,
+        pastDueDate: null
+      };
     return {
       currentDate: date,
       pastDueDate: distinctDepositDates[3]
