@@ -41,6 +41,7 @@ export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
 # data 
 REPORT_JSON:=$(shell cat ./apps/backend/fixtures/lambda/report.json | jq '.' -c)
 RECONCILE_JSON:=$(shell cat ./apps/backend/fixtures/lambda/reconcile.json | jq '.' -c)
+PARSER_JSON:=$(shell cat ./apps/backend/fixtures/lambda/parser.json | jq '.' -c)
 
 # Terraform variables
 TERRAFORM_DIR = terraform
@@ -213,7 +214,7 @@ aws-run-reconciler:
 	@aws lambda invoke --function-name reconciler --payload file://./apps/backend/fixtures/lambda/reconcile.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
 
 aws-run-parser: 
-	@aws lambda invoke --function-name parser  --payload '{ "eventType": "all" }' --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
+	@aws lambda invoke --function-name parser  --payload file://./apps/backend/fixtures/lambda/parser.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
 
 # ======================================================================
 # CI 
@@ -257,7 +258,7 @@ be-logs:
 # ===================================
 
 parse:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler({eventType: "all"})' 
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler($(PARSER_JSON))'
 
 # TODO update handler to accept args
 reconcile:
