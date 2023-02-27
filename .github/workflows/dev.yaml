@@ -1,5 +1,6 @@
 name: Deployment - DEV
 on:
+  workflow_dispatch:
   push:
     tags:
       - dev
