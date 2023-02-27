@@ -126,7 +126,10 @@ export const handler = async (event?: unknown, _context?: Context) => {
           paymentMethods
         );
         appLogger.log(`txn count: ${garmsSales.length}`);
-        await transactionService.saveTransactions(garmsSales);
+        // FIXME: Doing a bulk insert timesout connecting to the DB
+        for (const txn of garmsSales) {
+          await transactionService.saveTransaction(txn);
+        }
       }
 
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
