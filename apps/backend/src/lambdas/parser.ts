@@ -34,6 +34,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
   const posService = app.get(PosDepositService);
   const cashService = app.get(CashDepositService);
 
+  const paymentMethods = await paymentMethodService.getPaymentMethods();
   const processAllFiles = async () => {
     appLogger.log('Processing all files...');
     try {
@@ -118,7 +119,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
       })();
 
       if (fileType === FileTypes.SBC_SALES) {
-        const paymentMethods = await paymentMethodService.getPaymentMethods();
+        appLogger.log('Parse and store SBC Sales in DB...', filename);
         const garmsSales: TransactionEntity[] = await parseGarms(
           (await JSON.parse(file.Body?.toString() || '{}')) as SBCGarmsJson[],
           filename,
