@@ -69,8 +69,9 @@ export class CashDepositService {
    *
    * @param event
    * @param pastDueDate
-   * @returns CashDepositEntity[]
-   * @description Find all deposit dates for a specific location and program, in ascending order, which are still pending or in progress. This is used to find the dates that need to be reconciled.
+   * @returns string[]
+   * @description Find all deposit dates for a specific location and program, in ascending order, which are still
+   *  pending or in progress. This is used to find the dates that need to be reconciled.
    */
   public async depositDates(event: ReconciliationEvent): Promise<string[]> {
     const {
