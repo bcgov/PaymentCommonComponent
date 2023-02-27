@@ -68,22 +68,12 @@ export interface GroupedPaymentsAndDeposits {
 }
 
 export interface CashReconciliationOutput {
+  fiscal_close_date?: string;
   type: ReconciliationType;
-  location: string;
-  total_deposits: number;
-  total_payments: number;
-  total_in_progress: number;
-  total_exceptions: number;
-  total_matches: number;
-  percent_matched: number;
-}
-export interface CashMatches {
-  payment: AggregatedPayment;
-  deposit: CashDepositEntity;
-}
-
-export interface DepositDates {
-  current?: string | null;
-  pastDue?: string | null;
-  previous?: string | null;
+  location_id?: number;
+  location_name?: string;
+  total_pending?: number;
+  total_matched_payments?: number;
+  total_matched_deposits?: number;
+  percent_matched?: number;
 }

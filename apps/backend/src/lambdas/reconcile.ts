@@ -79,9 +79,28 @@ export const handler = async (
           `Processing CASH Reconciliation for: ${location.description} ${date}`
         );
         appLogger.log('-------------------------------------------------');
-        console.table(
-          await cashRecon.reconcileCash({ ...event, date, location })
+
+        const matched = await cashRecon.reconcileCash({
+          ...event,
+          date,
+          location
+        });
+        console.table(matched);
+        appLogger.log('-------------------------------------------------');
+        appLogger.log(
+          `Processing finding CASH Exceptions for: ${location.description} ${date}`
         );
+        appLogger.log('-------------------------------------------------');
+        const exceptions = await cashRecon.findExceptions({
+          ...event,
+          date,
+          location
+        });
+        appLogger.log('-------------------------------------------------');
+        appLogger.log(
+          `EXCEPTIONS: ${exceptions.length} for: ${location.description} ${date}`
+        );
+        appLogger.log('-------------------------------------------------');
       }
     }
   };

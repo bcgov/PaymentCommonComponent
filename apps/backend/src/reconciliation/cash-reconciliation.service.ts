@@ -1,12 +1,15 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ReconciliationEvent } from './types';
-import { ReconciliationType, AggregatedPayment } from './types';
+import {
+  ReconciliationType,
+  AggregatedPayment,
+  CashReconciliationOutput
+} from './types';
 import { MatchStatus } from '../common/const';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { TransactionService } from '../transaction/transaction.service';
-import { CashPaymentsCashDepositPair } from './../../dist/src/reconciliation/reconciliation.interfaces.d';
 import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
 
 @Injectable()
@@ -24,15 +27,30 @@ export class CashReconciliationService {
    */
 
   public async findExceptions(
-    event: ReconciliationEvent,
-    pastDueDate?: string | null
+    event: ReconciliationEvent
   ): Promise<PaymentEntity[]> {
-    if (!pastDueDate) {
+    const dates = await this.cashDepositService.findPastDueDate(event);
+    if (!dates?.pastDueDate || !dates?.currentDate) {
+      this.appLogger.log(
+        'No past due dates found',
+        CashReconciliationService.name
+      );
       return [];
     }
+    this.appLogger.log(
+      `CURRENT DATE: ${dates.currentDate}`,
+      CashReconciliationService.name
+    );
+    this.appLogger.log(
+      `PAST DUE DATE: ${dates.pastDueDate}`,
+      CashReconciliationService.name
+    );
 
     const payments = await Promise.all(
-      await this.transactionService.findPaymentsExceptions(event, pastDueDate)
+      await this.transactionService.findPaymentsExceptions(
+        event,
+        dates.pastDueDate
+      )
     );
 
     const paymentExceptions = await Promise.all(
@@ -92,7 +110,7 @@ export class CashReconciliationService {
 
   public async reconcileCash(
     event: ReconciliationEvent
-  ): Promise<{ message: string } | CashPaymentsCashDepositPair[] | unknown> {
+  ): Promise<CashReconciliationOutput | unknown> {
     const pending = await this.getPending(event);
     await this.setPendingToInProgress(
       event,
@@ -106,9 +124,7 @@ export class CashReconciliationService {
         'NO IN PROGRESS DEPOSITS FOUND',
         CashReconciliationService.name
       );
-      return {
-        message: 'No InProgress Deposits Found'
-      };
+      return [];
     }
 
     if (inProgress.payments.length === 0) {
@@ -116,9 +132,7 @@ export class CashReconciliationService {
         'NO IN PRORGESS PAYMENTS FOUND',
         CashReconciliationService.name
       );
-      return {
-        message: 'No InProgress Payments Found'
-      };
+      return [];
     }
 
     const aggregatedPaymentsByFiscalCloseDate =
@@ -155,7 +169,6 @@ export class CashReconciliationService {
       total_pending: pending.payments.length + pending.deposits.length,
       total_matched_payments: setToMatchedPayments,
       total_matched_deposits: setToMatchedDeposits,
-      total_exceptions: 0,
       percent_matched: parseFloat(
         (
           ((setToMatchedDeposits + setToMatchedPayments) /

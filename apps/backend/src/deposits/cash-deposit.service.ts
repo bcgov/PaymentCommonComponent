@@ -65,6 +65,35 @@ export class CashDepositService {
       }
     });
   }
+
+  public async findPastDueDate(event: ReconciliationEvent) {
+    const {
+      date,
+      program,
+      location: { location_id }
+    } = event;
+
+    const dates = await this.cashDepositRepo.find({
+      select: { deposit_date: true },
+      where: {
+        location_id,
+        metadata: { program },
+        deposit_date: LessThanOrEqual(date)
+      },
+      order: {
+        deposit_date: 'DESC'
+      }
+    });
+    const distinctDepositDates = Array.from(
+      new Set(dates.map((item) => item.deposit_date))
+    );
+    if (distinctDepositDates.length < 4) return null;
+    return {
+      currentDate: date,
+      pastDueDate: distinctDepositDates[3]
+    };
+  }
+
   /**
    *
    * @param event
