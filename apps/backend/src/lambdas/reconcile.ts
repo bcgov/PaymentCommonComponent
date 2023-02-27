@@ -96,13 +96,4 @@ export const handler = async (
     await reportingService.reportCashMatchSummaryByDate();
   console.table(cashSummaryReport);
 };
-// TODO move this to our makefile
-const fiscalStartDate2023 = '2023-01-15';
-const reconcileAll: ReconciliationEventInput = {
-  fiscal_start_date: fiscalStartDate2023,
-  fiscal_close_date: '2023-02-15',
-  program: Ministries.SBC,
-  location_ids: []
-};
 
-handler(reconcileAll);

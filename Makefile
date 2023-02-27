@@ -40,6 +40,7 @@ export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
 
 # data 
 REPORT_JSON:=$(shell cat ./apps/backend/fixtures/lambda/report.json | jq '.' -c)
+RECONCILE_JSON:=$(shell cat ./apps/backend/fixtures/lambda/reconcile.json | jq '.' -c)
 
 # Terraform variables
 TERRAFORM_DIR = terraform
@@ -260,7 +261,7 @@ parse:
 
 # TODO update handler to accept args
 reconcile:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts")'
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts").handler($(RECONCILE_JSON))'
 
 report:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler()'
