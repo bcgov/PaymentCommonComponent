@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TransactionEntity, PaymentEntity } from './entities';
 import { PaymentService } from './payment.service';
+import { MatchStatus } from '../common/const';
 import { AppLogger } from '../logger/logger.service';
 import {
-  AggregatedPayment,
   PosPaymentPosDepositPair,
   ReconciliationEvent
 } from '../reconciliation/types';
@@ -74,17 +74,14 @@ export class TransactionService {
 
   async findCashPayments(
     event: ReconciliationEvent,
-    depositDate: string[]
-  ): Promise<AggregatedPayment[]> {
-    return await this.paymentService.findCashPayments(event, depositDate);
+    status: MatchStatus
+  ): Promise<PaymentEntity[]> {
+    return await this.paymentService.findCashPayments(event, status);
+  }
+  public aggregatePayments(payments: PaymentEntity[]) {
+    return this.paymentService.aggregatePayments(payments);
   }
   async updatePaymentStatus(payment: PaymentEntity): Promise<PaymentEntity> {
-    return await this.paymentService.updatePayment(payment);
-  }
-
-  async updateCashPaymentStatus(
-    payment: PaymentEntity
-  ): Promise<PaymentEntity> {
     return await this.paymentService.updatePayment(payment);
   }
 }

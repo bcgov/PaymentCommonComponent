@@ -22,36 +22,37 @@ export const handler = async (
   appLogger.log({ event });
   appLogger.log({ context });
 
-  const getFiscalDates = (event: ReconciliationEventInput) => {
+  const getFiscalDatesForPOS = (event: ReconciliationEventInput) => {
     const fiscalStart = new Date(event.fiscal_start_date);
     const fiscalEnd = new Date(event.fiscal_close_date);
     const fiscalDates = [];
-    while (fiscalStart <= fiscalEnd) {
+    while (fiscalStart < fiscalEnd) {
       fiscalDates.push(new Date(fiscalStart).toDateString());
       fiscalStart.setDate(fiscalStart.getDate() + 1);
     }
     return fiscalDates.map((itm) => itm.toString());
   };
 
-  const reconcile = async (event: ReconciliationEventInput) => {
-    const dates = getFiscalDates(event);
+  const locations =
+    event.location_ids.length === 0
+      ? await locationService.getLocationsBySource(event.program)
+      : await locationService.getLocationsByID(event);
 
-    const locations =
-      event.location_ids.length === 0
-        ? await locationService.getLocationsBySource(event.program)
-        : await locationService.getLocationsByID(event);
+  /*
+   * 1. Loop over dates
+   * 2. Get all deposits for the date
+   * 3. Get all payments for the date
+   * 4. Reconcile starting with the earliest date
+   */
+
+  const reconcile = async (event: ReconciliationEventInput) => {
+    const dates = getFiscalDatesForPOS(event);
 
     for (const location of locations) {
-      appLogger.log(
-        '>>>>>> Processing Reconciliation for: ',
-        location.description
-      );
-
       for (const date of dates) {
         appLogger.log('-------------------------------------------------');
-        appLogger.log('Processing POS Reconciliation for date: ', date);
+        appLogger.log(`Processing POS Reconciliation for: ${location} ${date}`);
         appLogger.log('-------------------------------------------------');
-
         console.table(
           await posRecon.reconcile({
             date,
@@ -59,17 +60,28 @@ export const handler = async (
             program: event.program
           })
         );
-
+      }
+      const cashDates = await cashRecon.getDatesForReconciliation({
+        ...event,
+        date: event.fiscal_close_date,
+        location
+      });
+      appLogger.log(
+        `Found Deposits on: ${cashDates} for location: ${location.description}`
+      );
+      for (const date of cashDates) {
         appLogger.log('-------------------------------------------------');
-        appLogger.log('Processing CASH Reconciliation for date: ', date);
+        appLogger.log(
+          `Processing CASH Reconciliation for: ${location} ${date}`
+        );
         appLogger.log('-------------------------------------------------');
-
         console.table(
-          await cashRecon.reconcile({ date, location, program: event.program })
+          await cashRecon.reconcileCash({ ...event, date, location })
         );
       }
     }
   };
+
   await reconcile(event);
 
   appLogger.log('\n\n=========Reconcile Run Complete=========\n');

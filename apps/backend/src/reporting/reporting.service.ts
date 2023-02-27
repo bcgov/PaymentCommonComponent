@@ -106,7 +106,7 @@ export class ReportingService {
     return results;
   }
   async reportCashMatchSummaryByDate(): Promise<number> {
-    const results = await this.posDepositRepo.manager.query(`
+    const results = await this.paymentRepo.manager.query(`
       SELECT
       cash_pay.fiscal_close_date,
       count_cash_payments,
@@ -120,7 +120,7 @@ export class ReportingService {
       FROM
         (
           SELECT
-            t.fiscal_close_date ,
+            t.fiscal_close_date,
             COUNT(*) 
               AS 
                 count_cash_payments
@@ -130,14 +130,14 @@ export class ReportingService {
             "transaction" t 
           ON
             t.transaction_id = p."transaction"
-            
-          AND 
+          WHERE
             p."method" 
           NOT IN 
             ('P', 'V', 'AX', 'M')
-            AND 
+          AND 
               p."amount" > 0.000
-            AND t.fiscal_close_date > '2023-01-15'::date
+              AND t.fiscal_close_date > '2023-01-01'::date
+              AND t.fiscal_close_date < '2023-02-24'::date
           GROUP BY
             t.fiscal_close_date
           ORDER BY
@@ -158,14 +158,15 @@ export class ReportingService {
           JOIN "transaction" t 
             ON
               t.transaction_id = p."transaction"
-            AND 
+          WHERE 
               p."method" 
                 NOT IN 
                   ('P', 'V', 'AX', 'M')
             AND 
               p."status" = 'MATCH'
-            AND p."amount" > 0.000
-            AND t.fiscal_close_date > '2023-01-15'::date
+            AND p."amount" > 0
+            AND t.fiscal_close_date > '2023-01-01'::date
+            AND t.fiscal_close_date < '2023-02-24'::date
           GROUP BY
             t.fiscal_close_date
         ) 

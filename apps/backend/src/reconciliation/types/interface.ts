@@ -23,7 +23,7 @@ export interface CashDepositDates {
 }
 
 export interface ReconciliationEvent {
-  date?: string;
+  date: string;
   location: LocationEntity;
   program: string;
   fiscal_start_date?: string;
@@ -80,4 +80,10 @@ export interface CashReconciliationOutput {
 export interface CashMatches {
   payment: AggregatedPayment;
   deposit: CashDepositEntity;
+}
+
+export interface DepositDates {
+  current?: string | null;
+  pastDue?: string | null;
+  previous?: string | null;
 }

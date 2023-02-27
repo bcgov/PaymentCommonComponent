@@ -1,13 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, MoreThanOrEqual } from 'typeorm';
+import { Repository, LessThanOrEqual } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { AppLogger } from '../logger/logger.service';
-import {
-  GroupedPaymentsAndDeposits,
-  ReconciliationEvent
-} from '../reconciliation/types';
+import { ReconciliationEvent } from '../reconciliation/types';
 
 @Injectable()
 export class CashDepositService {
@@ -30,7 +27,11 @@ export class CashDepositService {
       .distinct()
       .getRawMany();
   }
-
+  /**
+   * @param data
+   * @returns
+   * @description Create a new cash deposit
+   */
   async createCashDeposit(data: CashDepositEntity): Promise<CashDepositEntity> {
     try {
       return await this.cashDepositRepo.save(this.cashDepositRepo.create(data));
@@ -40,90 +41,63 @@ export class CashDepositService {
     }
   }
 
-  aggregateDeposits(
-    event: ReconciliationEvent,
-    deposits: CashDepositEntity[]
-  ): GroupedPaymentsAndDeposits[] {
-    const groupedDeposits = deposits.reduce(
-      /*eslint-disable */
-      (acc: any, deposit: CashDepositEntity) => {
-        const key = `${deposit.deposit_date}`;
-        if (!acc[key]) {
-          acc[key] = {
-            deposit_date: deposit.deposit_date,
-            location_id: deposit.location_id,
-            deposit_sum: 0,
-            deposits: []
-          };
-        }
-        acc[key].deposit_sum += deposit.deposit_amt_cdn;
-        acc[key].deposits.push(deposit);
-        return acc;
-      },
-      {}
-    );
-
-    const result = Object.values(groupedDeposits);
-
-    return result as GroupedPaymentsAndDeposits[];
-  }
-
-  async getCashDepositDates(event: ReconciliationEvent): Promise<string[]> {
-    const {
-      program,
-      location: { location_id }
-    } = event;
-    /**
-     * @description This query is returning the 3rd most recent deposit date
-     */
-    const dates = await this.cashDepositRepo
-      .createQueryBuilder('cash_deposit')
-      .select('distinct deposit_date')
-      .where('cash_deposit.location_id = :location_id', { location_id })
-      .andWhere('cash_deposit.deposit_date <= :deposit_date', {
-        deposit_date: event.date
-      })
-      .andWhere('cash_deposit.program = :program', { program })
-      .orderBy({
-        'cash_deposit.deposit_date': 'DESC'
-      })
-      .limit(3)
-      .getRawMany();
-
-    return dates.map((itm) => itm.deposit_date);
-  }
   /**
    * @param event
    * @returns CashDepositEntity[]
    * @description Filter by location, program, and current date
    */
   async findCashDepositsByDateLocationAndProgram(
-    event: ReconciliationEvent
+    event: ReconciliationEvent,
+    status: MatchStatus
   ): Promise<CashDepositEntity[]> {
     const {
+      program,
+      date,
+      location: { location_id }
+    } = event;
+
+    return await this.cashDepositRepo.find({
+      where: {
+        location_id: location_id,
+        metadata: { program: program },
+        deposit_date: LessThanOrEqual(date),
+        status: status
+      }
+    });
+  }
+  /**
+   *
+   * @param event
+   * @param pastDueDate
+   * @returns CashDepositEntity[]
+   * @description Find all deposit dates for a specific location and program, in ascending order, which are still pending or in progress. This is used to find the dates that need to be reconciled.
+   */
+  public async depositDates(event: ReconciliationEvent): Promise<string[]> {
+    const {
+      date,
       program,
       location: { location_id }
     } = event;
 
-    /**
-     * @description This query is returning the deposits from the three most recent deposit dates
-     */
-    const date = await this.getCashDepositDates(event);
-    const deposits = await this.cashDepositRepo.find({
+    const dates = await this.cashDepositRepo.find({
+      select: { deposit_date: true },
       where: {
         location_id,
         metadata: { program },
-        deposit_date: MoreThanOrEqual(date[1]),
-        status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS])
+        deposit_date: LessThanOrEqual(date)
       },
       order: {
-        deposit_date: 'DESC',
-        location_id: 'ASC'
+        deposit_date: 'ASC'
       }
     });
-    return deposits;
+
+    return Array.from(new Set(dates.map((item) => item.deposit_date)));
   }
 
+  /**
+   * @param deposit
+   * @returns CashDepositEntity
+   */
   async updateDepositStatus(
     deposit: CashDepositEntity
   ): Promise<CashDepositEntity> {

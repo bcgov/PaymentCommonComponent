@@ -1,7 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format } from 'date-fns';
-import { LessThan, MoreThan, Not, In, Raw, Between, Repository } from 'typeorm';
+import {
+  LessThan,
+  MoreThan,
+  Not,
+  In,
+  Repository,
+  LessThanOrEqual
+} from 'typeorm';
 import { PaymentEntity } from './entities';
 import { ReconciliationEvent } from '../reconciliation/types';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -42,7 +48,7 @@ export class PaymentService {
     const groupedPayments = payments.reduce(
       /*eslint-disable */
       (acc: any, payment: PaymentEntity) => {
-        const key = `date:_${payment.transaction.fiscal_close_date}_for_${payment.transaction.location_id}`;
+        const key = `${payment.transaction.fiscal_close_date}`;
         if (!acc[key]) {
           acc[key] = {
             status: payment.status,
@@ -65,49 +71,31 @@ export class PaymentService {
 
   public async findCashPayments(
     event: ReconciliationEvent,
-    depositDates: string[]
-  ): Promise<AggregatedPayment[]> {
+    status: MatchStatus
+  ): Promise<PaymentEntity[]> {
     const {
+      date,
       location: { location_id }
     } = event;
     const pos_methods = ['AX', 'P', 'V', 'M'];
-    const statuses = [MatchStatus.PENDING, MatchStatus.IN_PROGRESS];
-    const current = depositDates[0];
-    const prev = depositDates[depositDates.length - 1];
-    if (!current || !prev) {
-      return [];
-    }
-    this.appLogger.log(
-      `Finding cash payments between:\n\n ${format(
-        new Date(prev),
-        'yyyy-MM-dd'
-      )} - ${format(new Date(current), 'yyyy-MM-dd')}\n\n`,
-      PaymentService.name
-    );
-    try {
-      const payments = await this.paymentRepo.find({
-        where: {
-          method: Not(In(pos_methods)),
-          amount: MoreThan(0.0),
-          status: In(statuses),
-          transaction: {
-            location_id,
-            fiscal_close_date: Between(prev, current)
-          }
-        },
-        relations: ['transaction'],
-        order: {
-          transaction: {
-            location_id: 'ASC',
-            fiscal_close_date: 'DESC'
-          }
+
+    const payments = await this.paymentRepo.find({
+      where: {
+        method: Not(In(pos_methods)),
+        amount: MoreThan(0),
+        status,
+        transaction: {
+          location_id,
+          fiscal_close_date: LessThanOrEqual(date)
         }
-      });
-      return this.aggregatePayments(payments);
-    } catch (e) {
-      console.log(e);
-      throw new Error();
-    }
+      },
+      relations: ['transaction'],
+      order: {
+        transaction: { fiscal_close_date: 'ASC' }
+      }
+    });
+
+    return payments;
   }
 
   public async findPaymentsExceptions(
@@ -122,54 +110,13 @@ export class PaymentService {
       where: {
         method: Not(In(pos_methods)),
         amount: MoreThan(0.0),
-        status: MatchStatus.PENDING || MatchStatus.IN_PROGRESS,
+        status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
         transaction: {
           location_id,
           fiscal_close_date: LessThan(pastDueDepositDate)
         }
       },
-      relations: ['transaction'],
-      order: {
-        transaction: {
-          location_id: 'ASC',
-          fiscal_close_date: 'DESC'
-        }
-      }
-    });
-    return payments;
-  }
-  public async findCashPaymentExceptions(
-    event: ReconciliationEvent,
-    current: string,
-    previous: string
-  ): Promise<PaymentEntity[]> {
-    const {
-      location: { location_id }
-    } = event;
-    const pos_methods = ['AX', 'P', 'V', 'M'];
-
-    if (!previous) {
-      return [];
-    }
-    const payments = await this.paymentRepo.find({
-      where: {
-        method: Not(In(pos_methods)),
-        amount: MoreThan(0.0),
-        transaction: {
-          location_id,
-          fiscal_close_date: Raw(
-            (alias) =>
-              `${alias} < '${current}'::date AND ${alias} >= '${previous}'::date`
-          )
-        }
-      },
-      relations: ['transaction'],
-      order: {
-        transaction: {
-          location_id: 'ASC',
-          fiscal_close_date: 'DESC'
-        }
-      }
+      relations: ['transaction']
     });
     return payments;
   }
