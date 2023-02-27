@@ -15,7 +15,6 @@ export class AppLogger implements LoggerService {
             winston.format.colorize()
           ),
           level: 'debug',
-          silent: process.env.NODE_ENV !== 'local' ? true : false
         }),
       ],
       exitOnError: false
