@@ -1,17 +1,16 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { ReconciliationEvent } from './types';
 import {
-  ReconciliationEvent,
-  CashReconciliationOutput,
+  ReconciliationType,
   AggregatedPayment,
-  GroupedPaymentsAndDeposits
+  CashReconciliationOutput
 } from './types';
-import { ReconciliationType } from './types';
 import { MatchStatus } from '../common/const';
 import { CashDepositService } from '../deposits/cash-deposit.service';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { TransactionService } from '../transaction/transaction.service';
+import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
 
 @Injectable()
 export class CashReconciliationService {
@@ -24,327 +23,278 @@ export class CashReconciliationService {
    *
    * @param event
    * @returns PaymentEntity[]
-   * @description Find all payments that are older than the past due date and mark as exceptions
+   * @description Find all payments and deposits that are older than the past due date and mark as exceptions
    */
+
   public async findExceptions(
     event: ReconciliationEvent
   ): Promise<PaymentEntity[]> {
-    /**
-     *  @description Get Deposits by date range and location
-     */
-    const deposits: CashDepositEntity[] = await Promise.all(
-      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
-        event
+    const dates = await this.cashDepositService.findPastDueDate(event);
+    if (!dates?.pastDueDate || !dates?.currentDate) {
+      this.appLogger.log(
+        'No past due dates found',
+        CashReconciliationService.name
+      );
+      return [];
+    }
+    this.appLogger.log(
+      `CURRENT DATE: ${dates.currentDate}`,
+      CashReconciliationService.name
+    );
+    this.appLogger.log(
+      `PAST DUE DATE: ${dates.pastDueDate}`,
+      CashReconciliationService.name
+    );
+
+    const payments = await Promise.all(
+      await this.transactionService.findPaymentsExceptions(
+        event,
+        dates.pastDueDate
       )
     );
-    const depositSummary: GroupedPaymentsAndDeposits[] =
-      this.cashDepositService.aggregateDeposits(event, deposits);
 
-    const paymentExceptions: PaymentEntity[] = [];
-
-    /*
-     * Map the deposits and find the third oldest deposit date
-     * Then find all payments that are older than that date and set as exceptions
-     */
-    await Promise.all(
-      depositSummary.map(async (summary, index) => {
-        /**
-         * check for the deposit date 3 indexes ahead (this is the past due date)
-         */
-        if (depositSummary[index + 3]) {
-          const pastDuePaymentDate = depositSummary[index + 3].deposit_date;
-          if (pastDuePaymentDate) {
-            /**
-             * Find all payments that are older than the past due date
-             */
-            const payments =
-              await this.transactionService.findPaymentsExceptions(
-                event,
-                pastDuePaymentDate
-              );
-            /**
-             * Update the status of the payments
-             */
-            payments.map(async (itm: PaymentEntity) =>
-              paymentExceptions.push(
-                await this.transactionService.updateCashPaymentStatus({
-                  ...itm,
-                  timestamp: itm.timestamp,
-                  status: MatchStatus.EXCEPTION
-                })
-              )
-            );
-          }
-        }
-      })
+    const paymentExceptions = await Promise.all(
+      payments.map(
+        async (itm: PaymentEntity) =>
+          await this.transactionService.updatePaymentStatus({
+            ...itm,
+            timestamp: itm.timestamp,
+            status: MatchStatus.EXCEPTION
+          })
+      )
     );
-    /**
-     * Return the payments marked as exceptions
-     */
+
     return paymentExceptions;
   }
 
-  /**
-   * @param paymentsAndDeposits
-   * @returns CashDepositPaymentPair
-   * @description Second layer of heuristics to match payments and deposits by amount
-   * Match payments and deposits by location and date
-   */
-  public allOrNoneMatchForPayments(
-    paymentsAndDeposits: GroupedPaymentsAndDeposits
-  ): GroupedPaymentsAndDeposits {
-    /**
-     * If none, return
-     */
-    if (
-      !paymentsAndDeposits.aggregatedPayments ||
-      !paymentsAndDeposits.deposits
-    )
-      return paymentsAndDeposits;
-    /**
-     * @description Check to see if the payment and deposit totals less than 0.5 apart - if yes, then consider a match
-     */
-    const differenceInSum = (amounts: number[]): number => {
-      const sortedAmts = amounts.sort((a, b) => a - b);
-      return sortedAmts[1] - sortedAmts[0];
-    };
-    const { aggregatedPayments: payments, deposits } = paymentsAndDeposits;
-    /**
-     * @description Loop through the payments and deposits and check for a match
-     */
-    for (const [pindex, payment] of payments.entries()) {
-      for (const [dindex, deposit] of deposits.entries()) {
-        // If we check this for the total payment sum by deposit date we will have better matches, but less  granularity
-        if (differenceInSum([payment.amount, deposit.deposit_amt_cdn]) <= 0.5) {
-          deposits[dindex].status = MatchStatus.MATCH;
-          payments[pindex].status = MatchStatus.MATCH;
-          const matchedPayments = payments[pindex].payments.map(
-            (payment: PaymentEntity) => ({
-              ...payment,
-              timestamp: payment.timestamp,
-              status: MatchStatus.MATCH,
-              cash_deposit_match: deposits[dindex]
-            })
-          );
-          /**
-           * @description Update the status of the payments and deposits
-           */
-          payments[pindex].payments = matchedPayments;
-          paymentsAndDeposits.status = MatchStatus.MATCH;
-        }
-      }
-    }
-    return paymentsAndDeposits;
-  }
-  /**
-   * @param event
-   * @returns GroupedPaymentsAndDeposits[]
-   * @description First layer of heuristics is the database filtering by program, location, payment type, and date range
-   * Find all payments and deposits  by location.
-   * Group by deposit dates.
-   * Aggregate the total amount of payments by deposit date.
-   * Aggregate the deposit amounts by deposit date.
-   */
-  public async findCashPaymentsAndDeposits(
+  public async getDatesForReconciliation(
     event: ReconciliationEvent
-  ): Promise<GroupedPaymentsAndDeposits[]> {
-    const deposits: CashDepositEntity[] = await Promise.all(
-      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
-        event
-      )
-    );
-    if (deposits.length === 0) {
-      this.appLogger.log(
-        `No deposits found for ${event.fiscal_close_date} ${event.location.description}`,
-        CashReconciliationService.name
-      );
-      return [];
-    }
+  ): Promise<string[]> {
+    const dates = await this.cashDepositService.depositDates(event);
+    return dates;
+  }
+
+  public matchPaymentsToDeposits(
+    deposits: CashDepositEntity[],
+    aggregatedPaymentsByFiscalCloseDate: AggregatedPayment[]
+  ): {
+    payments: PaymentEntity[];
+    deposit: CashDepositEntity;
+  }[][] {
     this.appLogger.log(
-      `Found ${deposits.length} deposits`,
+      `MATCHING ${aggregatedPaymentsByFiscalCloseDate.length} AGGREGATED PAYMENTS TO ${deposits.length} DEPOSITS`,
       CashReconciliationService.name
     );
-    /**
-     * Aggregate the deposits by location and date, find the payments that match the deposit date
-     */
-    const cashDepositsAndPaymentsByLocation: GroupedPaymentsAndDeposits[] =
-      this.cashDepositService.aggregateDeposits(event, deposits);
-    /*
-     * Map the deposits and find the payments less than the current deposit date
-     */
-    const paymentsAndDeposits = await Promise.all(
-      cashDepositsAndPaymentsByLocation.map(
-        async (summary: GroupedPaymentsAndDeposits, index: number) => {
-          if (cashDepositsAndPaymentsByLocation[index + 1]) {
-            const current = summary.deposit_date;
-            const previous =
-              cashDepositsAndPaymentsByLocation[index + 1].deposit_date;
-            const aggregatedPayments: AggregatedPayment[] =
-              await this.transactionService.findCashPayments(
-                event,
-                current,
-                previous
-              );
 
-            return {
-              ...summary,
-              deposits,
-              aggregatedPayments,
-              payments_sum: aggregatedPayments.reduce((a, b) => a + b.amount, 0)
-            };
-          } else {
-            return summary;
-          }
+    const matches = aggregatedPaymentsByFiscalCloseDate.map((payment) =>
+      deposits.map((deposit) => {
+        if (Math.abs(payment.amount - deposit.deposit_amt_cdn) < 1) {
+          this.appLogger.log(
+            `MATCH FOUND: ${payment.amount} - ${deposit.deposit_amt_cdn} `,
+            CashReconciliationService.name
+          );
         }
-      )
+        return {
+          payments: payment.payments.map((itm) => ({
+            ...itm,
+            status: MatchStatus.MATCH,
+            timestamp: itm.timestamp,
+            cash_deposit_match: deposit
+          })),
+          deposit
+        };
+      })
     );
-    if (paymentsAndDeposits.map((p) => p.aggregatedPayments).length === 0) {
-      this.appLogger.log(
-        `No payments found for ${event.fiscal_close_date} ${event.location.description}`,
-        CashReconciliationService.name
-      );
-      return [];
-    } else {
-      return paymentsAndDeposits;
-    }
-  }
-  /**
-   * @param matches
-   * @returns
-   * @description Update the status of the matched payments and deposits
-   */
-  public async setMatchStatus(
-    matches: GroupedPaymentsAndDeposits
-  ): Promise<GroupedPaymentsAndDeposits> {
-    matches.deposits.length > 0 &&
-      (await Promise.all(
-        matches.deposits.map(async (deposit) => {
-          await this.cashDepositService.updateDepositStatus({
-            ...deposit,
-            status: MatchStatus.MATCH
-          });
-        })
-      ));
-
-    matches.aggregatedPayments.length > 0 &&
-      (await Promise.all(
-        matches.aggregatedPayments.map(
-          async (aggregatedPayment: AggregatedPayment) =>
-            aggregatedPayment.payments.map(
-              async (payment: PaymentEntity) =>
-                await this.transactionService.updatePaymentStatus({
-                  ...payment,
-                  timestamp: payment.timestamp,
-                  status: MatchStatus.MATCH
-                })
-            )
-        )
-      ));
-
     return matches;
   }
 
-  /**
-   * @param inProgress
-   * @returns
-   * @description Update the status of the payments and deposits that are in progress
-   */
-  public async setInProgressStatus(
-    inProgress: GroupedPaymentsAndDeposits
-  ): Promise<GroupedPaymentsAndDeposits> {
-    await Promise.all(
-      inProgress.deposits.map(async (deposit) => {
-        await this.cashDepositService.updateDepositStatus({
-          ...deposit,
-          status: MatchStatus.IN_PROGRESS
-        });
-      })
-    );
-
-    inProgress.aggregatedPayments.length > 0 &&
-      (await Promise.all(
-        inProgress.aggregatedPayments.map(
-          async (aggregatedPayment: AggregatedPayment) =>
-            aggregatedPayment.payments.map(
-              async (payment: PaymentEntity) =>
-                await this.transactionService.updatePaymentStatus({
-                  ...payment,
-                  timestamp: payment.timestamp,
-                  status: MatchStatus.IN_PROGRESS
-                })
-            )
-        )
-      ));
-
-    return inProgress;
-  }
-  /**
-   * @param event
-   * @returns CashReconciliationOutput
-   */
-  public async reconcile(
+  public async reconcileCash(
     event: ReconciliationEvent
   ): Promise<CashReconciliationOutput | unknown> {
-    /**
-     * Find all payments and deposits by location and date.
-     */
-    const paymentsAndDeposits: GroupedPaymentsAndDeposits[] =
-      await this.findCashPaymentsAndDeposits(event);
-    if (paymentsAndDeposits.length === 0) {
-      return {
-        message: 'No pending payments/deposits found'
-      };
+    const pending = await this.getPending(event);
+    await this.setPendingToInProgress(
+      event,
+      pending.deposits,
+      pending.payments
+    );
+    const inProgress = await this.getInProgress(event);
+
+    if (inProgress.deposits.length === 0) {
+      this.appLogger.log(
+        'NO IN PROGRESS DEPOSITS FOUND',
+        CashReconciliationService.name
+      );
+      return [];
     }
-    /**
-     * Attempt matches
-     */
 
-    const matchAttempts = paymentsAndDeposits.map((itm) =>
-      this.allOrNoneMatchForPayments(itm)
-    );
-    /**
-     * Filter the matches and update the status of the deposits and payments
-     */
+    if (inProgress.payments.length === 0) {
+      this.appLogger.log(
+        'NO IN PRORGESS PAYMENTS FOUND',
+        CashReconciliationService.name
+      );
+      return [];
+    }
 
-    const matches = await Promise.all(
-      matchAttempts
-        .filter((itm) => itm.status === MatchStatus.MATCH)
-        .map(async (itm) => await this.setMatchStatus(itm))
+    const aggregatedPaymentsByFiscalCloseDate =
+      this.transactionService.aggregatePayments(inProgress.payments);
+
+    const matches = this.matchPaymentsToDeposits(
+      inProgress.deposits,
+      aggregatedPaymentsByFiscalCloseDate
     );
+
+    const updateMatches = await Promise.all(
+      matches.map(
+        async (itm) =>
+          await Promise.all(
+            itm.map(
+              async (item) => await this.setMatches(item.deposit, item.payments)
+            )
+          )
+      )
+    );
+    const setToMatchedPayments = updateMatches
+      .map((itm) => itm.map((item) => item.payments))
+      .flat().length;
+    const setToMatchedDeposits = updateMatches
+      .map((itm) => itm.map((item) => item.deposit))
+      .flat().length;
+    this.appLogger.log(`Updated ${setToMatchedPayments} Payments To Matched`);
+    this.appLogger.log(`Updated ${setToMatchedDeposits} Deposits To Matched`);
+
+    return {
+      fiscal_close_date: event.date,
+      type: ReconciliationType.CASH,
+      location_id: event.location.location_id,
+      total_pending: pending.payments.length + pending.deposits.length,
+      total_matched_payments: setToMatchedPayments,
+      total_matched_deposits: setToMatchedDeposits,
+      percent_matched: parseFloat(
+        (
+          ((setToMatchedDeposits + setToMatchedPayments) /
+            (inProgress.payments.length + inProgress.deposits.length)) *
+          100
+        ).toFixed(2)
+      )
+    };
+  }
+
+  public async getInProgress(
+    event: ReconciliationEvent
+  ): Promise<{ payments: PaymentEntity[]; deposits: CashDepositEntity[] }> {
+    const inProgressDeposits: CashDepositEntity[] =
+      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
+        event,
+        MatchStatus.IN_PROGRESS
+      );
 
     this.appLogger.log(
-      `MATCHES: ${matches.length}`,
+      `FOUND: ${inProgressDeposits.length} DEPOSITS IN PROGRESS for ${event.date}`,
       CashReconciliationService.name
     );
-    /**
-     * Filter inProgress and update the status of the deposits and payments
-     */
-    const inProgress = await Promise.all(
-      matchAttempts
-        .filter((itm) => itm.status === MatchStatus.IN_PROGRESS)
-        .map(async (itm) => await this.setInProgressStatus(itm))
+
+    const inProgressPayments = await this.transactionService.findCashPayments(
+      event,
+      MatchStatus.IN_PROGRESS
     );
 
     this.appLogger.log(
-      `IN_PROGRESS: ${inProgress.length}`,
-      CashReconciliationService.name
-    );
-    /**
-     * After updating the matches and exceptions during reconciliation, find the exceptions for the date range
-     */
-    const exceptions: PaymentEntity[] = await this.findExceptions(event);
-    this.appLogger.log(
-      `EXCEPTIONS: ${exceptions.length}`,
+      `FOUND: ${inProgressPayments.length} PAYMENTS IN PROGRESS for ${event.date}`,
       CashReconciliationService.name
     );
 
     return {
-      type: ReconciliationType.CASH,
-      location: event.location.description,
+      deposits: inProgressDeposits,
+      payments: inProgressPayments
+    };
+  }
 
-      total_in_progress: inProgress.length,
-      total_exceptions: exceptions.length,
-      total_matches: matches.length
+  public async setMatches(
+    deposit: CashDepositEntity,
+    payments: PaymentEntity[]
+  ): Promise<{ payments: PaymentEntity[]; deposit: CashDepositEntity }> {
+    const matchedPayments = await Promise.all(
+      payments.map(
+        async (payment) =>
+          await this.transactionService.updatePaymentStatus({
+            ...payment,
+            cash_deposit_match: deposit,
+            timestamp: payment.timestamp,
+            status: MatchStatus.MATCH
+          })
+      )
+    );
+
+    const matchedDeposit = await this.cashDepositService.updateDepositStatus({
+      ...deposit,
+      status: MatchStatus.MATCH
+    });
+
+    return {
+      deposit: matchedDeposit,
+      payments: matchedPayments
+    };
+  }
+  public async getPending(
+    event: ReconciliationEvent
+  ): Promise<{ payments: PaymentEntity[]; deposits: CashDepositEntity[] }> {
+    const pendingDeposits: CashDepositEntity[] =
+      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
+        event,
+        MatchStatus.PENDING
+      );
+
+    const pendingPayments: PaymentEntity[] =
+      await this.transactionService.findCashPayments(
+        event,
+        MatchStatus.PENDING
+      );
+    return {
+      deposits: pendingDeposits,
+      payments: pendingPayments
+    };
+  }
+  public async setPendingToInProgress(
+    event: ReconciliationEvent,
+    deposits: CashDepositEntity[],
+    payments: PaymentEntity[]
+  ): Promise<{ payments: PaymentEntity[]; deposits: CashDepositEntity[] }> {
+    this.appLogger.log(
+      `GET PENDING FOR: ${event.date}`,
+      CashReconciliationService.name
+    );
+
+    this.appLogger.log(
+      `PAYMENTS: ${payments.length} PENDING --> IN PROGRESS for ${event.date}`,
+      CashReconciliationService.name
+    );
+    this.appLogger.log(
+      `DEPOSITS: ${deposits.length} PENDING --> IN PROGRESS for ${event.date}`,
+      CashReconciliationService.name
+    );
+
+    const pendingPayments = await Promise.all(
+      payments.map(
+        async (payment) =>
+          await this.transactionService.updatePaymentStatus({
+            ...payment,
+            timestamp: payment.timestamp,
+            status: MatchStatus.IN_PROGRESS
+          })
+      )
+    );
+    const pendingDeposits = await Promise.all(
+      deposits.map(
+        async (itm: CashDepositEntity) =>
+          await this.cashDepositService.updateDepositStatus({
+            ...itm,
+            status: MatchStatus.IN_PROGRESS
+          })
+      )
+    );
+    return {
+      payments: pendingPayments,
+      deposits: pendingDeposits
     };
   }
 }

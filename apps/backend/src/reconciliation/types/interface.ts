@@ -23,7 +23,7 @@ export interface CashDepositDates {
 }
 
 export interface ReconciliationEvent {
-  date?: string;
+  date: string;
   location: LocationEntity;
   program: string;
   fiscal_start_date?: string;
@@ -68,16 +68,12 @@ export interface GroupedPaymentsAndDeposits {
 }
 
 export interface CashReconciliationOutput {
+  fiscal_close_date?: string;
   type: ReconciliationType;
-  location: string;
-  total_deposits: number;
-  total_payments: number;
-  total_in_progress: number;
-  total_exceptions: number;
-  total_matches: number;
-  percent_matched: number;
-}
-export interface CashMatches {
-  payment: AggregatedPayment;
-  deposit: CashDepositEntity;
+  location_id?: number;
+  location_name?: string;
+  total_pending?: number;
+  total_matched_payments?: number;
+  total_matched_deposits?: number;
+  percent_matched?: number;
 }

@@ -3,9 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TransactionEntity, PaymentEntity } from './entities';
 import { PaymentService } from './payment.service';
+import { MatchStatus } from '../common/const';
 import { AppLogger } from '../logger/logger.service';
 import {
-  AggregatedPayment,
   PosPaymentPosDepositPair,
   ReconciliationEvent
 } from '../reconciliation/types';
@@ -28,7 +28,6 @@ export class TransactionService {
       throw e;
     }
   }
-
   async saveTransaction(data: TransactionEntity): Promise<TransactionEntity> {
     try {
       return await this.transactionRepo.save(this.transactionRepo.create(data));
@@ -37,7 +36,6 @@ export class TransactionService {
       throw e;
     }
   }
-
   async findAllUploadedFiles(): Promise<
     { transaction_source_file_name: string }[]
   > {
@@ -76,18 +74,14 @@ export class TransactionService {
 
   async findCashPayments(
     event: ReconciliationEvent,
-    current: string,
-    previous: string
-  ): Promise<AggregatedPayment[]> {
-    return await this.paymentService.findCashPayments(event, current, previous);
+    status: MatchStatus
+  ): Promise<PaymentEntity[]> {
+    return await this.paymentService.findCashPayments(event, status);
+  }
+  public aggregatePayments(payments: PaymentEntity[]) {
+    return this.paymentService.aggregatePayments(payments);
   }
   async updatePaymentStatus(payment: PaymentEntity): Promise<PaymentEntity> {
-    return await this.paymentService.updatePayment(payment);
-  }
-
-  async updateCashPaymentStatus(
-    payment: PaymentEntity
-  ): Promise<PaymentEntity> {
     return await this.paymentService.updatePayment(payment);
   }
 }
