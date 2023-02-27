@@ -10,6 +10,7 @@ const config: PostgresConnectionOptions = {
   type: 'postgres',
   port: +(process.env.DB_PORT || 5432),
   connectTimeoutMS: 10000,
+  maxQueryExecutionTime: 25000, 
   host: process.env.DB_HOST || 'db',
   database: process.env.DB_NAME || 'pcc',
   username: process.env.DB_USER || 'postgres',
