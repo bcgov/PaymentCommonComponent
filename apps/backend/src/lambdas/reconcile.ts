@@ -51,7 +51,9 @@ export const handler = async (
     for (const location of locations) {
       for (const date of dates) {
         appLogger.log('-------------------------------------------------');
-        appLogger.log(`Processing POS Reconciliation for: ${location} ${date}`);
+        appLogger.log(
+          `Processing POS Reconciliation for: ${location.description} ${date}`
+        );
         appLogger.log('-------------------------------------------------');
         console.table(
           await posRecon.reconcile({
@@ -67,12 +69,14 @@ export const handler = async (
         location
       });
       appLogger.log(
-        `Found Deposits on: ${cashDates} for location: ${location.description}`
+        `Found Deposits on: ${[...cashDates]} for location: ${
+          location.description
+        }`
       );
       for (const date of cashDates) {
         appLogger.log('-------------------------------------------------');
         appLogger.log(
-          `Processing CASH Reconciliation for: ${location} ${date}`
+          `Processing CASH Reconciliation for: ${location.description} ${date}`
         );
         appLogger.log('-------------------------------------------------');
         console.table(
