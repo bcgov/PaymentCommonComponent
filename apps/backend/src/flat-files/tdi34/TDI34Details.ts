@@ -1,3 +1,4 @@
+import { TransactionCode } from '../../common/const';
 import {
   Column,
   DataType
@@ -18,7 +19,7 @@ export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   transaction_date: string;
   transaction_time: string;
   settlement_date: string;
-  transaction_code: string;
+  transaction_code: TransactionCode;
   fill2: string;
   approval_code: string;
   fill3: string;
@@ -176,6 +177,12 @@ export class TDI34Details
   }
 
   public set transaction_amt(data) {
+    if (
+      this.transaction_code === TransactionCode.MERCH_RETURN ||
+      this.transaction_code === TransactionCode.PURCHASE_ADJUSTMENT
+    ) {
+      data = data * -1;
+    }
     this.resource.transaction_amt = data;
   }
 

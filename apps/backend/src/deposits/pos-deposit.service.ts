@@ -1,7 +1,8 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, MoreThan, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
+import { TransactionCode } from '../common/const';
 import { MatchStatus } from '../common/const';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
@@ -91,5 +92,23 @@ export class PosDepositService {
     });
     depositEntity.status = MatchStatus.EXCEPTION;
     return await this.posDepositRepo.save(depositEntity);
+  }
+
+  async adjustAmountsForRefundTransactions() {
+    const refundTransactions = await this.posDepositRepo.find({
+      where: {
+        transaction_code: In([
+          TransactionCode.MERCH_RETURN,
+          TransactionCode.PURCHASE_ADJUSTMENT
+        ]),
+        transaction_amt: MoreThan(0)
+      }
+    });
+
+    for (const refundTransaction of refundTransactions) {
+      refundTransaction.transaction_amt =
+        refundTransaction.transaction_amt * -1;
+      await this.posDepositRepo.save(refundTransaction);
+    }
   }
 }
