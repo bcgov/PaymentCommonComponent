@@ -18,7 +18,6 @@ import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
 import { TransactionService } from '../transaction/transaction.service';
-
 export interface ParseEvent {
   eventType: string;
   filename: string;
@@ -107,7 +106,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
         if (filename.includes(FileNames.TDI17)) return FileTypes.TDI17;
         if (filename.includes(FileNames.TDI34)) return FileTypes.TDI34;
         if (filename.includes(FileNames.SBC_SALES)) return FileTypes.SBC_SALES;
-        throw new Error('Unknow file type: ' + filename);
+        throw new Error('Unknown file type: ' + filename);
       })();
 
       const ministry = (() => {
@@ -133,12 +132,12 @@ export const handler = async (event?: unknown, _context?: Context) => {
       }
 
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
-        const parsed = parseTDI(
-          fileType,
-          Buffer.from(file.Body?.toString() || '').toString(),
-          ministry,
-          filename
-        );
+        const parsed = parseTDI({
+          type: fileType,
+          fileContents: Buffer.from(file.Body?.toString() || '').toString(),
+          program: ministry,
+          fileName: filename
+        });
 
         if (fileType === FileTypes.TDI34) {
           const tdi34Details = parsed as TDI34Details[];

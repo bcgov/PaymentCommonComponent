@@ -12,6 +12,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
 import { AppLogger } from '../logger/logger.service';
+import { FileTypes } from './../constants';
 
 @Controller('parse')
 @ApiTags('Parser API')
@@ -49,14 +50,15 @@ export class ParseController {
   })
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
-    @Body() body: { program: string; fileType: string },
+    @Body() body: { program: string; fileType: FileTypes },
     @UploadedFile() file: Express.Multer.File
   ) {
-    return this.parseService.readAndParseFile(
-      body.fileType,
-      body.program,
-      file.originalname,
-      file.buffer
-    );
+    const contents = file.buffer.toString();
+    return this.parseService.readAndParseFile({
+      type: body.fileType,
+      fileName: file.originalname,
+      program: body.program,
+      fileContents: contents
+    });
   }
 }

@@ -17,3 +17,10 @@ export enum FileNames {
   TDI34 = 'F08TDI34',
   SBC_SALES = 'SBC_SALES'
 }
+
+export interface ParseArgsTDI {
+  type: FileTypes;
+  fileName: string;
+  program: string;
+  fileContents: string;
+}
