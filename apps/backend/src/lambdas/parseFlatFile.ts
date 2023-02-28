@@ -3,11 +3,12 @@ import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { parseTDI } from './utils/parseTDI';
 import { AppModule } from '../app.module';
+import { FileTypes } from '../constants';
 import { AppLogger } from '../logger/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
 export interface parseFlatFileEvent {
-  type: string;
+  type: FileTypes;
   program: string;
   filepath: string;
   filename: string;
@@ -36,12 +37,12 @@ export const handler = async (event: parseFlatFileEvent, context?: Context) => {
     await uploadParsedTDI(
       event.type,
       s3manager,
-      parseTDI(
-        event.type,
-        contents?.Body?.toString() || '',
-        event.program,
-        event.filename
-      ),
+      parseTDI({
+        type: event.type,
+        fileContents: contents?.Body?.toString() || '',
+        program: event.program,
+        fileName: event.filename
+      }),
       appLogger,
       event?.outputPath ?? undefined
     );

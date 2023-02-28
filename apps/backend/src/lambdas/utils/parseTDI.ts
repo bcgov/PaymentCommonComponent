@@ -1,13 +1,13 @@
-import { FileTypes } from '../../constants';
+import { ParseArgsTDI, FileTypes } from '../../constants';
 import { TDI17Details, TDI34Details, DDFDetails } from '../../flat-files';
 
-export const parseTDI = (
-  type: string,
-  program: string,
-  fileName: string,
-  fileContents: string
-): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
-  const lines = fileContents?.split('\n').filter((l: string) => l);
+export const parseTDI = ({
+  type,
+  fileName,
+  program,
+  fileContents
+}: ParseArgsTDI): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
+  const lines = fileContents.split('\n').filter((l: string) => l);
   lines.splice(0, 1);
   lines.splice(lines.length - 1, 1);
 
