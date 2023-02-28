@@ -3,9 +3,9 @@ import { TDI17Details, TDI34Details, DDFDetails } from '../../flat-files';
 
 export const parseTDI = (
   type: string,
-  fileContents: string,
   program: string,
-  fileName: string
+  fileName: string,
+  fileContents: string
 ): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
   const lines = fileContents?.split('\n').filter((l: string) => l);
   lines.splice(0, 1);
@@ -31,7 +31,7 @@ export const parseTDI = (
     return [];
   })();
 
-  // TODO: We don't check what the intput type is for the actual parsing! 
+  // TODO: We don't check what the intput type is for the actual parsing!
   const detailsArr = items.map((item, index) => {
     item.convertToJson(lines[index]);
     item.metadata = {
@@ -44,6 +44,9 @@ export const parseTDI = (
     return item;
   });
 
-  const typedTDArray = detailsArr as (TDI34Details[] | TDI17Details[] | DDFDetails[]);
+  const typedTDArray = detailsArr as
+    | TDI34Details[]
+    | TDI17Details[]
+    | DDFDetails[];
   return typedTDArray;
 };

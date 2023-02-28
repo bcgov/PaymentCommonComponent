@@ -9,7 +9,7 @@ import {
   Logger
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiOperation, ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
 import { AppLogger } from '../logger/logger.service';
 
@@ -58,27 +58,5 @@ export class ParseController {
       file.originalname,
       file.buffer
     );
-  }
-
-  @ApiOperation({
-    summary: 'Post Transaction Data'
-  })
-  @Post('garms-json')
-  @UseInterceptors(ClassSerializerInterceptor)
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary'
-        }
-      }
-    }
-  })
-  @UseInterceptors(FileInterceptor('file'))
-  uploadGarmsJsonFile(@UploadedFile() file: Express.Multer.File) {
-    return this.parseService.readAndParseGarms(file.originalname, file.buffer);
   }
 }
