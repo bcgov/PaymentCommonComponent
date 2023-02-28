@@ -23,7 +23,7 @@ export class ParseService {
     data: Buffer
   ): Promise<unknown> {
     try {
-      return parseTDI(type, data.toString(), fileName, program);
+      return parseTDI(type, program, fileName, data.toString());
     } catch (err) {
       this.appLogger.error(err, 'Error parsing file');
       throw err;
