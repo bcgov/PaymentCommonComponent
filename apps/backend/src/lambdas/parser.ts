@@ -134,9 +134,9 @@ export const handler = async (event?: unknown, _context?: Context) => {
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
         const parsed = parseTDI({
           type: fileType,
-          fileContents: Buffer.from(file.Body?.toString() || '').toString(),
+          fileName: filename,
           program: ministry,
-          fileName: filename
+          fileContents: Buffer.from(file.Body?.toString() || '').toString()
         });
 
         if (fileType === FileTypes.TDI34) {
