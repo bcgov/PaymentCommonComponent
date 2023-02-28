@@ -91,7 +91,7 @@ export class PaymentEntity {
 
   @ManyToOne(
     () => CashDepositEntity,
-    (cashDeposit: CashDepositEntity) => cashDeposit.payment_match,
+    (cashDeposit: CashDepositEntity) => cashDeposit.id,
     {
       nullable: true
     }

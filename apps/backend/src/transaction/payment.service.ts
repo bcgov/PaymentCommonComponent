@@ -91,7 +91,8 @@ export class PaymentService {
       },
       relations: ['transaction'],
       order: {
-        transaction: { fiscal_close_date: 'ASC' }
+        transaction: { fiscal_close_date: 'ASC' },
+        amount: 'DESC'
       }
     });
 
