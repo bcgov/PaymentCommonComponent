@@ -341,7 +341,7 @@ open-db-tunnel:
 	ssh -i ssh-keypair ec2-user@$(BASTION_INSTANCE_ID) -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
 
 # =====================================
-# Database Scripts
+# Temp Scripts
 # =====================================
 
 adjust-pos-refunds:
