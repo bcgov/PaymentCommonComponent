@@ -62,6 +62,10 @@ export class CashDepositService {
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: status
+      },
+      order: {
+        deposit_date: 'ASC',
+        deposit_amt_cdn: 'DESC'
       }
     });
   }
