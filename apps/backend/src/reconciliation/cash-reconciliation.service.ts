@@ -120,9 +120,11 @@ export class CashReconciliationService {
           ...deposit,
           status: MatchStatus.MATCH
         };
+        //TODO - set matched as match - Loop through unmatched with broader match criteria
         matches.push({ payments, deposit: depositMatch });
         return { match: { payments, deposit: depositMatch } };
       }
+      //TODO Loop through unmatched again with broader match criteria
       return { payment, deposit };
     };
     /**
@@ -131,7 +133,9 @@ export class CashReconciliationService {
     deposits.map((deposit) =>
       payments.map((payment) => checkMatch(payment, deposit))
     );
-
+    /*
+     * Return the matches pushed into matches array - TODO - return unmatched and repeat match process with broader criteria
+     */
     return matches;
   }
 
@@ -223,12 +227,15 @@ export class CashReconciliationService {
       date: event.date,
       type: ReconciliationType.CASH,
       location_id: event.location.location_id,
-      total_pending_payments: pending.payments.length,
-      total_pending_deposits: pending.deposits.length,
+      total_inProgress_payments: inProgress.payments.length,
+      total_inProgress_deposits: inProgress.deposits.length,
       total_matched_payments: setToMatchedPayments,
       total_matched_deposits: setToMatchedDeposits,
-      percent_matched: parseFloat(
+      percent_matched_payments: parseFloat(
         ((setToMatchedPayments / inProgress.payments.length) * 100).toFixed(2)
+      ),
+      percent_matched_deposits: parseFloat(
+        ((setToMatchedDeposits / inProgress.deposits.length) * 100).toFixed(2)
       )
     };
   }
