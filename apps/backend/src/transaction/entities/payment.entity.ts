@@ -32,8 +32,16 @@ export class PaymentEntity {
   })
   amount: number;
 
-  @Column({ nullable: true })
-  currency?: string;
+  @Column({
+    type: 'numeric',
+    precision: 16,
+    scale: 4,
+    nullable: true
+  })
+  foreign_currency_amount?: number;
+
+  @Column('varchar', { length: 3, nullable: false, default: 'CAD' })
+  currency: string;
 
   @Column({
     type: 'numeric',
