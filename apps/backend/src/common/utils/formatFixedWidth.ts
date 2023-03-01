@@ -1,26 +1,3 @@
-export const transactionCode = (code: string) => {
-  switch (code) {
-    case '10':
-      return { code, description: 'Purchase (P)', type: '+' };
-    case '11':
-      return { code, description: 'Preauth purchase (PA)', type: '+' };
-    case '12':
-      return {
-        code,
-        description: 'Preauth purchase complete (PAC)',
-        type: '+'
-      };
-    case '14':
-      return { code, description: 'Merchandise return (R)', type: '-' };
-    case '21':
-      return { code, description: 'Purchase adjustment', type: '-' };
-    case '22':
-      return { code, description: 'Merchandise Return Adjustment', type: '+' };
-    default:
-      return { code, description: 'N/A', type: 'N/A' };
-  }
-};
-
 export const timeFormat = (value: string): string => {
   const time = {
     hour: value.slice(0, 2),

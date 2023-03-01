@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 // TODO: Can we type more here?
 import 'reflect-metadata';
-
 export interface ColumnOptions {
   start: number;
   width: number;
@@ -12,7 +12,6 @@ export interface ColumnOptions {
     | DateOptions
     | TimeOptions
     | CardOptions
-    | TransCodeOptions
     | TransactionTypeOptions
     | MerchantTypeOptions
     | TransactionCodeOptions;
@@ -25,9 +24,7 @@ export interface DecimalOptions {
 export interface CardOptions {
   type: DataType.Card;
 }
-export interface TransCodeOptions {
-  type: DataType.TransactionCode;
-}
+
 export interface FloatOptions {
   type: DataType.Float;
   precision?: number;
