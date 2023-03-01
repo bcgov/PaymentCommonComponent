@@ -339,10 +339,3 @@ open-db-tunnel:
 	ssh-keygen -t rsa -f ssh-keypair -N ''
 	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID) --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
 	ssh -i ssh-keypair ec2-user@$(BASTION_INSTANCE_ID) -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
-
-# =====================================
-# Temp Scripts
-# =====================================
-
-adjust-pos-refunds:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/scripts/pos-refund.ts")'
