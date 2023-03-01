@@ -6,9 +6,9 @@ language_tabs:
 toc_footers: []
 includes:
   - introduction
-  - restapi
   - developers
   - troubleshooting
+  - knowledgebase
   - support
   - glossary
   - readme.md
