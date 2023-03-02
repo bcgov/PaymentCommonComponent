@@ -12,14 +12,13 @@ export class migration1677697814581 implements MigrationInterface {
     await queryRunner.query(`
         UPDATE payment
         SET foreign_currency_amount=amount
-        WHERE currency !='CAD'
-        
+        WHERE currency !='CAD' AND method NOT IN('AX', 'M', 'V', 'P')
     `);
 
     await queryRunner.query(`
         UPDATE payment
         SET amount=amount*(exchange_rate/100)
-        WHERE currency !='CAD'
+        WHERE currency !='CAD' AND method NOT IN('AX', 'M', 'V', 'P')
     `);
   }
 
@@ -27,13 +26,13 @@ export class migration1677697814581 implements MigrationInterface {
     await queryRunner.query(`
         UPDATE payment
         SET amount=amount/(exchange_rate/100)
-        WHERE currency !='CAD'
+        WHERE currency !='CAD' AND method NOT IN('AX', 'M', 'V', 'P')
     `);
 
     await queryRunner.query(`
         UPDATE payment
         SET foreign_currency_amount=null
-        WHERE method!='CAD'
+        WHERE currency !='CAD' AND method NOT IN('AX', 'M', 'V', 'P')
     `);
 
     await queryRunner.query(`

@@ -17,7 +17,7 @@
     "payments": [
       {
         "amount": 20.0,
-        "forgein_currency_amount": 15.0,
+        "foreign_currency_amount": 15.0,
         "currency": "USD",
         "exchange_rate": 1.34,
         "payment_method": "CASH",
