@@ -68,7 +68,6 @@ export class PosDepositService {
     return await this.posDepositRepo.save(this.posDepositRepo.create(data));
   }
 
-  // TODO: update this query to just update the match column.
   async markPosDepositsAsMatched(
     posPaymentDepostPair: PosPaymentPosDepositPair[]
   ): Promise<POSDepositEntity[]> {
