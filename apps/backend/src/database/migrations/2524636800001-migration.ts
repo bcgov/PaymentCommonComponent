@@ -5,6 +5,7 @@ import { LocationEntity } from '../../location/entities';
 import { ILocation } from '../../location/interface/location.interface';
 
 export class migration2524636800001 implements MigrationInterface {
+  name = 'migration2524636800001';
   public async up(queryRunner: QueryRunner): Promise<void> {
     const sbcLocationsMasterDataFile = path.resolve(
       __dirname,

@@ -37,7 +37,10 @@ export const handler = async (
     event.location_ids.length === 0
       ? await locationService.getLocationsBySource(event.program)
       : await locationService.getLocationsByID(event);
-
+  const pt_locations =
+    event.location_ids.length === 0
+      ? await locationService.getPTLocationsBySource(event.program)
+      : await locationService.getPTLocationsByID(event);
   const reconcile = async (event: ReconciliationEventInput) => {
     const dates = getFiscalDatesForPOS(event);
 
@@ -56,6 +59,8 @@ export const handler = async (
           })
         );
       }
+    }
+    for (const location of pt_locations) {
       const cashDates = await cashRecon.getDatesForReconciliation({
         ...event,
         date: event.fiscal_close_date,

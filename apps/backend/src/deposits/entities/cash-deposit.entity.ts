@@ -28,10 +28,7 @@ export class CashDepositEntity {
   deposit_date: string;
 
   @Column({ type: 'int4' })
-  transaction_type: number;
-
-  @Column({ type: 'int4' })
-  location_id: number;
+  pt_location_id: number;
 
   @Column({ nullable: true })
   deposit_time: string;

@@ -1,6 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class migration1677643656658 implements MigrationInterface {
+  name = 'migration1677643656658';
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`        
         UPDATE pos_deposit
