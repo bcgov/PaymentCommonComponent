@@ -37,12 +37,13 @@ export class LocationService {
     return await this.locationRepo.find({
       select: {
         pt_location_id: true,
+        location_id: true,
         description: true
       },
       where: {
         source_id: event.program,
         method: `${LocationEnum.Bank}`,
-        pt_location_id: In(event.location_ids)
+        location_id: In(event.location_ids)
       },
       order: {
         pt_location_id: 'ASC'
