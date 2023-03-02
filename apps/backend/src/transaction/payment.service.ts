@@ -1,13 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  LessThan,
-  MoreThan,
-  Not,
-  In,
-  Repository,
-  LessThanOrEqual
-} from 'typeorm';
+import { LessThan, Not, In, Repository, LessThanOrEqual } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { ReconciliationEvent } from '../reconciliation/types';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -82,7 +75,6 @@ export class PaymentService {
     const payments = await this.paymentRepo.find({
       where: {
         method: Not(In(pos_methods)),
-        amount: MoreThan(0),
         status,
         transaction: {
           location_id,
@@ -110,7 +102,6 @@ export class PaymentService {
     const payments = await this.paymentRepo.find({
       where: {
         method: Not(In(pos_methods)),
-        amount: MoreThan(0.0),
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
         transaction: {
           location_id,
