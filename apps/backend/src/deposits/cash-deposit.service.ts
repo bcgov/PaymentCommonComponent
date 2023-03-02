@@ -53,12 +53,12 @@ export class CashDepositService {
     const {
       program,
       date,
-      location: { location_id }
+      location: { pt_location_id }
     } = event;
 
     return await this.cashDepositRepo.find({
       where: {
-        location_id: location_id,
+        pt_location_id,
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: status
@@ -76,13 +76,13 @@ export class CashDepositService {
     const {
       date,
       program,
-      location: { location_id }
+      location: { pt_location_id }
     } = event;
 
     const dates = await this.cashDepositRepo.find({
       select: { deposit_date: true },
       where: {
-        location_id,
+        pt_location_id,
         metadata: { program },
         deposit_date: LessThanOrEqual(date)
       },
@@ -116,13 +116,13 @@ export class CashDepositService {
     const {
       date,
       program,
-      location: { location_id }
+      location: { pt_location_id }
     } = event;
 
     const dates = await this.cashDepositRepo.find({
       select: { deposit_date: true },
       where: {
-        location_id,
+        pt_location_id,
         metadata: { program },
         deposit_date: LessThanOrEqual(date)
       },

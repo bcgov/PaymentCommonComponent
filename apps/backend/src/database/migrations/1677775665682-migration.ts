@@ -1,6 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class migration1677775665682 implements MigrationInterface {
+  name = 'migration1677775665682';
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
         DELETE FROM PAYMENT WHERE AMOUNT = 0::numeric;
