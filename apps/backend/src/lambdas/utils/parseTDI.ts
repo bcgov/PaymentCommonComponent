@@ -31,7 +31,7 @@ export const parseTDI = ({
     return [];
   })();
 
-  // TODO: We don't check what the intput type is for the actual parsing!
+  // TODO [CCFPCM-397] We don't check what the intput type is for the actual parsing!
   const detailsArr = items.map((item, index) => {
     item.convertToJson(lines[index]);
     item.metadata = {

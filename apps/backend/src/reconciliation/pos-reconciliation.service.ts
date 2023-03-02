@@ -66,14 +66,14 @@ export class POSReconciliationService {
     return { depositExceptions, paymentExceptions };
   }
 
-  // TODO: move the save as matched separately..
-  // TODO: implement as layer
+  // TODO [CCFPCM-406] move the save as matched separately..
+  // TODO [CCFPCM-406] implement as layer
   public verifyTimeMatch(
     payment: PaymentEntity,
     deposit: POSDepositEntity
   ): boolean {
-    //TODO make this configurable ?
-    // TODO: possible to config time diffs?
+    //TODO [CCFPCM-406] make this configurable ?
+    // TODO [CCFPCM-406] possible to config time diffs?
     return differenceInSeconds(payment.timestamp, deposit.timestamp) < 240;
   }
 

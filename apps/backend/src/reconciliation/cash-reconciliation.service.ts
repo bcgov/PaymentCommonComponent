@@ -120,11 +120,11 @@ export class CashReconciliationService {
           ...deposit,
           status: MatchStatus.MATCH
         };
-        //TODO - set matched as match - Loop through unmatched with broader match criteria
+        //TODO [CCFPCM-406] - set matched as match - Loop through unmatched with broader match criteria
         matches.push({ payments, deposit: depositMatch });
         return { match: { payments, deposit: depositMatch } };
       }
-      //TODO Loop through unmatched again with broader match criteria
+      //TODO [CCFPCM-406] Loop through unmatched again with broader match criteria
       return { payment, deposit };
     };
     /**
@@ -134,7 +134,7 @@ export class CashReconciliationService {
       payments.map((payment) => checkMatch(payment, deposit))
     );
     /*
-     * Return the matches pushed into matches array - TODO - return unmatched and repeat match process with broader criteria
+     * Return the matches pushed into matches array - TODO [CCFPCM-404]- return unmatched and repeat match process with broader criteria
      */
     return matches;
   }

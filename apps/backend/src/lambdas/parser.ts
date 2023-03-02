@@ -63,7 +63,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
       const parseList = _.difference(fileList, allUploadedFiles);
 
-      // TODO: Excluded LABOUR2 files that are DDF, needs implementation
+      // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
       const finalParseList = parseList.filter(
         (filename) => !filename?.includes('LABOUR2')
       );
@@ -88,8 +88,8 @@ export const handler = async (event?: unknown, _context?: Context) => {
           return thisEvent.filename;
         }
 
-        // TODO: use types here
-        // TODO: Implement S3 event notification processing
+        // TODO [CCFPCM-397] use types here
+        // TODO [CCFPCM-405] Implement S3 event notification processing
         // if (eventType === 'isS3') {
         //   const s3NotificationEvent = event;
         //   return s3NotificationEvent?.records[0]?.s3?.object?.key;
