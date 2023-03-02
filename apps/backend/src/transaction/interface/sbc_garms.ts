@@ -36,8 +36,9 @@ export interface SBCGarmsDistributions {
 export interface SBCGarmsPayment {
   method: string;
   amount: number;
-  exchange_rate?: number | undefined;
-  currency?: string | undefined;
+  foreign_currency_amount?: number;
+  exchange_rate?: number;
+  currency?: string;
 }
 
 export interface SBCGarmsSource {

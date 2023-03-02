@@ -48,9 +48,13 @@ export const parseGarms = async (
               method: paymentMethods.find((pm) => {
                 return pm.sbc_code === method;
               })?.method,
-              amount: parseFloat(amount?.toFixed(2)),
+              currency: currency || 'CAD',
               exchange_rate,
-              currency
+              foreign_currency_amount: currency !== 'CAD' ? amount : undefined,
+              amount:
+                currency !== 'CAD' && exchange_rate
+                  ? parseFloat((amount * (exchange_rate / 100)).toFixed(2))
+                  : parseFloat(amount?.toFixed(2))
             });
           }
         ),

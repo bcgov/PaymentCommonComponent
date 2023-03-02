@@ -4,7 +4,7 @@
     "transaction_date": "2023-01-01",
     "transaction_time": "13.33.31.875973",
     "fiscal_close_date": "2023-01-02",
-    " total_transaction_amount": 25.2,
+    "total_transaction_amount": 30.2,
     "void_indicator": false,
     "miscellaneous": {
       "employee_id": "SC61350"
@@ -16,16 +16,16 @@
     },
     "payments": [
       {
-        "amount": 10.2,
-        "currency": "CAD",
-        "exchange_rate": 0,
+        "amount": 20.0,
+        "foreign_currency_amount": 15.0,
+        "currency": "USD",
+        "exchange_rate": 1.34,
         "payment_method": "CASH",
         "payment_channel": "in-person"
       },
       {
-        "amount": 15.0,
+        "amount": 10.2,
         "currency": "CAD",
-        "exchange_rate": 0,
         "payment_method": "V",
         "payment_channel": "in-person",
         "terminal": {
