@@ -1,9 +1,29 @@
-export const timeFormat = (value: string): string => {
-  const time = {
-    hour: value.slice(0, 2),
-    minute: value.slice(2, 4)
-  };
-  return `${time.hour}:${time.minute}`;
+/**
+ * @param value
+ * @returns
+ * @description Verifies that the time input is valid - TDI17 deposit_time occasionally has a 0 as the deposit_time value
+ */
+
+const verifyTimeInputIsValid = (value: string): boolean => {
+  if (value.split('').length < 4) {
+    return false;
+  }
+  return true;
+};
+
+/**
+ *
+ * @param value
+ * @returns
+ * @description Sets the time format to HHMMSS in order to be compatible with the database
+ */
+
+export const timeFormat = (value: string): string | null => {
+  if (verifyTimeInputIsValid(value)) {
+    return `${value}00`;
+  } else {
+    return null;
+  }
 };
 
 export const dateFormat = (value: string): string => {
