@@ -5,10 +5,10 @@ export class migration1677866567491 implements MigrationInterface {
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
-      `update cash_deposit set deposit_time=concat(deposit_time::varchar, '00') where deposit_time is not null`
+      `update cash_deposit set deposit_time=null where length(deposit_time) < 4`
     );
     await queryRunner.query(
-      `update cash_deposit set deposit_time=null where length(deposit_time) < 6`
+      `update cash_deposit set deposit_time=concat(LEFT(deposit_time::varchar, 2), RIGHT(deposit_time::varchar, 2),  '00') where deposit_time is not null`
     );
 
     await queryRunner.query(
@@ -28,10 +28,11 @@ export class migration1677866567491 implements MigrationInterface {
     );
 
     await queryRunner.query(
-      `update cash_deposit set deposit_time=undefined where length(deposit_time) < 6`
-    );
-    await queryRunner.query(
       `update cash_deposit set deposit_time=LEFT(deposit_time::varchar, 4) where deposit_time is not null`
+    );
+
+    await queryRunner.query(
+      `update cash_deposit set deposit_time=undefined where deposit_time is null`
     );
   }
 }
