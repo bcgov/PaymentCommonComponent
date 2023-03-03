@@ -37,10 +37,14 @@ export const handler = async (
     event.location_ids.length === 0
       ? await locationService.getLocationsBySource(event.program)
       : await locationService.getLocationsByID(event);
+  appLogger.log(`Found ${locations.length} pos_deposit locations`);
   const pt_locations =
     event.location_ids.length === 0
       ? await locationService.getPTLocationsBySource(event.program)
       : await locationService.getPTLocationsByID(event);
+
+  appLogger.log(`Found ${pt_locations.length} cash_deposit locations`);
+
   const reconcile = async (event: ReconciliationEventInput) => {
     const dates = getFiscalDatesForPOS(event);
 
@@ -83,6 +87,10 @@ export const handler = async (
           date,
           location
         });
+        console.log(`SUMMARY FOR: ${location.description}`);
+        console.table(
+          await reportingService.cashReportByLocation(location.location_id)
+        );
         console.table(matched);
         appLogger.log('-------------------------------------------------');
         appLogger.log(
