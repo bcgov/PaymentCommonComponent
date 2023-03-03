@@ -134,10 +134,8 @@ export class ReportingService {
             p."method" 
           NOT IN 
             ('P', 'V', 'AX', 'M')
-          AND 
-              p."amount" > 0.000
-              AND t.fiscal_close_date > '2023-01-01'::date
-              AND t.fiscal_close_date < '2023-02-24'::date
+
+              
           GROUP BY
             t.fiscal_close_date
           ORDER BY
@@ -164,9 +162,6 @@ export class ReportingService {
                   ('P', 'V', 'AX', 'M')
             AND 
               p."status" = 'MATCH'
-            AND p."amount" > 0
-            AND t.fiscal_close_date > '2023-01-01'::date
-            AND t.fiscal_close_date < '2023-02-24'::date
           GROUP BY
             t.fiscal_close_date
         ) 
@@ -178,5 +173,75 @@ export class ReportingService {
           cash_pay.fiscal_close_date
     `);
     return results;
+  }
+
+  async cashReportByLocation(location_id: number): Promise<unknown[]> {
+    return await this.paymentRepo.manager.query(`
+    SELECT
+    cash_pay.fiscal_close_date,
+    count_cash_payments,
+    count_matched_cash,
+    (count_cash_payments - count_matched_cash) 
+      AS 
+        difference,
+    ROUND((count_matched_cash::numeric / count_cash_payments::numeric)* 100, 2) 
+      AS 
+        percent_match
+    FROM
+      (
+        SELECT
+          t.fiscal_close_date,
+          COUNT(*) 
+            AS 
+              count_cash_payments
+        FROM
+          payment p
+        JOIN 
+          "transaction" t 
+        ON
+          t.transaction_id = p."transaction"
+        WHERE
+          p."method" 
+        NOT IN 
+          ('P', 'V', 'AX', 'M')
+
+        AND t."location_id" = ${location_id}          
+        GROUP BY
+          t.fiscal_close_date
+        ORDER BY
+          t.fiscal_close_date 
+            ASC
+      ) 
+      AS 
+        cash_pay
+      LEFT JOIN
+      (
+        SELECT
+          t.fiscal_close_date,
+          COUNT(*) 
+            AS 
+              count_matched_cash
+        FROM
+          payment p
+        JOIN "transaction" t 
+          ON
+            t.transaction_id = p."transaction"
+        WHERE 
+            p."method" 
+              NOT IN 
+                ('P', 'V', 'AX', 'M')
+          AND 
+            p."status" = 'MATCH'
+            AND t."location_id" = ${location_id}
+        GROUP BY
+          t.fiscal_close_date
+      ) 
+      AS 
+        cash_matched
+      ON
+        cash_pay.fiscal_close_date = cash_matched.fiscal_close_date
+      ORDER BY
+        cash_pay.fiscal_close_date
+  `);
   }
 }

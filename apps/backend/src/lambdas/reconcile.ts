@@ -87,6 +87,10 @@ export const handler = async (
           date,
           location
         });
+        console.log(`SUMMARY FOR: ${location.description}`);
+        console.table(
+          await reportingService.cashReportByLocation(location.location_id)
+        );
         console.table(matched);
         appLogger.log('-------------------------------------------------');
         appLogger.log(
