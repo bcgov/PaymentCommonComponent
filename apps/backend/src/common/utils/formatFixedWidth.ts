@@ -1,9 +1,5 @@
 export const timeFormat = (value: string): string => {
-  const time = {
-    hour: value.slice(0, 2),
-    minute: value.slice(2, 4)
-  };
-  return `${time.hour}:${time.minute}`;
+  return `${value}00`;
 };
 
 export const dateFormat = (value: string): string => {
