@@ -59,6 +59,9 @@ export class POSDepositEntity {
   @Column({ nullable: true })
   transaction_code: number;
 
+  @Column({ default: false })
+  match: boolean;
+
   @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method)
   @JoinColumn({ name: 'card_vendor' })
   payment_method: Relation<PaymentMethodEntity>;
