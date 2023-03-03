@@ -222,14 +222,14 @@ aws-run-parser:
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
-	@docker-compose -f docker-compose.test.yml up --build -d 
+	@docker-compose -f docker-compose.ci.yml up --build -d 
 	
 run-test-pipeline:
-	@docker exec -i $(PROJECT)-backend-test yarn run test:pipeline
+	@docker exec -i pcc-backend yarn run test:pipeline
 
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
-	@docker-compose -f docker-compose.test.yml down
+	@docker-compose -f docker-compose.ci.yml down
 
 lint: 
 	@yarn workspace @payment/backend lint

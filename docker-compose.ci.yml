@@ -5,13 +5,13 @@ services:
     container_name: db
     restart: always
     environment:
-      - POSTGRES_HOST=localhost
-      - POSTGRES_DB=pcc
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
-      - POSTGRES_ROOT_PASSWORD=postgres
+      - POSTGRES_HOST=${DB_HOST}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
     ports:
-      - "5454:5432"
+      - "5432:5432"
     networks:
       - pcc-test
   backend:
@@ -19,31 +19,30 @@ services:
     container_name: pcc-backend
     restart: always
     build:
-      context: "./apps/backend"
+      context: "."
       target: development
     stdin_open: true
-    command: 'yarn start:test'
+    command: "yarn run start:backend:local"
     ports:
       - "3100:3000"
     environment:
       - DB_HOST=db
-      - DB_NAME=bcpcc
-      - DB_USER=postgres
-      - DB_PASSWORD=postgres
-      - DB_ROOT_PASSWORD=postgres
-      - ALLOWED_EMPTY_PASSWORD=yes
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_LOGS_ENABLED=${DB_LOGS_ENABLED}
       - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
       - NODE_ENV=test
       - RUNTIME_ENV=test
       - AWS_ACCESS_KEY_ID=pcc
       - AWS_SECRET_ACCESS_KEY=password
-      - AWS_DEFAULT_REGION=ca-central-1
+      - AWS_DEFAULT_REGION=${AWS_REGION}
       - YARN_VERSION=3.2.3
       - AWS_ENDPOINT=http://minio:9000
     volumes:
-      - ./apps/backend:/usr/src/app
-      - ./apps/backend/node_modules:/usr/src/app/node_modules
+      - ./apps/backend:/apps/backend
+      - ./node_modules:/node_modules
     depends_on:
       - db
     networks:

@@ -40,6 +40,15 @@ jobs:
       - name: Run Docker containers
         run: make build
 
-      - name: Migrations Check 
+      - name: Migrations Check
         run: make migration-run
 
+      - name: Build and Run Test Container
+        run: make run-test
+
+      - name: Run Tests
+        run: make run-test-pipeline
+
+      - name: Stop containers
+        run: make close-test
+        if: ${{ always() }}
