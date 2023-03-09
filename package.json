@@ -10,6 +10,8 @@
   },
   "scripts": {
     "start:backend:local": "yarn workspace @payment/backend start:dev",
+    "start:backend:test": "yarn workspace @payment/backend start:dev",
+    "test:pipeline": "yarn workspace @payment/backend test:pipeline",
     "build:backend": "yarn workspace @payment/backend build",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
     "eslint-nibble": "echo 'Checking code style' && yarn workspace @payment/backend nibble"
