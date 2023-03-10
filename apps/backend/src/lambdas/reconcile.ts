@@ -38,12 +38,6 @@ export const handler = async (
       ? await locationService.getLocationsBySource(event.program)
       : await locationService.getLocationsByID(event);
   appLogger.log(`Found ${locations.length} pos_deposit locations`);
-  const pt_locations =
-    event.location_ids.length === 0
-      ? await locationService.getPTLocationsBySource(event.program)
-      : await locationService.getPTLocationsByID(event);
-
-  appLogger.log(`Found ${pt_locations.length} cash_deposit locations`);
 
   const reconcile = async (event: ReconciliationEventInput) => {
     const dates = getFiscalDatesForPOS(event);
@@ -63,11 +57,8 @@ export const handler = async (
           })
         );
       }
-    }
-    for (const location of pt_locations) {
       const cashDates = await cashRecon.getDatesForReconciliation({
         ...event,
-        date: event.fiscal_close_date,
         location
       });
       appLogger.log(
@@ -75,7 +66,8 @@ export const handler = async (
           location.description
         }`
       );
-      for (const date of cashDates) {
+      /* start matching the earliest dates and proceed to the most recent */
+      for (const date of cashDates.reverse()) {
         appLogger.log('-------------------------------------------------');
         appLogger.log(
           `Processing CASH Reconciliation for: ${location.description} ${date}`
@@ -104,7 +96,9 @@ export const handler = async (
         });
         appLogger.log('-------------------------------------------------');
         appLogger.log(
-          `EXCEPTIONS: ${exceptions.length} for: ${location.description} ${date}`
+          `EXCEPTIONS: ${exceptions?.length ?? 0} found for: ${
+            location.description
+          } ${date}`
         );
         appLogger.log('-------------------------------------------------');
       }

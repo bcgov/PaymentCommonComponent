@@ -78,12 +78,12 @@ export class PaymentService {
         status,
         transaction: {
           location_id,
-          fiscal_close_date: LessThanOrEqual(date)
+          fiscal_close_date: LessThanOrEqual(date!)
         }
       },
       relations: ['transaction'],
       order: {
-        transaction: { fiscal_close_date: 'ASC' },
+        transaction: { fiscal_close_date: 'DESC' },
         amount: 'DESC'
       }
     });
@@ -129,13 +129,31 @@ export class PaymentService {
     });
   }
 
+  async updatePayments(
+    payments: PaymentEntity[],
+    status: MatchStatus
+  ): Promise<PaymentEntity[]> {
+    this.appLogger.log(
+      `UPDATED: ${payments.length} PAYMENTS to ${status.toUpperCase()}`,
+      PaymentService.name
+    );
+
+    return await Promise.all(
+      payments.map(
+        async (payment) =>
+          await this.updatePayment({
+            ...payment,
+            timestamp: payment.timestamp,
+            status
+          })
+      )
+    );
+  }
+
   async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {
     const paymentEntity = await this.paymentRepo.findOneByOrFail({
       id: payment.id
     });
-    return await this.paymentRepo.save({
-      ...paymentEntity,
-      ...payment
-    });
+    return await this.paymentRepo.save({ ...paymentEntity, ...payment });
   }
 }

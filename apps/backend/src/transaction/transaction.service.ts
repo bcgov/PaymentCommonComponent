@@ -81,6 +81,31 @@ export class TransactionService {
   public aggregatePayments(payments: PaymentEntity[]) {
     return this.paymentService.aggregatePayments(payments);
   }
+
+  //TODO - Remove this and call the Payment Service directly from the POS/Cash reconciliation service
+
+  async updatePayments(
+    payments: PaymentEntity[],
+    status: MatchStatus
+  ): Promise<PaymentEntity[]> {
+    this.appLogger.log(
+      `UPDATE PAYMENT STATUS: ${
+        payments.length
+      } SET TO -> ${status.toUpperCase()}`,
+      PaymentService.name
+    );
+
+    return await Promise.all(
+      payments.map(
+        async (payment) =>
+          await this.paymentService.updatePayment({
+            ...payment,
+            timestamp: payment.timestamp,
+            status
+          })
+      )
+    );
+  }
   async updatePaymentStatus(payment: PaymentEntity): Promise<PaymentEntity> {
     return await this.paymentService.updatePayment(payment);
   }

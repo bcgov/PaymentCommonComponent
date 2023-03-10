@@ -31,39 +31,6 @@ export class LocationService {
     return merchant_ids.map((itm) => itm.merchant_id) as number[];
   }
 
-  public async getPTLocationsByID(
-    event: ReconciliationEventInput
-  ): Promise<LocationEntity[]> {
-    return await this.locationRepo.find({
-      select: {
-        pt_location_id: true,
-        location_id: true,
-        description: true
-      },
-      where: {
-        source_id: event.program,
-        method: `${LocationEnum.Bank}`,
-        location_id: In(event.location_ids)
-      },
-      order: {
-        pt_location_id: 'ASC'
-      }
-    });
-  }
-
-  public async getPTLocationsBySource(
-    source: Ministries
-  ): Promise<LocationEntity[]> {
-    return await this.locationRepo.find({
-      where: {
-        source_id: source,
-        method: `${LocationEnum.Bank}`
-      },
-      order: {
-        location_id: 'ASC'
-      }
-    });
-  }
   public async getLocationsByID(
     event: ReconciliationEventInput
   ): Promise<LocationEntity[]> {
