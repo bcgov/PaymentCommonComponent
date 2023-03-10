@@ -23,11 +23,11 @@ export interface CashDepositDates {
 }
 
 export interface ReconciliationEvent {
-  date: string;
   location: LocationEntity;
   program: string;
   fiscal_start_date?: string;
   fiscal_close_date?: string;
+  date?: string;
 }
 
 export interface ReconciliationEventInput {

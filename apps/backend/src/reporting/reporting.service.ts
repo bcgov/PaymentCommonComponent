@@ -241,13 +241,16 @@ export class ReportingService {
             AND t."location_id" = ${location_id}
         GROUP BY
           t.fiscal_close_date
+          ORDER BY
+          t.fiscal_close_date 
+            DESC
       ) 
       AS 
         cash_matched
       ON
         cash_pay.fiscal_close_date = cash_matched.fiscal_close_date
       ORDER BY
-        cash_pay.fiscal_close_date
+        cash_pay.fiscal_close_date ASC
   `);
   }
 }
