@@ -22,6 +22,17 @@ export class CashReconciliationService {
   /**
    *
    * @param event
+   * @returns
+   */
+  public async getDatesForReconciliation(
+    event: ReconciliationEvent
+  ): Promise<string[]> {
+    const dates = await this.cashDepositService.depositDates(event);
+    return dates;
+  }
+  /**
+   *
+   * @param event
    * @returns PaymentEntity[]
    * @description Find all payments and deposits that are older than the past due date and mark as exceptions
    */
@@ -57,13 +68,6 @@ export class CashReconciliationService {
       MatchStatus.EXCEPTION
     );
     return await Promise.all(paymentExceptions);
-  }
-
-  public async getDatesForReconciliation(
-    event: ReconciliationEvent
-  ): Promise<string[]> {
-    const dates = await this.cashDepositService.depositDates(event);
-    return dates;
   }
 
   public matchPaymentsToDeposits(
@@ -104,20 +108,54 @@ export class CashReconciliationService {
     deposits.forEach((deposit) =>
       aggregatedPayments.find((payment) => checkMatch(payment, deposit))
     );
-
+    this.appLogger.log(`MATCHES:`, CashReconciliationService.name);
     console.table(
       matches.map((itm) => ({
         payments_amount: itm.payments.reduce(
           (acc, itm) => (acc += itm.amount),
           0
         ),
-        fiscal_close_date: new Set(
-          itm.payments.map((itm) => itm.transaction.fiscal_close_date)
-        ),
+        fiscal_close_date: Array.from(
+          new Set(itm.payments.map((itm) => itm.transaction.fiscal_close_date))
+        )[0],
         deposit_id: itm.deposit.id,
+        status: itm.deposit.status,
         deposit_date: itm.deposit.deposit_date,
         deposit_amount: itm.deposit.deposit_amt_cdn
       }))
+    );
+    this.appLogger.log(`UNMATCHED PAYMENTS:`, CashReconciliationService.name);
+    console.table(
+      aggregatedPayments
+        .filter(
+          (itm) =>
+            !matches.find((match) =>
+              match.payments.find((pay) => pay.id === itm.payments[0].id)
+            )
+        )
+        .map((itm) => ({
+          payments_amount: itm.payments.reduce(
+            (acc, itm) => (acc += itm.amount),
+            0
+          ),
+          status: itm.payments[0].status,
+          fiscal_close_date: Array.from(
+            new Set(
+              itm.payments.map((itm) => itm.transaction.fiscal_close_date)
+            )
+          )[0]
+        }))
+    );
+    this.appLogger.log(`UNMATCHED DEPOSITS:`, CashReconciliationService.name);
+    console.table(
+      deposits
+        .filter((itm) => !matches.find((match) => match.deposit.id === itm.id))
+        .map((deposit) => ({
+          deposit_id: deposit.id,
+          status: deposit.status,
+          deposit_date: deposit.deposit_date,
+          deposit_amount: deposit.deposit_amt_cdn
+        }))
     );
 
     return matches;

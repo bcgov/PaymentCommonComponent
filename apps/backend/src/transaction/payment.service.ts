@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Not, In, Repository, LessThanOrEqual } from 'typeorm';
+import { Raw, LessThan, Not, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { ReconciliationEvent } from '../reconciliation/types';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -68,6 +68,7 @@ export class PaymentService {
   ): Promise<PaymentEntity[]> {
     const {
       date,
+      fiscal_start_date,
       location: { location_id }
     } = event;
     const pos_methods = ['AX', 'P', 'V', 'M'];
@@ -78,7 +79,10 @@ export class PaymentService {
         status,
         transaction: {
           location_id,
-          fiscal_close_date: LessThanOrEqual(date!)
+          fiscal_close_date: Raw(
+            (alias) => `${alias} >= :fiscal_start_date AND ${alias} <= :date`,
+            { fiscal_start_date, date }
+          )
         }
       },
       relations: ['transaction'],
@@ -146,6 +150,19 @@ export class PaymentService {
             timestamp: payment.timestamp,
             status
           })
+      )
+    );
+  }
+
+  async softRemoveZeroDollarPayments() {
+    const payments = await this.paymentRepo.find({
+      where: {
+        amount: 0
+      }
+    });
+    await Promise.all(
+      payments.map(
+        async (payment) => await this.paymentRepo.softRemove(payment)
       )
     );
   }
