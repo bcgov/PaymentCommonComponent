@@ -23,7 +23,8 @@ export class ReportingService {
   async generateReport(config: ReportConfig) {
     this.appLogger.log(config);
     this.appLogger.log('Generating report');
-    await this.excelWorkbook.saveLocal();
+    this.excelWorkbook.addSheet('Summary');
+    await this.excelWorkbook.saveS3('test');
   }
 
   async reportPosMatchSummaryByDate(): Promise<unknown> {

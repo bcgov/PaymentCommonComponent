@@ -307,7 +307,8 @@ migration-generate:
 
 minio-init: 
 	@mc alias set s3 http://localhost:9000 pcc password
-	@mc mb s3/pcc-integration-data-files-local
+	@mc mb s3/pcc-recon-reports-local || true
+	@mc mb s3/pcc-integration-data-files-local || true
 
 minio-ls: 
 	@mc ls s3/pcc-integration-data-files-local
