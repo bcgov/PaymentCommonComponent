@@ -6,6 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { DepositModule } from './deposits/deposit.module';
+import { ExcelexportModule } from './excelexport/excelexport.module';
 import { ExceptionModule } from './exception/exception.module';
 import { LocationModule } from './location/location.module';
 import { LoggerModule } from './logger/logger.module';
@@ -26,6 +27,7 @@ import { TransactionModule } from './transaction/transaction.module';
     ParseModule,
     LocationModule,
     ExceptionModule,
+    ExcelexportModule,
     ReportingModule,
     ConfigModule.forRoot({
       ignoreEnvFile:
@@ -35,7 +37,8 @@ import { TransactionModule } from './transaction/transaction.module';
     }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
-        ...(process.env.RUNTIME_ENV === 'local' || process.env.RUNTIME_ENV === 'ci'
+        ...(process.env.RUNTIME_ENV === 'local' ||
+        process.env.RUNTIME_ENV === 'ci'
           ? {
               endpoint: process.env.AWS_ENDPOINT || 'http://localhost:9000',
               region: 'ca-central-1',
