@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { ReportConfig } from './interfaces';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { ExcelexportService } from '../excelexport/excelexport.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
 export class ReportingService {
@@ -14,12 +15,16 @@ export class ReportingService {
     @InjectRepository(CashDepositEntity)
     private cashDepositRepo: Repository<CashDepositEntity>,
     @InjectRepository(PaymentEntity)
-    private paymentRepo: Repository<PaymentEntity>
+    private paymentRepo: Repository<PaymentEntity>,
+    @Inject(ExcelexportService)
+    private excelWorkbook: ExcelexportService
   ) {}
 
   async generateReport(config: ReportConfig) {
     this.appLogger.log(config);
     this.appLogger.log('Generating report');
+    this.excelWorkbook.addSheet('Summary');
+    await this.excelWorkbook.saveS3('test');
   }
 
   async reportPosMatchSummaryByDate(): Promise<unknown> {
@@ -105,6 +110,7 @@ export class ReportingService {
   `);
     return results;
   }
+
   async reportCashMatchSummaryByDate(): Promise<number> {
     const results = await this.paymentRepo.manager.query(`
       SELECT

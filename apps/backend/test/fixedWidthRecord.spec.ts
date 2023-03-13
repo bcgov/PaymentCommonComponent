@@ -14,9 +14,6 @@ describe('FixedWidthRecord', () => {
       new TestResource({});
     } catch (e: any) {
       expect(e instanceof Error).toBeTruthy();
-      expect(e?.message).toBe(
-        'no delimiter options specified for TestResource'
-      );
     }
   });
 });

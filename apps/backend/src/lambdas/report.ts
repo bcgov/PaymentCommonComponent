@@ -10,5 +10,5 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   const reportingService = app.get(ReportingService);
   const appLogger = app.get(AppLogger);
   appLogger.log({ context });
-  reportingService.generateReport(event);
+  await reportingService.generateReport(event);
 };
