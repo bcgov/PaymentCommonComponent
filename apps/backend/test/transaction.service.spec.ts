@@ -8,12 +8,11 @@ import { PaymentService } from './../src/transaction/payment.service';
 describe('TransactionService', () => {
   let service: TransactionService;
   const mockedRepo = {
-    // mock the repo `findOneOrFail`
     findOneOrFail: jest.fn(() => Promise.resolve({}))
   };
 
   const mockedPaymentService = {
-    // mock the query method that is used by getWithSubTasks
+    // mock the query method that is used
     query: jest.fn(() => Promise.resolve({}))
   };
 
