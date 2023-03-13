@@ -62,19 +62,6 @@ export class ExcelExportService {
   public addSheet(name: string): void {
     this.workbook.addWorksheet(name);
   }
-
-  /* eslint-disable  */
-  public addHeader(sheetName: string, style: any): void {
-    const sheet = this.workbook.getWorksheet(sheetName);
-    sheet.insertRow(1, []);
-    const row = sheet.getRow(1);
-    row.addPageBreak();
-    row.getCell('E').value = sheetName;
-    row.getCell('E').style = style;
-    row.height = 20;
-    sheet.getRow(2).addPageBreak();
-  }
-
   /*eslint-disable @typescript-eslint/no-unused-vars*/
   public addCellStyle(
     sheetName: string,
@@ -82,7 +69,6 @@ export class ExcelExportService {
     style: Partial<Excel.Style>
   ): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-
     const row = sheet.getRow(rowNumber);
     row.eachCell((cell, _colNumber) => {
       sheet.getCell(cell.address).style = style;
