@@ -23,11 +23,8 @@ export const handler = async (
   appLogger.log({ event });
   appLogger.log({ context });
 
-  appLogger.log(`=========================================================`);
-  appLogger.log(`Soft Removing Zero Dollar Payments`);
-  appLogger.log(`=========================================================`);
-
-  // TODO confirm criteria for handling $0.00 payments from GARMS/transaction API
+  // TODO  [CCFPCM-410] verify criteria for handling $0.00 amounts
+  // appLogger.log(`Soft Removing Zero Dollar Payments`);
   // await paymentService.softRemoveZeroDollarPayments();
 
   const locations =
