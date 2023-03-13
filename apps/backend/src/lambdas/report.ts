@@ -8,7 +8,9 @@ import { ReportingService } from '../reporting/reporting.service';
 export const handler = async (event: ReportConfig, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const reportingService = app.get(ReportingService);
+
   const appLogger = app.get(AppLogger);
   appLogger.log({ context });
   await reportingService.generateReport(event);
+  await reportingService.generateDailySummary(event);
 };
