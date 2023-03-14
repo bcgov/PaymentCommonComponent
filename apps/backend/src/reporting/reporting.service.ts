@@ -4,7 +4,7 @@ import format from 'date-fns/format';
 import { Repository } from 'typeorm';
 import { dailySummaryColumns } from './const';
 import { DailySummary, ReportConfig } from './interfaces';
-import { dailySummarySheetHeaderStyle, rowStyle } from './styles';
+import { columnStyle, rowStyle, headerStyle } from './styles';
 import { Ministries } from '../constants';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -14,7 +14,6 @@ import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
-import { MatchStatus } from './../common/const';
 
 export class ReportingService {
   constructor(
@@ -58,14 +57,25 @@ export class ReportingService {
       )
     );
 
+    const rowStartIndex = 4;
+    const colStartIndex = 3;
+
     this.excelWorkbook.generateWorkbook('Reconciliation Report');
     this.excelWorkbook.addSheet('Daily Summary');
-    this.excelWorkbook.addColumns(
+    this.excelWorkbook.addColumns('Daily Summary', dailySummaryColumns);
+    this.excelWorkbook.addRows(
       'Daily Summary',
-      dailySummaryColumns,
-      dailySummarySheetHeaderStyle
+      dailySummaryReport,
+      rowStartIndex
     );
-    this.excelWorkbook.addRows('Daily Summary', dailySummaryReport);
+    this.excelWorkbook.addHeader('Daily Summary', headerStyle);
+    /* set column-headers style */
+    this.excelWorkbook.addCellStyle(
+      'Daily Summary',
+      colStartIndex,
+      columnStyle
+    );
+
     await this.excelWorkbook.saveLocal();
     await this.excelWorkbook.saveS3('Reconciliation Report');
   }
@@ -83,29 +93,12 @@ export class ReportingService {
       (itm: PaymentEntity) => itm.status === 'EXCEPTION'
     ).length;
 
-    const inProgress = payments.filter(
-      (itm: PaymentEntity) => itm.status === 'IN_PROGRESS'
-    ).length;
-
-    const matched = payments.filter(
-      (itm: PaymentEntity) => itm.status === 'MATCH'
-    ).length;
-
     const total = payments.length;
 
     const unmatchedPercentage =
       total != 0 ? parseFloat(((exceptions / total) * 100).toFixed(2)) : 0;
 
     const totalSum = payments.reduce((acc, itm) => (acc += itm.amount), 0);
-
-    const rowStatus =
-      exceptions > 0
-        ? MatchStatus.EXCEPTION
-        : inProgress > 0
-        ? MatchStatus.IN_PROGRESS
-        : matched > 0
-        ? MatchStatus.MATCH
-        : MatchStatus.PENDING;
 
     return {
       values: {
@@ -118,8 +111,7 @@ export class ReportingService {
         percent_unmatched: unmatchedPercentage,
         total_sum: parseFloat(totalSum.toFixed(2))
       },
-      status: rowStatus,
-      style: rowStyle(rowStatus)
+      style: rowStyle(exceptions !== 0)
     };
   }
 

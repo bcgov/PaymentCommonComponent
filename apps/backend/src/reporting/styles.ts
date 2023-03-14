@@ -1,5 +1,4 @@
 import * as Excel from 'exceljs';
-import { MatchStatus } from '../common/const';
 
 export const fontStyle: Partial<Excel.Font> = {
   name: 'Calibri',
@@ -10,6 +9,14 @@ export const fontStyle: Partial<Excel.Font> = {
   bold: false
 };
 
+export const headerStyle: Partial<Excel.Style> = {
+  font: {
+    ...fontStyle,
+    size: 16,
+    bold: true
+  }
+};
+
 export const borderStyle: Partial<Excel.Borders> = {
   top: { style: 'thin', color: { argb: 'FF000000' } },
   left: { style: 'thin', color: { argb: 'FF000000' } },
@@ -17,7 +24,7 @@ export const borderStyle: Partial<Excel.Borders> = {
   right: { style: 'thin', color: { argb: 'FF000000' } }
 };
 
-export const dailySummarySheetHeaderStyle: Partial<Excel.Style> = {
+export const columnStyle: Partial<Excel.Style> = {
   font: {
     ...fontStyle,
     bold: true
@@ -27,51 +34,30 @@ export const dailySummarySheetHeaderStyle: Partial<Excel.Style> = {
     pattern: 'solid',
     fgColor: { argb: 'FFFFFFFF' }
   },
-  border: borderStyle
+  border: { ...borderStyle }
 };
 
-export const rowStyle = (status: MatchStatus): Partial<Excel.Style> => {
-  switch (status) {
-    case MatchStatus.EXCEPTION:
-      return {
-        fill: {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: '1AE78587' }
-        },
-        font: fontStyle,
-        border: borderStyle
-      };
-    case MatchStatus.MATCH:
-      return {
-        fill: {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: '1AACD1AF' }
-        },
-        font: fontStyle,
-        border: borderStyle
-      };
-    case MatchStatus.IN_PROGRESS:
-      return {
-        fill: {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: '1AFFFFA7' }
-        },
-        font: fontStyle,
-        border: borderStyle
-      };
-    case MatchStatus.PENDING:
-    default:
-      return {
-        fill: {
-          type: 'pattern',
-          pattern: 'solid',
-          fgColor: { argb: 'FFFFFFFF' }
-        },
-        font: fontStyle,
-        border: borderStyle
-      };
+export const rowStyle = (exceptions: boolean): Partial<Excel.Style> => {
+  const style: Partial<Excel.Style> = {
+    fill: {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: { argb: 'FFFFFFFF' }
+    },
+    font: { ...fontStyle },
+    border: { ...borderStyle }
+  };
+
+  if (exceptions) {
+    return {
+      fill: {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: '1AE78587' }
+      },
+      font: { ...fontStyle },
+      border: { ...borderStyle }
+    };
   }
+  return style;
 };

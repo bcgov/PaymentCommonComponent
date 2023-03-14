@@ -1,5 +1,4 @@
 import * as Excel from 'exceljs';
-import { MatchStatus } from '../common/const';
 import { Ministries } from '../constants';
 
 export interface ReportConfig {
@@ -27,6 +26,5 @@ export interface DailySummary {
     percent_unmatched: number;
     total_sum: number;
   };
-  status: MatchStatus;
   style: Partial<Excel.Style>;
 }

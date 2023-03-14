@@ -62,6 +62,19 @@ export class ExcelExportService {
   public addSheet(name: string): void {
     this.workbook.addWorksheet(name);
   }
+
+  /* eslint-disable  */
+  public addHeader(sheetName: string, style: any): void {
+    const sheet = this.workbook.getWorksheet(sheetName);
+    sheet.insertRow(1, []);
+    const row = sheet.getRow(1);
+    row.addPageBreak();
+    row.getCell('E').value = sheetName;
+    row.getCell('E').style = style;
+    row.height = 20;
+    sheet.getRow(2).addPageBreak();
+  }
+
   /*eslint-disable @typescript-eslint/no-unused-vars*/
   public addCellStyle(
     sheetName: string,
@@ -69,6 +82,7 @@ export class ExcelExportService {
     style: Partial<Excel.Style>
   ): void {
     const sheet = this.workbook.getWorksheet(sheetName);
+
     const row = sheet.getRow(rowNumber);
     row.eachCell((cell, _colNumber) => {
       sheet.getCell(cell.address).style = style;
@@ -76,28 +90,24 @@ export class ExcelExportService {
   }
 
   /*eslint-disable @typescript-eslint/no-explicit-any*/
-  public addRows(sheetName: string, rowData: any[]): void {
+  public addRows(sheetName: string, rowData: any[], startIndex: number): void {
     const sheet = this.workbook.getWorksheet(sheetName);
+
     rowData.forEach((row, index) => {
-      sheet.insertRow(index + 2, row.values);
-      sheet.getRow(index + 2).commit();
+      sheet.insertRow(index + startIndex, row.values);
+      sheet.getRow(index + startIndex).commit();
       if (row.style) {
-        this.addCellStyle(sheetName, index + 2, row.style);
+        this.addCellStyle(sheetName, index + startIndex, row.style);
       }
     });
+
+    sheet.spliceRows(1, 0, new Array(3));
   }
 
   /*eslint-disable @typescript-eslint/no-explicit-any*/
-  public addColumns(
-    sheetName: string,
-    columnData: any[],
-    style?: Partial<Excel.Style>
-  ): void {
+  public addColumns(sheetName: string, columnData: any[], style?: any): void {
     const sheet = this.workbook.getWorksheet(sheetName);
     sheet.columns = columnData;
     sheet.columns.forEach((column) => (column.width = 20));
-    if (style) {
-      this.addCellStyle(sheetName, 1, style);
-    }
   }
 }
