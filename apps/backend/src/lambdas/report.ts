@@ -10,7 +10,7 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   const reportingService = app.get(ReportingService);
 
   const appLogger = app.get(AppLogger);
-  appLogger.log({ context });
+  appLogger.log({ context }, 'Report Lambda');
+
   await reportingService.generateReport(event);
-  await reportingService.generateDailySummary(event);
 };

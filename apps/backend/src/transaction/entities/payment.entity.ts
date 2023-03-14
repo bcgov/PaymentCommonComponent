@@ -59,7 +59,7 @@ export class PaymentEntity {
   method: string;
 
   @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
-  status?: MatchStatus;
+  status: MatchStatus;
 
   @Column('varchar', { length: 4, nullable: true })
   card_no?: string;

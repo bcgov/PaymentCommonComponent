@@ -6,7 +6,9 @@ import {
   CashReconciliationOutput
 } from './types';
 import { MatchStatus } from '../common/const';
+import { DateRange, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
+import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
@@ -25,9 +27,15 @@ export class CashReconciliationService {
    * @returns
    */
   public async getDatesForReconciliation(
-    event: ReconciliationEvent
+    program: Ministries,
+    dateRange: DateRange,
+    location: LocationEntity
   ): Promise<string[]> {
-    const dates = await this.cashDepositService.depositDates(event);
+    const dates = await this.cashDepositService.findDistinctDepositDates(
+      program,
+      dateRange,
+      location
+    );
     return dates;
   }
   /**
@@ -165,11 +173,17 @@ export class CashReconciliationService {
     event: ReconciliationEvent,
     status: MatchStatus
   ): Promise<{ payments: PaymentEntity[]; deposits: CashDepositEntity[] }> {
-    const payments = await this.paymentService.findCashPayments(event, status);
+    const payments = await this.paymentService.findCashPayments(
+      event.dateRange,
+      event.location,
+      status
+    );
 
     const deposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
-        event,
+        event.program,
+        event.date,
+        event.location,
         status
       );
 

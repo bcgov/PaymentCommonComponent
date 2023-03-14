@@ -47,7 +47,10 @@ export class TransactionService {
   }
 
   async findPosPayments(event: ReconciliationEvent) {
-    return await this.paymentService.findPosPayments(event);
+    return await this.paymentService.findPosPayments(
+      event.location,
+      event.date
+    );
   }
 
   // Error handling?
@@ -76,7 +79,11 @@ export class TransactionService {
     event: ReconciliationEvent,
     status: MatchStatus
   ): Promise<PaymentEntity[]> {
-    return await this.paymentService.findCashPayments(event, status);
+    return await this.paymentService.findCashPayments(
+      event.dateRange,
+      event.location,
+      status
+    );
   }
   public aggregatePayments(payments: PaymentEntity[]) {
     return this.paymentService.aggregatePayments(payments);

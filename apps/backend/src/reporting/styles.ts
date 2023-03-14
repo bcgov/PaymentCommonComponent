@@ -1,4 +1,5 @@
 import * as Excel from 'exceljs';
+import { Placement } from './interfaces';
 
 export const fontStyle: Partial<Excel.Font> = {
   name: 'Calibri',
@@ -16,6 +17,8 @@ export const headerStyle: Partial<Excel.Style> = {
     bold: true
   }
 };
+
+export const headerPlacement: Placement = { row: 1, column: 'E', height: 20 };
 
 export const borderStyle: Partial<Excel.Borders> = {
   top: { style: 'thin', color: { argb: 'FF000000' } },

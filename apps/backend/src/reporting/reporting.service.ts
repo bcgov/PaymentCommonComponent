@@ -2,55 +2,129 @@ import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import format from 'date-fns/format';
 import { Repository } from 'typeorm';
-import { dailySummaryColumns } from './const';
-import { DailySummary, ReportConfig } from './interfaces';
-import { columnStyle, rowStyle, headerStyle } from './styles';
+import { dailySummaryColumns, detailedReportColumns } from './const';
+import {
+  parseCashDepositDetailsForReport,
+  parsePaymentDetailsForReport,
+  parsePosDepositDetailsForReport
+} from './helpers';
+import { DetailsReport, DailySummary, ReportConfig } from './interfaces';
+import { columnStyle, rowStyle, headerStyle, headerPlacement } from './styles';
+import { MatchStatus } from '../common/const';
 import { Ministries } from '../constants';
+import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { PosDepositService } from '../deposits/pos-deposit.service';
 import { ExcelExportService } from '../excelexport/excelexport.service';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
+import { ReconciliationEvent } from '../reconciliation/types';
 import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
 
 export class ReportingService {
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
+    @Inject(Logger) private appLogger: AppLogger,
     @InjectRepository(POSDepositEntity)
     private posDepositRepo: Repository<POSDepositEntity>,
     @Inject(LocationService)
     private locationService: LocationService,
-    @InjectRepository(CashDepositEntity)
-    private cashDepositRepo: Repository<CashDepositEntity>,
     @Inject(PaymentService)
     private paymentService: PaymentService,
+    @Inject(CashDepositService)
+    private cashDepositService: CashDepositService,
+    @Inject(PosDepositService)
+    private posDepositService: PosDepositService,
     @InjectRepository(PaymentEntity)
     private paymentRepo: Repository<PaymentEntity>,
     @Inject(ExcelExportService)
     private excelWorkbook: ExcelExportService
   ) {}
 
-  async generateReport(config: ReportConfig) {
+  async generateReport(config: ReportConfig): Promise<void> {
     this.appLogger.log(config);
-    this.appLogger.log('Generating report');
-    await this.excelWorkbook.saveS3('test');
+
+    const locations = await Promise.all(
+      await this.locationService.getLocationsBySource(config.program)
+    );
+    this.appLogger.log(
+      `Generating Reconciliation Report For ${locations.length} locations`,
+      ReportingService
+    );
+
+    this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
+
+    await this.generateDailySummary(config, locations);
+    await this.generateDetailsWorksheet(config, locations);
+    await this.excelWorkbook.saveLocal();
+    await this.excelWorkbook.saveS3('reconciliation_report');
   }
 
-  async generateDailySummary(config: ReportConfig) {
+  async generateDetailsWorksheet(
+    config: ReportConfig,
+    locations: LocationEntity[]
+  ): Promise<void> {
     this.appLogger.log(config);
-    this.appLogger.log('Generating Daily Summary Report');
+    this.appLogger.log('Generating Reconciliation Details Worksheet');
 
-    const locations = await this.locationService.getLocationsBySource(
-      config.program
+    const details: DetailsReport[] = [];
+
+    await Promise.all(
+      locations.map(async (itm) => {
+        const values = await this.findAndParseDataForDetailedReport(
+          config,
+          itm
+        );
+        details.push(...values);
+      })
+    );
+
+    const rowStartIndex = 4;
+    const colStartIndex = 3;
+
+    this.excelWorkbook.addSheet('Reconciliation Details');
+
+    this.excelWorkbook.addColumns(
+      'Reconciliation Details',
+      detailedReportColumns
+    );
+
+    this.excelWorkbook.addRows(
+      'Reconciliation Details',
+      details.map((itm) => ({ values: itm, style: {} })),
+      rowStartIndex
+    );
+
+    this.excelWorkbook.addTitleRow(
+      'Reconciliation Details',
+      headerStyle,
+      headerPlacement
+    );
+    /* set column-headers style */
+    this.excelWorkbook.addRowStyle(
+      'Reconciliation Details',
+      colStartIndex,
+      columnStyle
+    );
+  }
+
+  async generateDailySummary(
+    config: ReportConfig,
+    locations: LocationEntity[]
+  ): Promise<void> {
+    this.appLogger.log(config);
+    this.appLogger.log(
+      'Generating Daily Summary WorkSheet',
+      ReportingService.name
     );
 
     const dailySummaryReport = await Promise.all(
       locations.map(
         async (location: LocationEntity) =>
-          await this.dailyReportPaymentInfo(
-            format(new Date(config.period.from), 'yyyy-MM-dd'),
+          await this.findPaymentDataForDailySummary(
+            format(new Date(config.period.to), 'yyyy-MM-dd'),
             location,
             config.program
           )
@@ -60,7 +134,6 @@ export class ReportingService {
     const rowStartIndex = 4;
     const colStartIndex = 3;
 
-    this.excelWorkbook.generateWorkbook('Reconciliation Report');
     this.excelWorkbook.addSheet('Daily Summary');
     this.excelWorkbook.addColumns('Daily Summary', dailySummaryColumns);
     this.excelWorkbook.addRows(
@@ -68,19 +141,19 @@ export class ReportingService {
       dailySummaryReport,
       rowStartIndex
     );
-    this.excelWorkbook.addHeader('Daily Summary', headerStyle);
-    /* set column-headers style */
-    this.excelWorkbook.addCellStyle(
+    this.excelWorkbook.addTitleRow(
       'Daily Summary',
-      colStartIndex,
-      columnStyle
+      headerStyle,
+      headerPlacement
     );
+    /* set column-headers style */
+    this.excelWorkbook.addRowStyle('Daily Summary', colStartIndex, columnStyle);
 
     await this.excelWorkbook.saveLocal();
     await this.excelWorkbook.saveS3('Reconciliation Report');
   }
 
-  async dailyReportPaymentInfo(
+  async findPaymentDataForDailySummary(
     date: string,
     location: LocationEntity,
     program: Ministries
@@ -117,6 +190,85 @@ export class ReportingService {
       },
       style: rowStyle(exceptions !== 0)
     };
+  }
+
+  async findAndParseDataForDetailedReport(
+    config: ReportConfig,
+    location: LocationEntity
+  ): Promise<DetailsReport[]> {
+    const dateRange = {
+      to_date: config.period.to.toString(),
+      from_date: config.period.from.toString()
+    };
+
+    const cashDepositDates = await Promise.all(
+      await this.cashDepositService.findDistinctDepositDates(
+        config.program,
+        dateRange,
+        location
+      )
+    );
+
+    const cashDepositDateRange = {
+      to_date: cashDepositDates[0],
+      from_date: cashDepositDates[1]
+    };
+
+    const cashPayments = await Promise.all(
+      await this.paymentService.findCashPayments(
+        cashDepositDateRange,
+        location,
+        MatchStatus.ALL
+      )
+    );
+
+    const parsedCashPayments = cashPayments.map((itm: PaymentEntity) =>
+      parsePaymentDetailsForReport(location, itm, cashDepositDates)
+    );
+
+    const posPayments: PaymentEntity[] = await Promise.all(
+      await this.paymentService.findPosPayments(
+        location,
+        config.period.to.toString()
+      )
+    );
+
+    const parsedPosPayments = posPayments.map((itm: PaymentEntity) =>
+      parsePaymentDetailsForReport(location, itm)
+    );
+
+    const cashDeposits: CashDepositEntity[] = await Promise.all(
+      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
+        config.program,
+        cashDepositDateRange.to_date,
+        location,
+        MatchStatus.ALL
+      )
+    );
+
+    const parsedCashDepositDetails = cashDeposits.map(
+      (itm: CashDepositEntity) =>
+        parseCashDepositDetailsForReport(location, itm, cashDepositDates)
+    );
+
+    const posDeposits: POSDepositEntity[] = await Promise.all(
+      await this.posDepositService.findPOSDeposits({
+        program: config.program,
+        date: config.period.to.toString(),
+        location: location
+      } as ReconciliationEvent)
+    );
+
+    const parsedPosDepositDetails = posDeposits.map((itm: POSDepositEntity) =>
+      parsePosDepositDetailsForReport(location, itm)
+    );
+
+    return await Promise.all([
+      ...parsedPosPayments,
+      ...parsedCashPayments,
+      ...parsedCashDepositDetails,
+      ...parsedPosDepositDetails
+    ]);
   }
 
   async reportPosMatchSummaryByDate(): Promise<unknown> {

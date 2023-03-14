@@ -186,7 +186,11 @@ export class POSReconciliationService {
     const { payments: pendingPayments, deposits: pendingDeposits } =
       this.filterDataPriorToReconciliation(
         await this.transactionService.findPosPayments(event),
-        await this.posDepositService.findPOSDeposits(event)
+        await this.posDepositService.findPOSDeposits({
+          program: event.program,
+          date: event.date,
+          location: event.location
+        } as ReconciliationEvent)
       );
     this.appLogger.log('pending payments', pendingPayments.length);
     this.appLogger.log('pending deposits', pendingDeposits.length);

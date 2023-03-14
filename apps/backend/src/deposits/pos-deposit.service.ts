@@ -27,14 +27,12 @@ export class PosDepositService {
   async findPOSDeposits(
     event: ReconciliationEvent
   ): Promise<POSDepositEntity[]> {
-    const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
-      event?.location?.location_id
+    const merchant_ids = await Promise.all(
+      await this.locationService.getMerchantIdsByLocationId(
+        event.location.location_id
+      )
     );
     return await this.posDepositRepo.find({
-      relationLoadStrategy: 'query',
-      relations: {
-        payment_method: true
-      },
       where: {
         transaction_date: event?.date,
         metadata: {
@@ -42,6 +40,7 @@ export class PosDepositService {
         },
         merchant_id: In(merchant_ids)
       },
+      relations: ['payment_method'],
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
       order: {

@@ -2,12 +2,13 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, LessThan, Not, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
+import { MatchStatus, MatchStatusAll } from '../common/const';
+import { DateRange } from '../constants';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { LocationEntity } from '../location/entities';
+import { AppLogger } from '../logger/logger.service';
 import { ReconciliationEvent } from '../reconciliation/types';
 import { AggregatedPayment } from '../reconciliation/types/interface';
-import { MatchStatus } from './../common/const';
-import { POSDepositEntity } from './../deposits/entities/pos-deposit.entity';
-import { LocationEntity } from './../location/entities';
-import { AppLogger } from './../logger/logger.service';
 
 @Injectable()
 export class PaymentService {
@@ -17,19 +18,21 @@ export class PaymentService {
     @Inject(Logger) private readonly appLogger: AppLogger
   ) {}
 
-  async findPosPayments(event: ReconciliationEvent): Promise<PaymentEntity[]> {
+  async findPosPayments(
+    location: LocationEntity,
+    date: string
+  ): Promise<PaymentEntity[]> {
     const pos_payment_methods = ['AX', 'V', 'P', 'M'];
-    const {
-      location: { location_id },
-      date
-    } = event;
 
     return await this.paymentRepo.find({
       where: {
-        transaction: { transaction_date: date, location_id },
+        transaction: {
+          transaction_date: date,
+          location_id: location.location_id
+        },
         method: In(pos_payment_methods)
       },
-      relations: ['transaction'],
+      relations: ['transaction', 'payment_method'],
       order: {
         amount: 'ASC',
         method: 'ASC',
@@ -87,29 +90,27 @@ export class PaymentService {
   }
 
   public async findCashPayments(
-    event: ReconciliationEvent,
+    dateRange: DateRange,
+    location: LocationEntity,
     status: MatchStatus
   ): Promise<PaymentEntity[]> {
-    const {
-      date,
-      fiscal_start_date,
-      location: { location_id }
-    } = event;
     const pos_methods = ['AX', 'P', 'V', 'M'];
-
+    const paymentStatus =
+      status === MatchStatus.ALL ? In(MatchStatusAll) : status;
+    const { from_date, to_date } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
         method: Not(In(pos_methods)),
-        status,
+        status: paymentStatus,
         transaction: {
-          location_id,
+          location_id: location.location_id,
           fiscal_close_date: Raw(
-            (alias) => `${alias} >= :fiscal_start_date AND ${alias} <= :date`,
-            { fiscal_start_date, date }
+            (alias) => `${alias} >= :from_date AND ${alias} <= :to_date`,
+            { from_date, to_date }
           )
         }
       },
-      relations: ['transaction'],
+      relations: ['transaction', 'payment_method'],
       order: {
         transaction: { fiscal_close_date: 'DESC' },
         amount: 'DESC'

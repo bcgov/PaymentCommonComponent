@@ -1,10 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, Repository, LessThanOrEqual } from 'typeorm';
+import { In, Raw, Repository, LessThanOrEqual } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
+import { DateRange, Ministries } from '../constants';
+import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { ReconciliationEvent } from '../reconciliation/types';
+import { MatchStatusAll } from './../common/const';
 
 @Injectable()
 export class CashDepositService {
@@ -47,21 +50,19 @@ export class CashDepositService {
    * @description Filter by location, program, and current date
    */
   async findCashDepositsByDateLocationAndProgram(
-    event: ReconciliationEvent,
+    program: Ministries,
+    date: string,
+    location: LocationEntity,
     status: MatchStatus
   ): Promise<CashDepositEntity[]> {
-    const {
-      program,
-      date,
-      location: { pt_location_id }
-    } = event;
-
+    const depositStatus =
+      status === MatchStatus.ALL ? In(MatchStatusAll) : status;
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
+        pt_location_id: location.pt_location_id,
         metadata: { program: program },
         deposit_date: date,
-        status: status
+        status: depositStatus
       },
       order: {
         deposit_date: 'DESC',
@@ -109,20 +110,22 @@ export class CashDepositService {
    * @description Find all deposit dates for a specific location and program, in ascending order, which are still
    *  pending or in progress. This is used to find the dates that need to be reconciled.
    */
-  public async depositDates(event: ReconciliationEvent): Promise<string[]> {
-    const { fiscal_close_date, fiscal_start_date, program, location } = event;
-
+  public async findDistinctDepositDates(
+    program: Ministries,
+    dateRange: DateRange,
+    location: LocationEntity
+  ): Promise<string[]> {
+    const { from_date, to_date } = dateRange;
     const dates = await this.cashDepositRepo.find({
       select: { deposit_date: true },
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program },
         deposit_date: Raw(
-          (alias) =>
-            `${alias} <= :fiscal_close_date and ${alias} > :fiscal_start_date `,
+          (alias) => `${alias} <= :to_date and ${alias} > :from_date `,
           {
-            fiscal_close_date,
-            fiscal_start_date
+            to_date,
+            from_date
           }
         )
       },
