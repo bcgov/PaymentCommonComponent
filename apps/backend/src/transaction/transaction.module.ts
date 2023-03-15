@@ -24,6 +24,11 @@ import { LocationModule } from '../location/location.module';
   ],
   controllers: [TransactionController],
   providers: [TransactionService, PaymentService, PaymentMethodService, Logger],
-  exports: [TypeOrmModule, TransactionService, PaymentMethodService]
+  exports: [
+    TypeOrmModule,
+    TransactionService,
+    PaymentMethodService,
+    PaymentService
+  ]
 })
 export class TransactionModule {}

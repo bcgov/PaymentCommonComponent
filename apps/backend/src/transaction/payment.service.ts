@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { LessThan, Not, In, Repository, LessThanOrEqual } from 'typeorm';
+import { Raw, LessThan, Not, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { ReconciliationEvent } from '../reconciliation/types';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -68,6 +68,7 @@ export class PaymentService {
   ): Promise<PaymentEntity[]> {
     const {
       date,
+      fiscal_start_date,
       location: { location_id }
     } = event;
     const pos_methods = ['AX', 'P', 'V', 'M'];
@@ -78,12 +79,15 @@ export class PaymentService {
         status,
         transaction: {
           location_id,
-          fiscal_close_date: LessThanOrEqual(date)
+          fiscal_close_date: Raw(
+            (alias) => `${alias} >= :fiscal_start_date AND ${alias} <= :date`,
+            { fiscal_start_date, date }
+          )
         }
       },
       relations: ['transaction'],
       order: {
-        transaction: { fiscal_close_date: 'ASC' },
+        transaction: { fiscal_close_date: 'DESC' },
         amount: 'DESC'
       }
     });
@@ -129,13 +133,44 @@ export class PaymentService {
     });
   }
 
+  async updatePayments(
+    payments: PaymentEntity[],
+    status: MatchStatus
+  ): Promise<PaymentEntity[]> {
+    this.appLogger.log(
+      `UPDATED: ${payments.length} PAYMENTS to ${status.toUpperCase()}`,
+      PaymentService.name
+    );
+
+    return await Promise.all(
+      payments.map(
+        async (payment) =>
+          await this.updatePayment({
+            ...payment,
+            timestamp: payment.timestamp,
+            status
+          })
+      )
+    );
+  }
+  // TODO  [CCFPCM-410] verify criteria for handling $0.00 amounts
+  // async softRemoveZeroDollarPayments() {
+  //   const payments = await this.paymentRepo.find({
+  //     where: {
+  //       amount: 0
+  //     }
+  //   });
+  //   await Promise.all(
+  //     payments.map(
+  //       async (payment) => await this.paymentRepo.softRemove(payment)
+  //     )
+  //   );
+  // }
+
   async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {
     const paymentEntity = await this.paymentRepo.findOneByOrFail({
       id: payment.id
     });
-    return await this.paymentRepo.save({
-      ...paymentEntity,
-      ...payment
-    });
+    return await this.paymentRepo.save({ ...paymentEntity, ...payment });
   }
 }
