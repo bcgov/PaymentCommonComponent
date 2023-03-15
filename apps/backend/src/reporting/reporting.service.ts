@@ -85,7 +85,7 @@ export class ReportingService {
     location: LocationEntity,
     program: Ministries
   ): Promise<DailySummary> {
-    const payments = await this.paymentService.findWithPartialSelect(
+    const payments = await this.paymentService.findPaymentsWithPartialSelect(
       location,
       date
     );
@@ -98,7 +98,11 @@ export class ReportingService {
     const unmatchedPercentage =
       total != 0 ? parseFloat(((exceptions / total) * 100).toFixed(2)) : 0;
 
-    const totalSum = payments.reduce((acc, itm) => (acc += itm.amount), 0);
+    /*eslint-disable */
+    const totalSum = payments.reduce(
+      (acc: number, itm: PaymentEntity) => (acc += itm.amount),
+      0
+    );
 
     return {
       values: {

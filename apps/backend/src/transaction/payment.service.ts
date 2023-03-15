@@ -63,7 +63,10 @@ export class PaymentService {
     return result as AggregatedPayment[];
   }
 
-  public async findWithPartialSelect(location: LocationEntity, date: string) {
+  public async findPaymentsWithPartialSelect(
+    location: LocationEntity,
+    date: string
+  ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       select: {
         amount: true,
@@ -174,19 +177,6 @@ export class PaymentService {
       )
     );
   }
-  // TODO  [CCFPCM-410] verify criteria for handling $0.00 amounts
-  // async softRemoveZeroDollarPayments() {
-  //   const payments = await this.paymentRepo.find({
-  //     where: {
-  //       amount: 0
-  //     }
-  //   });
-  //   await Promise.all(
-  //     payments.map(
-  //       async (payment) => await this.paymentRepo.softRemove(payment)
-  //     )
-  //   );
-  // }
 
   async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {
     const paymentEntity = await this.paymentRepo.findOneByOrFail({
