@@ -1,11 +1,12 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { format } from 'date-fns';
 import * as Excel from 'exceljs';
 import * as path from 'path';
 import { Stream } from 'stream';
 import { AppLogger } from '../logger/logger.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 @Injectable()
-export class ExcelexportService {
+export class ExcelExportService {
   private workbook: Excel.Workbook;
 
   constructor(
@@ -53,20 +54,60 @@ export class ExcelexportService {
     }
   }
 
+  public generateWorkbook(title: string): void {
+    this.workbook.title = title;
+    this.workbook.created = new Date(format(new Date(), 'yyyy, MM, dd'));
+  }
+
   public addSheet(name: string): void {
     this.workbook.addWorksheet(name);
   }
 
-  /*eslint-disable @typescript-eslint/no-explicit-any*/
-  public addRow(sheetName: string, rowData: any[]): void {
+  /* eslint-disable  */
+  public addHeader(sheetName: string, style: any): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-    sheet.addRow(rowData);
+    sheet.insertRow(1, []);
+    const row = sheet.getRow(1);
+    row.addPageBreak();
+    row.getCell('E').value = sheetName;
+    row.getCell('E').style = style;
+    row.height = 20;
+    sheet.getRow(2).addPageBreak();
+  }
+
+  /*eslint-disable @typescript-eslint/no-unused-vars*/
+  public addCellStyle(
+    sheetName: string,
+    rowNumber: number,
+    style: Partial<Excel.Style>
+  ): void {
+    const sheet = this.workbook.getWorksheet(sheetName);
+
+    const row = sheet.getRow(rowNumber);
+    row.eachCell((cell, _colNumber) => {
+      sheet.getCell(cell.address).style = style;
+    });
   }
 
   /*eslint-disable @typescript-eslint/no-explicit-any*/
-  public addColumn(sheetName: string, columnData: any[]): void {
+  public addRows(sheetName: string, rowData: any[], startIndex: number): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-    sheet.columns.push({ header: 'New Column', key: 'newColumn', width: 20 });
-    sheet.getColumn('newColumn').values = columnData;
+
+    rowData.forEach((row, index) => {
+      sheet.insertRow(index + startIndex, row.values);
+      sheet.getRow(index + startIndex).commit();
+      if (row.style) {
+        this.addCellStyle(sheetName, index + startIndex, row.style);
+      }
+    });
+
+    sheet.spliceRows(1, 0, new Array(3));
+  }
+
+  /*eslint-disable @typescript-eslint/no-explicit-any*/
+  public addColumns(sheetName: string, columnData: any[], style?: any): void {
+    const sheet = this.workbook.getWorksheet(sheetName);
+    sheet.columns = columnData;
+    sheet.columns.forEach((column) => (column.width = 20));
   }
 }

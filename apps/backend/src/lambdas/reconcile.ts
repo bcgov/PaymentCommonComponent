@@ -23,14 +23,13 @@ export const handler = async (
   appLogger.log({ event });
   appLogger.log({ context });
 
-  // TODO  [CCFPCM-410] verify criteria for handling $0.00 amounts
-  // appLogger.log(`Soft Removing Zero Dollar Payments`);
-  // await paymentService.softRemoveZeroDollarPayments();
-
   const locations =
     event.location_ids.length === 0
       ? await locationService.getLocationsBySource(event.program)
-      : await locationService.getLocationsByID(event);
+      : await locationService.getLocationsByID(
+          event.program,
+          event.location_ids
+        );
 
   appLogger.log(`=========================================================`);
   appLogger.log(`Found ${locations.length} Locations`);

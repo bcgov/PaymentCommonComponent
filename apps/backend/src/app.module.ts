@@ -6,7 +6,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 import { DepositModule } from './deposits/deposit.module';
-import { ExcelexportModule } from './excelexport/excelexport.module';
+import { ExcelExportModule } from './excelexport/excelexport.module';
 import { ExceptionModule } from './exception/exception.module';
 import { LocationModule } from './location/location.module';
 import { LoggerModule } from './logger/logger.module';
@@ -27,7 +27,7 @@ import { TransactionModule } from './transaction/transaction.module';
     ParseModule,
     LocationModule,
     ExceptionModule,
-    ExcelexportModule,
+    ExcelExportModule,
     ReportingModule,
     ConfigModule.forRoot({
       ignoreEnvFile:

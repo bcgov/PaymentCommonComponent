@@ -1,10 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExcelexportService } from '../src/excelexport/excelexport.service';
+import { ExcelExportService } from '../src/excelexport/excelexport.service';
 import { S3ManagerService } from '../src/s3-manager/s3-manager.service';
 
-describe('ExcelexportService', () => {
-  let service: ExcelexportService;
+describe('ExcelExportService', () => {
+  let service: ExcelExportService;
 
   const s3ServiceMock = {
     // mock the query method that is used
@@ -14,7 +14,7 @@ describe('ExcelexportService', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
-        ExcelexportService,
+        ExcelExportService,
         Logger,
         {
           provide: S3ManagerService,
@@ -23,7 +23,7 @@ describe('ExcelexportService', () => {
       ]
     }).compile();
 
-    service = module.get<ExcelexportService>(ExcelexportService);
+    service = module.get<ExcelExportService>(ExcelExportService);
   });
 
   it('should be defined', () => {

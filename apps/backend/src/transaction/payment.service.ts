@@ -6,6 +6,7 @@ import { ReconciliationEvent } from '../reconciliation/types';
 import { AggregatedPayment } from '../reconciliation/types/interface';
 import { MatchStatus } from './../common/const';
 import { POSDepositEntity } from './../deposits/entities/pos-deposit.entity';
+import { LocationEntity } from './../location/entities';
 import { AppLogger } from './../logger/logger.service';
 
 @Injectable()
@@ -60,6 +61,29 @@ export class PaymentService {
 
     const result = Object.values(groupedPayments);
     return result as AggregatedPayment[];
+  }
+
+  public async findPaymentsWithPartialSelect(
+    location: LocationEntity,
+    date: string
+  ): Promise<PaymentEntity[]> {
+    return await this.paymentRepo.find({
+      select: {
+        amount: true,
+        method: true,
+        status: true,
+        transaction: {
+          transaction_date: true,
+          location_id: true
+        }
+      },
+      where: {
+        transaction: {
+          location_id: location.location_id,
+          transaction_date: date
+        }
+      }
+    });
   }
 
   public async findCashPayments(
@@ -153,19 +177,6 @@ export class PaymentService {
       )
     );
   }
-  // TODO  [CCFPCM-410] verify criteria for handling $0.00 amounts
-  // async softRemoveZeroDollarPayments() {
-  //   const payments = await this.paymentRepo.find({
-  //     where: {
-  //       amount: 0
-  //     }
-  //   });
-  //   await Promise.all(
-  //     payments.map(
-  //       async (payment) => await this.paymentRepo.softRemove(payment)
-  //     )
-  //   );
-  // }
 
   async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {
     const paymentEntity = await this.paymentRepo.findOneByOrFail({
