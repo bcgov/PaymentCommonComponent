@@ -1,3 +1,5 @@
+/*eslint-disable @typescript-eslint/no-explicit-any*/
+/*eslint-disable @typescript-eslint/no-unused-vars*/
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { format } from 'date-fns';
 import * as Excel from 'exceljs';
@@ -18,6 +20,10 @@ export class ExcelExportService {
     this.workbook = new Excel.Workbook();
   }
 
+  /**
+   * @description Save workbook to local file system
+   */
+
   public async saveLocal(): Promise<void> {
     try {
       const file = path.resolve(__dirname, '../../report.xlsx');
@@ -27,6 +33,11 @@ export class ExcelExportService {
       this.appLogger.error(`${e}`, ExcelExportService.name);
     }
   }
+  /**
+   *
+   * @param filename
+   * @param date
+   */
 
   public async saveS3(filename: string, date: string): Promise<void> {
     try {
@@ -58,7 +69,10 @@ export class ExcelExportService {
       this.appLogger.error(`${e}`, ExcelExportService.name);
     }
   }
-
+  /**
+   *
+   * @param title
+   */
   public addWorkbookMetadata(title: string): void {
     const date = new Date(format(new Date(), 'yyyy-MM-dd'));
     this.workbook.title = title;
@@ -68,13 +82,21 @@ export class ExcelExportService {
       ExcelExportService.name
     );
   }
-
+  /**
+   *
+   * @param name
+   */
   public addSheet(name: string): void {
     this.workbook.addWorksheet(name);
     this.appLogger.log(`New ${name} worksheet added`, ExcelExportService.name);
   }
+  /**
+   *
+   * @param sheetName
+   * @param style
+   * @param placement
+   */
 
-  /* eslint-disable  */
   public addTitleRow(
     sheetName: string,
     style: Partial<Excel.Style>,
@@ -82,7 +104,7 @@ export class ExcelExportService {
   ): void {
     const sheet = this.workbook.getWorksheet(sheetName);
 
-    /* Splice in order to insert a title/header -known bug in exceljs*/
+    /* Splice in order to insert a title/header - known bug in exceljs https://github.com/exceljs/exceljs/issues/1325 */
     sheet.spliceRows(1, 0, new Array(3));
 
     sheet.mergeCells(placement.merge);
@@ -91,7 +113,12 @@ export class ExcelExportService {
     sheet.getCell(placement.column).style = style;
   }
 
-  // /*eslint-disable @typescript-eslint/no-unused-vars*/
+  /**
+   *
+   * @param sheetName
+   * @param rowNumber
+   * @param style
+   */
   public addRowStyle(
     sheetName: string,
     rowNumber: number,
@@ -104,8 +131,12 @@ export class ExcelExportService {
       sheet.getCell(cell.address).style = style;
     });
   }
-
-  /*eslint-disable @typescript-eslint/no-explicit-any*/
+  /**
+   *
+   * @param sheetName
+   * @param rowData
+   * @param startIndex
+   */
   public addRows(sheetName: string, rowData: any[], startIndex: number): void {
     const sheet = this.workbook.getWorksheet(sheetName);
     rowData.forEach((row, index) => {
@@ -121,8 +152,11 @@ export class ExcelExportService {
       ExcelExportService.name
     );
   }
-
-  /*eslint-disable @typescript-eslint/no-explicit-any*/
+  /**
+   *
+   * @param sheetName
+   * @param columnData
+   */
   public addColumns(sheetName: string, columnData: any[]): void {
     const sheet = this.workbook.getWorksheet(sheetName);
     sheet.columns = columnData;
@@ -132,7 +166,11 @@ export class ExcelExportService {
       ExcelExportService.name
     );
   }
-
+  /**
+   *
+   * @param sheetName
+   * @param filterOptions
+   */
   public addFilterOptions(
     sheetName: string,
     filterOptions: Excel.AutoFilter
