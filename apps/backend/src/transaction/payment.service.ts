@@ -3,11 +3,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, LessThan, Not, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
-import { DateRange } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
-import { ReconciliationEvent } from '../reconciliation/types';
 import { AggregatedPayment } from '../reconciliation/types/interface';
 
 @Injectable()
@@ -88,16 +86,23 @@ export class PaymentService {
       }
     });
   }
-
+  /**
+   *
+   * @param dateRange - to: The most current cash deposit date, from: the fiscal_start_date (any previous payments older than two cash_deposit_dates prior will have already been reconciled)
+   * @param location
+   * @param status
+   * @returns
+   */
   public async findCashPayments(
-    dateRange: DateRange,
+    currentDate: string,
+    pastDueDate: string,
     location: LocationEntity,
     status: MatchStatus
   ): Promise<PaymentEntity[]> {
     const pos_methods = ['AX', 'P', 'V', 'M'];
     const paymentStatus =
       status === MatchStatus.ALL ? In(MatchStatusAll) : status;
-    const { from_date, to_date } = dateRange;
+
     const payments = await this.paymentRepo.find({
       where: {
         method: Not(In(pos_methods)),
@@ -105,8 +110,8 @@ export class PaymentService {
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: Raw(
-            (alias) => `${alias} >= :from_date AND ${alias} <= :to_date`,
-            { from_date, to_date }
+            (alias) => `${alias} >= :pastDueDate AND ${alias} <= :currentDate`,
+            { pastDueDate, currentDate }
           )
         }
       },
@@ -121,19 +126,16 @@ export class PaymentService {
   }
 
   public async findPaymentsExceptions(
-    event: ReconciliationEvent,
+    location: LocationEntity,
     pastDueDepositDate: string
   ) {
-    const {
-      location: { location_id }
-    } = event;
     const pos_methods = ['AX', 'P', 'V', 'M'];
     const payments = await this.paymentRepo.find({
       where: {
         method: Not(In(pos_methods)),
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
         transaction: {
-          location_id,
+          location_id: location.location_id,
           fiscal_close_date: LessThan(pastDueDepositDate)
         }
       },

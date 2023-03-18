@@ -26,7 +26,7 @@ export interface CashDepositDates {
 export interface ReconciliationEvent {
   location: LocationEntity;
   program: Ministries;
-  dateRange: DateRange;
+  dateRange?: DateRange;
   date: string;
 }
 

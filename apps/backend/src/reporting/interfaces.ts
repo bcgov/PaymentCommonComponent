@@ -66,4 +66,5 @@ export interface Placement {
   row: number;
   column: string;
   height: number;
+  merge: string;
 }

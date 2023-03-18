@@ -103,10 +103,6 @@ const runPosReconciliation = async (
     console.table(
       await posRecon.reconcile({
         date,
-        dateRange: {
-          to_date: event.fiscal_close_date,
-          from_date: event.fiscal_start_date
-        },
         location,
         program: event.program
       })
@@ -135,34 +131,28 @@ const runCashReconciliation = async (
   );
 
   /* start matching the earliest dates and proceed to the most recent */
-  for (const date of cashDates.reverse()) {
+  const ascDates = [...cashDates].reverse();
+
+  for (const date of ascDates) {
     appLogger.log(`=========================================================`);
     appLogger.log(
-      `Processing CASH Reconciliation for: ${location.description} (${location.location_id}) - ${date}`
+      `Processing CASH Reconciliation for: ${location.description} (${location.location_id}) - ${event.fiscal_start_date} - ${date}`
     );
     appLogger.log(`=========================================================`);
 
-    const matches = await cashRecon.reconcileCash({
+    const matches = await cashRecon.reconcileCash(
       location,
-      program: event.program,
-      dateRange: {
-        to_date: event.fiscal_close_date,
-        from_date: event.fiscal_start_date
-      },
+      event.program,
       date
-    });
+    );
 
     console.table(matches);
 
-    const exceptions = await cashRecon.findExceptions({
+    const exceptions = await cashRecon.findExceptions(
       location,
-      program: event.program,
-      dateRange: {
-        to_date: event.fiscal_close_date,
-        from_date: event.fiscal_start_date
-      },
+      event.program,
       date
-    });
+    );
     appLogger.log(`=========================================================`);
     appLogger.log(
       `EXCEPTIONS: ${exceptions?.length ?? 0} found for: ${

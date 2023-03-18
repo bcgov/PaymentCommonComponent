@@ -10,7 +10,7 @@ export const fontStyle: Partial<Excel.Font> = {
   bold: false
 };
 
-export const headerStyle: Partial<Excel.Style> = {
+export const titleStyle: Partial<Excel.Style> = {
   font: {
     ...fontStyle,
     size: 16,
@@ -18,7 +18,14 @@ export const headerStyle: Partial<Excel.Style> = {
   }
 };
 
-export const headerPlacement: Placement = { row: 1, column: 'E', height: 20 };
+export const placement = (mergeRange: string): Placement => {
+  return {
+    row: 1,
+    column: 'A1',
+    height: 40,
+    merge: mergeRange
+  };
+};
 
 export const borderStyle: Partial<Excel.Borders> = {
   top: { style: 'thin', color: { argb: 'FF000000' } },
@@ -39,18 +46,17 @@ export const columnStyle: Partial<Excel.Style> = {
   },
   border: { ...borderStyle }
 };
+export const rowCommonStyle: Partial<Excel.Style> = {
+  fill: {
+    type: 'pattern',
+    pattern: 'solid',
+    fgColor: { argb: 'FFFFFFFF' }
+  },
+  font: { ...fontStyle },
+  border: { ...borderStyle }
+};
 
-export const rowStyle = (exceptions: boolean): Partial<Excel.Style> => {
-  const style: Partial<Excel.Style> = {
-    fill: {
-      type: 'pattern',
-      pattern: 'solid',
-      fgColor: { argb: 'FFFFFFFF' }
-    },
-    font: { ...fontStyle },
-    border: { ...borderStyle }
-  };
-
+export const rowStyle = (exceptions?: boolean): Partial<Excel.Style> => {
   if (exceptions) {
     return {
       fill: {
@@ -62,5 +68,5 @@ export const rowStyle = (exceptions: boolean): Partial<Excel.Style> => {
       border: { ...borderStyle }
     };
   }
-  return style;
+  return rowCommonStyle;
 };

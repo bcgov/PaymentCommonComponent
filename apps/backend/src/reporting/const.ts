@@ -40,3 +40,7 @@ export const detailedReportColumns = [
   { header: 'Dist Location Code', key: 'dist_location_code' },
   { header: 'Dist Future Code', key: 'dist_future_code' }
 ];
+export enum Report {
+  DAILY_SUMMARY = 'Daily Summary',
+  DETAILED_REPORT = 'Reconciliation Details'
+}

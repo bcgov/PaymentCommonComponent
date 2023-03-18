@@ -28,7 +28,7 @@ export class ExcelExportService {
     }
   }
 
-  public async saveS3(filename: string): Promise<void> {
+  public async saveS3(filename: string, date: string): Promise<void> {
     try {
       const stream = new Stream.PassThrough();
 
@@ -37,7 +37,7 @@ export class ExcelExportService {
         .then(() => {
           return this.s3Manager.s3
             .upload({
-              Key: `${filename}.xlsx`,
+              Key: `${filename}${date}.xlsx`,
               Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
               Body: stream,
               ContentType:
@@ -81,16 +81,17 @@ export class ExcelExportService {
     placement: Placement
   ): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-    sheet.insertRow(placement.row, []);
-    const row = sheet.getRow(placement.row);
-    row.addPageBreak();
-    row.getCell(placement.column).value = sheetName;
-    row.getCell(placement.column).style = style;
-    row.height = placement.height;
-    sheet.getRow(placement.row + 1).addPageBreak();
+
+    /* Splice in order to insert a title/header -known bug in exceljs*/
+    sheet.spliceRows(1, 0, new Array(3));
+
+    sheet.mergeCells(placement.merge);
+
+    sheet.getCell(placement.column).value = sheetName;
+    sheet.getCell(placement.column).style = style;
   }
 
-  /*eslint-disable @typescript-eslint/no-unused-vars*/
+  // /*eslint-disable @typescript-eslint/no-unused-vars*/
   public addRowStyle(
     sheetName: string,
     rowNumber: number,
@@ -115,7 +116,6 @@ export class ExcelExportService {
       }
     });
 
-    sheet.spliceRows(1, 0, new Array(3));
     this.appLogger.log(
       `${rowData.length} rows added and formatted to sheet ${sheetName}`,
       ExcelExportService.name
@@ -129,6 +129,18 @@ export class ExcelExportService {
     sheet.columns.forEach((column) => (column.width = 20));
     this.appLogger.log(
       `${sheet.columns.length} columns added and formatted to sheet ${sheetName}`,
+      ExcelExportService.name
+    );
+  }
+
+  public addFilterOptions(
+    sheetName: string,
+    filterOptions: Excel.AutoFilter
+  ): void {
+    const sheet = this.workbook.getWorksheet(sheetName);
+    sheet.autoFilter = filterOptions;
+    this.appLogger.log(
+      `Filter options added to sheet ${sheetName}`,
       ExcelExportService.name
     );
   }

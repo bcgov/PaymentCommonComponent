@@ -2,14 +2,14 @@ import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import format from 'date-fns/format';
 import { Repository } from 'typeorm';
-import { dailySummaryColumns, detailedReportColumns } from './const';
+import { dailySummaryColumns, detailedReportColumns, Report } from './const';
 import {
   parseCashDepositDetailsForReport,
   parsePaymentDetailsForReport,
   parsePosDepositDetailsForReport
 } from './helpers';
 import { DetailsReport, DailySummary, ReportConfig } from './interfaces';
-import { columnStyle, rowStyle, headerStyle, headerPlacement } from './styles';
+import { columnStyle, rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
 import { Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
@@ -42,26 +42,33 @@ export class ReportingService {
     @Inject(ExcelExportService)
     private excelWorkbook: ExcelExportService
   ) {}
-
+  /**
+   * @param config
+   */
   async generateReport(config: ReportConfig): Promise<void> {
-    this.appLogger.log(config);
-
     const locations = await Promise.all(
       await this.locationService.getLocationsBySource(config.program)
     );
     this.appLogger.log(
       `Generating Reconciliation Report For ${locations.length} locations`,
-      ReportingService
+      ReportingService.name
     );
 
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
-
     await this.generateDailySummary(config, locations);
     await this.generateDetailsWorksheet(config, locations);
     await this.excelWorkbook.saveLocal();
-    await this.excelWorkbook.saveS3('reconciliation_report');
+    await this.excelWorkbook.saveS3(
+      'reconciliation_report',
+      format(new Date(config.period.to.toString()), 'yyyy-MM-dd')
+    );
+    await this.excelWorkbook.saveLocal();
   }
 
+  /**
+   * @param config
+   * @param locations
+   */
   async generateDetailsWorksheet(
     config: ReportConfig,
     locations: LocationEntity[]
@@ -80,36 +87,55 @@ export class ReportingService {
         details.push(...values);
       })
     );
+    this.appLogger.log(
+      `Detailed Report line items: ${details.length}`,
+      ReportingService.name
+    );
 
-    const rowStartIndex = 4;
-    const colStartIndex = 3;
+    const startIndex = 2;
 
-    this.excelWorkbook.addSheet('Reconciliation Details');
+    this.excelWorkbook.addSheet(Report.DETAILED_REPORT);
 
     this.excelWorkbook.addColumns(
-      'Reconciliation Details',
+      Report.DETAILED_REPORT,
       detailedReportColumns
     );
-
     this.excelWorkbook.addRows(
-      'Reconciliation Details',
-      details.map((itm) => ({ values: itm, style: {} })),
-      rowStartIndex
+      Report.DETAILED_REPORT,
+      details.map((itm) => ({ values: itm, style: rowStyle })),
+      startIndex
+    );
+    this.excelWorkbook.addTitleRow(
+      Report.DETAILED_REPORT,
+      titleStyle,
+      placement('A1:AC1')
     );
 
-    this.excelWorkbook.addTitleRow(
-      'Reconciliation Details',
-      headerStyle,
-      headerPlacement
-    );
     /* set column-headers style */
     this.excelWorkbook.addRowStyle(
-      'Reconciliation Details',
-      colStartIndex,
+      Report.DETAILED_REPORT,
+      startIndex,
       columnStyle
     );
-  }
 
+    const filterOptions = {
+      from: {
+        column: 1,
+        row: 2
+      },
+      to: {
+        column: detailedReportColumns.length,
+        row: details.length + 1
+      }
+    };
+
+    this.excelWorkbook.addFilterOptions(Report.DETAILED_REPORT, filterOptions);
+  }
+  /**
+   *
+   * @param config
+   * @param locations
+   */
   async generateDailySummary(
     config: ReportConfig,
     locations: LocationEntity[]
@@ -131,28 +157,48 @@ export class ReportingService {
       )
     );
 
-    const rowStartIndex = 4;
-    const colStartIndex = 3;
+    const startIndex = 2;
 
-    this.excelWorkbook.addSheet('Daily Summary');
-    this.excelWorkbook.addColumns('Daily Summary', dailySummaryColumns);
+    this.excelWorkbook.addSheet(Report.DAILY_SUMMARY);
+
+    this.excelWorkbook.addColumns(Report.DAILY_SUMMARY, dailySummaryColumns);
+
     this.excelWorkbook.addRows(
-      'Daily Summary',
+      Report.DAILY_SUMMARY,
       dailySummaryReport,
-      rowStartIndex
+      startIndex
     );
     this.excelWorkbook.addTitleRow(
-      'Daily Summary',
-      headerStyle,
-      headerPlacement
+      Report.DAILY_SUMMARY,
+      titleStyle,
+      placement('A1:H1')
     );
     /* set column-headers style */
-    this.excelWorkbook.addRowStyle('Daily Summary', colStartIndex, columnStyle);
+    this.excelWorkbook.addRowStyle(
+      Report.DAILY_SUMMARY,
+      startIndex,
+      columnStyle
+    );
+    const filterOptions = {
+      from: {
+        column: 1,
+        row: 2
+      },
+      to: {
+        column: dailySummaryColumns.length,
+        row: dailySummaryReport.length
+      }
+    };
 
-    await this.excelWorkbook.saveLocal();
-    await this.excelWorkbook.saveS3('Reconciliation Report');
+    this.excelWorkbook.addFilterOptions(Report.DAILY_SUMMARY, filterOptions);
   }
-
+  /**
+   *
+   * @param date
+   * @param location
+   * @param program
+   * @returns
+   */
   async findPaymentDataForDailySummary(
     date: string,
     location: LocationEntity,
@@ -163,7 +209,7 @@ export class ReportingService {
       date
     );
     const exceptions = payments.filter(
-      (itm: PaymentEntity) => itm.status === 'EXCEPTION'
+      (itm: PaymentEntity) => itm.status === MatchStatus.EXCEPTION
     ).length;
 
     const total = payments.length;
@@ -191,7 +237,12 @@ export class ReportingService {
       style: rowStyle(exceptions !== 0)
     };
   }
-
+  /**
+   *
+   * @param config
+   * @param location
+   * @returns
+   */
   async findAndParseDataForDetailedReport(
     config: ReportConfig,
     location: LocationEntity
@@ -216,7 +267,8 @@ export class ReportingService {
 
     const cashPayments = await Promise.all(
       await this.paymentService.findCashPayments(
-        cashDepositDateRange,
+        cashDepositDateRange.to_date,
+        cashDepositDateRange.from_date,
         location,
         MatchStatus.ALL
       )
@@ -241,8 +293,7 @@ export class ReportingService {
       await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
         config.program,
         cashDepositDateRange.to_date,
-        location,
-        MatchStatus.ALL
+        location
       )
     );
 
@@ -270,7 +321,10 @@ export class ReportingService {
       ...parsedPosDepositDetails
     ]);
   }
-
+  /**
+   *
+   * @returns
+   */
   async reportPosMatchSummaryByDate(): Promise<unknown> {
     const results = await this.posDepositRepo.manager.query(`
     SELECT
@@ -354,7 +408,10 @@ export class ReportingService {
   `);
     return results;
   }
-
+  /**
+   *
+   * @returns
+   */
   async reportCashMatchSummaryByDate(): Promise<number> {
     const results = await this.paymentRepo.manager.query(`
       SELECT

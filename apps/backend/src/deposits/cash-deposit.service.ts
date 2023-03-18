@@ -1,12 +1,11 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Raw, Repository, LessThanOrEqual } from 'typeorm';
+import { In, Raw, Repository } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
-import { ReconciliationEvent } from '../reconciliation/types';
 import { MatchStatusAll } from './../common/const';
 
 @Injectable()
@@ -47,16 +46,15 @@ export class CashDepositService {
   /**
    * @param event
    * @returns CashDepositEntity[]
-   * @description Filter by location, program, and current date
+   * @description Filter by location and date. Optionally, filter by program, and status.
    */
   async findCashDepositsByDateLocationAndProgram(
     program: Ministries,
     date: string,
     location: LocationEntity,
-    status: MatchStatus
+    status?: MatchStatus
   ): Promise<CashDepositEntity[]> {
-    const depositStatus =
-      status === MatchStatus.ALL ? In(MatchStatusAll) : status;
+    const depositStatus = status ?? In(MatchStatusAll);
     return await this.cashDepositRepo.find({
       where: {
         pt_location_id: location.pt_location_id,
@@ -71,43 +69,12 @@ export class CashDepositService {
     });
   }
 
-  public async findPastDueDate(
-    event: ReconciliationEvent
-  ): Promise<{ currentDate: string; pastDueDate: string } | void> {
-    const {
-      date,
-      program,
-      location: { pt_location_id }
-    } = event;
-    if (!date) return;
-    const dates = await this.cashDepositRepo.find({
-      select: { deposit_date: true },
-      where: {
-        pt_location_id,
-        metadata: { program },
-        deposit_date: LessThanOrEqual(date)
-      },
-      order: {
-        deposit_date: 'DESC'
-      }
-    });
-    const distinctDepositDates = Array.from(
-      new Set(dates.map((item) => item.deposit_date))
-    );
-    if (distinctDepositDates.length < 4) return;
-
-    return {
-      currentDate: date,
-      pastDueDate: distinctDepositDates[3]
-    };
-  }
-
   /**
    *
    * @param event
    * @param pastDueDate
    * @returns string[]
-   * @description Find all deposit dates for a specific location and program, in ascending order, which are still
+   * @description Find all deposit dates for a specific location and program, in descending order, which are still
    *  pending or in progress. This is used to find the dates that need to be reconciled.
    */
   public async findDistinctDepositDates(
@@ -115,14 +82,14 @@ export class CashDepositService {
     dateRange: DateRange,
     location: LocationEntity
   ): Promise<string[]> {
-    const { from_date, to_date } = dateRange;
+    const { to_date, from_date } = dateRange;
     const dates = await this.cashDepositRepo.find({
       select: { deposit_date: true },
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program },
         deposit_date: Raw(
-          (alias) => `${alias} <= :to_date and ${alias} > :from_date `,
+          (alias) => `${alias} <= :to_date and ${alias} > :from_date`,
           {
             to_date,
             from_date

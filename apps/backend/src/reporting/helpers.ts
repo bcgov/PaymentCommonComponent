@@ -13,7 +13,7 @@ export const parseCashDepositDetailsForReport = (
     source_file: 'Cash/Chq (TDI 17)',
     reconciliation_status: deposit.status,
     transaction_id: deposit.jv_no ?? '',
-    location_id: location.pt_location_id,
+    location_id: location.location_id,
     location: location.description,
     date: deposit.deposit_date,
     time: deposit.deposit_time ?? '',
@@ -22,7 +22,10 @@ export const parseCashDepositDetailsForReport = (
     fiscal_date: deposit.deposit_date,
     payment_method: 'CASH/CHQ',
     amount: deposit.deposit_amt_cdn,
-    foreign_currency_amount: deposit.deposit_amt_curr ?? null,
+    foreign_currency_amount:
+      deposit.deposit_amt_curr != deposit.deposit_amt_cdn
+        ? deposit.deposit_amt_curr
+        : null,
     currency: deposit.currency ?? 'CAD',
     exchange_rate: deposit.exchange_adj_amt ?? null,
     misc: '',
@@ -47,7 +50,7 @@ export const parsePosDepositDetailsForReport = (
   deposit: POSDepositEntity
 ) =>
   ({
-    source_file: 'POS (TDI 17)',
+    source_file: 'POS (TDI 34)',
     reconciliation_status: deposit.status,
     transaction_id: '',
     location_id: location.location_id,
