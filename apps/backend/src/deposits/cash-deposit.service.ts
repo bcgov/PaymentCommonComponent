@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Raw, Repository } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
+import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
@@ -34,12 +35,16 @@ export class CashDepositService {
    * @returns
    * @description Create a new cash deposit
    */
-  async createCashDeposit(data: CashDepositEntity): Promise<CashDepositEntity> {
+
+  async saveCashDepositEntities(
+    data: CashDepositEntity[]
+  ): Promise<CashDepositEntity[]> {
     try {
-      return await this.cashDepositRepo.save(this.cashDepositRepo.create(data));
-    } catch (err) {
-      this.appLogger.error(err);
-      throw err;
+      const entities = data.map((d) => this.cashDepositRepo.create(d));
+      return mapLimit(entities, (entity) => this.cashDepositRepo.save(entity));
+    } catch (e) {
+      this.appLogger.error(e);
+      throw e;
     }
   }
 

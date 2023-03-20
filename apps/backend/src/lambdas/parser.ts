@@ -125,10 +125,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           paymentMethods
         );
         appLogger.log(`txn count: ${garmsSales.length}`);
-        // FIXME: Doing a bulk insert timesout connecting to the DB
-        for (const txn of garmsSales) {
-          await transactionService.saveTransaction(txn);
-        }
+        await transactionService.saveTransactions(garmsSales);
       }
 
       if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
@@ -141,20 +138,18 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
         if (fileType === FileTypes.TDI34) {
           const tdi34Details = parsed as TDI34Details[];
-          tdi34Details.map(
-            async (item: TDI34Details) =>
-              await posService.createPOSDepositEntity(
-                new POSDepositEntity(item)
-              )
+          const posEntities = tdi34Details.map(
+            (item) => new POSDepositEntity(item)
           );
+          await posService.savePOSDepositEntities(posEntities);
         }
 
         if (fileType === FileTypes.TDI17) {
           const tdi17Details = parsed as TDI17Details[];
-          tdi17Details.map(
-            async (item: TDI17Details) =>
-              await cashService.createCashDeposit(new CashDepositEntity(item))
+          const cashDeposits = tdi17Details.map(
+            (details) => new CashDepositEntity(details)
           );
+          await cashService.saveCashDepositEntities(cashDeposits);
         }
       }
     } catch (err) {
