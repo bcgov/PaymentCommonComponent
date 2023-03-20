@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TransactionEntity, PaymentEntity } from './entities';
 import { PaymentService } from './payment.service';
+import { mapLimit } from '../common/promises';
 import { AppLogger } from '../logger/logger.service';
 import {
   PosPaymentPosDepositPair,
@@ -18,23 +19,18 @@ export class TransactionService {
     private transactionRepo: Repository<TransactionEntity>
   ) {}
 
-  async saveTransactions(data: TransactionEntity[]) {
+  async saveTransactions(
+    data: TransactionEntity[]
+  ): Promise<TransactionEntity[]> {
     try {
       const entities = data.map((d) => this.transactionRepo.create(d));
-      return await this.transactionRepo.save(entities);
+      return mapLimit(entities, (entity) => this.transactionRepo.save(entity));
     } catch (e) {
       this.appLogger.error(e);
       throw e;
     }
   }
-  async saveTransaction(data: TransactionEntity): Promise<TransactionEntity> {
-    try {
-      return await this.transactionRepo.save(this.transactionRepo.create(data));
-    } catch (e) {
-      this.appLogger.error(e);
-      throw e;
-    }
-  }
+
   async findAllUploadedFiles(): Promise<
     { transaction_source_file_name: string }[]
   > {

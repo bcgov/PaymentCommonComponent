@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus } from '../common/const';
+import { mapLimit } from '../common/promises';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import {
@@ -61,10 +62,16 @@ export class PosDepositService {
       .getRawMany();
   }
 
-  async createPOSDepositEntity(
-    data: POSDepositEntity
-  ): Promise<POSDepositEntity> {
-    return await this.posDepositRepo.save(this.posDepositRepo.create(data));
+  async savePOSDepositEntities(
+    data: POSDepositEntity[]
+  ): Promise<POSDepositEntity[]> {
+    try {
+      const entities = data.map((d) => this.posDepositRepo.create(d));
+      return mapLimit(entities, (entity) => this.posDepositRepo.save(entity));
+    } catch (e) {
+      this.appLogger.error(e);
+      throw e;
+    }
   }
 
   async markPosDepositsAsMatched(
