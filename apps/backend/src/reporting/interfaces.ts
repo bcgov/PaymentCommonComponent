@@ -1,5 +1,6 @@
 import * as Excel from 'exceljs';
 import { Ministries } from '../constants';
+import { MatchStatus } from './../common/const';
 
 export interface ReportConfig {
   program: Ministries;
@@ -27,4 +28,43 @@ export interface DailySummary {
     total_sum: number;
   };
   style: Partial<Excel.Style>;
+}
+/*eslint-disable @typescript-eslint/no-explicit-any*/
+export interface DetailsReport {
+  source_file: string;
+  reconciliation_status: MatchStatus;
+  transaction_id?: string;
+  location_id: number;
+  location: string;
+  date: string;
+  time?: string;
+  deposit_date_range?: string;
+  fiscal_date?: string;
+  payment_method: string;
+  amount: number | null;
+  foreign_currency_amount: number | null;
+  currency: string;
+  exchange_rate: number | null;
+  misc?: string;
+  merchant_id: number | null;
+  terminal_no?: string;
+  card_id?: string;
+  transaction_code: number | null;
+  approval_code?: string;
+  invoice_no?: string;
+  echo_data_field?: string;
+  dist_client_code: number | null;
+  dist_resp_code?: string;
+  dist_service_line_code: number | null;
+  dist_stob_code: number | null;
+  dist_project_code: number | null;
+  dist_location_code: number | null;
+  dist_future_code: number | null;
+}
+
+export interface Placement {
+  row: number;
+  column: string;
+  height: number;
+  merge: string;
 }

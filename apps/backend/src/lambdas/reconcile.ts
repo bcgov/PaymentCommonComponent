@@ -95,6 +95,11 @@ const runPosReconciliation = async (
   const dates = getFiscalDatesForPOS(event);
 
   for (const date of dates) {
+    appLogger.log(`=========================================================`);
+    appLogger.log(
+      `Processing POS Reconciliation for: ${location.description} (${date})`
+    );
+    appLogger.log(`=========================================================`);
     console.table(
       await posRecon.reconcile({
         date,
@@ -111,10 +116,14 @@ const runCashReconciliation = async (
   appLogger: AppLogger,
   cashRecon: CashReconciliationService
 ) => {
-  const cashDates = await cashRecon.getDatesForReconciliation({
-    ...event,
+  const cashDates = await cashRecon.getDatesForReconciliation(
+    event.program,
+    {
+      to_date: event.fiscal_close_date,
+      from_date: event.fiscal_start_date
+    },
     location
-  });
+  );
   appLogger.log(
     `Found  ${[...cashDates].length} Deposit Dates for Location: ${
       location.description
@@ -122,26 +131,28 @@ const runCashReconciliation = async (
   );
 
   /* start matching the earliest dates and proceed to the most recent */
-  for (const date of cashDates.reverse()) {
+  const ascDates = [...cashDates].reverse();
+
+  for (const date of ascDates) {
     appLogger.log(`=========================================================`);
     appLogger.log(
-      `Processing CASH Reconciliation for: ${location.description} (${location.location_id}) - ${date}`
+      `Processing CASH Reconciliation for: ${location.description} (${location.location_id}) - ${event.fiscal_start_date} - ${date}`
     );
     appLogger.log(`=========================================================`);
 
-    const matches = await cashRecon.reconcileCash({
-      ...event,
-      date,
-      location
-    });
+    const matches = await cashRecon.reconcileCash(
+      location,
+      event.program,
+      date
+    );
 
     console.table(matches);
 
-    const exceptions = await cashRecon.findExceptions({
-      ...event,
-      date,
-      location
-    });
+    const exceptions = await cashRecon.findExceptions(
+      location,
+      event.program,
+      date
+    );
     appLogger.log(`=========================================================`);
     appLogger.log(
       `EXCEPTIONS: ${exceptions?.length ?? 0} found for: ${

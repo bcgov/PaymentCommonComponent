@@ -10,7 +10,9 @@ import { TransactionModule } from '../transaction/transaction.module';
     DepositModule,
     TransactionModule,
     LocationModule,
-    ExcelExportModule
+    ExcelExportModule,
+    DepositModule,
+    TransactionModule
   ],
   providers: [ReportingService, Logger],
   exports: [ReportingService]

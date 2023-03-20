@@ -79,7 +79,7 @@ export class CashDepositEntity {
   jv_no: string;
 
   @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
-  status?: MatchStatus;
+  status: MatchStatus;
 
   @OneToMany(() => PaymentEntity, (payment) => payment.cash_deposit_match, {
     nullable: true

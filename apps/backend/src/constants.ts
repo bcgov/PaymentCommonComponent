@@ -24,3 +24,8 @@ export interface ParseArgsTDI {
   program: string;
   fileContents: string;
 }
+
+export interface DateRange {
+  from_date: string;
+  to_date: string;
+}

@@ -1,10 +1,11 @@
 import { ReconciliationType } from './const';
 import { MatchStatus } from '../../common/const';
-import { Ministries } from '../../constants';
+import { DateRange, Ministries } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../../location/entities';
 import { PaymentEntity } from '../../transaction/entities';
+
 export interface PosPaymentPosDepositPair {
   payment: PaymentEntity;
   deposit: POSDepositEntity;
@@ -24,10 +25,9 @@ export interface CashDepositDates {
 
 export interface ReconciliationEvent {
   location: LocationEntity;
-  program: string;
-  fiscal_start_date?: string;
-  fiscal_close_date?: string;
-  date?: string;
+  program: Ministries;
+  dateRange?: DateRange;
+  date: string;
 }
 
 export interface ReconciliationEventInput {

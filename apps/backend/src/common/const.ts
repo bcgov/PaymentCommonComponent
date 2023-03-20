@@ -2,8 +2,16 @@ export enum MatchStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
   MATCH = 'MATCH',
-  EXCEPTION = 'EXCEPTION'
+  EXCEPTION = 'EXCEPTION',
+  ALL = 'ALL'
 }
+
+export const MatchStatusAll = [
+  MatchStatus.EXCEPTION,
+  MatchStatus.MATCH,
+  MatchStatus.PENDING,
+  MatchStatus.IN_PROGRESS
+];
 
 export enum TransactionCode {
   PURCHASE = 10,

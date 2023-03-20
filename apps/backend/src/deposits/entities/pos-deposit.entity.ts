@@ -22,7 +22,7 @@ export class POSDepositEntity {
   metadata: FileMetadata;
 
   @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
-  status?: MatchStatus;
+  status: MatchStatus;
 
   @Column({ default: 'TDI34' })
   source_file_type: string;
