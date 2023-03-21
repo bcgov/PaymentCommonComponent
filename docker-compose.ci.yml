@@ -2,7 +2,7 @@ version: "3.7"
 services:
   db:
     image: postgres:14-alpine
-    container_name: db
+    container_name: db-test
     restart: always
     environment:
       - POSTGRES_HOST=${DB_HOST}
@@ -14,9 +14,9 @@ services:
       - "5432:5432"
     networks:
       - pcc-test
-  backend:
-    image: pcc-backend:latest
-    container_name: pcc-backend
+  backend-test:
+    image: pcc-backend-test:latest
+    container_name: pcc-backend-test
     restart: always
     build:
       context: "."

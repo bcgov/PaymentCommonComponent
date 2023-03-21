@@ -1,8 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { S3 } from 'aws-sdk';
 import { AwsSdkModule } from 'nest-aws-sdk';
-import { S3ManagerModule } from '../src/s3-manager/s3-manager.module';
-import { S3ManagerService } from '../src/s3-manager/s3-manager.service';
+import { S3ManagerModule } from '../../src/s3-manager/s3-manager.module';
+import { S3ManagerService } from '../../src/s3-manager/s3-manager.service';
 
 describe('Parser (e2e)', () => {
   let service: S3ManagerService;

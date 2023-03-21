@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
     "test:pipeline": "NODE_ENV=test RUNTIME_ENV=test jest  --config ./test/jest.json --runInBand --detectOpenHandles",
     "lint-staged": "lint-staged",
-    "nibble": "eslint-nibble --ext .ts src/",
+    "nibble": "eslint-nibble --ext .ts .",
     "typeorm": "ts-node ../../../../node_modules/.bin/typeorm",
     "typeorm:run-migrations": "yarn run typeorm migration:run -d ./src/database/datasource.ts",
     "typeorm:generate-migration": "yarn run typeorm migration:generate -d ./src/database/datasource.ts ./src/database/migrations/migration",

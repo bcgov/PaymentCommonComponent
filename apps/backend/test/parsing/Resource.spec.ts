@@ -1,4 +1,4 @@
-import { Resource } from '../src/common/entities/Resource';
+import { Resource } from '../../src/common/entities/Resource';
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 describe('Resource', () => {
   it('resourceType should  be defined when initializing a Resouce', () => {

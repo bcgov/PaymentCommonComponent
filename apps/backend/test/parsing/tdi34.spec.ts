@@ -7,7 +7,7 @@ import tdi34 from './outputs/TDI34.json';
 describe('TDI34', () => {
   it('Verifies TDI TXT to TDI json', () => {
     const textfile = fs.readFileSync(
-      path.join(__dirname, '../sample-files/TDI34.TXT')
+      path.join(__dirname, '../../sample-files/TDI34.TXT')
     );
     const textFileArr = textfile.toString().split('\n');
     textFileArr.splice(textFileArr.length - 1, 1);

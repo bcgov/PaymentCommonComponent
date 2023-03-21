@@ -225,7 +225,7 @@ run-test:
 	@docker-compose -f docker-compose.ci.yml up --build -d 
 	
 run-test-pipeline:
-	@docker exec -i pcc-backend yarn run test:pipeline
+	@docker exec -i pcc-backend-test yarn run test:pipeline
 
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
@@ -279,9 +279,6 @@ clear-status:
 drop:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"
-
-unmark: 
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update pos_deposit set match=false; update cash_deposit set match=false; update payment set match=false;"
 
 
 # ===================================

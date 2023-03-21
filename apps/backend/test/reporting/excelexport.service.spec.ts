@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { ExcelExportService } from '../src/excelexport/excelexport.service';
-import { S3ManagerService } from '../src/s3-manager/s3-manager.service';
+import { ExcelExportService } from '../../src/excelexport/excelexport.service';
+import { S3ManagerService } from '../../src/s3-manager/s3-manager.service';
 
 describe('ExcelExportService', () => {
   let service: ExcelExportService;
