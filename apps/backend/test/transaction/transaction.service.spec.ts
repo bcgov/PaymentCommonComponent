@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { TransactionEntity } from '../src/transaction/entities';
-import { TransactionService } from '../src/transaction/transaction.service';
-import { PaymentService } from './../src/transaction/payment.service';
+import { TransactionEntity } from '../../src/transaction/entities';
+import { PaymentService } from '../../src/transaction/payment.service';
+import { TransactionService } from '../../src/transaction/transaction.service';
 
 describe('TransactionService', () => {
   let service: TransactionService;

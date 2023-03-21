@@ -1,10 +1,10 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import request from 'supertest';
-import * as transactionJson from '../sample-files/transaction.json';
-import { validationPipeConfig } from '../src/app.config';
-import { AppModule } from '../src/app.module';
-import { TrimPipe } from '../src/trim.pipe';
+import * as transactionJson from '../../sample-files/transaction.json';
+import { validationPipeConfig } from '../../src/app.config';
+import { AppModule } from '../../src/app.module';
+import { TrimPipe } from '../../src/trim.pipe';
 
 describe('Transaction Controller (e2e)', () => {
   let app: INestApplication;
