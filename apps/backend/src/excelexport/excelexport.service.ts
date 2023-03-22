@@ -48,7 +48,7 @@ export class ExcelExportService {
         .then(() => {
           return this.s3Manager.s3
             .upload({
-              Key: `${filename}${date}.xlsx`,
+              Key: `${filename}_${date}.xlsx`,
               Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
               Body: stream,
               ContentType:

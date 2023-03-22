@@ -57,12 +57,13 @@ export class ReportingService {
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
     await this.generateDailySummary(config, locations);
     await this.generateDetailsWorksheet(config, locations);
-    await this.excelWorkbook.saveLocal();
     await this.excelWorkbook.saveS3(
       'reconciliation_report',
       format(new Date(config.period.to.toString()), 'yyyy-MM-dd')
     );
-    await this.excelWorkbook.saveLocal();
+    if (process.env.RUNTIME_ENV !== 'production') {
+      await this.excelWorkbook.saveLocal();
+    }
   }
 
   /**
