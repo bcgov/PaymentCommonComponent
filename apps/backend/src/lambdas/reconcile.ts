@@ -141,7 +141,7 @@ const runCashReconciliation = async (
       );
 
       appLogger.log(
-        `EXCEPTIONS: ${exceptions?.payments.length ?? 0} found for: ${
+        `EXCEPTIONS: ${exceptions?.length ?? 0} found for: ${
           location.description
         } (${location.location_id}) on ${date}`,
         CashReconciliationService.name
