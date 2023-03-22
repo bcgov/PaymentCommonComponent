@@ -192,6 +192,7 @@ build-backend: pre-build
 aws-deploy-all:
 	@aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 	@aws lambda update-function-code --function-name parser --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name reports --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 aws-deploy-migrator:
@@ -215,6 +216,10 @@ aws-run-reconciler:
 
 aws-run-parser: 
 	@aws lambda invoke --function-name parser  --payload file://./apps/backend/fixtures/lambda/parser.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
+
+aws-run-reports: 
+	@aws lambda invoke --function-name reports  --payload file://./apps/backend/fixtures/lambda/report.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
+
 
 # ======================================================================
 # CI 
