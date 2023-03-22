@@ -1,199 +1,202 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { differenceInSeconds } from 'date-fns';
-import _ from 'underscore';
+import { differenceInMinutes } from 'date-fns';
 import {
   ReconciliationEvent,
   ReconciliationEventError,
-  ReconciliationType,
-  PosPaymentPosDepositPair,
-  PosExceptions
+  ReconciliationType
 } from './types';
 import { MatchStatus } from '../common/const';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
-import { TransactionService } from '../transaction/transaction.service';
+import { PaymentService } from '../transaction/payment.service';
 
 @Injectable()
 export class POSReconciliationService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(PosDepositService) private posDepositService: PosDepositService,
-    @Inject(TransactionService) private transactionService: TransactionService
+    @Inject(PaymentService) private paymentService: PaymentService
   ) {}
-
-  public handleExceptions(
-    matches: PosPaymentPosDepositPair[],
-
-    payments: PaymentEntity[],
-    deposits: POSDepositEntity[]
-  ): PosExceptions {
-    /**
-     * look through the list of deposits, return an array of all the values that are not present in the matches array.
-     */
-    const depositDiff = _.difference(
-      deposits,
-      matches.map(
-        (itm: { payment: PaymentEntity; deposit: POSDepositEntity }) =>
-          itm.deposit
-      )
-    );
-
-    const depositExceptions =
-      depositDiff.map((deposit: POSDepositEntity) => ({
-        ...deposit,
-        timestamp: deposit.timestamp,
-        status: MatchStatus.EXCEPTION
-      })) ?? [];
-
-    /**
-     * look through the list of payments, return an array of all the values that are not present in the matches array.
-     */
-    const paymentExceptions =
-      _.difference(
-        payments,
-        matches.map(
-          (itm: { payment: PaymentEntity; deposit: POSDepositEntity }) =>
-            itm.payment
-        )
-      ).map((payment: PaymentEntity) => ({
-        ...payment,
-        timestamp: payment.timestamp,
-        status: MatchStatus.EXCEPTION
-      })) ?? [];
-
-    return { depositExceptions, paymentExceptions };
-  }
 
   // TODO [CCFPCM-406] move the save as matched separately..
   // TODO [CCFPCM-406] implement as layer
   public verifyTimeMatch(
     payment: PaymentEntity,
-    deposit: POSDepositEntity
+    deposit: POSDepositEntity,
+    timeDiff: number
   ): boolean {
     //TODO [CCFPCM-406] make this configurable ?
     // TODO [CCFPCM-406] possible to config time diffs?
-    return differenceInSeconds(payment.timestamp, deposit.timestamp) < 240;
+    return differenceInMinutes(payment.timestamp, deposit.timestamp) < timeDiff;
   }
+  /**
+   *
+   * @param payment
+   * @param deposit
+   * @returns
+   */
 
-  public matchAmountAndMethod(
+  public verifyMethod(
     payment: PaymentEntity,
     deposit: POSDepositEntity
   ): boolean {
-    return _.isMatch(
-      {
-        amount: payment.amount,
-        method: payment.method,
-        status: MatchStatus.PENDING
-      },
-      {
-        amount: deposit.transaction_amt,
-        method: deposit.card_vendor,
-        status: MatchStatus.PENDING
-      }
+    return payment.method === deposit.card_vendor;
+  }
+  /**
+   *
+   * @param payment
+   * @param deposit
+   * @returns
+   */
+  public verifyAmount(
+    payment: PaymentEntity,
+    deposit: POSDepositEntity
+  ): boolean {
+    return payment.amount === deposit.transaction_amt;
+  }
+  /**
+   *
+   * @param payment
+   * @param deposit
+   * @returns
+   */
+  public verifyPendingStatus(
+    payment: PaymentEntity,
+    deposit: POSDepositEntity
+  ): boolean {
+    return (
+      payment.status === MatchStatus.PENDING &&
+      deposit.status === MatchStatus.PENDING
     );
   }
-
+  /**
+   *
+   * @param payment
+   * @param deposit
+   * @returns
+   */
+  public verifyMatch(
+    payment: PaymentEntity,
+    deposit: POSDepositEntity,
+    timeDiff: number
+  ): boolean {
+    return (
+      this.verifyMethod(payment, deposit) &&
+      this.verifyAmount(payment, deposit) &&
+      this.verifyPendingStatus(payment, deposit) &&
+      this.verifyTimeMatch(payment, deposit, timeDiff)
+    );
+  }
+  /**
+   *
+   * @param payments
+   * @param deposits
+   * @returns
+   */
   public matchPosPaymentToPosDeposits(
     payments: PaymentEntity[],
-    deposits: POSDepositEntity[]
-  ): PosPaymentPosDepositPair[] {
-    const matches: PosPaymentPosDepositPair[] = [];
+    deposits: POSDepositEntity[],
+    timeDiff: number
+  ): { payment: PaymentEntity; deposit: POSDepositEntity }[] {
+    const matches: { payment: PaymentEntity; deposit: POSDepositEntity }[] = [];
 
-    // Basic EAGER! 1:1 matching
-    for (const [pindex, payment] of payments.entries()) {
-      for (const [dindex, deposit] of deposits.entries()) {
-        if (this.matchAmountAndMethod(payment, deposit)) {
-          if (this.verifyTimeMatch(payment, deposit)) {
-            payments[pindex].status = MatchStatus.MATCH;
-            deposits[dindex].status = MatchStatus.MATCH;
-            payments[pindex].pos_deposit_match = deposit;
-
-            matches.push({
-              payment: payments[pindex],
-              deposit: deposits[dindex]
-            });
-            break;
-          }
+    payments.forEach((payment: PaymentEntity, pindex: number) =>
+      deposits.forEach((deposit: POSDepositEntity, dindex: number) => {
+        if (this.verifyMatch(payment, deposit, timeDiff)) {
+          payments[pindex].status = MatchStatus.MATCH;
+          deposits[dindex].status = MatchStatus.MATCH;
+          matches.push({
+            payment: {
+              ...payment,
+              status: MatchStatus.MATCH,
+              timestamp: payment.timestamp,
+              pos_deposit_match: deposit
+            },
+            deposit: {
+              ...deposit,
+              status: MatchStatus.MATCH,
+              timestamp: deposit.timestamp
+            }
+          });
         }
-      }
-    }
+      })
+    );
+
     return matches;
   }
+  /**
+   * @param matches
+   * @returns
+   */
 
-  public filterDataPriorToReconciliation(
+  public async updateMatchedPaymentsAndDeposits(
+    matches: { payment: PaymentEntity; deposit: POSDepositEntity }[]
+  ): Promise<void> {
+    this.appLogger.log(
+      `MATCHES: ${matches.length}`,
+      POSReconciliationService.name
+    );
+    matches.forEach(async (itm) => {
+      await this.paymentService.updatePayment(itm.payment);
+      await this.posDepositService.update(itm.deposit);
+    });
+  }
+  /**
+   * @param exceptions
+   */
+
+  public async updateExceptions(
     payments: PaymentEntity[],
     deposits: POSDepositEntity[]
-  ): {
-    payments: PaymentEntity[];
-    deposits: POSDepositEntity[];
-  } {
-    return {
-      payments: payments.filter(
-        (itm: PaymentEntity) => itm.status === MatchStatus.PENDING
-      ),
-      deposits: deposits.filter(
-        (itm: POSDepositEntity) => itm.status === MatchStatus.PENDING
-      )
-    };
+  ): Promise<void> {
+    this.appLogger.log(
+      `${payments.length} exceptions`,
+      `POSReconciliationService}`
+    );
+    payments.forEach(
+      async (payment) =>
+        await this.paymentService.updatePayment({
+          ...payment,
+          status: MatchStatus.EXCEPTION,
+          timestamp: payment.timestamp
+        })
+    );
+    this.appLogger.log(
+      `${payments.length} exceptions`,
+      `POSReconciliationService}`
+    );
+    deposits.forEach(
+      async (deposit) =>
+        await this.posDepositService.update({
+          ...deposit,
+          status: MatchStatus.EXCEPTION,
+          timestamp: deposit.timestamp
+        })
+    );
   }
-
-  public async updateMatchedEntities(
-    matches: { payment: PaymentEntity; deposit: POSDepositEntity }[]
-  ): Promise<{
-    matchedPayments: PaymentEntity[];
-    matchedDeposits: POSDepositEntity[];
-  }> {
-    return {
-      matchedPayments: await this.transactionService.markPosPaymentsAsMatched(
-        matches.filter((itm) => itm.payment)
-      ),
-
-      matchedDeposits: await this.posDepositService.markPosDepositsAsMatched(
-        matches.filter((itm) => itm.deposit)
-      )
-    };
-  }
-
-  public async updateExceptionEntities(
-    exceptions: PosExceptions
-  ): Promise<PosExceptions> {
-    const { paymentExceptions, depositExceptions } = exceptions;
-    return {
-      paymentExceptions: await Promise.all(
-        paymentExceptions.map(
-          async (itm: PaymentEntity) =>
-            await this.transactionService.updatePaymentStatus(itm)
-        )
-      ),
-
-      depositExceptions: await Promise.all(
-        depositExceptions.map(
-          async (itm: POSDepositEntity) =>
-            await this.posDepositService.markPosDepositAsException(itm)
-        )
-      )
-    };
-  }
+  /**
+   *
+   * @param event
+   * @returns
+   */
 
   public async reconcile(
     event: ReconciliationEvent
   ): Promise<unknown | ReconciliationEventError> {
-    /**
-     * Find all the pending payments and deposits
-     */
-    const { payments: pendingPayments, deposits: pendingDeposits } =
-      this.filterDataPriorToReconciliation(
-        await this.transactionService.findPosPayments(event),
-        await this.posDepositService.findPOSDeposits({
-          program: event.program,
-          date: event.date,
-          location: event.location
-        } as ReconciliationEvent)
-      );
-    this.appLogger.log('pending payments', pendingPayments.length);
-    this.appLogger.log('pending deposits', pendingDeposits.length);
+    const pendingPayments = await this.paymentService.findPosPayments(
+      event.date,
+      event.location,
+      MatchStatus.PENDING
+    );
+
+    const pendingDeposits = await this.posDepositService.findPOSDeposits(
+      event.date,
+      event.program,
+      event.location,
+      MatchStatus.PENDING
+    );
 
     if (pendingPayments.length === 0 || pendingDeposits.length === 0) {
       return {
@@ -201,52 +204,65 @@ export class POSReconciliationService {
       };
     }
 
-    /**
-     * Match the payments to the deposits
-     */
-    const matches = this.matchPosPaymentToPosDeposits(
-      pendingPayments,
-      pendingDeposits
+    this.appLogger.log(
+      `pending payments ${pendingPayments.length}`,
+      POSReconciliationService.name
     );
-    this.appLogger.log(`Found ${matches.length} POS matches`);
-
-    /**
-     * Update matched entities with status and ids
-     */
-
-    const { matchedPayments, matchedDeposits } =
-      await this.updateMatchedEntities(matches);
-
-    /**
-     * Handle the exceptions
-     */
-    const exceptions = this.handleExceptions(
-      matches,
-      pendingPayments,
-      pendingDeposits
-    );
-
-    const { paymentExceptions, depositExceptions } =
-      await this.updateExceptionEntities(exceptions);
 
     this.appLogger.log(
-      `Found ${paymentExceptions.length} POS payment exceptions`
+      `pending deposits ${pendingDeposits.length}`,
+      POSReconciliationService.name
     );
+
+    const roundOneMatches = this.matchPosPaymentToPosDeposits(
+      pendingPayments,
+      pendingDeposits,
+      5
+    );
+
     this.appLogger.log(
-      `Found ${depositExceptions.length} POS deposit exceptions`
+      `MATCHES - ROUND ONE ${roundOneMatches.length}`,
+      POSReconciliationService.name
+    );
+
+    const roundTwoMatches = this.matchPosPaymentToPosDeposits(
+      pendingPayments.filter((itm) => itm.status === MatchStatus.PENDING),
+      pendingDeposits.filter((itm) => itm.status === MatchStatus.PENDING),
+      1440
+    );
+
+    this.appLogger.log(
+      `MATCHES - ROUND TWO ${roundTwoMatches.length}`,
+      POSReconciliationService.name
+    );
+    /**
+     * Update database with matches
+     */
+    await this.updateMatchedPaymentsAndDeposits([
+      ...roundOneMatches,
+      ...roundTwoMatches
+    ]);
+    /**
+     * Update database with remaining payments and deposits which are unmatched - set as exceptions
+     */
+
+    await this.updateExceptions(
+      pendingPayments.filter((itm) => itm.status === MatchStatus.PENDING),
+      pendingDeposits.filter((itm) => itm.status === MatchStatus.PENDING)
     );
 
     return {
       transaction_date: event.date,
       type: ReconciliationType.POS,
       location_id: event.location.location_id,
-      total_pending: pendingPayments.length,
-      total_matched_payments: matchedPayments.length,
-      total_matched_deposits: matchedDeposits.length,
-      total_exceptions: paymentExceptions.length,
-      percent_matched: parseFloat(
-        ((matchedPayments.length / pendingPayments.length) * 100).toFixed(2)
-      )
+      total_deposits_pending: pendingDeposits.length,
+      total_payments_pending: pendingPayments.length,
+      total_matched_payments: pendingDeposits.filter(
+        (itm) => itm.status === MatchStatus.MATCH
+      ).length,
+      total_matched_deposits: pendingPayments.filter(
+        (itm) => itm.status === MatchStatus.MATCH
+      ).length
     };
   }
 }

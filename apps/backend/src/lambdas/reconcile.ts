@@ -31,38 +31,18 @@ export const handler = async (
           event.location_ids
         );
 
-  appLogger.log(`=========================================================`);
-  appLogger.log(`Found ${locations.length} Locations`);
-  appLogger.log(`=========================================================`);
+  appLogger.log(
+    `Found ${locations.length} Locations`,
+    POSReconciliationService.name
+  );
+  appLogger.log(
+    `Found ${locations.length} Locations`,
+    CashReconciliationService.name
+  );
 
-  const reconcile = async (event: ReconciliationEventInput) => {
-    for (const location of locations) {
-      appLogger.log(`====================================================`);
-      appLogger.log(
-        `Processing POS Reconciliation for: ${location.description} `
-      );
-      appLogger.log(`====================================================`);
+  await runPosReconciliation(event, locations, appLogger, posRecon);
 
-      await runPosReconciliation(event, location, appLogger, posRecon);
-
-      appLogger.log(`====================================================`);
-      appLogger.log(
-        `Processing CASH Reconciliation for: ${location.description} (${location.location_id})`
-      );
-      appLogger.log(`====================================================`);
-
-      await runCashReconciliation(event, location, appLogger, cashRecon);
-
-      console.log(
-        `SUMMARY FOR: ${location.description} (${location.location_id})`
-      );
-      console.table(
-        await reportingService.cashReportByLocation(location.location_id)
-      );
-    }
-  };
-
-  await reconcile(event);
+  await runCashReconciliation(event, locations, appLogger, cashRecon);
 
   appLogger.log('\n\n=========POS Summary Report: =========\n');
   const posReport = await reportingService.reportPosMatchSummaryByDate();
@@ -77,10 +57,10 @@ export const handler = async (
 
 const runPosReconciliation = async (
   event: ReconciliationEventInput,
-  location: LocationEntity,
+  locations: LocationEntity[],
   appLogger: AppLogger,
   posRecon: POSReconciliationService
-) => {
+): Promise<void> => {
   const getFiscalDatesForPOS = (event: ReconciliationEventInput) => {
     const fiscalStart = new Date(event.fiscal_start_date);
     const fiscalEnd = new Date(event.fiscal_close_date);
@@ -93,72 +73,83 @@ const runPosReconciliation = async (
   };
 
   const dates = getFiscalDatesForPOS(event);
-
-  for (const date of dates) {
-    appLogger.log(`=========================================================`);
+  for (const location of locations) {
     appLogger.log(
-      `Processing POS Reconciliation for: ${location.description} (${date})`
+      `Processing POS Reconciliation for: ${location.description} `,
+      POSReconciliationService.name
     );
-    appLogger.log(`=========================================================`);
-    console.table(
-      await posRecon.reconcile({
-        date,
-        location,
-        program: event.program
-      })
-    );
+    for (const date of dates) {
+      appLogger.log(
+        `Processing POS Reconciliation for: ${location.description} (${date})`,
+        POSReconciliationService.name
+      );
+
+      const posReconciliation = await Promise.all([
+        posRecon.reconcile({
+          date,
+          location,
+          program: event.program
+        })
+      ]);
+
+      appLogger.log(posReconciliation, POSReconciliationService.name);
+      console.table(posReconciliation);
+    }
   }
 };
 
 const runCashReconciliation = async (
   event: ReconciliationEventInput,
-  location: LocationEntity,
+  locations: LocationEntity[],
   appLogger: AppLogger,
   cashRecon: CashReconciliationService
-) => {
-  const cashDates = await cashRecon.getDatesForReconciliation(
-    event.program,
-    {
-      to_date: event.fiscal_close_date,
-      from_date: event.fiscal_start_date
-    },
-    location
-  );
-  appLogger.log(
-    `Found  ${[...cashDates].length} Deposit Dates for Location: ${
-      location.description
-    } (${location.location_id})`
-  );
-
-  /* start matching the earliest dates and proceed to the most recent */
-  const ascDates = [...cashDates].reverse();
-
-  for (const date of ascDates) {
-    appLogger.log(`=========================================================`);
+): Promise<void> => {
+  for (const location of locations) {
     appLogger.log(
-      `Processing CASH Reconciliation for: ${location.description} (${location.location_id}) - ${event.fiscal_start_date} - ${date}`
-    );
-    appLogger.log(`=========================================================`);
-
-    const matches = await cashRecon.reconcileCash(
-      location,
-      event.program,
-      date
+      `Processing CASH Reconciliation for: ${location.description} (${location.location_id})`,
+      CashReconciliationService.name
     );
 
-    console.table(matches);
+    const cashDates = await Promise.all(
+      await cashRecon.getDatesForReconciliation(
+        event.program,
+        {
+          to_date: event.fiscal_close_date,
+          from_date: event.fiscal_start_date
+        },
+        location
+      )
+    );
+    /* start matching the earliest dates and proceed to the most recent */
+    const ascDates = [...cashDates].reverse();
 
-    const exceptions = await cashRecon.findExceptions(
-      location,
-      event.program,
-      date
+    for (const date of ascDates) {
+      appLogger.log(
+        `Processing CASH Reconciliation for: ${location.description} (${location.location_id}) - ${event.fiscal_start_date} - ${date}`,
+        CashReconciliationService.name
+      );
+
+      const cashReconciliation = await Promise.all([
+        cashRecon.reconcileCash(location, event.program, date)
+      ]);
+
+      appLogger.log(cashReconciliation, CashReconciliationService.name);
+      console.table(cashReconciliation);
+
+      const exceptions = await Promise.resolve(
+        cashRecon.findExceptions(location, event.program, date)
+      );
+
+      appLogger.log(
+        `EXCEPTIONS: ${exceptions?.length ?? 0} found for: ${
+          location.description
+        } (${location.location_id}) on ${date}`,
+        CashReconciliationService.name
+      );
+    }
+    console.log(
+      `SUMMARY FOR: ${location.description} (${location.location_id})`,
+      CashReconciliationService.name
     );
-    appLogger.log(`=========================================================`);
-    appLogger.log(
-      `EXCEPTIONS: ${exceptions?.length ?? 0} found for: ${
-        location.description
-      } (${location.location_id}) on ${date}`
-    );
-    appLogger.log(`=========================================================`);
   }
 };

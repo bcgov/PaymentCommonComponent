@@ -17,10 +17,12 @@ export class PaymentService {
   ) {}
 
   async findPosPayments(
+    date: string,
     location: LocationEntity,
-    date: string
+    status?: MatchStatus
   ): Promise<PaymentEntity[]> {
     const pos_payment_methods = ['AX', 'V', 'P', 'M'];
+    const paymentStatus = status ? status : In(MatchStatusAll);
 
     return await this.paymentRepo.find({
       where: {
@@ -28,6 +30,7 @@ export class PaymentService {
           transaction_date: date,
           location_id: location.location_id
         },
+        status: paymentStatus,
         method: In(pos_payment_methods)
       },
       relations: ['transaction', 'payment_method'],
@@ -156,7 +159,7 @@ export class PaymentService {
     return await this.paymentRepo.save({
       ...paymentEntity,
       status: MatchStatus.MATCH,
-      pos_deposit_id: deposit
+      pos_deposit_match: deposit
     });
   }
 

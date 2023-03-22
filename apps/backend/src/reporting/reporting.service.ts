@@ -20,7 +20,6 @@ import { ExcelExportService } from '../excelexport/excelexport.service';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
-import { ReconciliationEvent } from '../reconciliation/types';
 import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
 
@@ -281,8 +280,8 @@ export class ReportingService {
 
     const posPayments: PaymentEntity[] = await Promise.all(
       await this.paymentService.findPosPayments(
-        location,
-        config.period.to.toString()
+        config.period.to.toString(),
+        location
       )
     );
 
@@ -304,11 +303,11 @@ export class ReportingService {
     );
 
     const posDeposits: POSDepositEntity[] = await Promise.all(
-      await this.posDepositService.findPOSDeposits({
-        program: config.program,
-        date: config.period.to.toString(),
-        location: location
-      } as ReconciliationEvent)
+      await this.posDepositService.findPOSDeposits(
+        config.period.to.toString(),
+        config.program,
+        location
+      )
     );
 
     const parsedPosDepositDetails = posDeposits.map((itm: POSDepositEntity) =>

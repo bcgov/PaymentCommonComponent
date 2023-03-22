@@ -1,14 +1,10 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TransactionEntity, PaymentEntity } from './entities';
+import { TransactionEntity } from './entities';
 import { PaymentService } from './payment.service';
 import { mapLimit } from '../common/promises';
 import { AppLogger } from '../logger/logger.service';
-import {
-  PosPaymentPosDepositPair,
-  ReconciliationEvent
-} from '../reconciliation/types';
 
 @Injectable()
 export class TransactionService {
@@ -39,29 +35,5 @@ export class TransactionService {
       .select('transaction.source_file_name')
       .distinct()
       .getRawMany();
-  }
-
-  async findPosPayments(event: ReconciliationEvent) {
-    return await this.paymentService.findPosPayments(
-      event.location,
-      event.date
-    );
-  }
-
-  // Error handling?
-  async markPosPaymentsAsMatched(
-    posPaymentDepostPair: PosPaymentPosDepositPair[]
-  ): Promise<PaymentEntity[]> {
-    return await Promise.all(
-      posPaymentDepostPair.map(
-        async ({ payment, deposit }) =>
-          await this.paymentService.markPosPaymentsAsMatched(payment, deposit)
-      )
-    );
-  }
-
-  //TODO - Remove this and call the Payment Service directly from the POS reconciliation service
-  async updatePaymentStatus(payment: PaymentEntity): Promise<PaymentEntity> {
-    return await this.paymentService.updatePayment(payment);
   }
 }
