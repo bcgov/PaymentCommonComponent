@@ -132,7 +132,7 @@ export class CashReconciliationService {
       payment: AggregatedPayment,
       deposit: CashDepositEntity
     ) => {
-      if (Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.01) {
+      if (Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.001) {
         this.appLogger.log(
           `MATCH: payment: ${payment.amount} --> deposit: ${deposit.deposit_amt_cdn}`,
           CashReconciliationService.name
