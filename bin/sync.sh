@@ -4,19 +4,10 @@ set -e
 REPO_LOCATION=$(git rev-parse --show-toplevel)
 
 PS3='Please enter your choice: '
-options=("BCM PROD TO AWS PROD" "AWS PROD TO LOCAL" "Quit")
+options=("AWS PROD TO LOCAL" "Quit")
 select opt in "${options[@]}"
 do
     case $opt in
-        "BCM PROD TO AWS PROD")
-            
-            echo -e "\nSyncing BCM PROD TO AWS PROD..."
-            source $REPO_LOCATION/bin/assume.sh "prod" "local"
-            rclone sync bcm:/outgoing s3:pcc-integration-data-files-prod/bcm --include '*{{PROD}}*'
-	        rclone check bcm:/outgoing s3:pcc-integration-data-files-prod/bcm --include '*{{PROD}}*'
-            
-            break
-            ;;
         "AWS PROD TO LOCAL")
             
             echo -e "\nSyncing AWS PROD TO LOCAL..."
