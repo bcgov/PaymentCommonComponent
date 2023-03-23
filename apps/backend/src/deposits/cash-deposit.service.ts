@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Raw, Repository } from 'typeorm';
+import { In, LessThan, Raw, Repository } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { mapLimit } from '../common/promises';
@@ -140,5 +140,20 @@ export class CashDepositService {
       id: deposit.id
     });
     return await this.cashDepositRepo.save({ ...depositEntity, ...deposit });
+  }
+
+  async findExceptions(
+    date: string,
+    program: Ministries,
+    location: LocationEntity
+  ) {
+    return await this.cashDepositRepo.find({
+      where: {
+        pt_location_id: location.pt_location_id,
+        metadata: { program: program },
+        deposit_date: LessThan(date),
+        status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS])
+      }
+    });
   }
 }
