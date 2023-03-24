@@ -17,10 +17,12 @@ export class PaymentService {
   ) {}
 
   async findPosPayments(
+    date: string,
     location: LocationEntity,
-    date: string
+    status?: MatchStatus
   ): Promise<PaymentEntity[]> {
     const pos_payment_methods = ['AX', 'V', 'P', 'M'];
+    const paymentStatus = status ? status : In(MatchStatusAll);
 
     return await this.paymentRepo.find({
       where: {
@@ -28,6 +30,7 @@ export class PaymentService {
           transaction_date: date,
           location_id: location.location_id
         },
+        status: paymentStatus,
         method: In(pos_payment_methods)
       },
       relations: ['transaction', 'payment_method'],
@@ -53,7 +56,8 @@ export class PaymentService {
             payments: []
           };
         }
-        acc[key].amount += payment.amount;
+        //TODO  I think we need to set the db precision to 2 decimal places to avoid this extra formatting??
+        acc[key].amount += parseFloat(payment.amount.toFixed(2));
         acc[key].payments.push(payment);
         return acc;
       },
@@ -110,7 +114,7 @@ export class PaymentService {
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: Raw(
-            (alias) => `${alias} >= :pastDueDate AND ${alias} <= :currentDate`,
+            (alias) => `${alias} >= :pastDueDate AND ${alias} < :currentDate`,
             { pastDueDate, currentDate }
           )
         }
@@ -156,7 +160,7 @@ export class PaymentService {
     return await this.paymentRepo.save({
       ...paymentEntity,
       status: MatchStatus.MATCH,
-      pos_deposit_id: deposit
+      pos_deposit_match: deposit
     });
   }
 

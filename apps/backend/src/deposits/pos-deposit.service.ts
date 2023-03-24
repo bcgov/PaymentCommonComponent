@@ -2,14 +2,12 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
-import { MatchStatus } from '../common/const';
+import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
+import { Ministries } from '../constants';
+import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
-import {
-  ReconciliationEvent,
-  PosPaymentPosDepositPair
-} from '../reconciliation/types';
 
 @Injectable()
 export class PosDepositService {
@@ -21,24 +19,25 @@ export class PosDepositService {
     private posDepositRepo: Repository<POSDepositEntity>
   ) {}
 
-  findAll(): Promise<POSDepositEntity[]> {
-    return this.findAll();
-  }
-
   async findPOSDeposits(
-    event: ReconciliationEvent
+    date: string,
+    program: Ministries,
+    location: LocationEntity,
+    status?: MatchStatus
   ): Promise<POSDepositEntity[]> {
+    const depositStatus = status ? status : In(MatchStatusAll);
     const merchant_ids = await Promise.all(
       await this.locationService.getMerchantIdsByLocationId(
-        event.location.location_id
+        location.location_id
       )
     );
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: event?.date,
+        transaction_date: date,
         metadata: {
-          program: event?.program
+          program: program
         },
+        status: depositStatus,
         merchant_id: In(merchant_ids)
       },
       relations: ['payment_method'],
@@ -74,27 +73,10 @@ export class PosDepositService {
     }
   }
 
-  async markPosDepositsAsMatched(
-    posPaymentDepostPair: PosPaymentPosDepositPair[]
-  ): Promise<POSDepositEntity[]> {
-    return await Promise.all(
-      posPaymentDepostPair.map(async (pair) => {
-        const depositEntity = await this.posDepositRepo.findOneByOrFail({
-          id: pair.deposit.id
-        });
-        depositEntity.status = MatchStatus.MATCH;
-        return await this.posDepositRepo.save(depositEntity);
-      })
-    );
-  }
-
-  async markPosDepositAsException(
-    deposit: POSDepositEntity
-  ): Promise<POSDepositEntity> {
+  async update(deposit: POSDepositEntity) {
     const depositEntity = await this.posDepositRepo.findOneByOrFail({
       id: deposit.id
     });
-    depositEntity.status = MatchStatus.EXCEPTION;
-    return await this.posDepositRepo.save(depositEntity);
+    return await this.posDepositRepo.save({ ...depositEntity, ...deposit });
   }
 }

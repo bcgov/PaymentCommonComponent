@@ -49,17 +49,26 @@ export class CashReconciliationService {
     location: LocationEntity,
     program: Ministries,
     date: string
-  ): Promise<PaymentEntity[] | void> {
+  ): Promise<{
+    payments: PaymentEntity[];
+    deposits: CashDepositEntity[];
+  } | void> {
     const dateRange = { to_date: date, from_date: '2023-01-01' };
     const depositDates = await this.cashDepositService.findDistinctDepositDates(
       program,
       dateRange,
       location
     );
+    if (depositDates.length < 2) {
+      this.appLogger.log(
+        'No past due dates found',
+        CashReconciliationService.name
+      );
+      return;
+    }
     const dates = {
       currentDate: depositDates[0],
-      previousDate: depositDates[2],
-      pastDueDate: depositDates[3]
+      pastDueDate: depositDates[2]
     };
 
     if (!dates?.pastDueDate || !dates?.currentDate) {
@@ -84,14 +93,27 @@ export class CashReconciliationService {
         dates.pastDueDate
       )
     );
+    const deposits = await Promise.all(
+      await this.cashDepositService.findExceptions(
+        dates.pastDueDate,
+        program,
+        location
+      )
+    );
     if (payments.length === 0) {
       return;
     }
-    const paymentExceptions = await this.paymentService.updatePayments(
-      payments,
-      MatchStatus.EXCEPTION
+    const paymentExceptions = await Promise.all(
+      await this.paymentService.updatePayments(payments, MatchStatus.EXCEPTION)
     );
-    return await Promise.all(paymentExceptions);
+    const depositExceptions = await Promise.all(
+      await this.cashDepositService.updateDeposits(
+        deposits,
+        MatchStatus.EXCEPTION
+      )
+    );
+
+    return { payments: paymentExceptions, deposits: depositExceptions };
   }
 
   /**
@@ -117,7 +139,7 @@ export class CashReconciliationService {
       payment: AggregatedPayment,
       deposit: CashDepositEntity
     ) => {
-      if (Math.abs(deposit.deposit_amt_cdn - payment.amount) < 1) {
+      if (Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.001) {
         this.appLogger.log(
           `MATCH: payment: ${payment.amount} --> deposit: ${deposit.deposit_amt_cdn}`,
           CashReconciliationService.name
@@ -253,7 +275,7 @@ export class CashReconciliationService {
 
     const dates = {
       currentDate: depositDates[0],
-      pastDueDate: depositDates[3]
+      pastDueDate: depositDates[2]
     };
 
     if (!dates?.pastDueDate || !dates?.currentDate) {
