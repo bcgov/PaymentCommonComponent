@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, LessThan, Not, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
+import { DateRange } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
@@ -98,15 +99,14 @@ export class PaymentService {
    * @returns
    */
   public async findCashPayments(
-    currentDate: string,
-    pastDueDate: string,
+    dateRange: DateRange,
     location: LocationEntity,
     status: MatchStatus
   ): Promise<PaymentEntity[]> {
     const pos_methods = ['AX', 'P', 'V', 'M'];
     const paymentStatus =
       status === MatchStatus.ALL ? In(MatchStatusAll) : status;
-
+    const { from_date, to_date } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
         method: Not(In(pos_methods)),
@@ -114,8 +114,8 @@ export class PaymentService {
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: Raw(
-            (alias) => `${alias} >= :pastDueDate AND ${alias} < :currentDate`,
-            { pastDueDate, currentDate }
+            (alias) => `${alias} >= :from_date AND ${alias} <= :to_date`,
+            { from_date, to_date }
           )
         }
       },

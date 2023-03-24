@@ -21,3 +21,7 @@ export enum TransactionCode {
   PURCHASE_ADJUSTMENT = 21,
   MERCH_RETURN_ADJUSTMENT = 22
 }
+
+export enum Dates {
+  FISCAL_YEAR_START_DATE = '2023-01-01'
+}

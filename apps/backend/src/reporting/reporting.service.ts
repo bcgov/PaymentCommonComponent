@@ -11,7 +11,7 @@ import {
 import { DetailsReport, DailySummary, ReportConfig } from './interfaces';
 import { columnStyle, rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
-import { Ministries } from '../constants';
+import { DateRange, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -247,7 +247,7 @@ export class ReportingService {
     config: ReportConfig,
     location: LocationEntity
   ): Promise<DetailsReport[]> {
-    const dateRange = {
+    const dateRange: DateRange = {
       to_date: config.period.to.toString(),
       from_date: config.period.from.toString()
     };
@@ -260,15 +260,14 @@ export class ReportingService {
       )
     );
 
-    const cashDepositDateRange = {
-      to_date: cashDepositDates[0],
-      from_date: cashDepositDates[1]
+    const cashDepositDateRange: DateRange = {
+      from_date: cashDepositDates[1],
+      to_date: cashDepositDates[0]
     };
 
     const cashPayments = await Promise.all(
       await this.paymentService.findCashPayments(
-        cashDepositDateRange.to_date,
-        cashDepositDateRange.from_date,
+        cashDepositDateRange,
         location,
         MatchStatus.ALL
       )

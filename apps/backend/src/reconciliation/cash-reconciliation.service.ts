@@ -4,7 +4,7 @@ import {
   AggregatedPayment,
   CashReconciliationOutput
 } from './types';
-import { MatchStatus } from '../common/const';
+import { Dates, MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { LocationEntity } from '../location/entities';
@@ -20,13 +20,55 @@ export class CashReconciliationService {
     @Inject(CashDepositService) private cashDepositService: CashDepositService,
     @Inject(PaymentService) private paymentService: PaymentService
   ) {}
+  /**
+   *
+   * @param program
+   * @param date
+   * @param location
+   * @returns
+   * @description Find the previous two deposit dates and the current date
+   */
+  public async getDateRangeForReconciliation(
+    program: Ministries,
+    date: string,
+    location: LocationEntity
+  ): Promise<DateRange | void> {
+    const depositDates = await this.cashDepositService.findDistinctDepositDates(
+      program,
+      {
+        from_date: Dates.FISCAL_YEAR_START_DATE,
+        to_date: date
+      },
+      location
+    );
+    if (depositDates.length === 0) {
+      this.appLogger.log(
+        `No deposit dates found for ${location.description} in ${program}`
+      );
+      return;
+    }
+    const dateRangeForReconciliation = {
+      from_date: depositDates[2] ?? Dates.FISCAL_YEAR_START_DATE,
+      to_date: depositDates[0]
+    };
 
+    this.appLogger.log(
+      `CURRENT DATE: ${dateRangeForReconciliation.to_date}`,
+      CashReconciliationService.name
+    );
+    this.appLogger.log(
+      `PREVIOUS (2) DEPOSIT DATES: ${dateRangeForReconciliation.from_date}`,
+      CashReconciliationService.name
+    );
+    return dateRangeForReconciliation;
+  }
   /**
    *
    * @param event
    * @returns
+   * @description Find all deposit dates for a given location and program
    */
-  public async getDatesForReconciliation(
+  public async getAllDepositDatesByLocation(
     program: Ministries,
     dateRange: DateRange,
     location: LocationEntity
@@ -53,49 +95,25 @@ export class CashReconciliationService {
     payments: PaymentEntity[];
     deposits: CashDepositEntity[];
   } | void> {
-    const dateRange = { to_date: date, from_date: '2023-01-01' };
-    const depositDates = await this.cashDepositService.findDistinctDepositDates(
+    const dates: DateRange | void = await this.getDateRangeForReconciliation(
       program,
-      dateRange,
+      date,
       location
     );
-    if (depositDates.length < 2) {
-      this.appLogger.log(
-        'No past due dates found',
-        CashReconciliationService.name
-      );
-      return;
-    }
-    const dates = {
-      currentDate: depositDates[0],
-      pastDueDate: depositDates[2]
-    };
 
-    if (!dates?.pastDueDate || !dates?.currentDate) {
-      this.appLogger.log(
-        'No past due dates found',
-        CashReconciliationService.name
-      );
+    if (!dates) {
       return;
     }
-    this.appLogger.log(
-      `CURRENT DATE: ${dates.currentDate}`,
-      CashReconciliationService.name
-    );
-    this.appLogger.log(
-      `PAST DUE DATE: ${dates.pastDueDate}`,
-      CashReconciliationService.name
-    );
 
     const payments = await Promise.all(
       await this.paymentService.findPaymentsExceptions(
         location,
-        dates.pastDueDate
+        dates.from_date
       )
     );
     const deposits = await Promise.all(
       await this.cashDepositService.findExceptions(
-        dates.pastDueDate,
+        dates.from_date,
         program,
         location
       )
@@ -225,25 +243,20 @@ export class CashReconciliationService {
    */
   public async getPaymentsAndDeposits(
     program: Ministries,
-    currentDate: string,
-    pastDueDate: string,
+    dateRange: DateRange,
     location: LocationEntity,
     status: MatchStatus
   ): Promise<{
     payments: PaymentEntity[];
     deposits: CashDepositEntity[];
   }> {
-    const payments = await this.paymentService.findCashPayments(
-      currentDate,
-      pastDueDate,
-      location,
-      status
-    );
+    const payments: PaymentEntity[] =
+      await this.paymentService.findCashPayments(dateRange, location, status);
 
     const deposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
         program,
-        currentDate,
+        dateRange.to_date,
         location,
         status
       );
@@ -265,40 +278,19 @@ export class CashReconciliationService {
     program: Ministries,
     date: string
   ): Promise<CashReconciliationOutput | unknown> {
-    const dateRange = { to_date: date, from_date: '2023-01-01' };
+    const dateRange: DateRange | void =
+      await this.getDateRangeForReconciliation(program, date, location);
 
-    const depositDates = await this.cashDepositService.findDistinctDepositDates(
-      program,
-      dateRange,
-      location
-    );
-
-    const dates = {
-      currentDate: depositDates[0],
-      pastDueDate: depositDates[2]
-    };
-
-    if (!dates?.pastDueDate || !dates?.currentDate) {
+    if (!dateRange) {
       this.appLogger.log(
         'No previous or current dates found. Skipping...',
         CashReconciliationService.name
       );
       return;
     }
-
-    this.appLogger.log(
-      `CURRENT DATE: ${dates.currentDate}`,
-      CashReconciliationService.name
-    );
-    this.appLogger.log(
-      `PREVIOUS (2) DEPOSIT DATES: ${dates.pastDueDate}`,
-      CashReconciliationService.name
-    );
-
     const pending = await this.getPaymentsAndDeposits(
       program,
-      dates.currentDate,
-      dates.pastDueDate,
+      dateRange,
       location,
       MatchStatus.PENDING
     );
@@ -324,8 +316,7 @@ export class CashReconciliationService {
 
     const inProgress = await this.getPaymentsAndDeposits(
       program,
-      dates.currentDate,
-      dates.pastDueDate,
+      dateRange,
       location,
       MatchStatus.IN_PROGRESS
     );

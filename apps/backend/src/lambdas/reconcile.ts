@@ -111,7 +111,7 @@ const runCashReconciliation = async (
     );
 
     const cashDates = await Promise.all(
-      await cashRecon.getDatesForReconciliation(
+      await cashRecon.getAllDepositDatesByLocation(
         event.program,
         {
           to_date: event.fiscal_close_date,
