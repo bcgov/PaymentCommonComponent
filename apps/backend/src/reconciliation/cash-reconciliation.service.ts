@@ -59,6 +59,13 @@ export class CashReconciliationService {
       dateRange,
       location
     );
+    if (depositDates.length < 2) {
+      this.appLogger.log(
+        'No past due dates found',
+        CashReconciliationService.name
+      );
+      return;
+    }
     const dates = {
       currentDate: depositDates[0],
       pastDueDate: depositDates[2]

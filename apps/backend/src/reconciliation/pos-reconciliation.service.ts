@@ -138,10 +138,13 @@ export class POSReconciliationService {
       `MATCHES: ${matches.length}`,
       POSReconciliationService.name
     );
-    matches.forEach(async (itm) => {
-      await this.paymentService.updatePayment(itm.payment);
-      await this.posDepositService.update(itm.deposit);
-    });
+    await Promise.all(
+      matches.map(async (itm) => {
+        const payments = await this.paymentService.updatePayment(itm.payment);
+        const deposits = await this.posDepositService.update(itm.deposit);
+        return { payments, deposits };
+      })
+    );
   }
   /**
    * @param exceptions
