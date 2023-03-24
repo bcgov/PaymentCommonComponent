@@ -42,7 +42,7 @@ export class CashDepositEntity {
   @Column({
     type: 'numeric',
     precision: 16,
-    scale: 4,
+    scale: 2,
     transformer: new ColumnNumericTransformer()
   })
   deposit_amt_curr: number;
@@ -53,7 +53,7 @@ export class CashDepositEntity {
   @Column({
     type: 'numeric',
     precision: 16,
-    scale: 4,
+    scale: 2,
     transformer: new ColumnNumericTransformer()
   })
   exchange_adj_amt: number;
@@ -61,7 +61,7 @@ export class CashDepositEntity {
   @Column({
     type: 'numeric',
     precision: 16,
-    scale: 4,
+    scale: 2,
     transformer: new ColumnNumericTransformer()
   })
   deposit_amt_cdn: number;

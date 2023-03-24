@@ -16,10 +16,17 @@ export class CashDepositService {
     @InjectRepository(CashDepositEntity)
     private cashDepositRepo: Repository<CashDepositEntity>
   ) {}
-
+  /**
+   *
+   * @returns
+   */
   findAll(): Promise<CashDepositEntity[]> {
     return this.cashDepositRepo.find();
   }
+  /**
+   *
+   * @returns
+   */
 
   async findAllUploadedFiles(): Promise<
     { cash_deposit_source_file_name: string }[]
@@ -155,5 +162,40 @@ export class CashDepositService {
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS])
       }
     });
+  }
+  /**
+   *
+   * @param location
+   * @param program
+   * @param dateRange
+   * @returns
+   */
+  async findCashDepositsByDateRange(
+    location: LocationEntity,
+    program: Ministries,
+    dateRange: DateRange
+  ): Promise<CashDepositEntity[]> {
+    const { to_date, from_date } = dateRange;
+    return await Promise.all(
+      await this.cashDepositRepo.find({
+        select: {
+          deposit_date: true,
+          deposit_amt_cdn: true
+        },
+        where: {
+          metadata: { program },
+          deposit_date: Raw(
+            (alias) =>
+              `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
+            { from_date, to_date }
+          ),
+          pt_location_id: location.pt_location_id
+        },
+        order: {
+          deposit_date: 'ASC',
+          deposit_amt_cdn: 'ASC'
+        }
+      })
+    );
   }
 }

@@ -42,5 +42,19 @@ export const detailedReportColumns = [
 ];
 export enum Report {
   DAILY_SUMMARY = 'Daily Summary',
-  DETAILED_REPORT = 'Reconciliation Details'
+  DETAILED_REPORT = 'Reconciliation Details',
+  CAS_REPORT = 'CAS Comparison'
 }
+
+export const casReportColumns = [
+  { header: 'Location ID', key: 'location_id' },
+  { header: 'Loction Name', key: 'loction_name' },
+  { header: 'Settlement Date', key: 'settlement_date' },
+  { header: 'Daily Sum', key: 'card_vendor' },
+  { header: 'Amount', key: 'amount' },
+  { header: 'Dist Client Code', key: 'dist_client_code' },
+  { header: 'Dist Resp Code', key: 'dist_resp_code' },
+  { header: 'Dist Stob Code', key: 'dist_stob_code' },
+  { header: 'Dist Service Line Code', key: 'dist_service_line_code' },
+  { header: 'Dist Project Code', key: 'dist_project_code' }
+];

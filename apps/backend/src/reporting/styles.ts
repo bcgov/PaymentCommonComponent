@@ -1,4 +1,5 @@
 import * as Excel from 'exceljs';
+
 import { Placement } from './interfaces';
 
 export const fontStyle: Partial<Excel.Font> = {

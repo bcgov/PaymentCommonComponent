@@ -20,7 +20,7 @@ export class TransactionEntity {
   @Column({
     type: 'numeric',
     precision: 16,
-    scale: 4,
+    scale: 2,
     transformer: new ColumnNumericTransformer()
   })
   total_transaction_amount: number;

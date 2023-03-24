@@ -68,3 +68,18 @@ export interface Placement {
   height: number;
   merge: string;
 }
+
+export interface CasLocationReport {
+  location_id: number;
+  loction_name: string;
+  dist_client_code: number;
+  dist_resp_code: string;
+  dist_stob_code: number;
+  dist_service_line_code: number;
+  dist_project_code: number;
+}
+export interface CasReport extends CasLocationReport {
+  settlement_date: string;
+  card_vendor: string;
+  amount: number;
+}

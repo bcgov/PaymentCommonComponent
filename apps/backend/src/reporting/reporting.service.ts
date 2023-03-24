@@ -1,14 +1,25 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import format from 'date-fns/format';
+import { format } from 'date-fns';
 import { Repository } from 'typeorm';
-import { dailySummaryColumns, detailedReportColumns, Report } from './const';
+import {
+  dailySummaryColumns,
+  detailedReportColumns,
+  Report,
+  casReportColumns
+} from './const';
 import {
   parseCashDepositDetailsForReport,
   parsePaymentDetailsForReport,
   parsePosDepositDetailsForReport
 } from './helpers';
-import { DetailsReport, DailySummary, ReportConfig } from './interfaces';
+import {
+  DetailsReport,
+  DailySummary,
+  ReportConfig,
+  CasReport,
+  CasLocationReport
+} from './interfaces';
 import { columnStyle, rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
@@ -56,6 +67,7 @@ export class ReportingService {
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
     await this.generateDailySummary(config, locations);
     await this.generateDetailsWorksheet(config, locations);
+    await this.generateCasReportWorksheet(config, locations);
     await this.excelWorkbook.saveS3(
       'reconciliation_report',
       format(new Date(config.period.to.toString()), 'yyyy-MM-dd')
@@ -63,6 +75,128 @@ export class ReportingService {
     if (process.env.RUNTIME_ENV !== 'production') {
       await this.excelWorkbook.saveLocal();
     }
+  }
+  /**
+   *
+   * @param config
+   * @param locations
+   */
+  async generateCasReportWorksheet(
+    config: ReportConfig,
+    locations: LocationEntity[]
+  ): Promise<void> {
+    const details: CasReport[] = [];
+    const to_date = format(new Date(config.period.to.toString()), 'yyyy-MM-dd');
+    const from_date = `${to_date.slice(0, 4)}-${to_date.slice(5, 7)}-01`;
+    const dateRange = {
+      from_date,
+      to_date
+    };
+    this.appLogger.log(
+      `Generating cas report for: ${from_date}-${to_date}`,
+      ReportingService.name
+    );
+    await Promise.all(
+      locations.map(async (itm) => {
+        const values = await this.findDataForCasReport(config, itm, dateRange);
+        details.push(...values);
+      })
+    );
+
+    const startIndex = 2;
+    const rowStartIndex = 3;
+    this.excelWorkbook.addSheet(Report.CAS_REPORT);
+
+    this.excelWorkbook.addColumns(Report.CAS_REPORT, casReportColumns);
+    this.excelWorkbook.addRows(
+      Report.CAS_REPORT,
+      details.map((itm) => ({ values: itm, style: rowStyle() })),
+      startIndex
+    );
+    this.excelWorkbook.addTitleRow(
+      Report.CAS_REPORT,
+      titleStyle,
+      placement('A1:J1')
+    );
+
+    /* set column-headers style */
+    this.excelWorkbook.addRowStyle(Report.CAS_REPORT, startIndex, columnStyle);
+
+    const filterOptions = {
+      from: {
+        column: 1,
+        row: 2
+      },
+      to: {
+        column: casReportColumns.length,
+        row: details.length + 1
+      }
+    };
+
+    this.excelWorkbook.addFilterOptions(Report.CAS_REPORT, filterOptions);
+    this.excelWorkbook.addNumberFormatting(Report.CAS_REPORT, rowStartIndex, [
+      'F',
+      'H',
+      'I',
+      'J'
+    ]);
+  }
+  /**
+   *
+   * @param config
+   * @param location
+   * @returns
+   */
+  async findDataForCasReport(
+    config: ReportConfig,
+    location: LocationEntity,
+    dateRange: DateRange
+  ): Promise<CasReport[]> {
+    const casLocationData: CasLocationReport = {
+      location_id: location.location_id,
+      loction_name: location.description,
+      dist_client_code: location.ministry_client,
+      dist_resp_code: location.resp_code,
+      dist_stob_code: location.stob_code,
+      dist_service_line_code: location.service_line_code,
+      dist_project_code: location.project_code
+    };
+
+    const cashDeposits: CashDepositEntity[] = await Promise.all(
+      await this.cashDepositService.findCashDepositsByDateRange(
+        location,
+        config.program,
+        dateRange
+      )
+    );
+    /*eslint-disable */
+
+    const posDeposits: POSDepositEntity[] = await Promise.all(
+      await this.posDepositService.findPOSBySettlementDate(
+        location,
+        config.program,
+        dateRange
+      )
+    );
+
+    const report: CasReport[] = await Promise.all([
+      ...cashDeposits.map((itm) => ({
+        ...itm,
+        ...casLocationData,
+        card_vendor: 'CASH DEPOSIT',
+        settlement_date: format(new Date(itm.deposit_date), 'yyyy-MM-dd'),
+        amount: itm.deposit_amt_cdn
+      })),
+      ...posDeposits.map((itm) => ({
+        ...itm,
+        ...casLocationData,
+        settlement_date: format(new Date(itm.settlement_date), 'yyyy-MM-dd'),
+
+        amount: itm.transaction_amt
+      }))
+    ]);
+
+    return report;
   }
 
   /**
@@ -102,7 +236,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addRows(
       Report.DETAILED_REPORT,
-      details.map((itm) => ({ values: itm, style: rowStyle })),
+      details.map((itm) => ({ values: itm, style: rowStyle() })),
       startIndex
     );
     this.excelWorkbook.addTitleRow(

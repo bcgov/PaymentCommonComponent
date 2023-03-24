@@ -182,4 +182,18 @@ export class ExcelExportService {
       ExcelExportService.name
     );
   }
+
+  public addNumberFormatting(
+    sheetName: string,
+    rowStart: number,
+    columns: any[]
+  ): void {
+    const sheet = this.workbook.getWorksheet(sheetName);
+    columns.forEach((column) => {
+      sheet.getRows(rowStart, sheet.rowCount)?.forEach((row) => {
+        const cell = row.getCell(column);
+        cell.value = Number(cell.value);
+      });
+    });
+  }
 }
