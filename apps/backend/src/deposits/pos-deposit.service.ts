@@ -94,7 +94,8 @@ export class PosDepositService {
 
     qb.groupBy('settlement_date');
     qb.addGroupBy('terminal_no');
-    qb.addGroupBy('payment_method.description');
+    qb.addGroupBy('card_vendor');
+    qb.addGroupBy('payment_method.method');
     qb.orderBy({
       settlement_date: 'ASC',
       transaction_amt: 'ASC',
