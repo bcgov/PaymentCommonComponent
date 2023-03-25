@@ -192,7 +192,7 @@ export class ReportingService {
         ...casLocationData,
         settlement_date: format(new Date(itm.settlement_date), 'yyyy-MM-dd'),
         card_vendor: itm.card_vendor,
-        amount: itm.transaction_amt
+        amount: parseFloat(itm.transaction_amt.toString())
       }))
     ]);
 
