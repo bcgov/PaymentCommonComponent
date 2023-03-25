@@ -187,13 +187,15 @@ export class ReportingService {
         settlement_date: format(new Date(itm.deposit_date), 'yyyy-MM-dd'),
         amount: itm.deposit_amt_cdn
       })),
-      ...posDeposits.map((itm) => ({
-        ...itm,
-        ...casLocationData,
-        settlement_date: format(new Date(itm.settlement_date), 'yyyy-MM-dd'),
-        card_vendor: itm.card_vendor,
-        amount: parseFloat(itm.transaction_amt.toString())
-      }))
+      ...posDeposits
+        .filter((itm) => itm.transaction_amt.toString() !== '0.00')
+        .map((itm) => ({
+          ...itm,
+          ...casLocationData,
+          settlement_date: format(new Date(itm.settlement_date), 'yyyy-MM-dd'),
+          card_vendor: itm.card_vendor,
+          amount: parseFloat(itm.transaction_amt.toString())
+        }))
     ]);
 
     return report;
