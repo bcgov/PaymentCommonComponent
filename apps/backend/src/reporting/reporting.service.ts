@@ -402,11 +402,7 @@ export class ReportingService {
     };
 
     const cashPayments = await Promise.all(
-      await this.paymentService.findCashPayments(
-        cashDepositDateRange,
-        location,
-        MatchStatus.ALL
-      )
+      await this.paymentService.findCashPayments(cashDepositDateRange, location)
     );
 
     const parsedCashPayments = cashPayments.map((itm: PaymentEntity) =>

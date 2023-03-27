@@ -101,11 +101,10 @@ export class PaymentService {
   public async findCashPayments(
     dateRange: DateRange,
     location: LocationEntity,
-    status: MatchStatus
+    status?: MatchStatus
   ): Promise<PaymentEntity[]> {
     const pos_methods = ['AX', 'P', 'V', 'M'];
-    const paymentStatus =
-      status === MatchStatus.ALL ? In(MatchStatusAll) : status;
+    const paymentStatus = !status ? In(MatchStatusAll) : status;
     const { from_date, to_date } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
