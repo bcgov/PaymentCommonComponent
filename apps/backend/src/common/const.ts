@@ -2,8 +2,7 @@ export enum MatchStatus {
   PENDING = 'PENDING',
   IN_PROGRESS = 'IN_PROGRESS',
   MATCH = 'MATCH',
-  EXCEPTION = 'EXCEPTION',
-  ALL = 'ALL'
+  EXCEPTION = 'EXCEPTION'
 }
 
 export const MatchStatusAll = [

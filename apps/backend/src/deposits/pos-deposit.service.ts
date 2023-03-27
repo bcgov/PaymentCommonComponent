@@ -77,7 +77,10 @@ export class PosDepositService {
 
     qb.select(['settlement_date::date']);
     qb.addSelect('payment_method.description', 'card_vendor');
-    qb.addSelect('SUM(transaction_amt)::int', 'transaction_amt').leftJoin(
+    qb.addSelect(
+      'SUM(transaction_amt)::numeric(10,2)',
+      'transaction_amt'
+    ).leftJoin(
       PaymentMethodEntity,
       'payment_method',
       'payment_method.method = pos_deposit.card_vendor'
@@ -94,7 +97,8 @@ export class PosDepositService {
 
     qb.groupBy('settlement_date');
     qb.addGroupBy('terminal_no');
-    qb.addGroupBy('payment_method.description');
+    qb.addGroupBy('card_vendor');
+    qb.addGroupBy('payment_method.method');
     qb.orderBy({
       settlement_date: 'ASC',
       transaction_amt: 'ASC',
