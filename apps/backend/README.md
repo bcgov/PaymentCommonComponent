@@ -1,73 +1,82 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+## Payments Common Component
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+[![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](Redirect-URL)
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+### MVP - Scope Of Project
 
-## Description
+- Reconciliation as a service for Ministry LoB
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+Data Source 1:
 
-## Installation
+- Connecting to Provinical Treasury of the Province of British Columbia
+  - Obtain and parse TDI34 files - In person PoS Trnasactions
+  - Obtain and parse TDI17 files - Cash & Cheque deposits made to the banks
+  - Obtain and parse TDI34 (DDF) files - Online card transactions (PayBC and ICE pay)
 
-```bash
-$ npm install
-```
+Date Source 2:
 
-## Running the app
+- Ministry LoB Sales transactions
 
-```bash
-# development
-$ npm run start
+### Technical Setup
 
-# watch mode
-$ npm run start:dev
+Prerequisites:
 
-# production mode
-$ npm run start:prod
-```
+- Run `make check` from the project root directory to make sure you have all the required dependency tools and binaries setup correctly.
 
-## Test
+#### Yarn Setup
 
-```bash
-# unit tests
-$ npm run test
+Yarn V2 needs to be enabled. Follow these steps to get yarn setup locally - https://yarnpkg.com/getting-started/install
 
-# e2e tests
-$ npm run test:e2e
+#### Environment Variables
 
-# test coverage
-$ npm run test:cov
-```
+Create a .env file at the root prior to running the project
 
-## Support
+use the `.env.example` to create `.env`
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+#### Running The Project Locally (Docker)
 
-## Stay in touch
+Use the make commands under the `root/docker` section to start the project.
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+Install dependencies (from root) - `yarn`
+Run Project (from root) - `make build`
 
-## License
+#### Gettings Access to tools and credentials
 
-Nest is [MIT licensed](LICENSE).
+to run the project for development, the following is bare requirement:
+
+- aws configuration for aws-pcc and minio [Example](./.config/credentials.example)
+- rclone configuration [Example](./.config/rclone.conf.example)
+- env file configuration [Example](./.config/.env.example)
+
+Refer [here](./docs/access.md)
+
+#### Populate the database
+
+- Make sure the project is up and running by using the docker make commands
+- Run (from root) `make migration-run` for the database to be setup.
+- Run (from root) `make sync` to update your local environment with all the necessary files
+- Run (from root) `make parse` to populate the db
+- Refer [here](./docs/migrations.md)
+
+## Developer Docs
+
+- Once the project has been configured and all dependencies installed, after running `make build` (ensure project is running with docker ps) you can run `make dev-docs` to view compodoc/jsdocs generated documentation for the apps/backend application
+- This takes a few minutes to build.
+- Visit `http://localhost:8081` in the brower to view the docs
+- To suppress the logs or make other configuration changes edit the compodoc.yaml file in the apps/backend directory.
+- configuration options can be found [here](https://compodoc.app/guides/options.html)
+
+### Reconciliation
+
+- Make sure the project is up and running by using the docker make commands
+- Make sure you have completed the steps above
+- Edit the `apps/backend/fixtures/reconcile.json` file to specifiy config
+- Run (from root) `make reconcile`
+- Refer [here](./docs/reconciliation.md)
+
+### Reporting
+
+- Make sure the project is up and running by using the docker make commands
+- Make sure you have completed the steps above
+- Edit the `apps/backend/fixtures/report.json` file to specifiy config
+- Run (from root) `make report`

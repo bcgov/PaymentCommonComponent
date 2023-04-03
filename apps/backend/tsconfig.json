@@ -6,7 +6,8 @@
     "allowJs": true
   },
   "paths": {
-    "src": "./src"
+    "src": "./src",
+    "docs": "./docs"
   },
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "./env.js"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "./env.js"]
 }

@@ -38,3 +38,4 @@ lerna-debug.log*
 .yarn/yarn.build.json
 
 report.xlsx
+src/docs

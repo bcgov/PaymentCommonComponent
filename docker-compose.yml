@@ -29,6 +29,7 @@ services:
     command: "yarn start:backend:local"
     ports:
       - "3000:3000"
+      - "8081:8080"
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME}
@@ -48,6 +49,7 @@ services:
     volumes:
       - ./apps/backend:/apps/backend
       - ./node_modules:/node_modules
+      - compodoc:/apps/backend/src/docs
     depends_on:
       - db
     networks:
@@ -67,7 +69,6 @@ services:
     command: server --console-address ":9001" /data
     networks:
       - pcc
-
 networks:
   pcc:
     driver: bridge
@@ -75,3 +76,4 @@ networks:
 volumes:
   minio_storage: {}
   pg_data: {}
+  compodoc: {}
