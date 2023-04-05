@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { DetailsReport } from './interfaces';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -58,7 +59,7 @@ export const parsePosDepositDetailsForReport = (
     date: deposit.transaction_date,
     time: deposit.transaction_time,
     deposit_date_range: '',
-    fiscal_date: deposit.settlement_date,
+    fiscal_date: format(new Date(deposit.settlement_date), 'yyyy-MM-dd'),
     payment_method: deposit.payment_method.description,
     amount: deposit.transaction_amt,
     foreign_currency_amount: null,

@@ -4,7 +4,6 @@ import { Raw, LessThan, Not, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange } from '../constants';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -47,12 +46,11 @@ export class PaymentService {
     const groupedPayments = payments.reduce(
       /*eslint-disable */
       (acc: any, payment: PaymentEntity) => {
-        const key = `${payment.transaction.fiscal_close_date}`;
+        const key = `${payment.transaction.fiscal_close_date}${payment.status}`;
         if (!acc[key]) {
           acc[key] = {
             status: payment.status,
             fiscal_close_date: payment.transaction.fiscal_close_date,
-            location_id: payment.transaction.location_id,
             amount: 0,
             payments: []
           };
@@ -64,9 +62,10 @@ export class PaymentService {
       },
       {}
     );
-
-    const result = Object.values(groupedPayments);
-    return result as AggregatedPayment[];
+    const aggPayments: AggregatedPayment[] = Object.values(groupedPayments);
+    return aggPayments.sort(
+      (a: AggregatedPayment, b: AggregatedPayment) => a.amount - b.amount
+    );
   }
 
   public async findPaymentsWithPartialSelect(
@@ -101,15 +100,15 @@ export class PaymentService {
   public async findCashPayments(
     dateRange: DateRange,
     location: LocationEntity,
-    status?: MatchStatus
+    status?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const pos_methods = ['AX', 'P', 'V', 'M'];
-    const paymentStatus = !status ? In(MatchStatusAll) : status;
+    const paymentStatus = !status ? MatchStatusAll : status;
     const { from_date, to_date } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
         method: Not(In(pos_methods)),
-        status: paymentStatus,
+        status: In(paymentStatus),
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: Raw(
@@ -120,12 +119,23 @@ export class PaymentService {
       },
       relations: ['transaction', 'payment_method'],
       order: {
-        transaction: { fiscal_close_date: 'DESC' },
-        amount: 'DESC'
+        transaction: { fiscal_close_date: 'ASC' },
+        amount: 'ASC'
       }
     });
 
     return payments;
+  }
+
+  async getAggregatedPaymentsByCashDepositDates(
+    dateRange: DateRange,
+    location: LocationEntity
+  ): Promise<AggregatedPayment[]> {
+    const status = [MatchStatus.PENDING, MatchStatus.IN_PROGRESS];
+
+    return this.aggregatePayments(
+      await this.findCashPayments(dateRange, location, status)
+    );
   }
 
   public async findPaymentsExceptions(
@@ -147,47 +157,13 @@ export class PaymentService {
     return payments;
   }
 
-  //TODO [CCFPCM-406] Error handling?
-  async markPosPaymentsAsMatched(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
-  ): Promise<PaymentEntity> {
-    const paymentEntity = await this.paymentRepo.findOneByOrFail({
-      id: payment.id
-    });
-
-    return await this.paymentRepo.save({
-      ...paymentEntity,
-      status: MatchStatus.MATCH,
-      pos_deposit_match: deposit
-    });
-  }
-
-  async updatePayments(
-    payments: PaymentEntity[],
-    status: MatchStatus
-  ): Promise<PaymentEntity[]> {
-    this.appLogger.log(
-      `UPDATED: ${payments.length} PAYMENTS to ${status.toUpperCase()}`,
-      PaymentService.name
-    );
-
+  async updatePayments(payments: PaymentEntity[]): Promise<unknown[]> {
     return await Promise.all(
-      payments.map(
-        async (payment) =>
-          await this.updatePayment({
-            ...payment,
-            timestamp: payment.timestamp,
-            status
-          })
-      )
+      payments.map(async (payment) => await this.updatePayment(payment))
     );
   }
 
-  async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {
-    const paymentEntity = await this.paymentRepo.findOneByOrFail({
-      id: payment.id
-    });
-    return await this.paymentRepo.save({ ...paymentEntity, ...payment });
+  async updatePayment(payment: PaymentEntity): Promise<unknown> {
+    return await this.paymentRepo.save(payment);
   }
 }

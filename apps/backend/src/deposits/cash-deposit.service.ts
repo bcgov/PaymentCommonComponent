@@ -75,7 +75,6 @@ export class CashDepositService {
         status: In(depositStatus)
       },
       order: {
-        deposit_date: 'DESC',
         deposit_amt_cdn: 'ASC'
       }
     });
@@ -92,7 +91,8 @@ export class CashDepositService {
   public async findDistinctDepositDates(
     program: Ministries,
     dateRange: DateRange,
-    location: LocationEntity
+    location: LocationEntity,
+    reverse?: boolean
   ): Promise<string[]> {
     const { to_date, from_date } = dateRange;
     const dates = await this.cashDepositRepo.find({
@@ -113,7 +113,10 @@ export class CashDepositService {
       }
     });
 
-    return Array.from(new Set(dates.map((item) => item.deposit_date)));
+    const datesArray: string[] = Array.from(
+      new Set(dates.map((item) => item.deposit_date))
+    );
+    return reverse ? datesArray.reverse() : datesArray;
   }
   /**
    * @param deposits: CashDepositEntity[]

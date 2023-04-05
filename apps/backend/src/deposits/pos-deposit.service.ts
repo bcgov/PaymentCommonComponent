@@ -27,11 +27,10 @@ export class PosDepositService {
     status?: MatchStatus
   ): Promise<POSDepositEntity[]> {
     const depositStatus = status ? status : In(MatchStatusAll);
-    const merchant_ids = await Promise.all(
+    const merchant_ids: number[] =
       await this.locationService.getMerchantIdsByLocationId(
         location.location_id
-      )
-    );
+      );
     return await this.posDepositRepo.find({
       where: {
         transaction_date: date,
@@ -67,10 +66,8 @@ export class PosDepositService {
     program: Ministries,
     dateRange: DateRange
   ) {
-    const merchant_ids = await Promise.all(
-      await this.locationService.getMerchantIdsByLocationId(
-        location.location_id
-      )
+    const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
+      location.location_id
     );
     const { to_date, from_date } = dateRange;
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');

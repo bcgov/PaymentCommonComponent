@@ -56,9 +56,10 @@ export class ReportingService {
    * @param config
    */
   async generateReport(config: ReportConfig): Promise<void> {
-    const locations = await Promise.all(
-      await this.locationService.getLocationsBySource(config.program)
+    const locations = await this.locationService.getLocationsBySource(
+      config.program
     );
+
     this.appLogger.log(
       `Generating Reconciliation Report For ${locations.length} locations`,
       ReportingService.name
@@ -87,6 +88,7 @@ export class ReportingService {
   ): Promise<void> {
     const details: CasReport[] = [];
     const to_date = format(new Date(config.period.to.toString()), 'yyyy-MM-dd');
+    /* extract the month from the "to-date"*/
     const from_date = `${to_date.slice(0, 4)}-${to_date.slice(5, 7)}-01`;
     const dateRange = {
       from_date,
@@ -162,22 +164,21 @@ export class ReportingService {
       dist_project_code: location.project_code
     };
 
-    const cashDeposits: CashDepositEntity[] = await Promise.all(
+    const cashDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDateRange(
         location,
         config.program,
         dateRange
-      )
-    );
+      );
+
     /*eslint-disable */
 
-    const posDeposits: POSDepositEntity[] = await Promise.all(
+    const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSBySettlementDate(
         location,
         config.program,
         dateRange
-      )
-    );
+      );
 
     const report: CasReport[] = await Promise.all([
       ...cashDeposits.map((itm) => ({
@@ -387,59 +388,59 @@ export class ReportingService {
       to_date: config.period.to.toString(),
       from_date: config.period.from.toString()
     };
-
-    const cashDepositDates = await Promise.all(
+    const reverseDates = true;
+    const cashDepositDates: string[] =
       await this.cashDepositService.findDistinctDepositDates(
         config.program,
         dateRange,
-        location
-      )
-    );
+        location,
+        reverseDates
+      );
 
     const cashDepositDateRange: DateRange = {
       from_date: cashDepositDates[1],
       to_date: cashDepositDates[0]
     };
 
-    const cashPayments = await Promise.all(
-      await this.paymentService.findCashPayments(cashDepositDateRange, location)
+    const cashPayments: PaymentEntity[] =
+      await this.paymentService.findCashPayments(
+        cashDepositDateRange,
+        location
+      );
+
+    const parsedCashPayments: DetailsReport[] = cashPayments.map(
+      (itm: PaymentEntity) =>
+        parsePaymentDetailsForReport(location, itm, cashDepositDates)
     );
 
-    const parsedCashPayments = cashPayments.map((itm: PaymentEntity) =>
-      parsePaymentDetailsForReport(location, itm, cashDepositDates)
-    );
-
-    const posPayments: PaymentEntity[] = await Promise.all(
+    const posPayments: PaymentEntity[] =
       await this.paymentService.findPosPayments(
         config.period.to.toString(),
         location
-      )
+      );
+
+    const parsedPosPayments: DetailsReport[] = posPayments.map(
+      (itm: PaymentEntity) => parsePaymentDetailsForReport(location, itm)
     );
 
-    const parsedPosPayments = posPayments.map((itm: PaymentEntity) =>
-      parsePaymentDetailsForReport(location, itm)
-    );
-
-    const cashDeposits: CashDepositEntity[] = await Promise.all(
+    const cashDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
         config.program,
         cashDepositDateRange.to_date,
         location
-      )
-    );
+      );
 
     const parsedCashDepositDetails = cashDeposits.map(
       (itm: CashDepositEntity) =>
         parseCashDepositDetailsForReport(location, itm, cashDepositDates)
     );
 
-    const posDeposits: POSDepositEntity[] = await Promise.all(
+    const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSDeposits(
         config.period.to.toString(),
         config.program,
         location
-      )
-    );
+      );
 
     const parsedPosDepositDetails = posDeposits.map((itm: POSDepositEntity) =>
       parsePosDepositDetailsForReport(location, itm)
