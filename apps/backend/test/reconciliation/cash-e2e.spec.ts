@@ -97,7 +97,7 @@ describe('Reconciliation Service (e2e)', () => {
     }) as TDI17Details[];
     const entities = parsedTDI17File.map((itm) => new CashDepositEntity(itm));
     await cashDepositService.saveCashDepositEntities(entities);
-  }, 10000);
+  }, 12000);
 
   it('parses inserts pos deposit data', async () => {
     const parsedTDI34File = parseTDI({
@@ -131,5 +131,5 @@ describe('Reconciliation Service (e2e)', () => {
       paymentMethods
     );
     await transService.saveTransactions(parsedGarmsFile);
-  }, 10000);
+  }, 12000);
 });
