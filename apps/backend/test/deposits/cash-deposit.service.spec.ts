@@ -1,7 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
 import { MatchStatus } from '../../src/common/const';
@@ -17,6 +17,7 @@ describe('CashDepositService', () => {
   let repository: Repository<CashDepositEntity>;
   let cashDepositMock: CashDepositEntity;
   let locationMock: LocationEntity;
+  let updateResult: UpdateResult;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -124,10 +125,10 @@ describe('CashDepositService', () => {
   describe('updateDepositStatus', () => {
     it('should update the cash deposit status', async () => {
       const spy = jest
-        .spyOn(service, 'updateDepositStatus')
-        .mockResolvedValue(cashDepositMock);
+        .spyOn(service, 'updateDeposit')
+        .mockResolvedValue(updateResult);
 
-      expect(service.updateDepositStatus(cashDepositMock)).resolves.toEqual(
+      expect(service.updateDeposit(cashDepositMock)).resolves.toEqual(
         cashDepositMock
       );
       expect(spy).toBeCalledTimes(1);
@@ -139,19 +140,17 @@ describe('CashDepositService', () => {
     it('should mark cash deposits as matched', async () => {
       const spy = jest
         .spyOn(service, 'updateDeposits')
-        .mockResolvedValue([{ ...cashDepositMock, status: MatchStatus.MATCH }]);
+        .mockResolvedValue([updateResult]);
 
       expect(
-        service.updateDeposits(
-          [{ ...cashDepositMock, status: MatchStatus.MATCH }],
-          MatchStatus.MATCH
-        )
-      ).resolves.toEqual([{ ...cashDepositMock, status: MatchStatus.MATCH }]);
+        service.updateDeposits([
+          { ...cashDepositMock, status: MatchStatus.MATCH }
+        ])
+      ).resolves.toEqual([updateResult]);
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(
-        [{ ...cashDepositMock, status: MatchStatus.MATCH }],
-        MatchStatus.MATCH
-      );
+      expect(spy).toBeCalledWith([
+        { ...cashDepositMock, status: MatchStatus.MATCH }
+      ]);
     });
   });
 

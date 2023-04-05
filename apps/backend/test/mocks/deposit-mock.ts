@@ -1,11 +1,9 @@
-import { BaseData } from 'test/reconciliation/generate-data/classes/base-data';
-import { getDateRange } from 'test/reconciliation/generate-data/classes/date-range';
-import { getLocation } from '../reconciliation/generate-data/classes/location';
-import { getPaymentMethod } from '../reconciliation/generate-data/classes/payment-method';
-import { GenerateData } from '../reconciliation/generate-data/generateData';
-
+import { BaseData } from './generate-data/classes/base-data';
+import { getDateRange } from './generate-data/classes/date-range';
+import { getLocation } from './generate-data/classes/location';
+import { getPaymentMethod } from './generate-data/classes/payment-method';
+import { GenerateData } from './generate-data/generateData';
 import { FileMetadata } from '../../src/common/columns/index';
-
 import { Ministries } from '../../src/constants';
 
 export const locationMock = getLocation();
