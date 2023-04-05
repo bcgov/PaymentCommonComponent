@@ -282,7 +282,8 @@ drop:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"
 
-
+dev-docs:
+	@docker exec -it $(PROJECT)-backend yarn run compodoc
 # ===================================
 # Migrations
 # ===================================

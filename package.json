@@ -13,6 +13,7 @@
     "start:backend:test": "yarn workspace @payment/backend start:dev",
     "test:pipeline": "yarn workspace @payment/backend test:pipeline",
     "build:backend": "yarn workspace @payment/backend build",
+    "compodoc": "yarn workspace @payment/backend docs",
     "test": "echo 'Running tests' && wsrun --parallel --exclude-missing test",
     "eslint-nibble": "echo 'Checking code style' && yarn workspace @payment/backend nibble"
   },

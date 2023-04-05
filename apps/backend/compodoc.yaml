@@ -1,0 +1,9 @@
+serve: true
+watch: true
+port: 8080
+output: ./src/docs
+hideGenerator: true
+tsconfig: ./tsconfig.json
+name: PayCoCo
+theme: mkdocs
+silent: true

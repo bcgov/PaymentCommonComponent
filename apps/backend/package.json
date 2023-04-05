@@ -26,7 +26,8 @@
     "typeorm:run-migrations": "yarn run typeorm migration:run -d ./src/database/datasource.ts",
     "typeorm:generate-migration": "yarn run typeorm migration:generate -d ./src/database/datasource.ts ./src/database/migrations/migration",
     "typeorm:create-migration": "yarn run typeorm migration:create ./src/database/migrations/migration",
-    "typeorm:revert-migration": "yarn run typeorm -d ./src/database/datasource.ts migration:revert"
+    "typeorm:revert-migration": "yarn run typeorm -d ./src/database/datasource.ts migration:revert",
+    "docs": "npx @compodoc/compodoc -c compodoc.yaml"
   },
   "dependencies": {
     "@nestjs/common": "9.2.1",
@@ -58,6 +59,7 @@
     "winston-daily-rotate-file": "4.7.1"
   },
   "devDependencies": {
+    "@compodoc/compodoc": "1.1.19",
     "@nestjs/cli": "9.1.8",
     "@nestjs/schematics": "9.0.4",
     "@nestjs/testing": "9.2.1",
