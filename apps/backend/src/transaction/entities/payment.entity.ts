@@ -27,7 +27,7 @@ export class PaymentEntity {
   @Column({
     type: 'numeric',
     precision: 16,
-    scale: 4,
+    scale: 2,
     transformer: new ColumnNumericTransformer()
   })
   amount: number;
@@ -35,7 +35,7 @@ export class PaymentEntity {
   @Column({
     type: 'numeric',
     precision: 16,
-    scale: 4,
+    scale: 2,
     nullable: true
   })
   foreign_currency_amount?: number;

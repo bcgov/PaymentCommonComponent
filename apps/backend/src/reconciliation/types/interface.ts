@@ -52,7 +52,7 @@ export interface AggregatedPayment {
   fiscal_close_date: string;
   location_id: number;
   amount: number;
-  deposit_id: CashDepositEntity;
+  cash_deposit_match: CashDepositEntity;
   payments: PaymentEntity[];
 }
 export interface GroupedPaymentsAndDeposits {

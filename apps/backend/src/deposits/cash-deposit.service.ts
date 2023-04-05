@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, LessThan, Raw, Repository } from 'typeorm';
+import { In, LessThan, Raw, Repository, UpdateResult } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { mapLimit } from '../common/promises';
@@ -64,19 +64,19 @@ export class CashDepositService {
     program: Ministries,
     date: string,
     location: LocationEntity,
-    status?: MatchStatus
+    status?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
-    const depositStatus = status ?? In(MatchStatusAll);
+    const depositStatus = status ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
         deposit_date: date,
-        status: depositStatus
+        status: In(depositStatus)
       },
       order: {
         deposit_date: 'DESC',
-        deposit_amt_cdn: 'DESC'
+        deposit_amt_cdn: 'ASC'
       }
     });
   }
@@ -101,7 +101,7 @@ export class CashDepositService {
         pt_location_id: location.pt_location_id,
         metadata: { program },
         deposit_date: Raw(
-          (alias) => `${alias} <= :to_date and ${alias} > :from_date`,
+          (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
           {
             to_date,
             from_date
@@ -109,7 +109,7 @@ export class CashDepositService {
         )
       },
       order: {
-        deposit_date: 'DESC'
+        deposit_date: 'ASC'
       }
     });
 
@@ -120,33 +120,18 @@ export class CashDepositService {
    * @param status: MatchStatus
    * @returns CashDepositEntity
    */
-  async updateDeposits(
-    deposits: CashDepositEntity[],
-    status: MatchStatus
-  ): Promise<CashDepositEntity[]> {
-    this.appLogger.log(
-      `UPDATED: ${deposits.length} CASH DEPOSITS to ${status.toUpperCase()}`,
-      CashDepositService.name
-    );
-
+  async updateDeposits(deposits: CashDepositEntity[]): Promise<UpdateResult[]> {
     return await Promise.all(
-      deposits.map(
-        async (deposit) =>
-          await this.updateDepositStatus({ ...deposit, status })
-      )
+      deposits.map(async (deposit) => await this.updateDeposit(deposit))
     );
   }
   /**
    * @param deposit
    * @returns CashDepositEntity
    */
-  async updateDepositStatus(
-    deposit: CashDepositEntity
-  ): Promise<CashDepositEntity> {
-    const depositEntity = await this.cashDepositRepo.findOneByOrFail({
-      id: deposit.id
-    });
-    return await this.cashDepositRepo.save({ ...depositEntity, ...deposit });
+  async updateDeposit(deposit: CashDepositEntity): Promise<UpdateResult> {
+    const id = deposit.id;
+    return await this.cashDepositRepo.update(id, deposit);
   }
 
   async findExceptions(
