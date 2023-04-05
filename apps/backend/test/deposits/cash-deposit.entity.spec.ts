@@ -7,7 +7,7 @@ import { parseTDI } from '../../src/lambdas/utils/parseTDI';
 
 test('Cash Deposit Entity Instance', () => {
   const testFile = fs.readFileSync(
-    path.join(__dirname, '../../sample-files/TDI17.TXT')
+    path.join(__dirname, './fixtures/TDI17.TXT')
   );
   const tdi17Mock: ParseArgsTDI = {
     type: FileTypes.TDI17,
