@@ -399,18 +399,39 @@ export class ReportingService {
 
     const cashDepositDateRange: DateRange = {
       from_date: cashDepositDates[1],
-      to_date: cashDepositDates[0]
+      to_date: config.period.to.toString()
     };
 
-    const cashPayments: PaymentEntity[] =
-      await this.paymentService.findCashPayments(
-        cashDepositDateRange,
+    const cashDeposits: CashDepositEntity[] =
+      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
+        config.program,
+        cashDepositDateRange.to_date,
         location
       );
 
-    const parsedCashPayments: DetailsReport[] = cashPayments.map(
-      (itm: PaymentEntity) =>
-        parsePaymentDetailsForReport(location, itm, cashDepositDates)
+    const correspondingCashPaymentsToDeposits: PaymentEntity[] =
+      cashDeposits.length === 0
+        ? []
+        : await this.paymentService.findCashPayments(
+            cashDepositDateRange,
+            location,
+            [MatchStatus.EXCEPTION, MatchStatus.MATCH]
+          );
+    const allPendingAndInProgressCashPayments: PaymentEntity[] =
+      await this.paymentService.findCashPayments(
+        {
+          to_date: config.period.to.toString(),
+          from_date: config.period.from.toString()
+        },
+        location,
+        [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+      );
+
+    const parsedCashPayments: DetailsReport[] = [
+      ...correspondingCashPaymentsToDeposits,
+      ...allPendingAndInProgressCashPayments
+    ].map((itm: PaymentEntity) =>
+      parsePaymentDetailsForReport(location, itm, cashDepositDates)
     );
 
     const posPayments: PaymentEntity[] =
@@ -422,13 +443,6 @@ export class ReportingService {
     const parsedPosPayments: DetailsReport[] = posPayments.map(
       (itm: PaymentEntity) => parsePaymentDetailsForReport(location, itm)
     );
-
-    const cashDeposits: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
-        config.program,
-        cashDepositDateRange.to_date,
-        location
-      );
 
     const parsedCashDepositDetails = cashDeposits.map(
       (itm: CashDepositEntity) =>
