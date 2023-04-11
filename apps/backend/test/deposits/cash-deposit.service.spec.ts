@@ -126,7 +126,7 @@ describe('CashDepositService', () => {
     it('should update the cash deposit status', async () => {
       const spy = jest
         .spyOn(service, 'updateDeposit')
-        .mockResolvedValue(updateResult);
+        .mockResolvedValue(cashDepositMock);
 
       expect(service.updateDeposit(cashDepositMock)).resolves.toEqual(
         cashDepositMock
@@ -140,7 +140,7 @@ describe('CashDepositService', () => {
     it('should mark cash deposits as matched', async () => {
       const spy = jest
         .spyOn(service, 'updateDeposits')
-        .mockResolvedValue([updateResult]);
+        .mockResolvedValue([cashDepositMock]);
 
       expect(
         service.updateDeposits([
