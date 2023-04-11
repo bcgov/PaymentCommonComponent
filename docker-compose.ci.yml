@@ -22,7 +22,7 @@ services:
       context: "."
       target: development
     stdin_open: true
-    command: "yarn run start:backend:local"
+    command: "yarn run start:backend:test"
     ports:
       - "3100:3000"
     environment:
@@ -52,8 +52,8 @@ services:
     image: minio/minio
     container_name: pcc-minio
     ports:
-      - "9100:9000"
-      - "9101:9001"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio_storage:/data
     environment:

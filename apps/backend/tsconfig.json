@@ -5,9 +5,5 @@
     "baseUrl": "./",
     "allowJs": true
   },
-  "paths": {
-    "src": "./src",
-    "docs": "./docs"
-  },
   "exclude": ["node_modules", "dist", "**/*.spec.ts", "./env.js"]
 }
