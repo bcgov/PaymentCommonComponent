@@ -157,13 +157,13 @@ export class PaymentService {
     return payments;
   }
 
-  async updatePayments(payments: PaymentEntity[]): Promise<unknown[]> {
+  async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
     return await Promise.all(
       payments.map(async (payment) => await this.updatePayment(payment))
     );
   }
 
-  async updatePayment(payment: PaymentEntity): Promise<unknown> {
+  async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {
     return await this.paymentRepo.save(payment);
   }
 }

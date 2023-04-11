@@ -108,33 +108,38 @@ export class CashReconciliationService {
       return;
     }
 
-    const payments = await this.paymentService.findPaymentsExceptions(
-      location,
-      dates.from_date
-    );
+    const payments: PaymentEntity[] =
+      await this.paymentService.findPaymentsExceptions(
+        location,
+        dates.from_date
+      );
 
-    const deposits = await this.cashDepositService.findExceptions(
-      dates.from_date,
-      program,
-      location
-    );
+    const deposits: CashDepositEntity[] =
+      await this.cashDepositService.findExceptions(
+        dates.from_date,
+        program,
+        location
+      );
+
     if (payments.length === 0) {
       return;
     }
-    const paymentExceptions = await this.paymentService.updatePayments(
-      payments.map((itm) => ({
-        ...itm,
-        timestamp: itm.timestamp,
-        status: MatchStatus.EXCEPTION
-      }))
-    );
+    const paymentExceptions: PaymentEntity[] =
+      await this.paymentService.updatePayments(
+        payments.map((itm) => ({
+          ...itm,
+          timestamp: itm.timestamp,
+          status: MatchStatus.EXCEPTION
+        }))
+      );
 
-    const depositExceptions = await this.cashDepositService.updateDeposits(
-      deposits.map((itm) => ({
-        ...itm,
-        status: MatchStatus.EXCEPTION
-      }))
-    );
+    const depositExceptions: CashDepositEntity[] =
+      await this.cashDepositService.updateDeposits(
+        deposits.map((itm) => ({
+          ...itm,
+          status: MatchStatus.EXCEPTION
+        }))
+      );
 
     return {
       payments: paymentExceptions,
@@ -269,28 +274,33 @@ export class CashReconciliationService {
         status: MatchStatus.IN_PROGRESS
       }));
 
-    return {
-      date: date,
-      type: ReconciliationType.CASH,
-      location_id: location.location_id,
-      paymentsMatched: await this.paymentService.updatePayments(
+    const paymentsMatched: PaymentEntity[] =
+      await this.paymentService.updatePayments(
         matchedPayments.flatMap((itm) =>
           itm.payments.map((payment) => ({
             ...payment,
             timestamp: payment.timestamp
           }))
         )
-      ),
+      );
 
-      paymentsInProgress: await this.paymentService.updatePayments(
-        inProgressPayments
-      ),
-      depositsMatched: await this.cashDepositService.updateDeposits(
-        matchedDeposits
-      ),
-      depositsInProgress: await this.cashDepositService.updateDeposits(
-        inProgressDeposits
-      )
+    const updatedPaymentsInProgress: PaymentEntity[] =
+      await this.paymentService.updatePayments(inProgressPayments);
+
+    const updatedDepositsMatched: CashDepositEntity[] =
+      await this.cashDepositService.updateDeposits(matchedDeposits);
+
+    const updatedDepositsInProgress: CashDepositEntity[] =
+      await this.cashDepositService.updateDeposits(inProgressDeposits);
+
+    return {
+      date: date,
+      type: ReconciliationType.CASH,
+      location_id: location.location_id,
+      paymentsMatched: paymentsMatched.length,
+      paymentsInProgress: updatedPaymentsInProgress.length,
+      depositsMatched: updatedDepositsMatched.length,
+      depositsInProgress: updatedDepositsInProgress.length
     };
   }
 }
