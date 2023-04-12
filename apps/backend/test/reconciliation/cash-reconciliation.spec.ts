@@ -8,17 +8,23 @@ import { CashReconciliationService } from './../../src/reconciliation/cash-recon
 import { LocationService } from '../../src/location/location.service';
 import { PaymentService } from '../../src/transaction/payment.service';
 
+//TODO WIP
+jest.mock('../../src/reconciliation/cash-reconciliation.service');
 describe('CashReconciliationService', () => {
   let service: CashReconciliationService;
+
   const mockedRepo = {
-    findOneOrFail: jest.fn(() => Promise.resolve({}))
+    find: jest.fn(() => Promise.resolve({}))
   };
 
   const mockedPaymentService = {
     // mock the query method that is used
     query: jest.fn(() => Promise.resolve({}))
   };
+
   beforeEach(async () => {
+    // reconcileCash = jest.fn(() => reconcileCash as jest.Mock);
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CashReconciliationService,
@@ -31,7 +37,9 @@ describe('CashReconciliationService', () => {
         },
         {
           provide: getRepositoryToken(LocationEntity),
-          useValue: mockedRepo
+          useValue: {
+            find: jest.fn(() => Promise.resolve([]))
+          }
         },
         {
           provide: PaymentService,

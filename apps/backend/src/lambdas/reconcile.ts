@@ -1,9 +1,9 @@
+import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { AppModule } from '../app.module';
 import { LocationEntity } from '../location/entities/master-location-data.entity';
 import { LocationService } from '../location/location.service';
-import { AppLogger } from '../logger/logger.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationEventInput } from '../reconciliation/types';
@@ -18,7 +18,7 @@ export const handler = async (
   const posRecon = app.get(POSReconciliationService);
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
-  const appLogger = app.get(AppLogger);
+  const appLogger = new Logger();
 
   appLogger.log({ event });
   appLogger.log({ context });
@@ -30,7 +30,6 @@ export const handler = async (
           event.program,
           event.location_ids
         );
-
   appLogger.log(
     `Found ${locations.length} Locations`,
     POSReconciliationService.name
@@ -58,7 +57,7 @@ export const handler = async (
 const runPosReconciliation = async (
   event: ReconciliationEventInput,
   locations: LocationEntity[],
-  appLogger: AppLogger,
+  appLogger: Logger,
   posRecon: POSReconciliationService
 ): Promise<void> => {
   const getFiscalDatesForPOS = (event: ReconciliationEventInput) => {
@@ -101,7 +100,7 @@ const runPosReconciliation = async (
 const runCashReconciliation = async (
   event: ReconciliationEventInput,
   locations: LocationEntity[],
-  appLogger: AppLogger,
+  appLogger: Logger,
   cashRecon: CashReconciliationService
 ): Promise<void> => {
   for (const location of locations) {
@@ -110,46 +109,24 @@ const runCashReconciliation = async (
       CashReconciliationService.name
     );
 
-    const cashDates = await Promise.all(
-      await cashRecon.getAllDepositDatesByLocation(
-        event.program,
-        {
-          to_date: event.fiscal_close_date,
-          from_date: event.fiscal_start_date
-        },
-        location
-      )
+    const cashDates = await cashRecon.getAllDepositDatesByLocation(
+      event.program,
+      {
+        to_date: event.fiscal_close_date,
+        from_date: event.fiscal_start_date
+      },
+      location
     );
     /* start matching the earliest dates and proceed to the most recent */
-    const ascDates = [...cashDates].reverse();
 
-    for (const date of ascDates) {
+    for (const date of cashDates) {
       appLogger.log(
         `Processing CASH Reconciliation for: ${location.description} (${location.location_id}) - ${event.fiscal_start_date} - ${date}`,
         CashReconciliationService.name
       );
 
-      const cashReconciliation = await Promise.all([
-        cashRecon.reconcileCash(location, event.program, date)
-      ]);
-
-      appLogger.log(cashReconciliation, CashReconciliationService.name);
-      console.table(cashReconciliation);
-
-      const exceptions = await Promise.resolve(
-        cashRecon.findExceptions(location, event.program, date)
-      );
-
-      appLogger.log(
-        `EXCEPTIONS: ${exceptions?.payments.length ?? 0} found for: ${
-          location.description
-        } (${location.location_id}) on ${date}`,
-        CashReconciliationService.name
-      );
+      await cashRecon.reconcileCash(location, event.program, date);
+      await cashRecon.findExceptions(location, event.program, date);
     }
-    console.log(
-      `SUMMARY FOR: ${location.description} (${location.location_id})`,
-      CashReconciliationService.name
-    );
   }
 };

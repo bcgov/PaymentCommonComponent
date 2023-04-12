@@ -39,7 +39,7 @@ export class POSDepositEntity {
   @Column({
     type: 'numeric',
     precision: 16,
-    scale: 4,
+    scale: 2,
     transformer: new ColumnNumericTransformer()
   })
   transaction_amt: number;

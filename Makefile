@@ -284,6 +284,9 @@ drop:
 
 dev-docs:
 	@docker exec -it $(PROJECT)-backend yarn run compodoc
+generateMockData:
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/test/reconciliation/generate-data/mock-data-generator.ts")'
+
 # ===================================
 # Migrations
 # ===================================

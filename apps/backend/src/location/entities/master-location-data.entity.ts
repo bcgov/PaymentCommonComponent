@@ -14,7 +14,7 @@ export class LocationEntity {
   @Column('varchar', { length: 15, nullable: false })
   method: string;
 
-  @Column({ type: 'numeric', nullable: false })
+  @Column({ type: 'int4', nullable: false })
   pt_location_id: number;
 
   @Column('varchar', { length: 255, nullable: false })

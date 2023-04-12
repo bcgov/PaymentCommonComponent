@@ -10,6 +10,7 @@
     "build": "yarn run copy-files && nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "start:dev": "yarn run copy-files && NODE_ENV=local RUNTIME_ENV=local nest start --watch",
+    "start:test": "yarn run copy-files && NODE_ENV=test RUNTIME_ENV=test nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_ENV=prod node dist/main",
     "copy-files": "mkdir -p dist/master_data && cp master_data/*.csv dist/master_data",
@@ -60,6 +61,7 @@
   },
   "devDependencies": {
     "@compodoc/compodoc": "1.1.19",
+    "@faker-js/faker": "7.6.0",
     "@nestjs/cli": "9.1.8",
     "@nestjs/schematics": "9.0.4",
     "@nestjs/testing": "9.2.1",

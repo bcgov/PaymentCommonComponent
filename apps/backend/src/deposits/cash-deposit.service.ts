@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, LessThan, Raw, Repository } from 'typeorm';
+import { In, LessThanOrEqual, Raw, Repository } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { mapLimit } from '../common/promises';
@@ -16,18 +16,11 @@ export class CashDepositService {
     @InjectRepository(CashDepositEntity)
     private cashDepositRepo: Repository<CashDepositEntity>
   ) {}
-  /**
-   *
-   * @returns
-   */
-  findAll(): Promise<CashDepositEntity[]> {
-    return this.cashDepositRepo.find();
-  }
-  /**
-   *
-   * @returns
-   */
 
+  /**
+   * @description Find all uploaded files
+   * @returns {Promise<{ cash_deposit_source_file_name: string }[]>}
+   */
   async findAllUploadedFiles(): Promise<
     { cash_deposit_source_file_name: string }[]
   > {
@@ -39,7 +32,7 @@ export class CashDepositService {
   }
   /**
    * @param data
-   * @returns
+   * @returns CashDepositEntity[]
    * @description Create a new cash deposit
    */
 
@@ -64,19 +57,18 @@ export class CashDepositService {
     program: Ministries,
     date: string,
     location: LocationEntity,
-    status?: MatchStatus
+    status?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
-    const depositStatus = status ?? In(MatchStatusAll);
+    const depositStatus = status ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
         deposit_date: date,
-        status: depositStatus
+        status: In(depositStatus)
       },
       order: {
-        deposit_date: 'DESC',
-        deposit_amt_cdn: 'DESC'
+        deposit_amt_cdn: 'ASC'
       }
     });
   }
@@ -92,7 +84,8 @@ export class CashDepositService {
   public async findDistinctDepositDates(
     program: Ministries,
     dateRange: DateRange,
-    location: LocationEntity
+    location: LocationEntity,
+    reverse?: boolean
   ): Promise<string[]> {
     const { to_date, from_date } = dateRange;
     const dates = await this.cashDepositRepo.find({
@@ -101,7 +94,7 @@ export class CashDepositService {
         pt_location_id: location.pt_location_id,
         metadata: { program },
         deposit_date: Raw(
-          (alias) => `${alias} <= :to_date and ${alias} > :from_date`,
+          (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
           {
             to_date,
             from_date
@@ -109,11 +102,14 @@ export class CashDepositService {
         )
       },
       order: {
-        deposit_date: 'DESC'
+        deposit_date: 'ASC'
       }
     });
 
-    return Array.from(new Set(dates.map((item) => item.deposit_date)));
+    const datesArray: string[] = Array.from(
+      new Set(dates.map((item) => item.deposit_date))
+    );
+    return reverse ? datesArray.reverse() : datesArray;
   }
   /**
    * @param deposits: CashDepositEntity[]
@@ -121,33 +117,26 @@ export class CashDepositService {
    * @returns CashDepositEntity
    */
   async updateDeposits(
-    deposits: CashDepositEntity[],
-    status: MatchStatus
+    deposits: CashDepositEntity[]
   ): Promise<CashDepositEntity[]> {
-    this.appLogger.log(
-      `UPDATED: ${deposits.length} CASH DEPOSITS to ${status.toUpperCase()}`,
-      CashDepositService.name
-    );
-
     return await Promise.all(
-      deposits.map(
-        async (deposit) =>
-          await this.updateDepositStatus({ ...deposit, status })
-      )
+      deposits.map((deposit) => this.updateDeposit(deposit))
     );
   }
   /**
    * @param deposit
    * @returns CashDepositEntity
    */
-  async updateDepositStatus(
-    deposit: CashDepositEntity
-  ): Promise<CashDepositEntity> {
-    const depositEntity = await this.cashDepositRepo.findOneByOrFail({
-      id: deposit.id
-    });
-    return await this.cashDepositRepo.save({ ...depositEntity, ...deposit });
+  async updateDeposit(deposit: CashDepositEntity): Promise<CashDepositEntity> {
+    return await this.cashDepositRepo.save(deposit);
   }
+  /**
+   *
+   * @param date
+   * @param program
+   * @param location
+   * @returns CashDepositEntity[]
+   */
 
   async findExceptions(
     date: string,
@@ -158,7 +147,7 @@ export class CashDepositService {
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
-        deposit_date: LessThan(date),
+        deposit_date: LessThanOrEqual(date),
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS])
       }
     });

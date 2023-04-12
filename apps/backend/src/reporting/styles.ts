@@ -28,33 +28,14 @@ export const placement = (mergeRange: string): Placement => {
   };
 };
 
-export const borderStyle: Partial<Excel.Borders> = {
-  top: { style: 'thin', color: { argb: 'FF000000' } },
-  left: { style: 'thin', color: { argb: 'FF000000' } },
-  bottom: { style: 'thin', color: { argb: 'FF000000' } },
-  right: { style: 'thin', color: { argb: 'FF000000' } }
-};
-
 export const columnStyle: Partial<Excel.Style> = {
   font: {
     ...fontStyle,
     bold: true
-  },
-  fill: {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFFFFFFF' }
-  },
-  border: { ...borderStyle }
+  }
 };
 export const rowCommonStyle: Partial<Excel.Style> = {
-  fill: {
-    type: 'pattern',
-    pattern: 'solid',
-    fgColor: { argb: 'FFFFFFFF' }
-  },
-  font: { ...fontStyle },
-  border: { ...borderStyle }
+  font: { ...fontStyle }
 };
 
 export const rowStyle = (exceptions?: boolean): Partial<Excel.Style> => {
@@ -65,8 +46,7 @@ export const rowStyle = (exceptions?: boolean): Partial<Excel.Style> => {
         pattern: 'solid',
         fgColor: { argb: '1AE78587' }
       },
-      font: { ...fontStyle },
-      border: { ...borderStyle }
+      font: { ...fontStyle }
     };
   }
   return rowCommonStyle;
