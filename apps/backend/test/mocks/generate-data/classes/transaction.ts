@@ -20,12 +20,12 @@ export class Transaction {
     this.program = data.program;
     this.location = data.location;
     this.fiscal_close_date = faker.date.between(
-      `${data.dateRange.previousDepositDate}`,
-      `${data.dateRange.currentDepositDate}`
+      `${data.dateRange.from_date}`,
+      `${data.dateRange.to_date}`
     );
     this.transaction_date = faker.date.between(
-      `${data.dateRange.previousDepositDate}`,
-      `${data.dateRange.currentDepositDate}`
+      `${data.dateRange.from_date}`,
+      `${data.dateRange.to_date}`
     );
     this.total_payment_amount = payments.reduce(
       (acc: any, payment: Payment) => (acc += payment.amount),
