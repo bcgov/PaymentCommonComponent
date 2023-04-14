@@ -1,10 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import {
-  ReconciliationType,
-  AggregatedPayment,
-  CashReconciliationOutput
-} from './types';
-import { Dates, MatchStatus } from '../common/const';
+import { ReconciliationType, AggregatedPayment } from './types';
+import { MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { LocationEntity } from '../location/entities';
@@ -22,65 +18,21 @@ export class CashReconciliationService {
   ) {}
   /**
    *
-   * @param program
-   * @param date
-   * @param location
-   * @returns
-   * @description Find the previous two deposit dates and the current date
-   */
-  public async getDateRangeForReconciliation(
-    program: Ministries,
-    date: string,
-    location: LocationEntity
-  ): Promise<DateRange | void> {
-    /* use descending order instead of acsending order */
-    const reverseDates = true;
-    const depositDates = await this.cashDepositService.findDistinctDepositDates(
-      program,
-      {
-        from_date: Dates.FISCAL_YEAR_START_DATE,
-        to_date: date
-      },
-      location,
-      reverseDates
-    );
-    if (depositDates.length === 0) {
-      this.appLogger.log(
-        `No deposit dates found for ${location.description} in ${program}`
-      );
-      return;
-    }
-    const dateRangeForReconciliation = {
-      from_date: depositDates[2] ?? Dates.FISCAL_YEAR_START_DATE,
-      to_date: depositDates[0]
-    };
-
-    this.appLogger.log(
-      `CURRENT DATE: ${dateRangeForReconciliation.to_date}`,
-      CashReconciliationService.name
-    );
-    this.appLogger.log(
-      `PREVIOUS (2) DEPOSIT DATES: ${dateRangeForReconciliation.from_date}`,
-      CashReconciliationService.name
-    );
-    return dateRangeForReconciliation;
-  }
-  /**
-   *
    * @param event
    * @returns
    * @description Find all deposit dates for a given location and program
    */
-  public async getAllDepositDatesByLocation(
+  public async findDistinctDepositDatesByLocation(
     program: Ministries,
     dateRange: DateRange,
     location: LocationEntity
-  ): Promise<string[]> {
-    const dates = await this.cashDepositService.findDistinctDepositDates(
-      program,
-      dateRange,
-      location
-    );
+  ): Promise<Date[]> {
+    const dates =
+      await this.cashDepositService.findDistinctDepositDatesByLocation(
+        program,
+        dateRange,
+        location
+      );
     return dates;
   }
   /**
@@ -93,30 +45,14 @@ export class CashReconciliationService {
   public async findExceptions(
     location: LocationEntity,
     program: Ministries,
-    date: string
-  ): Promise<{
-    payments: unknown[];
-    deposits: unknown[];
-  } | void> {
-    const dates: DateRange | void = await this.getDateRangeForReconciliation(
-      program,
-      date,
-      location
-    );
-
-    if (!dates) {
-      return;
-    }
-
+    pastDueDate: Date
+  ): Promise<unknown> {
     const payments: PaymentEntity[] =
-      await this.paymentService.findPaymentsExceptions(
-        location,
-        dates.from_date
-      );
+      await this.paymentService.findPaymentsExceptions(location, pastDueDate);
 
     const deposits: CashDepositEntity[] =
       await this.cashDepositService.findExceptions(
-        dates.from_date,
+        pastDueDate,
         program,
         location
       );
@@ -142,8 +78,8 @@ export class CashReconciliationService {
       );
 
     return {
-      payments: paymentExceptions,
-      deposits: depositExceptions
+      payments: paymentExceptions.length,
+      deposits: depositExceptions.length
     };
   }
 
@@ -161,6 +97,10 @@ export class CashReconciliationService {
     aggregatedPayments: AggregatedPayment[];
     deposits: CashDepositEntity[];
   } {
+    this.appLogger.log(
+      `MATCHING: ${aggregatedPayments.length} AGGREGATED PAYMENTS to ${deposits.length} DEPOSITS`,
+      CashReconciliationService.name
+    );
     for (const [dindex, deposit] of deposits.entries()) {
       for (const [pindex, payment] of aggregatedPayments.entries()) {
         if (
@@ -204,43 +144,36 @@ export class CashReconciliationService {
   public async reconcileCash(
     location: LocationEntity,
     program: Ministries,
-    date: string
-  ): Promise<CashReconciliationOutput | unknown> {
-    const dateRange: DateRange | void =
-      await this.getDateRangeForReconciliation(program, date, location);
-
-    if (!dateRange) {
-      this.appLogger.log(
-        'No previous or current dates found. Skipping...',
-        CashReconciliationService.name
+    dateRange: DateRange
+  ): Promise<unknown> {
+    const pendingDeposits: CashDepositEntity[] =
+      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
+        program,
+        dateRange,
+        location,
+        [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
       );
-      return;
-    }
 
     const aggregatedPayments: AggregatedPayment[] =
       await this.paymentService.getAggregatedPaymentsByCashDepositDates(
         dateRange,
         location
       );
-
-    const pendingDeposits: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
-        program,
-        dateRange.to_date,
-        location,
-        [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
-      );
-
-    if (pendingDeposits.length === 0 || aggregatedPayments.length === 0) {
-      return {
-        message: 'No pending payments or deposits found'
-      };
-    }
-
     this.appLogger.log(
-      `MATCHING: ${aggregatedPayments.length} AGGREGATED PAYMENTS to ${pendingDeposits.length} DEPOSITS`,
+      `${aggregatedPayments.length} AGGREGATED PAYMENTS PENDING RECONCILIATION`,
       CashReconciliationService.name
     );
+    this.appLogger.log(
+      `${pendingDeposits.length} DEPOSITS PENDING RECONCILIATION`,
+      CashReconciliationService.name
+    );
+    if (pendingDeposits.length === 0 || aggregatedPayments.length === 0) {
+      this.appLogger.log(
+        'No pending payments or deposits found',
+        CashReconciliationService.name
+      );
+      return;
+    }
 
     const afterMatch: {
       aggregatedPayments: AggregatedPayment[];
@@ -251,8 +184,17 @@ export class CashReconciliationService {
       afterMatch.aggregatedPayments.filter(
         (itm: AggregatedPayment) => itm.status === MatchStatus.MATCH
       );
+
     const matchedDeposits: CashDepositEntity[] = afterMatch.deposits.filter(
       (itm: CashDepositEntity) => itm.status === MatchStatus.MATCH
+    );
+    this.appLogger.log(
+      `${matchedPayments.length} AFTER MATCH PAYMENTS MARKED MATCHED`,
+      CashReconciliationService.name
+    );
+    this.appLogger.log(
+      `${matchedDeposits.length} AFTER MATCH DEPOSITS MARKED MATCHED`,
+      CashReconciliationService.name
     );
     const inProgressPayments: PaymentEntity[] = afterMatch.aggregatedPayments
       .filter(
@@ -274,6 +216,17 @@ export class CashReconciliationService {
         status: MatchStatus.IN_PROGRESS
       }));
 
+    this.appLogger.log(
+      `${
+        this.paymentService.aggregatePayments(inProgressPayments).length
+      } AFTER MATCH PAYMENTS MARKED IN_PROGRESS`,
+      CashReconciliationService.name
+    );
+    this.appLogger.log(
+      `${inProgressDeposits.length} AFTER MATCH DEPOSITS MARKED IN_PROGRESS`,
+      CashReconciliationService.name
+    );
+
     const paymentsMatched: PaymentEntity[] =
       await this.paymentService.updatePayments(
         matchedPayments.flatMap((itm) =>
@@ -284,21 +237,46 @@ export class CashReconciliationService {
         )
       );
 
+    this.appLogger.log(
+      `${
+        this.paymentService.aggregatePayments(paymentsMatched).length
+      } PAYMENTS MATCHED UPDATED TO DB`,
+      CashReconciliationService.name
+    );
     const updatedPaymentsInProgress: PaymentEntity[] =
       await this.paymentService.updatePayments(inProgressPayments);
+    this.appLogger.log(
+      `${
+        this.paymentService.aggregatePayments(updatedPaymentsInProgress).length
+      } PAYMENTS IN_PROGRESS UPDATED TO DB`,
+      CashReconciliationService.name
+    );
 
     const updatedDepositsMatched: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(matchedDeposits);
-
+    this.appLogger.log(
+      `${updatedDepositsMatched.length} DEPOSITS MATCHED UPDATED TO DB`,
+      CashReconciliationService.name
+    );
     const updatedDepositsInProgress: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(inProgressDeposits);
 
+    this.appLogger.log(
+      `${updatedDepositsInProgress.length} DEPOSITS IN_PROGRESS UPDATED TO DB`,
+      CashReconciliationService.name
+    );
+
     return {
-      date: date,
+      dateRange,
       type: ReconciliationType.CASH,
       location_id: location.location_id,
-      paymentsMatched: paymentsMatched.length,
-      paymentsInProgress: updatedPaymentsInProgress.length,
+      pendingPayments: aggregatedPayments.length,
+      pendingDeposits: pendingDeposits.length,
+      paymentsMatched:
+        this.paymentService.aggregatePayments(paymentsMatched).length,
+      paymentsInProgress: this.paymentService.aggregatePayments(
+        updatedPaymentsInProgress
+      ).length,
       depositsMatched: updatedDepositsMatched.length,
       depositsInProgress: updatedDepositsInProgress.length
     };

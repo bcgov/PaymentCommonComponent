@@ -55,7 +55,7 @@ export class CashDepositService {
    */
   async findCashDepositsByDateLocationAndProgram(
     program: Ministries,
-    date: string,
+    dateRange: DateRange,
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
@@ -64,7 +64,7 @@ export class CashDepositService {
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
-        deposit_date: date,
+        deposit_date: dateRange.to_date,
         status: In(depositStatus)
       },
       order: {
@@ -72,44 +72,36 @@ export class CashDepositService {
       }
     });
   }
-
   /**
    *
-   * @param event
-   * @param pastDueDate
-   * @returns string[]
-   * @description Find all deposit dates for a specific location and program, in descending order, which are still
-   *  pending or in progress. This is used to find the dates that need to be reconciled.
+   * @param program
+   * @param dateRange
+   * @param location
+   * @returns
    */
-  public async findDistinctDepositDates(
+  public async findDistinctDepositDatesByLocation(
     program: Ministries,
     dateRange: DateRange,
-    location: LocationEntity,
-    reverse?: boolean
-  ): Promise<string[]> {
+    location: LocationEntity
+  ) {
     const { to_date, from_date } = dateRange;
-    const dates = await this.cashDepositRepo.find({
-      select: { deposit_date: true },
-      where: {
-        pt_location_id: location.pt_location_id,
-        metadata: { program },
-        deposit_date: Raw(
-          (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
-          {
-            to_date,
-            from_date
-          }
-        )
-      },
-      order: {
-        deposit_date: 'ASC'
-      }
+    const qb = this.cashDepositRepo.createQueryBuilder('cash_deposit');
+    qb.select('deposit_date');
+    qb.distinctOn(['deposit_date']);
+    qb.where({
+      pt_location_id: location.pt_location_id,
+      metadata: { program },
+      deposit_date: Raw(
+        (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
+        {
+          to_date,
+          from_date
+        }
+      )
     });
-
-    const datesArray: string[] = Array.from(
-      new Set(dates.map((item) => item.deposit_date))
-    );
-    return reverse ? datesArray.reverse() : datesArray;
+    qb.orderBy('deposit_date', 'ASC');
+    const dates = await qb.getRawMany();
+    return dates.map((itm) => itm.deposit_date);
   }
   /**
    * @param deposits: CashDepositEntity[]
@@ -139,7 +131,7 @@ export class CashDepositService {
    */
 
   async findExceptions(
-    date: string,
+    date: Date,
     program: Ministries,
     location: LocationEntity
   ) {

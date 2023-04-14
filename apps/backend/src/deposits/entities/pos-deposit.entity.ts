@@ -1,4 +1,4 @@
-import { parse } from 'date-fns';
+import { format, parse } from 'date-fns';
 import {
   Column,
   Entity,
@@ -44,8 +44,8 @@ export class POSDepositEntity {
   })
   transaction_amt: number;
 
-  @Column({ type: 'date' })
-  transaction_date: string;
+  @Column({ type: 'timestamp' })
+  transaction_date: Date;
 
   @Column({ type: 'time', nullable: true })
   transaction_time: string;
@@ -53,8 +53,8 @@ export class POSDepositEntity {
   @Column('varchar', { length: 19 })
   terminal_no: string;
 
-  @Column({ nullable: true, type: 'date' })
-  settlement_date: string;
+  @Column({ nullable: true, type: 'timestamp' })
+  settlement_date: Date;
 
   @Column({ nullable: true })
   transaction_code: number;
@@ -69,7 +69,7 @@ export class POSDepositEntity {
 
   public get timestamp(): Date {
     return parse(
-      `${this.transaction_date}${this.transaction_time}`,
+      `${format(this.transaction_date, 'yyyy-MM-dd')}${this.transaction_time}`,
       'yyyy-MM-ddHH:mm:ss',
       new Date()
     );

@@ -3,10 +3,11 @@ import { BaseData } from './base-data';
 import { Payment } from './payment';
 import { Location } from '../types/interface';
 import { Ministries } from '../../../../src/constants';
+import { TransactionEntity } from '../../../../src/transaction/entities';
 
 /*eslint-disable */
 
-export class Transaction {
+export class Transaction extends TransactionEntity {
   transaction_id: string;
   program: Ministries;
   location: Location;
@@ -16,6 +17,7 @@ export class Transaction {
   payments: Payment[];
 
   constructor(data: BaseData, payments: Payment[]) {
+    super();
     this.transaction_id = `${faker.datatype.uuid()}`;
     this.program = data.program;
     this.location = data.location;
@@ -23,6 +25,7 @@ export class Transaction {
       `${data.dateRange.from_date}`,
       `${data.dateRange.to_date}`
     );
+
     this.transaction_date = faker.date.between(
       `${data.dateRange.from_date}`,
       `${data.dateRange.to_date}`
@@ -31,7 +34,6 @@ export class Transaction {
       (acc: any, payment: Payment) => (acc += payment.amount),
       0
     );
-
     this.payments = payments;
   }
 }

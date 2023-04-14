@@ -12,7 +12,7 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   rcd_type: number;
   ministry_no: string;
   program_code: string;
-  deposit_date: string;
+  deposit_date: Date;
   pt_location_id: number;
   deposit_time: string;
   seq_no: string;
@@ -25,7 +25,7 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   batch_no: string;
   jv_type: string;
   jv_no: string;
-  transaction_date: string;
+  transaction_date: Date;
   filler: string;
 }
 

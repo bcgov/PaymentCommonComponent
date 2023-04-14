@@ -6,7 +6,7 @@ import {
   FixedWidthRecord,
   IFixedWidthRecord
 } from '../../common/entities/FixedWidthRecord';
-
+/*eslint-disable @typescript-eslint/no-explicit-any*/
 export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
   metadata: any;
   rcd_type: number;
@@ -15,9 +15,9 @@ export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
   filler1: string;
   card_vendor: string;
   card_id: string;
-  transaction_date: string;
+  transaction_date: Date;
   transaction_time: string;
-  settlement_date: string;
+  settlement_date: Date;
   transaction_code: string;
   filler2: string;
   approval_code: string;

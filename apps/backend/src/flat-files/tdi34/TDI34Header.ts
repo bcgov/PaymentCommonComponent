@@ -9,7 +9,7 @@ import {
 
 export interface ITDI34Header extends IFixedWidthRecord<ITDI34Header> {
   rcd_type: string;
-  settlement_date: string;
+  settlement_date: Date;
   filler: string;
 }
 

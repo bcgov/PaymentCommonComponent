@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, LessThan, Not, In, Repository } from 'typeorm';
+import { Raw, Not, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange } from '../constants';
@@ -17,7 +17,7 @@ export class PaymentService {
   ) {}
 
   async findPosPayments(
-    date: string,
+    date: Date,
     location: LocationEntity,
     status?: MatchStatus
   ): Promise<PaymentEntity[]> {
@@ -70,7 +70,7 @@ export class PaymentService {
 
   public async findPaymentsWithPartialSelect(
     location: LocationEntity,
-    date: string
+    date: Date
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       select: {
@@ -112,7 +112,8 @@ export class PaymentService {
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: Raw(
-            (alias) => `${alias} >= :from_date AND ${alias} <= :to_date`,
+            (alias) =>
+              `${alias} >= :from_date::date AND ${alias} <= :to_date::date`,
             { from_date, to_date }
           )
         }
@@ -140,7 +141,7 @@ export class PaymentService {
 
   public async findPaymentsExceptions(
     location: LocationEntity,
-    pastDueDepositDate: string
+    pastDueDepositDate: Date
   ) {
     const pos_methods = ['AX', 'P', 'V', 'M'];
     const payments = await this.paymentRepo.find({
@@ -149,7 +150,7 @@ export class PaymentService {
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
         transaction: {
           location_id: location.location_id,
-          fiscal_close_date: LessThan(pastDueDepositDate)
+          fiscal_close_date: pastDueDepositDate
         }
       },
       relations: ['transaction']

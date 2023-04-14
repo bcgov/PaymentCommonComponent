@@ -1,8 +1,8 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { differenceInMinutes } from 'date-fns';
 import {
-  ReconciliationEvent,
-  ReconciliationEventError,
+  ReconciliationConfig,
+  ReconciliationError,
   ReconciliationType
 } from './types';
 import { MatchStatus } from '../common/const';
@@ -186,8 +186,8 @@ export class POSReconciliationService {
    */
 
   public async reconcile(
-    event: ReconciliationEvent
-  ): Promise<unknown | ReconciliationEventError> {
+    event: ReconciliationConfig
+  ): Promise<unknown | ReconciliationError> {
     const pendingPayments = await this.paymentService.findPosPayments(
       event.date,
       event.location,

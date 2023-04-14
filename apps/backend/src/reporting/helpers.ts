@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { DetailsReport } from './interfaces';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -8,7 +7,7 @@ import { PaymentEntity } from '../transaction/entities/payment.entity';
 export const parseCashDepositDetailsForReport = (
   location: LocationEntity,
   deposit: CashDepositEntity,
-  dates?: string[]
+  dates?: Date[]
 ) =>
   ({
     source_file: 'Cash/Chq (TDI 17)',
@@ -17,7 +16,7 @@ export const parseCashDepositDetailsForReport = (
     location_id: location.location_id,
     location: location.description,
     date: deposit.deposit_date,
-    time: deposit.deposit_time ?? '',
+    time: deposit.deposit_time ?? null,
     deposit_date_range:
       dates && dates[0] && dates[1] ? `${dates[1]}-${dates[0]}` : '',
     fiscal_date: deposit.deposit_date,
@@ -59,7 +58,7 @@ export const parsePosDepositDetailsForReport = (
     date: deposit.transaction_date,
     time: deposit.transaction_time,
     deposit_date_range: '',
-    fiscal_date: format(new Date(deposit.settlement_date), 'yyyy-MM-dd'),
+    fiscal_date: deposit.settlement_date,
     payment_method: deposit.payment_method.description,
     amount: deposit.transaction_amt,
     foreign_currency_amount: null,
@@ -86,7 +85,7 @@ export const parsePosDepositDetailsForReport = (
 export const parsePaymentDetailsForReport = (
   location: LocationEntity,
   payment: PaymentEntity,
-  dates?: string[]
+  dates?: Date[]
 ) =>
   ({
     source_file: 'Transaction (LOB)',
@@ -99,6 +98,7 @@ export const parsePaymentDetailsForReport = (
     deposit_date_range:
       dates && dates[0] && dates[1] ? `${dates[1]}-${dates[0]}` : '',
     fiscal_date: payment.transaction.fiscal_close_date,
+
     payment_method: payment.payment_method.description,
     amount: payment.amount,
     foreign_currency_amount: payment.foreign_currency_amount ?? null,

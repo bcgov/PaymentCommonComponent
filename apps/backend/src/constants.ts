@@ -26,6 +26,6 @@ export interface ParseArgsTDI {
 }
 
 export interface DateRange {
-  from_date: string;
-  to_date: string;
+  from_date: Date;
+  to_date: Date;
 }

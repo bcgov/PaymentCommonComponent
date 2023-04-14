@@ -1,6 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format } from 'date-fns';
 import { Repository } from 'typeorm';
 import {
   dailySummaryColumns,
@@ -69,10 +68,7 @@ export class ReportingService {
     await this.generateDailySummary(config, locations);
     await this.generateDetailsWorksheet(config, locations);
     await this.generateCasReportWorksheet(config, locations);
-    await this.excelWorkbook.saveS3(
-      'reconciliation_report',
-      format(new Date(config.period.to.toString()), 'yyyy-MM-dd')
-    );
+    await this.excelWorkbook.saveS3('reconciliation_report', config.period.to);
     if (process.env.RUNTIME_ENV !== 'production') {
       await this.excelWorkbook.saveLocal();
     }
@@ -87,12 +83,12 @@ export class ReportingService {
     locations: LocationEntity[]
   ): Promise<void> {
     const details: CasReport[] = [];
-    const to_date = format(new Date(config.period.to.toString()), 'yyyy-MM-dd');
+    const to_date = new Date(config.period.to);
     /* extract the month from the "to-date"*/
-    const from_date = `${to_date.slice(0, 4)}-${to_date.slice(5, 7)}-01`;
+    const from_date = new Date(to_date.getFullYear(), to_date.getMonth(), 1);
     const dateRange = {
-      from_date,
-      to_date
+      from_date: new Date(from_date),
+      to_date: new Date(to_date)
     };
     this.appLogger.log(
       `Generating cas report for: ${from_date}-${to_date}`,
@@ -185,7 +181,7 @@ export class ReportingService {
         ...itm,
         ...casLocationData,
         card_vendor: 'CASH DEPOSIT',
-        settlement_date: format(new Date(itm.deposit_date), 'yyyy-MM-dd'),
+        settlement_date: itm.deposit_date,
         amount: itm.deposit_amt_cdn
       })),
       ...posDeposits
@@ -193,7 +189,7 @@ export class ReportingService {
         .map((itm) => ({
           ...itm,
           ...casLocationData,
-          settlement_date: format(new Date(itm.settlement_date), 'yyyy-MM-dd'),
+          settlement_date: itm.settlement_date,
           card_vendor: itm.card_vendor,
           amount: parseFloat(itm.transaction_amt.toString())
         }))
@@ -287,7 +283,7 @@ export class ReportingService {
       locations.map(
         async (location: LocationEntity) =>
           await this.findPaymentDataForDailySummary(
-            format(new Date(config.period.to), 'yyyy-MM-dd'),
+            config.period.to,
             location,
             config.program
           )
@@ -337,7 +333,7 @@ export class ReportingService {
    * @returns
    */
   async findPaymentDataForDailySummary(
-    date: string,
+    date: Date,
     location: LocationEntity,
     program: Ministries
   ): Promise<DailySummary> {
@@ -385,27 +381,26 @@ export class ReportingService {
     location: LocationEntity
   ): Promise<DetailsReport[]> {
     const dateRange: DateRange = {
-      to_date: config.period.to.toString(),
-      from_date: config.period.from.toString()
+      to_date: config.period.to,
+      from_date: config.period.from
     };
     const reverseDates = true;
-    const cashDepositDates: string[] =
-      await this.cashDepositService.findDistinctDepositDates(
+    const cashDepositDates: Date[] =
+      await this.cashDepositService.findDistinctDepositDatesByLocation(
         config.program,
         dateRange,
-        location,
-        reverseDates
+        location
       );
 
     const cashDepositDateRange: DateRange = {
-      from_date: cashDepositDates[1],
-      to_date: config.period.to.toString()
+      from_date: cashDepositDates[0],
+      to_date: config.period.to
     };
 
     const cashDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
         config.program,
-        cashDepositDateRange.to_date,
+        cashDepositDateRange,
         location
       );
 
@@ -420,8 +415,8 @@ export class ReportingService {
     const allPendingAndInProgressCashPayments: PaymentEntity[] =
       await this.paymentService.findCashPayments(
         {
-          to_date: config.period.to.toString(),
-          from_date: config.period.from.toString()
+          to_date: config.period.to,
+          from_date: config.period.from
         },
         location,
         [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
@@ -435,10 +430,7 @@ export class ReportingService {
     );
 
     const posPayments: PaymentEntity[] =
-      await this.paymentService.findPosPayments(
-        config.period.to.toString(),
-        location
-      );
+      await this.paymentService.findPosPayments(config.period.to, location);
 
     const parsedPosPayments: DetailsReport[] = posPayments.map(
       (itm: PaymentEntity) => parsePaymentDetailsForReport(location, itm)
@@ -451,7 +443,7 @@ export class ReportingService {
 
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSDeposits(
-        config.period.to.toString(),
+        config.period.to,
         config.program,
         location
       );

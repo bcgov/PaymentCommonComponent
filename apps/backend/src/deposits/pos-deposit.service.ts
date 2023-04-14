@@ -21,7 +21,7 @@ export class PosDepositService {
   ) {}
 
   async findPOSDeposits(
-    date: string,
+    date: Date,
     program: Ministries,
     location: LocationEntity,
     status?: MatchStatus

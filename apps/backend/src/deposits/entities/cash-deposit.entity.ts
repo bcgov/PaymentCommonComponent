@@ -24,13 +24,13 @@ export class CashDepositEntity {
   @Column({ nullable: true })
   program_code?: string;
 
-  @Column({ type: 'date' })
-  deposit_date: string;
+  @Column({ type: 'timestamp' })
+  deposit_date: Date;
 
   @Column({ type: 'int4' })
   pt_location_id: number;
 
-  @Column({ nullable: true })
+  @Column({ type: 'time', nullable: true })
   deposit_time: string;
 
   @Column('varchar', { length: 3 })

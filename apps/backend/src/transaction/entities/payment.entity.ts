@@ -1,4 +1,4 @@
-import { parse } from 'date-fns';
+import { format, parse } from 'date-fns';
 import {
   Column,
   Entity,
@@ -121,13 +121,15 @@ export class PaymentEntity {
   })
   pos_deposit_match?: Relation<POSDepositEntity>;
 
-  constructor(payment: Partial<PaymentEntity>) {
+  constructor(payment?: Partial<PaymentEntity>) {
     Object.assign(this, payment);
   }
 
   public get timestamp(): Date {
     return parse(
-      `${this.transaction.transaction_date}${this.transaction.transaction_time}`,
+      `${format(this.transaction.transaction_date, 'yyyy-MM-dd')}${
+        this.transaction.transaction_time
+      }`,
       'yyyy-MM-ddHH:mm:ss',
       new Date()
     );

@@ -16,9 +16,9 @@ export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   fill1: string;
   card_vendor: string;
   card_id: string;
-  transaction_date: string;
+  transaction_date: Date;
   transaction_time: string;
-  settlement_date: string;
+  settlement_date: Date;
   transaction_code: number;
   fill2: string;
   approval_code: string;

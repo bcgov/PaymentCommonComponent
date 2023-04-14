@@ -19,7 +19,7 @@ export interface ReportConfig {
 export interface DailySummary {
   values: {
     program: string;
-    date: string;
+    date: Date;
     location_id: number;
     location_name: string;
     total_payments: number;
@@ -36,10 +36,10 @@ export interface DetailsReport {
   transaction_id?: string;
   location_id: number;
   location: string;
-  date: string;
+  date: Date;
   time?: string;
   deposit_date_range?: string;
-  fiscal_date?: string;
+  fiscal_date?: Date;
   payment_method: string;
   amount: number | null;
   foreign_currency_amount: number | null;
@@ -79,7 +79,7 @@ export interface CasLocationReport {
   dist_project_code: number;
 }
 export interface CasReport extends CasLocationReport {
-  settlement_date: string;
+  settlement_date: Date;
   card_vendor: string;
   amount: number;
 }

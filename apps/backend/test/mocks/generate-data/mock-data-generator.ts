@@ -1,12 +1,32 @@
+import { BaseData } from './classes/base-data';
+import { CashDeposit } from './classes/cash-deposit';
 import { Payment } from './classes/payment';
 import { POSDeposit } from './classes/pos-deposit';
 import { Transaction } from './classes/transaction';
 import { GenerateData } from './generateData';
 
+/*eslint-disable */
+export interface MockData {
+  cashdeposit: CashDeposit;
+  posDeposits: POSDeposit[];
+  transactions: Transaction[];
+
+  total_pos: any;
+  total_cash: any;
+  total: any;
+}
+export interface MockReconciliationData {
+  mockdata: MockData[];
+  baseData: BaseData;
+}
+
 export const generate = () => {
   const data = new GenerateData();
-  const baseData = data.generateBaseData();
-  const mockData = [];
+  const baseData: BaseData = data.generateBaseData();
+  const mockReconciliationData: MockReconciliationData = {
+    mockdata: [],
+    baseData: baseData
+  };
   /*eslint-disable */
   for (let i = 0; i < 10; i++) {
     const transactions = data.generateTransactions(baseData);
@@ -47,7 +67,7 @@ export const generate = () => {
       )
       .reduce((acc: any, itm: Payment) => (acc += itm.amount), 0);
     const total = total_pos + total_cash;
-    mockData.push({
+    mockReconciliationData.mockdata.push({
       cashdeposit,
       posDeposits,
       transactions,
@@ -56,6 +76,5 @@ export const generate = () => {
       total
     });
   }
-  return mockData;
+  return mockReconciliationData;
 };
-console.log(generate());

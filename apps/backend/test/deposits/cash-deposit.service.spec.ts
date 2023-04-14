@@ -158,12 +158,12 @@ describe('CashDepositService', () => {
     it('should return all distinct deposit dates', async () => {
       const spy = jest
         .spyOn(service, 'findDistinctDepositDates')
-        .mockResolvedValue(['2020-01-01', '2020-01-02']);
+        .mockResolvedValue([new Date('2020-01-01'), new Date('2020-01-02')]);
       const params = {
         program: Ministries.SBC,
         dateRange: {
-          to_date: '2020-01-02',
-          from_date: '2020-01-01'
+          to_date: new Date('2020-01-02'),
+          from_date: new Date('2020-01-01')
         },
         location: locationMock
       };
@@ -173,7 +173,7 @@ describe('CashDepositService', () => {
           params.dateRange,
           params.location
         )
-      ).resolves.toEqual(['2020-01-01', '2020-01-02']);
+      ).resolves.toEqual([new Date('2020-01-01'), new Date('2020-01-02')]);
       expect(spy).toBeCalledTimes(1);
     });
   });
@@ -185,7 +185,7 @@ describe('CashDepositService', () => {
         .mockResolvedValue([cashDepositMock]);
       const params = {
         program: Ministries.SBC,
-        date: '2020-01-01',
+        date: new Date('2020-01-01'),
         location: locationMock
       };
       expect(

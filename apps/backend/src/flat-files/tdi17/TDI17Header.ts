@@ -10,13 +10,13 @@ import {
 export interface ITDI17Header extends IFixedWidthRecord<ITDI17Header> {
   rcd_type: string;
   creation_date_str: string;
-  creation_date: string;
+  creation_date: Date;
   creation_time_str: string;
   creation_time: string;
   from_date_str: string;
-  from_date: string;
+  from_date: Date;
   to_date_str: string;
-  to_date: string;
+  to_date: Date;
   filler: string;
 }
 export class TDI17Header

@@ -8,14 +8,14 @@ export class TransactionEntity {
   @PrimaryColumn({ unique: true })
   transaction_id: string;
 
-  @Column({ type: 'date' })
-  transaction_date: string;
+  @Column({ type: 'timestamp' })
+  transaction_date: Date;
 
-  @Column({ nullable: true })
+  @Column({ type: 'time', nullable: true })
   transaction_time: string;
 
-  @Column({ type: 'date' })
-  fiscal_close_date: string;
+  @Column({ type: 'timestamp' })
+  fiscal_close_date: Date;
 
   @Column({
     type: 'numeric',
@@ -49,7 +49,7 @@ export class TransactionEntity {
   })
   payments: Relation<PaymentEntity[]>;
 
-  constructor(transaction: Partial<TransactionEntity>) {
+  constructor(transaction?: Partial<TransactionEntity>) {
     Object.assign(this, transaction);
   }
 }

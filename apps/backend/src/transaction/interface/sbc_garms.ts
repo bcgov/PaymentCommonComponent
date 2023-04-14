@@ -54,7 +54,7 @@ export interface SBCGarmsJson {
   sales_transaction_date: string;
   fiscal_close_date: string;
   payment_total: number;
-  void_indicator?: string;
+  void_indicator: boolean;
   transaction_reference?: string;
   misc: Misc;
   payments: SBCGarmsPayment[];

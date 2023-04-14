@@ -1,7 +1,6 @@
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 /*eslint-disable @typescript-eslint/no-unused-vars*/
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { format } from 'date-fns';
 import * as Excel from 'exceljs';
 import * as path from 'path';
 import { Stream } from 'stream';
@@ -39,7 +38,7 @@ export class ExcelExportService {
    * @param date
    */
 
-  public async saveS3(filename: string, date: string): Promise<void> {
+  public async saveS3(filename: string, date: Date): Promise<void> {
     try {
       const stream = new Stream.PassThrough();
 
@@ -74,7 +73,7 @@ export class ExcelExportService {
    * @param title
    */
   public addWorkbookMetadata(title: string): void {
-    const date = new Date(format(new Date(), 'yyyy-MM-dd'));
+    const date = new Date();
     this.workbook.title = title;
     this.workbook.created = date;
     this.appLogger.log(

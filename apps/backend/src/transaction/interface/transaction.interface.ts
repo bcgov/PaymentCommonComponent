@@ -126,9 +126,9 @@ interface Misc {
 
 export class Transaction {
   transaction_id: string;
-  transaction_date: string;
-  transaction_time: string;
-  fiscal_close_date: string;
+  transaction_date: Date;
+  transaction_time: Date;
+  fiscal_close_date: Date;
   payment_total: number;
   void_indicator?: boolean;
   misc: Misc;
@@ -139,8 +139,8 @@ export class Transaction {
   constructor(data: SBCGarmsJson) {
     try {
       this.transaction_id = data?.sales_transaction_id;
-      this.transaction_date = data?.sales_transaction_date;
-      this.fiscal_close_date = data?.fiscal_close_date;
+      this.transaction_date = new Date(data?.sales_transaction_date);
+      this.fiscal_close_date = new Date(data?.fiscal_close_date);
       this.payment_total = data?.payment_total;
       this.void_indicator = data.void_indicator ? true : false;
       this.misc = {
@@ -166,7 +166,7 @@ export class Transaction {
           } as AccountingItem)
       );
     } catch (e) {
-      console.log(this.transaction_id)
+      console.log(this.transaction_id);
       console.log(e);
       throw e;
     }
