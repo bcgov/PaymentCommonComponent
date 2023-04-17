@@ -23,13 +23,6 @@ export class migration1681771116405 implements MigrationInterface {
     });
 
     await queryRunner.manager.save(paymentMethodsEntities);
-    const methodToDelete = await queryRunner.manager.findOneByOrFail(
-      PaymentMethodEntity,
-      {
-        method: 'MV'
-      }
-    );
-    await queryRunner.manager.remove(methodToDelete);
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
@@ -37,10 +30,5 @@ export class migration1681771116405 implements MigrationInterface {
             DELETE FROM 
                 public.payment_method 
         `);
-    await queryRunner.query(`
-            INSERT INTO 
-                public.payment_method (method, description, sbc_code, deposit_file_type)
-                VALUES
-                ('MV', 'DEBIT_MASTERCARD', '19', 'TDI34')`);
   }
 }
