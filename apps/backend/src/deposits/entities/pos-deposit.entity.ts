@@ -10,6 +10,7 @@ import {
 import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
+import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
 import { PaymentMethodEntity } from '../../transaction/entities';
 
@@ -24,8 +25,8 @@ export class POSDepositEntity {
   @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
   status: MatchStatus;
 
-  @Column({ default: 'TDI34' })
-  source_file_type: string;
+  @Column({ enum: FileTypes, default: FileTypes.TDI34 })
+  source_file_type: FileTypes;
 
   @Column({ type: 'int4' })
   merchant_id: number;

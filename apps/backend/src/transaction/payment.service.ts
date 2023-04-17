@@ -1,12 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, Not, In, Repository } from 'typeorm';
+import { Raw, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedPayment } from '../reconciliation/types/interface';
+import { FileTypes } from './../constants';
 
 @Injectable()
 export class PaymentService {
@@ -21,7 +22,6 @@ export class PaymentService {
     location: LocationEntity,
     status?: MatchStatus
   ): Promise<PaymentEntity[]> {
-    const pos_payment_methods = ['AX', 'V', 'P', 'M'];
     const paymentStatus = status ? status : In(MatchStatusAll);
 
     return await this.paymentRepo.find({
@@ -31,12 +31,14 @@ export class PaymentService {
           location_id: location.location_id
         },
         status: paymentStatus,
-        method: In(pos_payment_methods)
+        payment_method: {
+          deposit_file_type: FileTypes.TDI34
+        }
       },
       relations: ['transaction', 'payment_method'],
       order: {
         amount: 'ASC',
-        method: 'ASC',
+        payment_method: { method: 'ASC' },
         transaction: { transaction_time: 'ASC' }
       }
     });
@@ -75,7 +77,9 @@ export class PaymentService {
     return await this.paymentRepo.find({
       select: {
         amount: true,
-        method: true,
+        payment_method: {
+          method: true
+        },
         status: true,
         transaction: {
           transaction_date: true,
@@ -102,12 +106,11 @@ export class PaymentService {
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
-    const pos_methods = ['AX', 'P', 'V', 'M'];
     const paymentStatus = !status ? MatchStatusAll : status;
     const { from_date, to_date } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
-        method: Not(In(pos_methods)),
+        payment_method: { deposit_file_type: FileTypes.TDI17 },
         status: In(paymentStatus),
         transaction: {
           location_id: location.location_id,
@@ -143,17 +146,16 @@ export class PaymentService {
     location: LocationEntity,
     pastDueDepositDate: Date
   ) {
-    const pos_methods = ['AX', 'P', 'V', 'M'];
     const payments = await this.paymentRepo.find({
       where: {
-        method: Not(In(pos_methods)),
+        payment_method: { deposit_file_type: FileTypes.TDI17 },
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: pastDueDepositDate
         }
       },
-      relations: ['transaction']
+      relations: ['transaction', 'payment_method']
     });
     return payments;
   }

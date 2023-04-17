@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { paymentMethods } from '../const/payment-methods';
-import { PaymentMethod } from '../types/interface';
+import { PaymentMethodEntity } from '../../../../src/transaction/entities';
 
-export const getPaymentMethod = (): PaymentMethod => {
+export const getPaymentMethod = (): PaymentMethodEntity => {
   return faker.helpers.arrayElement(paymentMethods);
 };

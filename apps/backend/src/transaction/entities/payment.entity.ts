@@ -55,9 +55,6 @@ export class PaymentEntity {
   @Column({ nullable: true })
   channel?: string;
 
-  @Column('varchar', { length: 10, nullable: false })
-  method: string;
-
   @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
   status: MatchStatus;
 
@@ -86,7 +83,7 @@ export class PaymentEntity {
   // PCC - Internals
 
   @ManyToOne(() => PaymentMethodEntity, (pm) => pm.method)
-  @JoinColumn({ name: 'method' })
+  @JoinColumn([{ name: 'payment_method', referencedColumnName: 'method' }])
   payment_method: Relation<PaymentMethodEntity>;
 
   @ManyToOne(

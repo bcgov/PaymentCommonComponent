@@ -42,7 +42,7 @@ export class POSReconciliationService {
     payment: PaymentEntity,
     deposit: POSDepositEntity
   ): boolean {
-    return payment.method === deposit.card_vendor;
+    return payment.payment_method.method === deposit.payment_method.method;
   }
   /**
    *

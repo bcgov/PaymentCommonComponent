@@ -8,12 +8,12 @@ import {
   casReportColumns
 } from './const';
 import {
-  parseCashDepositDetailsForReport,
-  parsePaymentDetailsForReport,
-  parsePosDepositDetailsForReport
-} from './helpers';
+  CashDepositDetailsReport,
+  POSDepositDetailsReport,
+  PaymentDetailsReport,
+  DetailsReport
+} from './detailed-report';
 import {
-  DetailsReport,
   DailySummary,
   ReportConfig,
   CasReport,
@@ -384,7 +384,7 @@ export class ReportingService {
       to_date: config.period.to,
       from_date: config.period.from
     };
-    const reverseDates = true;
+
     const cashDepositDates: Date[] =
       await this.cashDepositService.findDistinctDepositDatesByLocation(
         config.program,
@@ -425,20 +425,21 @@ export class ReportingService {
     const parsedCashPayments: DetailsReport[] = [
       ...correspondingCashPaymentsToDeposits,
       ...allPendingAndInProgressCashPayments
-    ].map((itm: PaymentEntity) =>
-      parsePaymentDetailsForReport(location, itm, cashDepositDates)
+    ].map(
+      (itm: PaymentEntity) =>
+        new PaymentDetailsReport(location, itm, cashDepositDates)
     );
 
     const posPayments: PaymentEntity[] =
       await this.paymentService.findPosPayments(config.period.to, location);
 
     const parsedPosPayments: DetailsReport[] = posPayments.map(
-      (itm: PaymentEntity) => parsePaymentDetailsForReport(location, itm)
+      (itm: PaymentEntity) => new PaymentDetailsReport(location, itm)
     );
 
     const parsedCashDepositDetails = cashDeposits.map(
       (itm: CashDepositEntity) =>
-        parseCashDepositDetailsForReport(location, itm, cashDepositDates)
+        new CashDepositDetailsReport(location, itm, cashDepositDates)
     );
 
     const posDeposits: POSDepositEntity[] =
@@ -448,8 +449,8 @@ export class ReportingService {
         location
       );
 
-    const parsedPosDepositDetails = posDeposits.map((itm: POSDepositEntity) =>
-      parsePosDepositDetailsForReport(location, itm)
+    const parsedPosDepositDetails = posDeposits.map(
+      (itm: POSDepositEntity) => new POSDepositDetailsReport(location, itm)
     );
 
     return await Promise.all([
@@ -510,11 +511,15 @@ export class ReportingService {
         FROM
           payment p
         JOIN 
+          "payment_method" pm
+        ON
+          pm.method = p."payment_method"
+        JOIN 
           "transaction" t
         ON
           t.transaction_id = p."transaction"
         AND 
-          p."method" in ('P', 'V', 'AX', 'M')
+          p."payment_method" in ('P', 'V', 'AX', 'M')
         GROUP BY
           t.transaction_date
         ORDER BY
@@ -528,12 +533,17 @@ export class ReportingService {
           count(*) as count_matched_pos
         FROM
           payment p
+        JOIN
+          "payment_method" pm
+        ON
+          pm.method = p."payment_method"
+          
         JOIN 
           "transaction" t 
           ON
             t.transaction_id = p."transaction"
           AND 
-            p."method" in ('P', 'V', 'AX', 'M')
+            p."payment_method" in ('P', 'V', 'AX', 'M')
           AND 
             "status" = 'MATCH'
           GROUP BY
@@ -571,12 +581,16 @@ export class ReportingService {
                 count_cash_payments
           FROM
             payment p
+          JOIN
+            "payment_method" pm
+          ON
+            pm.method = p."payment_method"
           JOIN 
             "transaction" t 
           ON
             t.transaction_id = p."transaction"
           WHERE
-            p."method" 
+            p."payment_method" 
           NOT IN 
             ('P', 'V', 'AX', 'M')
 
@@ -598,11 +612,15 @@ export class ReportingService {
                 count_matched_cash
           FROM
             payment p
+          JOIN
+            "payment_method" pm
+          ON
+            pm.method = p."payment_method"
           JOIN "transaction" t 
             ON
               t.transaction_id = p."transaction"
           WHERE 
-              p."method" 
+              p."payment_method" 
                 NOT IN 
                   ('P', 'V', 'AX', 'M')
             AND 
@@ -645,8 +663,12 @@ export class ReportingService {
           "transaction" t 
         ON
           t.transaction_id = p."transaction"
+        JOIN
+          "payment_method" pm
+        ON
+          pm."method" = p."payment_method"
         WHERE
-          p."method" 
+          p."payment_method" 
         NOT IN 
           ('P', 'V', 'AX', 'M')
 
@@ -668,11 +690,15 @@ export class ReportingService {
               count_matched_cash
         FROM
           payment p
+        JOIN
+          "payment_method" pm
+        ON  
+          pm."method" = p."payment_method"
         JOIN "transaction" t 
           ON
             t.transaction_id = p."transaction"
         WHERE 
-            p."method" 
+            p."payment_method" 
               NOT IN 
                 ('P', 'V', 'AX', 'M')
           AND 
