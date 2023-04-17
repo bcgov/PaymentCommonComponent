@@ -31,12 +31,14 @@ export class PaymentService {
           location_id: location.location_id
         },
         status: paymentStatus,
-        method: In(pos_payment_methods)
+        payment_method: {
+          method: In(pos_payment_methods)
+        }
       },
       relations: ['transaction', 'payment_method'],
       order: {
         amount: 'ASC',
-        method: 'ASC',
+        payment_method: { method: 'ASC' },
         transaction: { transaction_time: 'ASC' }
       }
     });
@@ -75,7 +77,9 @@ export class PaymentService {
     return await this.paymentRepo.find({
       select: {
         amount: true,
-        method: true,
+        payment_method: {
+          method: true
+        },
         status: true,
         transaction: {
           transaction_date: true,
@@ -107,7 +111,7 @@ export class PaymentService {
     const { from_date, to_date } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
-        method: Not(In(pos_methods)),
+        payment_method: { method: Not(In(pos_methods)) },
         status: In(paymentStatus),
         transaction: {
           location_id: location.location_id,
@@ -146,14 +150,14 @@ export class PaymentService {
     const pos_methods = ['AX', 'P', 'V', 'M'];
     const payments = await this.paymentRepo.find({
       where: {
-        method: Not(In(pos_methods)),
+        payment_method: { method: Not(In(pos_methods)) },
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: pastDueDepositDate
         }
       },
-      relations: ['transaction']
+      relations: ['transaction', 'payment_method']
     });
     return payments;
   }

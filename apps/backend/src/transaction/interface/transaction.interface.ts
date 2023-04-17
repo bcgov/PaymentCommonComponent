@@ -130,7 +130,7 @@ export class Transaction {
   transaction_time: Date;
   fiscal_close_date: Date;
   payment_total: number;
-  void_indicator?: boolean;
+  void_indicator: boolean | undefined;
   misc: Misc;
   source: Source;
   payments: Payment[];
@@ -142,7 +142,7 @@ export class Transaction {
       this.transaction_date = new Date(data?.sales_transaction_date);
       this.fiscal_close_date = new Date(data?.fiscal_close_date);
       this.payment_total = data?.payment_total;
-      this.void_indicator = data.void_indicator ? true : false;
+      this.void_indicator = data.void_indicator !== ' ' ? true : false;
       this.misc = {
         ...data.misc
       };
