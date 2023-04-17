@@ -5,11 +5,13 @@ import {
   Entity,
   PrimaryGeneratedColumn
 } from 'typeorm';
+import { FileTypes } from './../../constants';
 import { FileMetadata } from '../../common/columns/metadata';
 import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { TDI17Details } from '../../flat-files';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
+
 @Entity('cash_deposit')
 export class CashDepositEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -18,8 +20,8 @@ export class CashDepositEntity {
   @Column(() => FileMetadata, { prefix: false })
   metadata: FileMetadata;
 
-  @Column({ default: 'TDI17' })
-  source_file_type: string;
+  @Column({ enum: FileTypes, default: FileTypes.TDI17 })
+  source_file_type: FileTypes;
 
   @Column({ nullable: true })
   program_code?: string;

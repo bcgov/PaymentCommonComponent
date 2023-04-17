@@ -83,7 +83,7 @@ export class PaymentEntity {
   // PCC - Internals
 
   @ManyToOne(() => PaymentMethodEntity, (pm) => pm.method)
-  @JoinColumn({ name: 'payment_method', referencedColumnName: 'method' })
+  @JoinColumn([{ name: 'payment_method', referencedColumnName: 'method' }])
   payment_method: Relation<PaymentMethodEntity>;
 
   @ManyToOne(

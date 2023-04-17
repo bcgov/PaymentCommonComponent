@@ -1,4 +1,4 @@
-﻿method,description,sbc_code,file_type
+﻿method,description,sbc_code,deposit_file_type
 AX,AMEX,17,TDI34
 P,DEBIT,11,TDI34
 V,VISA,13,TDI34

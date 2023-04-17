@@ -510,11 +510,15 @@ export class ReportingService {
         FROM
           payment p
         JOIN 
+          "payment_method" pm
+        ON
+          pm.method = p."payment_method"
+        JOIN 
           "transaction" t
         ON
           t.transaction_id = p."transaction"
         AND 
-          p."method" in ('P', 'V', 'AX', 'M')
+          p."payment_method" in ('P', 'V', 'AX', 'M')
         GROUP BY
           t.transaction_date
         ORDER BY
@@ -528,12 +532,17 @@ export class ReportingService {
           count(*) as count_matched_pos
         FROM
           payment p
+        JOIN
+          "payment_method" pm
+        ON
+          pm.method = p."payment_method"
+          
         JOIN 
           "transaction" t 
           ON
             t.transaction_id = p."transaction"
           AND 
-            p."method" in ('P', 'V', 'AX', 'M')
+            p."payment_method" in ('P', 'V', 'AX', 'M')
           AND 
             "status" = 'MATCH'
           GROUP BY
@@ -571,12 +580,16 @@ export class ReportingService {
                 count_cash_payments
           FROM
             payment p
+          JOIN
+            "payment_method" pm
+          ON
+            pm.method = p."payment_method"
           JOIN 
             "transaction" t 
           ON
             t.transaction_id = p."transaction"
           WHERE
-            p."method" 
+            p."payment_method" 
           NOT IN 
             ('P', 'V', 'AX', 'M')
 
@@ -598,11 +611,15 @@ export class ReportingService {
                 count_matched_cash
           FROM
             payment p
+          JOIN
+            "payment_method" pm
+          ON
+            pm.method = p."payment_method"
           JOIN "transaction" t 
             ON
               t.transaction_id = p."transaction"
           WHERE 
-              p."method" 
+              p."payment_method" 
                 NOT IN 
                   ('P', 'V', 'AX', 'M')
             AND 
@@ -645,8 +662,12 @@ export class ReportingService {
           "transaction" t 
         ON
           t.transaction_id = p."transaction"
+        JOIN
+          "payment_method" pm
+        ON
+          pm."method" = p."payment_method"
         WHERE
-          p."method" 
+          p."payment_method" 
         NOT IN 
           ('P', 'V', 'AX', 'M')
 
@@ -668,11 +689,15 @@ export class ReportingService {
               count_matched_cash
         FROM
           payment p
+        JOIN
+          "payment_method" pm
+        ON  
+          pm."method" = p."payment_method"
         JOIN "transaction" t 
           ON
             t.transaction_id = p."transaction"
         WHERE 
-            p."method" 
+            p."payment_method" 
               NOT IN 
                 ('P', 'V', 'AX', 'M')
           AND 
