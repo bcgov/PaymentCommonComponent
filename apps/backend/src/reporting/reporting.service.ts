@@ -8,12 +8,12 @@ import {
   casReportColumns
 } from './const';
 import {
-  parseCashDepositDetailsForReport,
-  parsePaymentDetailsForReport,
-  parsePosDepositDetailsForReport
-} from './helpers';
+  CashDepositDetailsReport,
+  POSDepositDetailsReport,
+  PaymentDetailsReport,
+  DetailsReport
+} from './detailed-report';
 import {
-  DetailsReport,
   DailySummary,
   ReportConfig,
   CasReport,
@@ -384,7 +384,7 @@ export class ReportingService {
       to_date: config.period.to,
       from_date: config.period.from
     };
-    const reverseDates = true;
+
     const cashDepositDates: Date[] =
       await this.cashDepositService.findDistinctDepositDatesByLocation(
         config.program,
@@ -425,20 +425,21 @@ export class ReportingService {
     const parsedCashPayments: DetailsReport[] = [
       ...correspondingCashPaymentsToDeposits,
       ...allPendingAndInProgressCashPayments
-    ].map((itm: PaymentEntity) =>
-      parsePaymentDetailsForReport(location, itm, cashDepositDates)
+    ].map(
+      (itm: PaymentEntity) =>
+        new PaymentDetailsReport(location, itm, cashDepositDates)
     );
 
     const posPayments: PaymentEntity[] =
       await this.paymentService.findPosPayments(config.period.to, location);
 
     const parsedPosPayments: DetailsReport[] = posPayments.map(
-      (itm: PaymentEntity) => parsePaymentDetailsForReport(location, itm)
+      (itm: PaymentEntity) => new PaymentDetailsReport(location, itm)
     );
 
     const parsedCashDepositDetails = cashDeposits.map(
       (itm: CashDepositEntity) =>
-        parseCashDepositDetailsForReport(location, itm, cashDepositDates)
+        new CashDepositDetailsReport(location, itm, cashDepositDates)
     );
 
     const posDeposits: POSDepositEntity[] =
@@ -448,8 +449,8 @@ export class ReportingService {
         location
       );
 
-    const parsedPosDepositDetails = posDeposits.map((itm: POSDepositEntity) =>
-      parsePosDepositDetailsForReport(location, itm)
+    const parsedPosDepositDetails = posDeposits.map(
+      (itm: POSDepositEntity) => new POSDepositDetailsReport(location, itm)
     );
 
     return await Promise.all([
