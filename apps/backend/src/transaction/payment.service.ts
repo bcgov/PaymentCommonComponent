@@ -3,11 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, In, Repository } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
-import { DateRange } from '../constants';
+import { DateRange, PaymentMethodClassification } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedPayment } from '../reconciliation/types/interface';
-import { FileTypes } from './../constants';
 
 @Injectable()
 export class PaymentService {
@@ -32,7 +31,7 @@ export class PaymentService {
         },
         status: paymentStatus,
         payment_method: {
-          deposit_file_type: FileTypes.TDI34
+          classification: PaymentMethodClassification.POS
         }
       },
       relations: ['transaction', 'payment_method'],
@@ -110,7 +109,7 @@ export class PaymentService {
     const { from_date, to_date } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
-        payment_method: { deposit_file_type: FileTypes.TDI17 },
+        payment_method: { classification: PaymentMethodClassification.CASH },
         status: In(paymentStatus),
         transaction: {
           location_id: location.location_id,
@@ -148,7 +147,7 @@ export class PaymentService {
   ) {
     const payments = await this.paymentRepo.find({
       where: {
-        payment_method: { deposit_file_type: FileTypes.TDI17 },
+        payment_method: { classification: PaymentMethodClassification.CASH },
         status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
         transaction: {
           location_id: location.location_id,

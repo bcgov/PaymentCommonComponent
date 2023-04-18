@@ -1,5 +1,5 @@
 import { Column, PrimaryColumn, Entity } from 'typeorm';
-import { FileTypes } from './../../constants';
+import { PaymentMethodClassification } from './../../constants';
 
 @Entity('payment_method')
 export class PaymentMethodEntity {
@@ -12,8 +12,8 @@ export class PaymentMethodEntity {
   @Column('varchar', { length: 2, nullable: true })
   sbc_code?: string;
 
-  @Column({ enum: FileTypes, nullable: true })
-  deposit_file_type?: string;
+  @Column({ enum: PaymentMethodClassification, nullable: false })
+  classification?: PaymentMethodClassification;
 
   constructor(paymentMethod: PaymentMethodEntity) {
     Object.assign(this, paymentMethod);

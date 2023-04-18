@@ -18,7 +18,7 @@ export class migration1681771116405 implements MigrationInterface {
         method: pm.method,
         description: pm.description,
         sbc_code: pm.sbc_code,
-        deposit_file_type: pm.deposit_file_type
+        classification: pm.classification
       });
     });
 
