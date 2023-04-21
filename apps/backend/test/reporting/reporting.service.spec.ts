@@ -12,6 +12,7 @@ import { PaymentEntity } from './../../src/transaction/entities/payment.entity';
 import { PaymentService } from './../../src/transaction/payment.service';
 import { CashDepositEntity } from '../../src/deposits/entities/cash-deposit.entity';
 import { ReportingService } from '../../src/reporting/reporting.service';
+import { PaymentMethodEntity } from '../../src/transaction/entities';
 
 describe('ReportingService', () => {
   let service: ReportingService;
@@ -50,6 +51,10 @@ describe('ReportingService', () => {
         },
         {
           provide: getRepositoryToken(PaymentEntity),
+          useValue: mockedRepo
+        },
+        {
+          provide: getRepositoryToken(PaymentMethodEntity),
           useValue: mockedRepo
         },
         {

@@ -10,8 +10,8 @@ import {
 import {
   decimalFormat,
   timeFormat,
-  dateFormat
-} from '../utils/formatFixedWidth';
+  parseFlatDateString
+} from '../utils/format';
 
 type DelimiterOptions = {
   value: string; //'\x1D\r'
@@ -69,7 +69,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
             options.format.precision || 2
           );
         } else if (options.format.type === DataType.Date) {
-          (target as any)[field] = value ? dateFormat(value) : '';
+          (target as any)[field] = value ? parseFlatDateString(value) : null;
         } else if (options.format.type === DataType.Time) {
           (target as any)[field] = value ? timeFormat(value) : null;
         } else if (options.format.type === DataType.Decimal) {

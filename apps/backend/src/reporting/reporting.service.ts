@@ -1,7 +1,8 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format } from 'date-fns';
+import { format, getMonth, getYear, parse } from 'date-fns';
 import { Repository } from 'typeorm';
+import { CasReport } from './cas-report/cas-report';
 import {
   dailySummaryColumns,
   detailedReportColumns,
@@ -9,17 +10,12 @@ import {
   casReportColumns
 } from './const';
 import {
-  parseCashDepositDetailsForReport,
-  parsePaymentDetailsForReport,
-  parsePosDepositDetailsForReport
-} from './helpers';
-import {
-  DetailsReport,
-  DailySummary,
-  ReportConfig,
-  CasReport,
-  CasLocationReport
-} from './interfaces';
+  CashDepositDetailsReport,
+  POSDepositDetailsReport,
+  PaymentDetailsReport,
+  DetailsReport
+} from './detailed-report';
+import { DailySummary, ReportConfig } from './interfaces';
 import { columnStyle, rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
@@ -69,10 +65,7 @@ export class ReportingService {
     await this.generateDailySummary(config, locations);
     await this.generateDetailsWorksheet(config, locations);
     await this.generateCasReportWorksheet(config, locations);
-    await this.excelWorkbook.saveS3(
-      'reconciliation_report',
-      format(new Date(config.period.to.toString()), 'yyyy-MM-dd')
-    );
+    await this.excelWorkbook.saveS3('reconciliation_report', config.period.to);
     if (process.env.RUNTIME_ENV !== 'production') {
       await this.excelWorkbook.saveLocal();
     }
@@ -87,15 +80,20 @@ export class ReportingService {
     locations: LocationEntity[]
   ): Promise<void> {
     const details: CasReport[] = [];
-    const to_date = format(new Date(config.period.to.toString()), 'yyyy-MM-dd');
+
+    const to_date = parse(config.period.to, 'yyyy-MM-dd', new Date());
     /* extract the month from the "to-date"*/
-    const from_date = `${to_date.slice(0, 4)}-${to_date.slice(5, 7)}-01`;
+    const from_date = new Date(getYear(to_date), getMonth(to_date), 1);
+
     const dateRange = {
-      from_date,
-      to_date
+      from_date: format(from_date, 'yyyy-MM-dd'),
+      to_date: format(to_date, 'yyyy-MM-dd')
     };
     this.appLogger.log(
-      `Generating cas report for: ${from_date}-${to_date}`,
+      `Generating cas report for: ${format(from_date, 'yyyy-MM-dd')}-${format(
+        to_date,
+        'yyyy-MM-dd'
+      )}`,
       ReportingService.name
     );
     await Promise.all(
@@ -117,6 +115,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addTitleRow(
       Report.CAS_REPORT,
+      `${dateRange.from_date}-${dateRange.to_date}`,
       titleStyle,
       placement('A1:J1')
     );
@@ -154,23 +153,19 @@ export class ReportingService {
     location: LocationEntity,
     dateRange: DateRange
   ): Promise<CasReport[]> {
-    const casLocationData: CasLocationReport = {
-      location_id: location.location_id,
-      loction_name: location.description,
-      dist_client_code: location.ministry_client,
-      dist_resp_code: location.resp_code,
-      dist_stob_code: location.stob_code,
-      dist_service_line_code: location.service_line_code,
-      dist_project_code: location.project_code
-    };
-
-    const cashDeposits: CashDepositEntity[] =
+    const cashDepositsResults: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDateRange(
         location,
         config.program,
         dateRange
       );
 
+    const cashDeposits = cashDepositsResults
+      .filter((itm) => itm.deposit_amt_cdn.toString() !== '0.00')
+      .map((itm) => ({
+        deposit_date: itm.deposit_date,
+        deposit_amt_cdn: itm.deposit_amt_cdn
+      }));
     /*eslint-disable */
 
     const posDeposits: POSDepositEntity[] =
@@ -180,24 +175,29 @@ export class ReportingService {
         dateRange
       );
 
-    const report: CasReport[] = await Promise.all([
-      ...cashDeposits.map((itm) => ({
-        ...itm,
-        ...casLocationData,
-        card_vendor: 'CASH DEPOSIT',
-        settlement_date: format(new Date(itm.deposit_date), 'yyyy-MM-dd'),
-        amount: itm.deposit_amt_cdn
-      })),
-      ...posDeposits
-        .filter((itm) => itm.transaction_amt.toString() !== '0.00')
-        .map((itm) => ({
-          ...itm,
-          ...casLocationData,
-          settlement_date: format(new Date(itm.settlement_date), 'yyyy-MM-dd'),
-          card_vendor: itm.card_vendor,
-          amount: parseFloat(itm.transaction_amt.toString())
-        }))
-    ]);
+    const mappedPosDeposits = posDeposits
+      .filter((itm) => itm.transaction_amt.toString() !== '0.00')
+      .map(
+        ({ payment_method, settlement_date, transaction_amt }) =>
+          new CasReport({
+            location,
+            payment_method,
+            settlement_date,
+            amount: parseFloat(transaction_amt.toString())
+          })
+      );
+
+    const mappedCashDeposits = cashDeposits.map(
+      (itm) =>
+        new CasReport({
+          location,
+          payment_method: 'CASH DEPOSIT',
+          settlement_date: itm.deposit_date,
+          amount: itm.deposit_amt_cdn
+        })
+    );
+
+    const report: CasReport[] = [...mappedCashDeposits, ...mappedPosDeposits];
 
     return report;
   }
@@ -244,6 +244,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addTitleRow(
       Report.DETAILED_REPORT,
+      config.period.to,
       titleStyle,
       placement('A1:AC1')
     );
@@ -287,7 +288,7 @@ export class ReportingService {
       locations.map(
         async (location: LocationEntity) =>
           await this.findPaymentDataForDailySummary(
-            format(new Date(config.period.to), 'yyyy-MM-dd'),
+            config.period.to,
             location,
             config.program
           )
@@ -307,6 +308,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addTitleRow(
       Report.DAILY_SUMMARY,
+      config.period.to,
       titleStyle,
       placement('A1:H1')
     );
@@ -385,86 +387,106 @@ export class ReportingService {
     location: LocationEntity
   ): Promise<DetailsReport[]> {
     const dateRange: DateRange = {
-      to_date: config.period.to.toString(),
-      from_date: config.period.from.toString()
+      to_date: config.period.to,
+      from_date: config.period.from
     };
-    const reverseDates = true;
-    const cashDepositDates: string[] =
-      await this.cashDepositService.findDistinctDepositDates(
+
+    const currentCashDeposits: CashDepositEntity[] =
+      (await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
         config.program,
         dateRange,
         location,
-        reverseDates
-      );
+        [MatchStatus.EXCEPTION, MatchStatus.MATCH]
+      )) || [];
 
-    const cashDepositDateRange: DateRange = {
-      from_date: cashDepositDates[1],
-      to_date: config.period.to.toString()
-    };
+    const currentCashDepositWindow =
+      currentCashDeposits.length > 0
+        ? await this.cashDepositService.findCashDepositDateWindow(
+            config.program,
+            dateRange,
+            location
+          )
+        : [];
 
-    const cashDeposits: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
-        config.program,
-        cashDepositDateRange.to_date,
-        location
-      );
+    const cashDepositWindow =
+      currentCashDepositWindow.length > 0
+        ? {
+            to_date: currentCashDepositWindow[0],
+            from_date: currentCashDepositWindow[1]
+          }
+        : null;
 
-    const correspondingCashPaymentsToDeposits: PaymentEntity[] =
-      cashDeposits.length === 0
-        ? []
-        : await this.paymentService.findCashPayments(
-            cashDepositDateRange,
-            location,
-            [MatchStatus.EXCEPTION, MatchStatus.MATCH]
-          );
+    const correspondingCashPaymentsToDeposits = cashDepositWindow
+      ? await this.paymentService.findCashPayments(
+          cashDepositWindow,
+          location,
+          [MatchStatus.EXCEPTION, MatchStatus.MATCH]
+        )
+      : [];
+
+    const parsedCashPayments = cashDepositWindow
+      ? correspondingCashPaymentsToDeposits.map(
+          (itm) =>
+            new PaymentDetailsReport(location, itm, [
+              cashDepositWindow.from_date,
+              cashDepositWindow.to_date
+            ])
+        )
+      : [];
+
     const allPendingAndInProgressCashPayments: PaymentEntity[] =
       await this.paymentService.findCashPayments(
         {
-          to_date: config.period.to.toString(),
-          from_date: config.period.from.toString()
+          to_date: config.period.to,
+          from_date: config.period.from
         },
         location,
         [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
       );
 
-    const parsedCashPayments: DetailsReport[] = [
-      ...correspondingCashPaymentsToDeposits,
-      ...allPendingAndInProgressCashPayments
-    ].map((itm: PaymentEntity) =>
-      parsePaymentDetailsForReport(location, itm, cashDepositDates)
-    );
+    const payments = [
+      ...allPendingAndInProgressCashPayments.map(
+        (itm) => new PaymentDetailsReport(location, itm, [])
+      ),
+      ...parsedCashPayments
+    ];
+    const pendingCashDeposits: CashDepositEntity[] =
+      await this.cashDepositService.findCashDepositsByDateRange(
+        location,
 
-    const posPayments: PaymentEntity[] =
-      await this.paymentService.findPosPayments(
-        config.period.to.toString(),
-        location
+        config.program,
+        { from_date: config.period.from, to_date: config.period.to },
+        [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
       );
 
-    const parsedPosPayments: DetailsReport[] = posPayments.map(
-      (itm: PaymentEntity) => parsePaymentDetailsForReport(location, itm)
-    );
-
-    const parsedCashDepositDetails = cashDeposits.map(
-      (itm: CashDepositEntity) =>
-        parseCashDepositDetailsForReport(location, itm, cashDepositDates)
-    );
-
+    const parsedCashDepositDetails = [
+      ...currentCashDeposits.map(
+        (itm: CashDepositEntity) =>
+          new CashDepositDetailsReport(location, itm, [])
+      ),
+      ...pendingCashDeposits.map(
+        (itm: CashDepositEntity) =>
+          new CashDepositDetailsReport(location, itm, [])
+      )
+    ];
+    const posPayments: PaymentEntity[] =
+      await this.paymentService.findPosPayments(config.period.to, location);
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSDeposits(
-        config.period.to.toString(),
+        config.period.to,
         config.program,
         location
       );
 
-    const parsedPosDepositDetails = posDeposits.map((itm: POSDepositEntity) =>
-      parsePosDepositDetailsForReport(location, itm)
-    );
-
     return await Promise.all([
-      ...parsedPosPayments,
-      ...parsedCashPayments,
+      ...payments,
       ...parsedCashDepositDetails,
-      ...parsedPosDepositDetails
+      ...posPayments.map(
+        (itm: PaymentEntity) => new PaymentDetailsReport(location, itm)
+      ),
+      ...posDeposits.map(
+        (itm: POSDepositEntity) => new POSDepositDetailsReport(location, itm)
+      )
     ]);
   }
   /**
@@ -522,7 +544,7 @@ export class ReportingService {
         ON
           t.transaction_id = p."transaction"
         AND 
-          p."method" in ('P', 'V', 'AX', 'M')
+          p."payment_method" in ('P', 'V', 'AX', 'M')
         GROUP BY
           t.transaction_date
         ORDER BY
@@ -541,7 +563,7 @@ export class ReportingService {
           ON
             t.transaction_id = p."transaction"
           AND 
-            p."method" in ('P', 'V', 'AX', 'M')
+            p."payment_method" in ('P', 'V', 'AX', 'M')
           AND 
             "status" = 'MATCH'
           GROUP BY
@@ -584,7 +606,7 @@ export class ReportingService {
           ON
             t.transaction_id = p."transaction"
           WHERE
-            p."method" 
+            p."payment_method" 
           NOT IN 
             ('P', 'V', 'AX', 'M')
 
@@ -610,7 +632,7 @@ export class ReportingService {
             ON
               t.transaction_id = p."transaction"
           WHERE 
-              p."method" 
+              p."payment_method" 
                 NOT IN 
                   ('P', 'V', 'AX', 'M')
             AND 
@@ -654,7 +676,7 @@ export class ReportingService {
         ON
           t.transaction_id = p."transaction"
         WHERE
-          p."method" 
+          p."payment_method" 
         NOT IN 
           ('P', 'V', 'AX', 'M')
 
@@ -680,7 +702,7 @@ export class ReportingService {
           ON
             t.transaction_id = p."transaction"
         WHERE 
-            p."method" 
+            p."payment_method" 
               NOT IN 
                 ('P', 'V', 'AX', 'M')
           AND 

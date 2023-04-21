@@ -1,8 +1,6 @@
-import {
-  SBCGarmsDistribution,
-  SBCGarmsPayment,
-  SBCGarmsJson
-} from './sbc_garms';
+import { SBCGarmsDistribution, SBCGarmsPayment } from './sbc_garms';
+import { PaymentMethodClassification } from './../../constants';
+import { PaymentEntity } from './../entities/payment.entity';
 
 export enum PaymentChannel {
   INPERSON = 'in-person',
@@ -15,6 +13,7 @@ export interface PaymentMethod {
   method: string;
   description: string;
   sbc_code: string;
+  classification: PaymentMethodClassification;
 }
 
 export class Payment {
@@ -130,45 +129,13 @@ export class Transaction {
   transaction_time: string;
   fiscal_close_date: string;
   payment_total: number;
-  void_indicator?: boolean;
+  void_indicator: boolean | undefined;
   misc: Misc;
   source: Source;
-  payments: Payment[];
+  payments: PaymentEntity[];
   accounting?: AccountingItem[];
 
-  constructor(data: SBCGarmsJson) {
-    try {
-      this.transaction_id = data?.sales_transaction_id;
-      this.transaction_date = data?.sales_transaction_date;
-      this.fiscal_close_date = data?.fiscal_close_date;
-      this.payment_total = data?.payment_total;
-      this.void_indicator = data.void_indicator ? true : false;
-      this.misc = {
-        ...data.misc
-      };
-      this.source = {
-        location_id: data?.source?.location_id,
-        source_id: data?.source?.source_id,
-        accepted_payment_methods: data?.source?.accepted_payment_methods ?? []
-      };
-      this.payments = data.payments.map((itm) => new Payment(itm));
-      this.accounting = Object.values(data.distributions)?.[0].map(
-        (itm: SBCGarmsDistribution) =>
-          ({
-            sequence: itm.line_number,
-            details: {
-              description: itm.line_description,
-              code: itm.dist_client_code
-            },
-            distributions: Object.values(data.distributions)?.[0].map(
-              (itm) => new Distribution(itm)
-            )
-          } as AccountingItem)
-      );
-    } catch (e) {
-      console.log(this.transaction_id)
-      console.log(e);
-      throw e;
-    }
+  constructor(data: Transaction) {
+    Object.assign(this, data);
   }
 }

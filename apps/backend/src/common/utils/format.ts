@@ -26,13 +26,11 @@ export const timeFormat = (value: string): string | null => {
   }
 };
 
-export const dateFormat = (value: string): string => {
-  const date = {
-    year: value.slice(0, 4),
-    month: value.slice(4, 6),
-    day: value.slice(6, 8)
-  };
-  return `${date.year}-${date.month}-${date.day}`;
+export const parseFlatDateString = (flatDateString: string): string => {
+  const year = flatDateString.slice(0, 4);
+  const month = flatDateString.slice(4, 6);
+  const day = flatDateString.slice(6, 8);
+  return `${year}-${month}-${day}`;
 };
 
 export const decimalFormat = (value: string): string => {

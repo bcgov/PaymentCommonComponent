@@ -14,7 +14,7 @@ export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   merchant_id: string;
   terminal_no: string;
   fill1: string;
-  card_vendor: string;
+  payment_method: string;
   card_id: string;
   transaction_date: string;
   transaction_time: string;
@@ -84,12 +84,12 @@ export class TDI34Details
   }
 
   @Column({ start: 26, width: 2 })
-  public get card_vendor() {
-    return this.resource.card_vendor;
+  public get payment_method() {
+    return this.resource.payment_method;
   }
 
-  public set card_vendor(data) {
-    this.resource.card_vendor = data;
+  public set payment_method(data) {
+    this.resource.payment_method = data;
   }
 
   @Column({ start: 28, width: 19 })

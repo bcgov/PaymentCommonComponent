@@ -26,17 +26,26 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         synchronize: false,
         migrationsRun: false,
         entities: [join(__dirname, '../**/*.entity.js')],
-        migrations: [join(__dirname, '../migration/*.js')],
+        migrations: [join(__dirname, '../migrations/*.js')],
         logging: ['migration'] as LoggerOptions
       };
     case 'test':
       return {
-        synchronize: true,
+        synchronize: false,
         migrationsRun: false,
+        autoLoadEntities: true,
+        entities: [join(__dirname, '../**/*.entity.{js,ts}')],
+        migrations: [join(__dirname, '../migrations/*.{js,ts}')],
+        logging: ['migration'] as LoggerOptions
+      };
+    case 'ci':
+      return {
+        synchronize: true,
+        migrationsRun: true,
         autoLoadEntities: true,
         dropSchema: true,
         entities: [join(__dirname, '../**/*.entity.{js,ts}')],
-        migrations: [join(__dirname, '../migration/*.{js,ts}')],
+        migrations: [join(__dirname, '../migrations/*.{js,ts}')],
         logging: ['migration'] as LoggerOptions
       };
     default:

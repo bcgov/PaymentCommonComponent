@@ -76,7 +76,8 @@ describe('Reconciliation Service (e2e)', () => {
       return new PaymentMethodEntity({
         method: pm.method,
         description: pm.description,
-        sbc_code: pm.sbc_code
+        sbc_code: pm.sbc_code,
+        classification: pm.classification
       });
     });
 

@@ -1,7 +1,7 @@
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 /*eslint-disable @typescript-eslint/no-unused-vars*/
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import * as Excel from 'exceljs';
 import * as path from 'path';
 import { Stream } from 'stream';
@@ -74,11 +74,15 @@ export class ExcelExportService {
    * @param title
    */
   public addWorkbookMetadata(title: string): void {
-    const date = new Date(format(new Date(), 'yyyy-MM-dd'));
+    const date = parse(
+      format(new Date(), 'yyyy-MM-dd'),
+      'yyyy-MM-dd',
+      new Date()
+    );
     this.workbook.title = title;
     this.workbook.created = date;
     this.appLogger.log(
-      `New ${title} workbook created on: ${date}`,
+      `New ${title} workbook created on: ${format(date, 'yyyy-MM-dd')}`,
       ExcelExportService.name
     );
   }
@@ -99,6 +103,7 @@ export class ExcelExportService {
 
   public addTitleRow(
     sheetName: string,
+    date: string,
     style: Partial<Excel.Style>,
     placement: Placement
   ): void {
@@ -109,7 +114,7 @@ export class ExcelExportService {
 
     sheet.mergeCells(placement.merge);
 
-    sheet.getCell(placement.column).value = sheetName;
+    sheet.getCell(placement.column).value = `${sheetName}   ${date}`;
     sheet.getCell(placement.column).style = style;
   }
 

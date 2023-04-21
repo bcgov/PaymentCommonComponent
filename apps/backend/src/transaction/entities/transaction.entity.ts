@@ -11,7 +11,7 @@ export class TransactionEntity {
   @Column({ type: 'date' })
   transaction_date: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'time', nullable: true })
   transaction_time: string;
 
   @Column({ type: 'date' })
@@ -49,7 +49,7 @@ export class TransactionEntity {
   })
   payments: Relation<PaymentEntity[]>;
 
-  constructor(transaction: Partial<TransactionEntity>) {
+  constructor(transaction?: Partial<TransactionEntity>) {
     Object.assign(this, transaction);
   }
 }

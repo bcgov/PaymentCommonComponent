@@ -1,16 +1,18 @@
 import { faker } from '@faker-js/faker';
 import { paymentMethods } from '../const/payment-methods';
-import { PaymentMethod } from '../types/interface';
+import { PaymentMethodEntity } from '../../../../src/transaction/entities';
+import { PaymentEntity } from '../../../../src/transaction/entities/payment.entity';
 
-export class Payment {
+export class Payment extends PaymentEntity {
   id: string;
-  method: PaymentMethod;
+  payment_method: PaymentMethodEntity;
   amount: number;
   constructor() {
+    super();
     this.id = `${faker.datatype.uuid()}`;
     this.amount = Math.abs(
       faker.datatype.number({ min: 1, max: 1000, precision: 0.01 })
     );
-    this.method = faker.helpers.arrayElement(paymentMethods);
+    this.payment_method = faker.helpers.arrayElement(paymentMethods);
   }
 }
