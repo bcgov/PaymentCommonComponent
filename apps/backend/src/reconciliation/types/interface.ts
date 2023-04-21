@@ -1,4 +1,3 @@
-import { ReconciliationType } from './const';
 import { MatchStatus } from '../../common/const';
 import { DateRange, Ministries } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
@@ -16,37 +15,26 @@ export interface PosExceptions {
   depositExceptions: POSDepositEntity[] | [];
 }
 
-export interface CashDepositDates {
-  current?: string;
-  pastDue?: string;
-  previous?: string;
-  first?: string;
-}
-
-export interface ReconciliationEvent {
+export interface ReconciliationConfig {
   location: LocationEntity;
   program: Ministries;
   dateRange?: DateRange;
   date: string;
 }
 
-export interface ReconciliationEventInput {
-  fiscal_start_date: string;
-  fiscal_close_date: string;
+export interface ReconciliationConfigInput {
+  period: {
+    from: string;
+    to: string;
+  };
   location_ids: number[];
   program: Ministries;
 }
 
-export interface ReconciliationEventError {
+export interface ReconciliationError {
   error: string;
 }
 
-export interface ReconciliationEventOutput {
-  total_deposit: number;
-  total_payments: number;
-  total_matched?: number;
-  matched?: unknown[];
-}
 export interface AggregatedPayment {
   status: MatchStatus;
   fiscal_close_date: string;
@@ -54,26 +42,4 @@ export interface AggregatedPayment {
   amount: number;
   cash_deposit_match: CashDepositEntity;
   payments: PaymentEntity[];
-}
-export interface GroupedPaymentsAndDeposits {
-  location_id: number;
-  location_name: string;
-  deposit_date: string;
-  status: MatchStatus;
-  fiscal_close_dates?: string[];
-  deposits_sum: number;
-  payments_sum: number;
-  deposits: CashDepositEntity[];
-  aggregatedPayments: AggregatedPayment[];
-}
-
-export interface CashReconciliationOutput {
-  fiscal_close_date?: string;
-  type: ReconciliationType;
-  location_id?: number;
-  location_name?: string;
-  total_pending?: number;
-  total_matched_payments?: number;
-  total_matched_deposits?: number;
-  percent_matched?: number;
 }

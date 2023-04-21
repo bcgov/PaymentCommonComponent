@@ -157,7 +157,7 @@ describe('CashDepositService', () => {
   describe('findDistinctDepositDates', () => {
     it('should return all distinct deposit dates', async () => {
       const spy = jest
-        .spyOn(service, 'findDistinctDepositDates')
+        .spyOn(service, 'findDistinctDepositDatesByLocation')
         .mockResolvedValue(['2020-01-01', '2020-01-02']);
       const params = {
         program: Ministries.SBC,
@@ -168,7 +168,7 @@ describe('CashDepositService', () => {
         location: locationMock
       };
       expect(
-        service.findDistinctDepositDates(
+        service.findDistinctDepositDatesByLocation(
           params.program,
           params.dateRange,
           params.location
@@ -185,13 +185,16 @@ describe('CashDepositService', () => {
         .mockResolvedValue([cashDepositMock]);
       const params = {
         program: Ministries.SBC,
-        date: '2020-01-01',
+        dateRange: {
+          to_date: '2020-01-02',
+          from_date: '2020-01-01'
+        },
         location: locationMock
       };
       expect(
         service.findCashDepositsByDateLocationAndProgram(
           params.program,
-          params.date,
+          params.dateRange,
           params.location
         )
       ).resolves.toEqual([cashDepositMock]);

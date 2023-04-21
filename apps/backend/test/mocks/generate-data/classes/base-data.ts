@@ -1,6 +1,5 @@
-import { DateRange } from './date-range';
 import { Location } from '../types/interface';
-import { Ministries } from '../../../../src/constants';
+import { DateRange, Ministries } from '../../../../src/constants';
 
 export class BaseData {
   public readonly dateRange: DateRange;

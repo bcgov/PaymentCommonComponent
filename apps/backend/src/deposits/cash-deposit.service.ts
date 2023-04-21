@@ -55,7 +55,7 @@ export class CashDepositService {
    */
   async findCashDepositsByDateLocationAndProgram(
     program: Ministries,
-    date: string,
+    dateRange: DateRange,
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
@@ -64,7 +64,7 @@ export class CashDepositService {
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
-        deposit_date: date,
+        deposit_date: dateRange.to_date,
         status: In(depositStatus)
       },
       order: {
@@ -73,43 +73,55 @@ export class CashDepositService {
     });
   }
 
-  /**
-   *
-   * @param event
-   * @param pastDueDate
-   * @returns string[]
-   * @description Find all deposit dates for a specific location and program, in descending order, which are still
-   *  pending or in progress. This is used to find the dates that need to be reconciled.
-   */
-  public async findDistinctDepositDates(
+  async findCashDepositDateWindow(
     program: Ministries,
     dateRange: DateRange,
-    location: LocationEntity,
-    reverse?: boolean
-  ): Promise<string[]> {
-    const { to_date, from_date } = dateRange;
+    location: LocationEntity
+  ) {
+    const { to_date } = dateRange;
     const dates = await this.cashDepositRepo.find({
-      select: { deposit_date: true },
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program },
-        deposit_date: Raw(
-          (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
-          {
-            to_date,
-            from_date
-          }
-        )
+        deposit_date: LessThanOrEqual(to_date)
       },
       order: {
-        deposit_date: 'ASC'
+        deposit_date: 'DESC'
       }
     });
 
-    const datesArray: string[] = Array.from(
-      new Set(dates.map((item) => item.deposit_date))
-    );
-    return reverse ? datesArray.reverse() : datesArray;
+    return Array.from(new Set(dates.map((itm) => itm.deposit_date)));
+  }
+  /**
+   *
+   * @param program
+   * @param dateRange
+   * @param location
+   * @returns
+   */
+  public async findDistinctDepositDatesByLocation(
+    program: Ministries,
+    dateRange: DateRange,
+    location: LocationEntity
+  ): Promise<string[]> {
+    const { to_date, from_date } = dateRange;
+    const qb = this.cashDepositRepo.createQueryBuilder('cash_deposit');
+    qb.select('deposit_date');
+    qb.distinctOn(['deposit_date']);
+    qb.where({
+      pt_location_id: location.pt_location_id,
+      metadata: { program },
+      deposit_date: Raw(
+        (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
+        {
+          from_date: from_date,
+          to_date: to_date
+        }
+      )
+    });
+    qb.orderBy('deposit_date', 'ASC');
+    const dates = await qb.getRawMany();
+    return dates.map((itm) => itm.deposit_date);
   }
   /**
    * @param deposits: CashDepositEntity[]
@@ -162,21 +174,22 @@ export class CashDepositService {
   async findCashDepositsByDateRange(
     location: LocationEntity,
     program: Ministries,
-    dateRange: DateRange
+    dateRange: DateRange,
+    status?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
     const { to_date, from_date } = dateRange;
+    const depositStatus = status ?? MatchStatusAll;
     return await Promise.all(
       await this.cashDepositRepo.find({
-        select: {
-          deposit_date: true,
-          deposit_amt_cdn: true
-        },
         where: {
           metadata: { program },
+          status: In(depositStatus),
           deposit_date: Raw(
-            (alias) =>
-              `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
-            { from_date, to_date }
+            (alias) => `${alias} >= :from_date and ${alias} <= :to_date`,
+            {
+              from_date: from_date,
+              to_date: to_date
+            }
           ),
           pt_location_id: location.pt_location_id
         },

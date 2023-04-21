@@ -1,6 +1,5 @@
 {
-  "fiscal_start_date": "2023-01-01",
-  "fiscal_close_date": "2023-04-10",
+  "period": { "from": "2023-01-01", "to": "2023-04-10" },
   "program": "SBC",
   "location_ids": []
 }

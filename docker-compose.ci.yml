@@ -33,7 +33,7 @@ services:
       - DB_LOGS_ENABLED=${DB_LOGS_ENABLED}
       - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
-      - NODE_ENV=test
+      - NODE_ENV=ci
       - RUNTIME_ENV=test
       - AWS_ACCESS_KEY_ID=pcc
       - AWS_SECRET_ACCESS_KEY=password

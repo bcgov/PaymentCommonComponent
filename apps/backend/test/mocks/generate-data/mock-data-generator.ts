@@ -1,12 +1,32 @@
+import { BaseData } from './classes/base-data';
+import { CashDeposit } from './classes/cash-deposit';
 import { Payment } from './classes/payment';
 import { POSDeposit } from './classes/pos-deposit';
 import { Transaction } from './classes/transaction';
 import { GenerateData } from './generateData';
 
+/*eslint-disable */
+export interface MockData {
+  cashdeposit: CashDeposit;
+  posDeposits: POSDeposit[];
+  transactions: Transaction[];
+
+  total_pos: any;
+  total_cash: any;
+  total: any;
+}
+export interface MockReconciliationData {
+  mockdata: MockData[];
+  baseData: BaseData;
+}
+
 export const generate = () => {
   const data = new GenerateData();
-  const baseData = data.generateBaseData();
-  const mockData = [];
+  const baseData: BaseData = data.generateBaseData();
+  const mockReconciliationData: MockReconciliationData = {
+    mockdata: [],
+    baseData: baseData
+  };
   /*eslint-disable */
   for (let i = 0; i < 10; i++) {
     const transactions = data.generateTransactions(baseData);
@@ -14,7 +34,7 @@ export const generate = () => {
     transactions.flatMap((transaction: Transaction) =>
       transaction.payments
         .filter((itm: Payment) =>
-          [11, 12, 13, 17].includes(itm.method.sbc_code)
+          [11, 12, 13, 17].includes(itm.payment_method.sbc_code)
         )
         .map((payment: Payment) =>
           posDeposits.push(
@@ -27,7 +47,7 @@ export const generate = () => {
       transactions
         .flatMap((itm) =>
           itm.payments.filter((payment) =>
-            [1, 2, 9, 14, 15].includes(payment.method.sbc_code)
+            [1, 2, 9, 14, 15].includes(payment.payment_method.sbc_code)
           )
         )
         .reduce((acc, itm) => (acc += itm.amount), 0)
@@ -35,19 +55,19 @@ export const generate = () => {
     const total_pos = transactions
       .flatMap((itm) =>
         itm.payments.filter((payment) =>
-          [11, 12, 13, 17].includes(payment.method.sbc_code)
+          [11, 12, 13, 17].includes(payment.payment_method.sbc_code)
         )
       )
       .reduce((acc: any, itm: Payment) => (acc += itm.amount), 0);
     const total_cash = transactions
       .flatMap((itm) =>
         itm.payments.filter((payment) =>
-          [1, 2, 9, 14, 15].includes(payment.method.sbc_code)
+          [1, 2, 9, 14, 15].includes(payment.payment_method.sbc_code)
         )
       )
       .reduce((acc: any, itm: Payment) => (acc += itm.amount), 0);
     const total = total_pos + total_cash;
-    mockData.push({
+    mockReconciliationData.mockdata.push({
       cashdeposit,
       posDeposits,
       transactions,
@@ -56,6 +76,5 @@ export const generate = () => {
       total
     });
   }
-  return mockData;
+  return mockReconciliationData;
 };
-console.log(generate());

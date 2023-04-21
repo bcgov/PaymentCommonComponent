@@ -4,8 +4,7 @@ import * as path from 'path';
 import { PaymentMethodEntity } from '../../transaction/entities';
 import { PaymentMethod } from '../../transaction/interface/transaction.interface';
 
-export class migration2524636800000 implements MigrationInterface {
-  name = 'migration2524636800000';
+export class migration1682046707186 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
     const paymentMethodMasterFile = path.resolve(
       __dirname,
@@ -29,8 +28,8 @@ export class migration2524636800000 implements MigrationInterface {
 
   public async down(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`
-        DELETE FROM 
-            public.payment_method 
-    `);
+            DELETE FROM 
+                public.payment_method 
+        `);
   }
 }

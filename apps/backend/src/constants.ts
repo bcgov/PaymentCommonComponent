@@ -29,3 +29,9 @@ export interface DateRange {
   from_date: string;
   to_date: string;
 }
+
+export enum PaymentMethodClassification {
+  CASH = 'CASH',
+  POS = 'POS',
+  IGNORE = 'IGNORE'
+}

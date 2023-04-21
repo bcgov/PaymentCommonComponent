@@ -10,6 +10,7 @@ import {
 import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
+import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
 import { PaymentMethodEntity } from '../../transaction/entities';
 
@@ -24,14 +25,11 @@ export class POSDepositEntity {
   @Column({ type: 'enum', default: MatchStatus.PENDING, enum: MatchStatus })
   status: MatchStatus;
 
-  @Column({ default: 'TDI34' })
-  source_file_type: string;
+  @Column({ enum: FileTypes, default: FileTypes.TDI34 })
+  source_file_type: FileTypes;
 
   @Column({ type: 'int4' })
   merchant_id: number;
-
-  @Column('varchar', { length: 2 })
-  card_vendor: string;
 
   @Column('varchar', { length: 19 })
   card_id: string;
@@ -59,11 +57,14 @@ export class POSDepositEntity {
   @Column({ nullable: true })
   transaction_code: number;
 
-  @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method)
-  @JoinColumn({ name: 'card_vendor' })
+  @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method, {
+    eager: true,
+    cascade: false
+  })
+  @JoinColumn({ name: 'payment_method', referencedColumnName: 'method' })
   payment_method: Relation<PaymentMethodEntity>;
 
-  constructor(data?: TDI34Details) {
+  constructor(data: TDI34Details) {
     Object.assign(this, data?.resource);
   }
 

@@ -1,13 +1,10 @@
 import { faker } from '@faker-js/faker';
-
-export interface DateRange {
-  to_date: Date;
-  from_date: Date;
-}
+import { format } from 'date-fns';
+import { DateRange } from './../../../../dist/src/constants.d';
 
 export const getDateRange = (): DateRange => {
-  const to_date = faker.date.recent(10);
-  const from_date = faker.date.recent(5, to_date);
+  const to_date = format(faker.date.recent(10), 'yyyy-MM-dd');
+  const from_date = format(faker.date.recent(5, to_date), 'yyyy-MM-dd');
 
   return {
     to_date,

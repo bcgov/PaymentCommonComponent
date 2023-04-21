@@ -1,5 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { format } from 'date-fns';
 import { In, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
@@ -40,12 +41,14 @@ export class PosDepositService {
         status: depositStatus,
         merchant_id: In(merchant_ids)
       },
-      relations: ['payment_method'],
+      relations: {
+        payment_method: true
+      },
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
       order: {
         transaction_amt: 'ASC',
-        card_vendor: 'ASC',
+        payment_method: { method: 'ASC' },
         transaction_time: 'ASC'
       }
     });
@@ -73,14 +76,14 @@ export class PosDepositService {
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');
 
     qb.select(['settlement_date::date']);
-    qb.addSelect('payment_method.description', 'card_vendor');
+    qb.addSelect('payment_method.description', 'payment_method');
     qb.addSelect(
       'SUM(transaction_amt)::numeric(10,2)',
       'transaction_amt'
     ).leftJoin(
       PaymentMethodEntity,
       'payment_method',
-      'payment_method.method = pos_deposit.card_vendor'
+      'payment_method.method = pos_deposit.payment_method'
     );
     qb.where({
       metadata: { program },
@@ -94,7 +97,7 @@ export class PosDepositService {
 
     qb.groupBy('settlement_date');
     qb.addGroupBy('terminal_no');
-    qb.addGroupBy('card_vendor');
+    qb.addGroupBy('payment_method');
     qb.addGroupBy('payment_method.method');
     qb.orderBy({
       settlement_date: 'ASC',
@@ -102,9 +105,12 @@ export class PosDepositService {
       terminal_no: 'ASC'
     });
 
-    return await qb.getRawMany();
+    const deposits = await qb.getRawMany();
+    return deposits.map((d) => ({
+      ...d,
+      settlement_date: format(new Date(d.settlement_date), 'yyyy-MM-dd')
+    }));
   }
-
   async savePOSDepositEntities(
     data: POSDepositEntity[]
   ): Promise<POSDepositEntity[]> {
