@@ -22,19 +22,18 @@ export class CashReconciliationService {
    * @returns
    * @description Find all deposit dates for a given location and program
    */
-  public async findDistinctDepositDatesByLocation(
+  public async findCashDepositDatesByLocation(
     program: Ministries,
     dateRange: DateRange,
     location: LocationEntity
   ): Promise<string[]> {
     this.appLogger.log({ dateRange }, CashReconciliationService.name);
-    const dates =
-      await this.cashDepositService.findDistinctDepositDatesByLocation(
-        program,
-        dateRange,
-        location
-      );
-    return dates;
+
+    return await this.cashDepositService.findCashDepositDatesByLocation(
+      program,
+      dateRange,
+      location
+    );
   }
   /**
    *
@@ -52,7 +51,7 @@ export class CashReconciliationService {
       await this.paymentService.findPaymentsExceptions(location, pastDueDate);
 
     const deposits: CashDepositEntity[] =
-      await this.cashDepositService.findExceptions(
+      await this.cashDepositService.findCashDepositExceptions(
         pastDueDate,
         program,
         location
@@ -145,9 +144,9 @@ export class CashReconciliationService {
     dateRange: DateRange
   ): Promise<unknown> {
     const pendingDeposits: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
+      await this.cashDepositService.findCashDepositsByDate(
         program,
-        dateRange,
+        dateRange.to_date,
         location,
         [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
       );
@@ -187,11 +186,11 @@ export class CashReconciliationService {
       (itm: CashDepositEntity) => itm.status === MatchStatus.MATCH
     );
     this.appLogger.log(
-      `${matchedPayments.length} AFTER MATCH PAYMENTS MARKED MATCHED`,
+      `${matchedPayments.length} PAYMENTS MARKED MATCHED`,
       CashReconciliationService.name
     );
     this.appLogger.log(
-      `${matchedDeposits.length} AFTER MATCH DEPOSITS MARKED MATCHED`,
+      `${matchedDeposits.length} DEPOSITS MARKED MATCHED`,
       CashReconciliationService.name
     );
     const inProgressPayments: PaymentEntity[] = afterMatch.aggregatedPayments
@@ -217,11 +216,11 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(inProgressPayments).length
-      } AFTER MATCH PAYMENTS MARKED IN_PROGRESS`,
+      } PAYMENTS MARKED IN_PROGRESS`,
       CashReconciliationService.name
     );
     this.appLogger.log(
-      `${inProgressDeposits.length} AFTER MATCH DEPOSITS MARKED IN_PROGRESS`,
+      `${inProgressDeposits.length} DEPOSITS MARKED IN_PROGRESS`,
       CashReconciliationService.name
     );
 
@@ -238,7 +237,7 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(paymentsMatched).length
-      } PAYMENTS MATCHED UPDATED TO DB`,
+      } PAYMENTS UPDATED AS MATCH`,
       CashReconciliationService.name
     );
     const updatedPaymentsInProgress: PaymentEntity[] =
@@ -246,21 +245,21 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(updatedPaymentsInProgress).length
-      } PAYMENTS IN_PROGRESS UPDATED TO DB`,
+      } PAYMENTS UPDATED AS IN_PROGRESS`,
       CashReconciliationService.name
     );
 
     const updatedDepositsMatched: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(matchedDeposits);
     this.appLogger.log(
-      `${updatedDepositsMatched.length} DEPOSITS MATCHED UPDATED TO DB`,
+      `${updatedDepositsMatched.length} DEPOSITS UPDATED TO MATCH`,
       CashReconciliationService.name
     );
     const updatedDepositsInProgress: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(inProgressDeposits);
 
     this.appLogger.log(
-      `${updatedDepositsInProgress.length} DEPOSITS IN_PROGRESS UPDATED TO DB`,
+      `${updatedDepositsInProgress.length} DEPOSITS UPDATED TO IN_PROGRESS`,
       CashReconciliationService.name
     );
 

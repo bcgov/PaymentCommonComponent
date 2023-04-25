@@ -123,10 +123,13 @@ export class PosDepositService {
     }
   }
 
-  async update(deposit: POSDepositEntity) {
-    const depositEntity = await this.posDepositRepo.findOneByOrFail({
-      id: deposit.id
-    });
-    return await this.posDepositRepo.save({ ...depositEntity, ...deposit });
+  async updateDeposits(
+    deposits: POSDepositEntity[]
+  ): Promise<POSDepositEntity[]> {
+    return await Promise.all(deposits.map((itm) => this.update(itm)));
+  }
+
+  async update(deposit: POSDepositEntity): Promise<POSDepositEntity> {
+    return await this.posDepositRepo.save(deposit);
   }
 }

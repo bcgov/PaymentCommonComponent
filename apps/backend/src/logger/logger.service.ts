@@ -1,5 +1,6 @@
 import { LoggerService } from '@nestjs/common';
 import axios from 'axios';
+import { format } from 'date-fns';
 import { WinstonModule } from 'nest-winston';
 import winston from 'winston';
 import * as util from 'util';
@@ -8,15 +9,29 @@ export class AppLogger implements LoggerService {
   private readonly logger;
   constructor() {
     this.logger = WinstonModule.createLogger({
-      transports: [
-        new winston.transports.Console({
-          format: winston.format.combine(
-            winston.format.simple(),
-            winston.format.colorize()
-          ),
-          level: 'debug',
-        }),
-      ],
+      transports: process.env.LOG_FILE
+        ? [
+            new winston.transports.Console({
+              format: winston.format.combine(
+                winston.format.simple(),
+                winston.format.colorize()
+              ),
+              level: 'debug'
+            }),
+            new winston.transports.File({
+              filename: `${format(new Date(), 'yyyy-MM-dd')}`,
+              level: 'verbose'
+            })
+          ]
+        : [
+            new winston.transports.Console({
+              format: winston.format.combine(
+                winston.format.simple(),
+                winston.format.colorize()
+              ),
+              level: 'debug'
+            })
+          ],
       exitOnError: false
     });
   }

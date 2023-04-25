@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, In, Repository } from 'typeorm';
+import { Raw, In, Repository, LessThanOrEqual } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
@@ -44,7 +44,7 @@ export class PaymentService {
     });
   }
 
-  aggregatePayments(payments: PaymentEntity[]): AggregatedPayment[] {
+  public aggregatePayments(payments: PaymentEntity[]): AggregatedPayment[] {
     const groupedPayments = payments.reduce(
       /*eslint-disable */
       (acc: any, payment: PaymentEntity) => {
@@ -70,7 +70,7 @@ export class PaymentService {
     );
   }
 
-  public async findPaymentsWithPartialSelect(
+  public async findPaymentsForDailySummary(
     location: LocationEntity,
     date: string
   ): Promise<PaymentEntity[]> {
@@ -151,10 +151,10 @@ export class PaymentService {
     return await this.paymentRepo.find({
       where: {
         payment_method: { classification: PaymentMethodClassification.CASH },
-        status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS]),
+        status: MatchStatus.IN_PROGRESS,
         transaction: {
           location_id: location.location_id,
-          fiscal_close_date: pastDueDepositDate
+          fiscal_close_date: LessThanOrEqual(pastDueDepositDate)
         }
       },
       relations: {

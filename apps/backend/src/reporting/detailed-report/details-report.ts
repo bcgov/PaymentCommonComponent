@@ -1,4 +1,5 @@
 import { format } from 'date-fns';
+import { DateRange } from './../../constants';
 import { MatchStatus } from '../../common/const';
 import { LocationEntity } from '../../location/entities';
 
@@ -33,14 +34,14 @@ export class DetailsReport {
   dist_project_code: number | null;
   dist_location_code: number | null;
   dist_future_code: number | null;
-  constructor(location: LocationEntity, dates?: string[]) {
+  constructor(location: LocationEntity, dateRange?: DateRange) {
     this.foreign_currency_amount = null;
     this.currency = 'CAD';
     this.transaction_id = '';
     this.deposit_date_range =
-      dates && dates[0] && dates[1]
-        ? `${format(new Date(dates[0]), 'yyyy-MM-dd')}-${format(
-            new Date(dates[1]),
+      dateRange?.from_date && dateRange?.to_date
+        ? `${format(new Date(dateRange.from_date), 'yyyy-MM-dd')}-${format(
+            new Date(dateRange.to_date),
             'yyyy-MM-dd'
           )}`
         : '';
