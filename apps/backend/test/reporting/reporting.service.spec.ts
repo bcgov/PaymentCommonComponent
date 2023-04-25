@@ -7,6 +7,7 @@ import { PosDepositService } from './../../src/deposits/pos-deposit.service';
 import { ExcelExportService } from './../../src/excelexport/excelexport.service';
 import { LocationEntity } from './../../src/location/entities/master-location-data.entity';
 import { LocationService } from './../../src/location/location.service';
+import { DetailedReportService } from './../../src/reporting/details-report.service';
 import { S3ManagerService } from './../../src/s3-manager/s3-manager.service';
 import { PaymentEntity } from './../../src/transaction/entities/payment.entity';
 import { PaymentService } from './../../src/transaction/payment.service';
@@ -21,7 +22,6 @@ describe('ReportingService', () => {
     findOneOrFail: jest.fn(() => Promise.resolve({}))
   };
   const s3ServiceMock = {
-    // mock the query method that is used
     query: jest.fn(() => Promise.resolve({}))
   };
 
@@ -29,13 +29,13 @@ describe('ReportingService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ReportingService,
+        DetailedReportService,
         LocationService,
         PaymentService,
         CashDepositService,
         PosDepositService,
         PaymentService,
         ExcelExportService,
-
         Logger,
         {
           provide: S3ManagerService,
