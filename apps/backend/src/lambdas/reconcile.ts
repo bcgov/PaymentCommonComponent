@@ -39,17 +39,17 @@ export const handler = async (
     posRecon
   );
 
-  appLogger.log(
-    `POS reconciled for ${posReconciled} locations`,
-    POSReconciliationService.name
-  );
+  appLogger.log({ posReconciled }, CashReconciliationService.name);
+
   const cashReconciled = await runCashReconciliation(
     event,
     locations,
     appLogger,
     cashRecon
   );
-  appLogger.log(`CASH reconciled for ${cashReconciled} locations`);
+
+  appLogger.log({ cashReconciled }, CashReconciliationService.name);
+
   const cashExceptions = await runCashExceptions(
     event,
     locations,
@@ -57,7 +57,7 @@ export const handler = async (
     cashRecon
   );
 
-  appLogger.log(`CASH exceptions for ${cashExceptions} locations`);
+  appLogger.log({ cashExceptions }, CashReconciliationService.name);
 
   appLogger.log('\n\n=========POS Summary Report: =========\n');
   const posReport = await reportingService.reportPosMatchSummaryByDate();
@@ -163,14 +163,21 @@ const runCashExceptions = async (
       location
     );
     for (const [dindex, date] of cashDates.entries()) {
-      const pastDueDate = cashDates[dindex - 2] ?? null;
+      const pastDueDate = cashDates[dindex - 2]
+        ? cashDates[dindex - 2]
+        : cashDates[dindex - 1]
+        ? cashDates[dindex - 1]
+        : cashDates[dindex]
+        ? cashDates[dindex]
+        : event.period.from;
+      console.log(pastDueDate);
       if (pastDueDate) {
         appLogger.log(
           `Processing CASH EXCEPTIONS for: ${location.description} (${location.location_id})`,
           CashReconciliationService.name
         );
         appLogger.log(
-          `EXCEPTIONS DATE: ${cashDates[dindex - 2]}`,
+          `EXCEPTIONS DATE: ${pastDueDate}`,
           CashReconciliationService.name
         );
 

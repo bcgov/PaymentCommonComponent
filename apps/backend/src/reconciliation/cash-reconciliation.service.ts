@@ -164,9 +164,9 @@ export class CashReconciliationService {
       `${pendingDeposits.length} DEPOSITS PENDING RECONCILIATION`,
       CashReconciliationService.name
     );
-    if (pendingDeposits.length === 0 || aggregatedPayments.length === 0) {
+    if (pendingDeposits.length === 0 && aggregatedPayments.length === 0) {
       this.appLogger.log(
-        'No pending payments or deposits found',
+        'No pending payments / deposits found',
         CashReconciliationService.name
       );
       return;
