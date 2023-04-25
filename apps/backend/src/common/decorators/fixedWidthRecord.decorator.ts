@@ -6,6 +6,7 @@ export interface ColumnOptions {
   start: number;
   width: number;
   format?:
+    | BooleanOptions
     | DecimalOptions
     | FloatOptions
     | IntOptions
@@ -17,6 +18,9 @@ export interface ColumnOptions {
     | TransactionCodeOptions;
   delimiter?: string;
   example?: unknown;
+}
+export interface BooleanOptions {
+  type: DataType.Boolean;
 }
 export interface DecimalOptions {
   type: DataType.Decimal;
@@ -55,6 +59,7 @@ export interface TransactionCodeOptions {
 
 export enum DataType {
   Decimal = 'Decimal',
+  Boolean = 'Boolean',
   Float = 'Float',
   Integer = 'Integer ',
   Date = 'Date',

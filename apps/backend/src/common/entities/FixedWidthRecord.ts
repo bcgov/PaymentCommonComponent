@@ -74,6 +74,8 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
           (target as any)[field] = value ? timeFormat(value) : null;
         } else if (options.format.type === DataType.Decimal) {
           (target as any)[field] = value ? decimalFormat(value) : '';
+        } else if (options.format.type === DataType.Boolean) {
+          (target as any)[field] = value ? true : false;
         }
       }
     }
