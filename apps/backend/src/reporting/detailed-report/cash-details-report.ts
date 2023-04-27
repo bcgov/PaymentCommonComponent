@@ -1,4 +1,5 @@
 import { DetailsReport } from './details-report';
+import { DateRange } from './../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { LocationEntity } from '../../location/entities/master-location-data.entity';
 
@@ -6,7 +7,7 @@ export class CashDepositDetailsReport extends DetailsReport {
   constructor(
     location: LocationEntity,
     deposit: CashDepositEntity,
-    dates?: string[]
+    dates?: DateRange
   ) {
     super(location, dates);
     this.source_file = 'Cash/Chq (TDI 17)';

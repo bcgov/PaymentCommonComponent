@@ -1,4 +1,5 @@
 import { DetailsReport } from './details-report';
+import { DateRange } from './../../constants';
 import { PaymentEntity } from './../../transaction/entities/payment.entity';
 import { LocationEntity } from '../../location/entities/master-location-data.entity';
 
@@ -8,7 +9,7 @@ export class PaymentDetailsReport extends DetailsReport {
   constructor(
     location: LocationEntity,
     payment: PaymentEntity,
-    dates?: string[]
+    dates?: DateRange
   ) {
     super(location, dates);
     this.source_file = 'Transaction (LOB)';

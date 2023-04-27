@@ -7,8 +7,6 @@ export class POSDepositDetailsReport extends DetailsReport {
     super(location);
     this.source_file = 'POS (TDI 34)';
     this.reconciliation_status = deposit.status;
-    this.location_id = location.location_id;
-    this.location = location.description;
     this.date = deposit.transaction_date;
     this.time = deposit.transaction_time;
     this.fiscal_date = deposit.settlement_date;

@@ -9,12 +9,7 @@ import {
   Report,
   casReportColumns
 } from './const';
-import {
-  CashDepositDetailsReport,
-  POSDepositDetailsReport,
-  PaymentDetailsReport,
-  DetailsReport
-} from './detailed-report';
+import { DetailedReportService } from './details-report.service';
 import { DailySummary, ReportConfig } from './interfaces';
 import { columnStyle, rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
@@ -28,7 +23,7 @@ import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
-import { PaymentService } from '../transaction/payment.service';
+import { PaymentService } from './../transaction/payment.service';
 
 export class ReportingService {
   constructor(
@@ -39,6 +34,8 @@ export class ReportingService {
     private locationService: LocationService,
     @Inject(PaymentService)
     private paymentService: PaymentService,
+    @Inject(DetailedReportService)
+    private detailedReportService: DetailedReportService,
     @Inject(CashDepositService)
     private cashDepositService: CashDepositService,
     @Inject(PosDepositService)
@@ -154,7 +151,7 @@ export class ReportingService {
     dateRange: DateRange
   ): Promise<CasReport[]> {
     const cashDepositsResults: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositsByDateRange(
+      await this.cashDepositService.findCashDepositsForReport(
         location,
         config.program,
         dateRange
@@ -166,7 +163,6 @@ export class ReportingService {
         deposit_date: itm.deposit_date,
         deposit_amt_cdn: itm.deposit_amt_cdn
       }));
-    /*eslint-disable */
 
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSBySettlementDate(
@@ -213,19 +209,19 @@ export class ReportingService {
     this.appLogger.log(config);
     this.appLogger.log('Generating Reconciliation Details Worksheet');
 
-    const details: DetailsReport[] = [];
+    const data: unknown[] = [];
 
-    await Promise.all(
-      locations.map(async (itm) => {
-        const values = await this.findAndParseDataForDetailedReport(
+    for (const location of locations) {
+      const details =
+        await this.detailedReportService.findDataForDetailedReport(
           config,
-          itm
+          location
         );
-        details.push(...values);
-      })
-    );
+      data.push(...details);
+    }
+
     this.appLogger.log(
-      `Detailed Report line items: ${details.length}`,
+      `Detailed Report line items: ${data.length}`,
       ReportingService.name
     );
 
@@ -239,7 +235,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addRows(
       Report.DETAILED_REPORT,
-      details.map((itm) => ({ values: itm, style: rowStyle() })),
+      data.map((itm) => ({ values: itm, style: rowStyle() })),
       startIndex
     );
     this.excelWorkbook.addTitleRow(
@@ -263,7 +259,7 @@ export class ReportingService {
       },
       to: {
         column: detailedReportColumns.length,
-        row: details.length + 1
+        row: data.length + 1
       }
     };
 
@@ -343,7 +339,7 @@ export class ReportingService {
     location: LocationEntity,
     program: Ministries
   ): Promise<DailySummary> {
-    const payments = await this.paymentService.findPaymentsWithPartialSelect(
+    const payments = await this.paymentService.findPaymentsForDailySummary(
       location,
       date
     );
@@ -376,119 +372,7 @@ export class ReportingService {
       style: rowStyle(exceptions !== 0)
     };
   }
-  /**
-   *
-   * @param config
-   * @param location
-   * @returns
-   */
-  async findAndParseDataForDetailedReport(
-    config: ReportConfig,
-    location: LocationEntity
-  ): Promise<DetailsReport[]> {
-    const dateRange: DateRange = {
-      to_date: config.period.to,
-      from_date: config.period.from
-    };
 
-    const currentCashDeposits: CashDepositEntity[] =
-      (await this.cashDepositService.findCashDepositsByDateLocationAndProgram(
-        config.program,
-        dateRange,
-        location,
-        [MatchStatus.EXCEPTION, MatchStatus.MATCH]
-      )) || [];
-
-    const currentCashDepositWindow =
-      currentCashDeposits.length > 0
-        ? await this.cashDepositService.findCashDepositDateWindow(
-            config.program,
-            dateRange,
-            location
-          )
-        : [];
-
-    const cashDepositWindow =
-      currentCashDepositWindow.length > 0
-        ? {
-            to_date: currentCashDepositWindow[0],
-            from_date: currentCashDepositWindow[1]
-          }
-        : null;
-
-    const correspondingCashPaymentsToDeposits = cashDepositWindow
-      ? await this.paymentService.findCashPayments(
-          cashDepositWindow,
-          location,
-          [MatchStatus.EXCEPTION, MatchStatus.MATCH]
-        )
-      : [];
-
-    const parsedCashPayments = cashDepositWindow
-      ? correspondingCashPaymentsToDeposits.map(
-          (itm) =>
-            new PaymentDetailsReport(location, itm, [
-              cashDepositWindow.from_date,
-              cashDepositWindow.to_date
-            ])
-        )
-      : [];
-
-    const allPendingAndInProgressCashPayments: PaymentEntity[] =
-      await this.paymentService.findCashPayments(
-        {
-          to_date: config.period.to,
-          from_date: config.period.from
-        },
-        location,
-        [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
-      );
-
-    const payments = [
-      ...allPendingAndInProgressCashPayments.map(
-        (itm) => new PaymentDetailsReport(location, itm, [])
-      ),
-      ...parsedCashPayments
-    ];
-    const pendingCashDeposits: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositsByDateRange(
-        location,
-
-        config.program,
-        { from_date: config.period.from, to_date: config.period.to },
-        [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
-      );
-
-    const parsedCashDepositDetails = [
-      ...currentCashDeposits.map(
-        (itm: CashDepositEntity) =>
-          new CashDepositDetailsReport(location, itm, [])
-      ),
-      ...pendingCashDeposits.map(
-        (itm: CashDepositEntity) =>
-          new CashDepositDetailsReport(location, itm, [])
-      )
-    ];
-    const posPayments: PaymentEntity[] =
-      await this.paymentService.findPosPayments(config.period.to, location);
-    const posDeposits: POSDepositEntity[] =
-      await this.posDepositService.findPOSDeposits(
-        config.period.to,
-        config.program,
-        location
-      );
-
-    return await Promise.all([
-      ...payments,
-      ...parsedCashDepositDetails,
-      ...posPayments.map(
-        (itm: PaymentEntity) => new PaymentDetailsReport(location, itm)
-      ),
-      ...posDeposits.map(
-        (itm: POSDepositEntity) => new POSDepositDetailsReport(location, itm)
-      )
-    ]);
-  }
   /**
    *
    * @returns

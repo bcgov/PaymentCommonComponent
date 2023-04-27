@@ -53,9 +53,9 @@ export class CashDepositService {
    * @returns CashDepositEntity[]
    * @description Filter by location and date. Optionally, filter by program, and status.
    */
-  async findCashDepositsByDateLocationAndProgram(
+  async findCashDepositsByDate(
     program: Ministries,
-    dateRange: DateRange,
+    deposit_date: string,
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
@@ -64,7 +64,7 @@ export class CashDepositService {
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
-        deposit_date: dateRange.to_date,
+        deposit_date,
         status: In(depositStatus)
       },
       order: {
@@ -73,56 +73,28 @@ export class CashDepositService {
     });
   }
 
-  async findCashDepositDateWindow(
-    program: Ministries,
-    dateRange: DateRange,
-    location: LocationEntity
-  ) {
-    const { to_date } = dateRange;
-    const dates = await this.cashDepositRepo.find({
-      where: {
-        pt_location_id: location.pt_location_id,
-        metadata: { program },
-        deposit_date: LessThanOrEqual(to_date)
-      },
-      order: {
-        deposit_date: 'DESC'
-      }
-    });
-
-    return Array.from(new Set(dates.map((itm) => itm.deposit_date)));
-  }
-  /**
-   *
-   * @param program
-   * @param dateRange
-   * @param location
-   * @returns
-   */
-  public async findDistinctDepositDatesByLocation(
+  async findCashDepositDatesByLocation(
     program: Ministries,
     dateRange: DateRange,
     location: LocationEntity
   ): Promise<string[]> {
     const { to_date, from_date } = dateRange;
-    const qb = this.cashDepositRepo.createQueryBuilder('cash_deposit');
-    qb.select('deposit_date');
-    qb.distinctOn(['deposit_date']);
-    qb.where({
-      pt_location_id: location.pt_location_id,
-      metadata: { program },
-      deposit_date: Raw(
-        (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
-        {
-          from_date: from_date,
-          to_date: to_date
-        }
-      )
+    const dates = await this.cashDepositRepo.find({
+      where: {
+        pt_location_id: location.pt_location_id,
+        metadata: { program },
+        deposit_date: Raw(
+          (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
+          { to_date, from_date }
+        )
+      },
+      order: {
+        deposit_date: 'ASC'
+      }
     });
-    qb.orderBy('deposit_date', 'ASC');
-    const dates = await qb.getRawMany();
-    return dates.map((itm) => itm.deposit_date);
+    return Array.from(new Set(dates.map((itm) => itm.deposit_date)));
   }
+
   /**
    * @param deposits: CashDepositEntity[]
    * @param status: MatchStatus
@@ -150,17 +122,17 @@ export class CashDepositService {
    * @returns CashDepositEntity[]
    */
 
-  async findExceptions(
+  async findCashDepositExceptions(
     date: string,
     program: Ministries,
     location: LocationEntity
-  ) {
+  ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
-        status: In([MatchStatus.PENDING, MatchStatus.IN_PROGRESS])
+        status: MatchStatus.IN_PROGRESS
       }
     });
   }
@@ -171,33 +143,30 @@ export class CashDepositService {
    * @param dateRange
    * @returns
    */
-  async findCashDepositsByDateRange(
+  async findCashDepositsForReport(
     location: LocationEntity,
     program: Ministries,
-    dateRange: DateRange,
-    status?: MatchStatus[]
+    dateRange: DateRange
   ): Promise<CashDepositEntity[]> {
     const { to_date, from_date } = dateRange;
-    const depositStatus = status ?? MatchStatusAll;
-    return await Promise.all(
-      await this.cashDepositRepo.find({
-        where: {
-          metadata: { program },
-          status: In(depositStatus),
-          deposit_date: Raw(
-            (alias) => `${alias} >= :from_date and ${alias} <= :to_date`,
-            {
-              from_date: from_date,
-              to_date: to_date
-            }
-          ),
-          pt_location_id: location.pt_location_id
-        },
-        order: {
-          deposit_date: 'ASC',
-          deposit_amt_cdn: 'ASC'
-        }
-      })
-    );
+
+    return await this.cashDepositRepo.find({
+      where: {
+        metadata: { program },
+        deposit_date: Raw(
+          (alias) =>
+            `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
+          {
+            from_date,
+            to_date
+          }
+        ),
+        pt_location_id: location.pt_location_id
+      },
+      order: {
+        deposit_date: 'ASC',
+        deposit_amt_cdn: 'ASC'
+      }
+    });
   }
 }
