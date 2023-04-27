@@ -18,9 +18,12 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   seq_no: string;
   location_desc: string;
   deposit_amt_curr: number;
+  negative_indicator_curr: string;
   currency: string;
   exchange_adj_amt: number;
+  negative_indicator_exchanged: string;
   deposit_amt_cdn: number;
+  negative_indicator_cdn: string;
   destination_bank_no: string;
   batch_no: string;
   jv_type: string;
@@ -121,6 +124,14 @@ export class TDI17Details
   public set location_desc(data) {
     this.resource.location_desc = data;
   }
+  @Column({ start: 79, width: 1, format: { type: DataType.Boolean } })
+  public get negative_indicator_curr() {
+    return this.resource.negative_indicator_curr;
+  }
+
+  public set negative_indicator_curr(data) {
+    this.resource.negative_indicator_curr = data;
+  }
 
   @Column({ start: 67, width: 12, format: { type: DataType.Decimal } })
   public get deposit_amt_curr() {
@@ -128,7 +139,11 @@ export class TDI17Details
   }
 
   public set deposit_amt_curr(data) {
-    this.resource.deposit_amt_curr = data;
+    if (this.resource.negative_indicator_curr) {
+      this.resource.deposit_amt_curr = data * -1;
+    } else {
+      this.resource.deposit_amt_curr = data;
+    }
   }
 
   @Column({ start: 80, width: 2 })
@@ -139,7 +154,14 @@ export class TDI17Details
   public set currency(data) {
     this.resource.currency = data;
   }
+  @Column({ start: 94, width: 1, format: { type: DataType.Boolean } })
+  public get negative_indicator_exchanged() {
+    return this.resource.negative_indicator_exchanged;
+  }
 
+  public set negative_indicator_exchanged(data) {
+    this.resource.negative_indicator_exchanged = data;
+  }
   @Column({
     start: 82,
     width: 12,
@@ -150,7 +172,19 @@ export class TDI17Details
   }
 
   public set exchange_adj_amt(data) {
-    this.resource.exchange_adj_amt = data;
+    if (this.resource.negative_indicator_exchanged) {
+      this.resource.exchange_adj_amt = data * -1;
+    } else {
+      this.resource.exchange_adj_amt = data;
+    }
+  }
+  @Column({ start: 107, width: 1, format: { type: DataType.Boolean } })
+  public get negative_indicator_cdn() {
+    return this.resource.negative_indicator_exchanged;
+  }
+
+  public set negative_indicator_cdn(data) {
+    this.resource.negative_indicator_cdn = data;
   }
 
   @Column({ start: 95, width: 12, format: { type: DataType.Decimal } })
@@ -159,7 +193,11 @@ export class TDI17Details
   }
 
   public set deposit_amt_cdn(data) {
-    this.resource.deposit_amt_cdn = data;
+    if (this.resource.negative_indicator_cdn) {
+      this.resource.deposit_amt_cdn = data * -1;
+    } else {
+      this.resource.deposit_amt_cdn = data;
+    }
   }
 
   @Column({ start: 108, width: 4 })
