@@ -5,6 +5,7 @@ import { eachDayOfInterval, format } from 'date-fns';
 import { AppModule } from '../app.module';
 import { LocationEntity } from '../location/entities/master-location-data.entity';
 import { LocationService } from '../location/location.service';
+import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { POSReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationConfigInput } from '../reconciliation/types';
@@ -17,6 +18,7 @@ export const handler = async (
   const app = await NestFactory.createApplicationContext(AppModule);
   const cashRecon = app.get(CashReconciliationService);
   const posRecon = app.get(POSReconciliationService);
+  const exceptionsService = app.get(CashExceptionsService);
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
   const appLogger = new Logger();
@@ -54,7 +56,8 @@ export const handler = async (
     event,
     locations,
     appLogger,
-    cashRecon
+    cashRecon,
+    exceptionsService
   );
 
   appLogger.log({ cashExceptions }, CashReconciliationService.name);
@@ -151,7 +154,8 @@ const runCashExceptions = async (
   event: ReconciliationConfigInput,
   locations: LocationEntity[],
   appLogger: Logger,
-  cashRecon: CashReconciliationService
+  cashRecon: CashReconciliationService,
+  exceptionsService: CashExceptionsService
 ): Promise<void> => {
   for (const location of locations) {
     const cashDates: string[] = await cashRecon.findCashDepositDatesByLocation(
@@ -170,14 +174,13 @@ const runCashExceptions = async (
         : cashDates[dindex]
         ? cashDates[dindex]
         : event.period.from;
-      console.log(pastDueDate);
       if (pastDueDate) {
         appLogger.log(
           `Processing CASH EXCEPTIONS for: ${location.description} (${location.location_id})`,
           CashReconciliationService.name
         );
         appLogger.log(
-          `EXCEPTIONS DATE: ${pastDueDate}`,
+          `EXCEPTIONS DATE: ${cashDates[dindex - 2]}`,
           CashReconciliationService.name
         );
 
@@ -186,7 +189,7 @@ const runCashExceptions = async (
           CashReconciliationService.name
         );
 
-        const exceptions = await cashRecon.findExceptions(
+        const exceptions = await exceptionsService.findExceptions(
           location,
           event.program,
           pastDueDate

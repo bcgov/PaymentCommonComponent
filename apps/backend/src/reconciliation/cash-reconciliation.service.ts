@@ -35,49 +35,42 @@ export class CashReconciliationService {
       location
     );
   }
-  /**
-   *
-   * @param event
-   * @returns PaymentEntity[]
-   * @description Find all payments and deposits that are older than the past due date and mark as exceptions
-   */
 
-  public async findExceptions(
-    location: LocationEntity,
-    program: Ministries,
-    pastDueDate: string
-  ): Promise<unknown> {
-    const payments: PaymentEntity[] =
-      await this.paymentService.findPaymentsExceptions(location, pastDueDate);
+  public checkStatus(
+    payment: AggregatedPayment,
+    deposit: CashDepositEntity
+  ): boolean {
+    if (
+      payment.status !== MatchStatus.MATCH &&
+      deposit.status !== MatchStatus.MATCH
+    ) {
+      return true;
+    }
+    return false;
+  }
 
-    const deposits: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositExceptions(
-        pastDueDate,
-        program,
-        location
-      );
+  public checkPaymentCashMatch(payment: AggregatedPayment): boolean {
+    return payment.payments.every(
+      ({ cash_deposit_match }) => cash_deposit_match === undefined
+    );
+  }
 
-    const paymentExceptions: PaymentEntity[] =
-      await this.paymentService.updatePayments(
-        payments.map((itm) => ({
-          ...itm,
-          timestamp: itm.timestamp,
-          status: MatchStatus.EXCEPTION
-        }))
-      );
+  public checkAggregatedPaymentAmountToCashDepositAmount(
+    payment: AggregatedPayment,
+    deposit: CashDepositEntity
+  ) {
+    return Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.001;
+  }
 
-    const depositExceptions: CashDepositEntity[] =
-      await this.cashDepositService.updateDeposits(
-        deposits.map((itm) => ({
-          ...itm,
-          status: MatchStatus.EXCEPTION
-        }))
-      );
-
-    return {
-      payments: paymentExceptions.length ?? 0,
-      deposits: depositExceptions.length ?? 0
-    };
+  public checkMatch(
+    payment: AggregatedPayment,
+    deposit: CashDepositEntity
+  ): boolean {
+    return (
+      this.checkStatus(payment, deposit) &&
+      this.checkPaymentCashMatch(payment) &&
+      this.checkAggregatedPaymentAmountToCashDepositAmount(payment, deposit)
+    );
   }
 
   /**
@@ -94,20 +87,13 @@ export class CashReconciliationService {
     aggregatedPayments: AggregatedPayment[];
     deposits: CashDepositEntity[];
   } {
-    this.appLogger.log(
-      `MATCHING: ${aggregatedPayments.length} AGGREGATED PAYMENTS to ${deposits.length} DEPOSITS`,
-      CashReconciliationService.name
-    );
     for (const [dindex, deposit] of deposits.entries()) {
       for (const [pindex, payment] of aggregatedPayments.entries()) {
-        if (
-          payment.status !== MatchStatus.MATCH &&
-          deposit.status !== MatchStatus.MATCH &&
-          payment.payments.every(
-            ({ cash_deposit_match }) => cash_deposit_match === undefined
-          ) &&
-          Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.001
-        ) {
+        if (this.checkMatch(payment, deposit)) {
+          this.appLogger.log(
+            `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
+            CashReconciliationService.name
+          );
           deposits[dindex].status = MatchStatus.MATCH;
           aggregatedPayments[pindex].status = MatchStatus.MATCH;
           aggregatedPayments[pindex].payments = payment.payments.map((itm) => ({
@@ -116,16 +102,10 @@ export class CashReconciliationService {
             status: MatchStatus.MATCH,
             cash_deposit_match: deposits[dindex]
           }));
-
-          this.appLogger.log(
-            `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
-            CashReconciliationService.name
-          );
           break;
         }
       }
     }
-
     return {
       aggregatedPayments,
       deposits
@@ -157,11 +137,11 @@ export class CashReconciliationService {
         location
       );
     this.appLogger.log(
-      `${aggregatedPayments.length} AGGREGATED PAYMENTS PENDING RECONCILIATION`,
+      `${aggregatedPayments?.length} AGGREGATED PAYMENTS PENDING RECONCILIATION`,
       CashReconciliationService.name
     );
     this.appLogger.log(
-      `${pendingDeposits.length} DEPOSITS PENDING RECONCILIATION`,
+      `${pendingDeposits?.length} DEPOSITS PENDING RECONCILIATION`,
       CashReconciliationService.name
     );
     if (pendingDeposits.length === 0 && aggregatedPayments.length === 0) {

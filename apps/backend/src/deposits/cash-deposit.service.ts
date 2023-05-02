@@ -79,7 +79,7 @@ export class CashDepositService {
     location: LocationEntity
   ): Promise<string[]> {
     const { to_date, from_date } = dateRange;
-    const dates = await this.cashDepositRepo.find({
+    const dates: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program },
@@ -92,7 +92,8 @@ export class CashDepositService {
         deposit_date: 'ASC'
       }
     });
-    return Array.from(new Set(dates.map((itm) => itm.deposit_date)));
+    const uniqueDates = dates.map((d) => d.deposit_date);
+    return Array.from(new Set(uniqueDates));
   }
 
   /**
