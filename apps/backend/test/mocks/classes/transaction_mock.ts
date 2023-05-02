@@ -1,17 +1,16 @@
 import { faker } from '@faker-js/faker';
 import { format } from 'date-fns';
-import { BaseData } from './base-data';
-import { Payment } from './payment';
-import { Location } from '../types/interface';
-import { Ministries } from '../../../../src/constants';
-import { TransactionEntity } from '../../../../src/transaction/entities';
+import { Payment } from './payment_mock';
+import { BaseData } from '../types/interface';
+import { Ministries } from '../../../src/constants';
+import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
+import { TransactionEntity } from '../../../src/transaction/entities';
 
 /*eslint-disable */
-
 export class Transaction extends TransactionEntity {
   transaction_id: string;
   program: Ministries;
-  location: Location;
+  location: LocationEntity;
   transaction_date: string;
   total_payment_amount: number;
   fiscal_close_date: string;
