@@ -1,9 +1,9 @@
 import { AggregatedPayment } from 'src/reconciliation/types';
 import { CashDeposit } from './classes/cash_deposit_mock';
-import { getDateRange } from './classes/date_range_mock';
 import { Payment } from './classes/payment_mock';
-import { POSDeposit } from './classes/pos-deposit_mock';
+import { POSDeposit } from './classes/pos_deposit_mock';
 import { Transaction } from './classes/transaction_mock';
+import { getDateRange } from './const/date_range_mock';
 import { BaseData } from './types/interface';
 import { MatchStatus } from './../../src/common/const';
 import { PaymentMethodClassification } from './../../src/constants';

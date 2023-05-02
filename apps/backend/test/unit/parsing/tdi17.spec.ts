@@ -7,7 +7,7 @@ import tdi17Sample from '../../fixtures/tdi17Sample.json';
 describe('TDI17', () => {
   it('Verifies TDI TXT to TDI json', () => {
     const textfile = fs.readFileSync(
-      path.join(__dirname, '../../../sample-files/TDI17.TXT')
+      path.join(__dirname, '../../fixtures/TDI17.TXT')
     );
 
     const textFileArr = textfile.toString().split('\n');

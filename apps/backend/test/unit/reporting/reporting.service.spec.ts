@@ -1,19 +1,19 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CashDepositService } from './../../../src/deposits/cash-deposit.service';
-import { POSDepositEntity } from './../../../src/deposits/entities/pos-deposit.entity';
-import { PosDepositService } from './../../../src/deposits/pos-deposit.service';
-import { ExcelExportService } from './../../../src/excelexport/excelexport.service';
-import { LocationEntity } from './../../../src/location/entities/master-location-data.entity';
-import { LocationService } from './../../../src/location/location.service';
-import { DetailedReportService } from './../../../src/reporting/details-report.service';
-import { S3ManagerService } from './../../../src/s3-manager/s3-manager.service';
-import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
-import { PaymentService } from './../../../src/transaction/payment.service';
+import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
+import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
+import { ExcelExportService } from '../../../src/excelexport/excelexport.service';
+import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
+import { LocationService } from '../../../src/location/location.service';
+import { DetailedReportService } from '../../../src/reporting/details-report.service';
 import { ReportingService } from '../../../src/reporting/reporting.service';
+import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
 import { PaymentMethodEntity } from '../../../src/transaction/entities';
+import { PaymentEntity } from '../../../src/transaction/entities/payment.entity';
+import { PaymentService } from '../../../src/transaction/payment.service';
 
 describe('ReportingService', () => {
   let service: ReportingService;

@@ -55,4 +55,34 @@ describe('POSReconciliationService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
+
+  describe('matchPaymentsToDeposits', () => {
+    it('should match payments to deposits according to sum, date and status', () => {
+      console.log('TODO');
+    });
+    it('should mark all matched as matched', () => {
+      console.log('TODO');
+    });
+    it('should only match once and not attempt to match again', () => {
+      console.log('TODO');
+    });
+    it('should record the deposit match id', () => {
+      console.log('TODO');
+    });
+    it('should match based on the heuristics layers', () => {
+      console.log('TODO');
+    });
+    it('should not match if payment is not in the same location', () => {
+      console.log('TODO');
+    });
+    it('should not match if payment is not in the same program', () => {
+      console.log('TODO');
+    });
+    it('should not match if payment is not in the same transaction date', () => {
+      console.log('TODO');
+    });
+    it('should not match if payment has already been matched', () => {
+      console.log('TODO');
+    });
+  });
 });

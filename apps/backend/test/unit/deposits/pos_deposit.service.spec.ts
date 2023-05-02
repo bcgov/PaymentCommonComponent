@@ -1,23 +1,24 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
-import { CashDepositEntity } from './../../../src/deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from './../../../src/deposits/entities/pos-deposit.entity';
-import { LocationEntity } from './../../../src/location/entities/master-location-data.entity';
-import { PaymentMethodEntity } from './../../../src/transaction/entities/payment-method.entity';
-import { ParseArgsTDI, FileTypes } from '../../../src/constants';
+import { MatchStatus } from '../../../src/common/const';
+import { ParseArgsTDI, FileTypes, Ministries } from '../../../src/constants';
+import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { TDI34Details } from '../../../src/flat-files';
 import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
+import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
 import { LocationService } from '../../../src/location/location.service';
+import { getLocation } from '../../mocks/const/location_mock';
 
 describe('POSDepositService', () => {
   let service: PosDepositService;
   let repository: Repository<POSDepositEntity>;
   let posDepositMock: POSDepositEntity;
+  let locationService: LocationService;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -28,6 +29,7 @@ describe('POSDepositService', () => {
           provide: getRepositoryToken(POSDepositEntity),
           useValue: {
             findOneByOrFail: jest.fn(),
+            find: jest.fn().mockResolvedValue(posDepositMock),
             save: jest.fn().mockReturnValue(posDepositMock),
             create: jest.fn().mockReturnValue(posDepositMock),
             createQueryBuilder: jest
@@ -39,20 +41,12 @@ describe('POSDepositService', () => {
           }
         },
         {
-          provide: getRepositoryToken(PaymentMethodEntity),
-          useValue: {}
-        },
-        {
-          provide: getRepositoryToken(CashDepositEntity),
-          useValue: {}
-        },
-        {
           provide: getRepositoryToken(LocationEntity),
           useValue: {}
         }
       ]
     }).compile();
-
+    locationService = module.get<LocationService>(LocationService);
     service = module.get<PosDepositService>(PosDepositService);
     repository = module.get<Repository<POSDepositEntity>>(
       getRepositoryToken(POSDepositEntity)
@@ -99,6 +93,55 @@ describe('POSDepositService', () => {
       );
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith(posDeposit);
+    });
+  });
+  describe('findPOSDeposits', () => {
+    it('should return an array of POSDepositEntity', async () => {
+      const date = '2022-01-01';
+      const program = Ministries.SBC;
+      const location = getLocation();
+
+      const status = MatchStatus.PENDING;
+
+      jest
+        .spyOn(locationService, 'getMerchantIdsByLocationId')
+        .mockResolvedValue([location.merchant_id]);
+
+      const expectedPOSDeposits = [
+        new POSDepositEntity(),
+        new POSDepositEntity()
+      ];
+      jest.spyOn(repository, 'find').mockResolvedValue(expectedPOSDeposits);
+
+      const result = await service.findPOSDeposits(
+        date,
+        program,
+        location,
+        status
+      );
+
+      expect(locationService.getMerchantIdsByLocationId).toHaveBeenCalledWith(
+        location.location_id
+      );
+      expect(repository.find).toHaveBeenCalledWith({
+        where: {
+          transaction_date: date,
+          metadata: {
+            program: program
+          },
+          status: status,
+          merchant_id: In([location.merchant_id])
+        },
+        relations: {
+          payment_method: true
+        },
+        order: {
+          transaction_amt: 'ASC',
+          payment_method: { method: 'ASC' },
+          transaction_time: 'ASC'
+        }
+      });
+      expect(result).toEqual(expectedPOSDeposits);
     });
   });
   describe('update', () => {
