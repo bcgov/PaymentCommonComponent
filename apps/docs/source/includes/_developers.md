@@ -1,14 +1,15 @@
 # Developers
+
+## Pre-requisites
+
+1. Have you communicated with your finance responsible and is s/he onboard with this?
+2. Information about your GL coding is required.
+
 ## Explore our APIs
 Common Component for Payments' APIs power its platform to perform automated reconciliation of payments across the various lines of businesses across British Columbia. Behind these APIs is a software layer connecting and optimizing communications networks to allow your users to simplify and streamline the payment processes and technology across the BC government payment ecosystem.
+
 ## Before you begin
-You must have one of the following accounts for login to the API Services Portal:
-
-1. GitHub
-
-2. IDIR
-
-3. BC Services Card
+You must have one of the following accounts for login to the API Services Portal: GitHub, IDIR or BC Services Card.
 
 ## Initial setup
 Step 1: Navigate to the <a href=" https://api.gov.bc.ca"title="API Services">API Services Portal</a>
@@ -55,6 +56,10 @@ You are all set to start using our API.
 The API is secured using API keys and you need to be authenticated to receive a key.
 
 ## Transaction API
+
+### View our Transaction API spec
+View our sample <a href="https://ee1uqiu7x1.execute-api.ca-central-1.amazonaws.com/api#/Transaction%20API/TransactionController_saveTransactionEvent">API spec.</a>
+
 ### Send your first API request using cURL
 ### Endpoints
 
@@ -110,6 +115,195 @@ Select Send.
 ### View logs and events
 ### Store your API keys
 ### Code Snippets
+```python
+url = "/api/v1/transaction"
+
+payload = json.dumps({
+  "transaction_id": "72cbe1da-b08e-49d4-9a87-69afd660d14b",
+  "transaction_date": "2023-01-01",
+  "transaction_time": "13.33.31.875973",
+  "fiscal_close_date": "2023-01-02",
+  "total_transaction_amount": 30.2,
+  "void_indicator": False,
+  "miscellaneous": {
+    "employee_id": "SC61350"
+  },
+  "source": {
+    "source_id": "SBC",
+    "location_id": 61,
+    "accepted_payment_methods": [
+      "CASH",
+      "CHQ",
+      "P",
+      "M",
+      "V"
+    ]
+  },
+  "payments": [
+    {
+      "amount": 20,
+      "foreign_currency_amount": 15,
+      "currency": "USD",
+      "exchange_rate": 1.34,
+      "payment_method": "CASH",
+      "payment_channel": "in-person"
+    },
+    {
+      "amount": 10.2,
+      "currency": "CAD",
+      "payment_method": "V",
+      "payment_channel": "in-person",
+      "terminal": {
+        "card_no": "5253",
+        "merchant_id": "20777441",
+        "device_id": "GA2077744108",
+        "invoice_no": ""
+      },
+      "online": {
+        "tran_id": "",
+        "order_no": ""
+      },
+      "pos": {
+        "approval_code": "ASWQD24342"
+      }
+    }
+  ],
+  "accounting": [
+    {
+      "sequence": "001",
+      "details": {
+        "code": "1234",
+        "description": "passport photocopy"
+      },
+      "distributions": [
+        {
+          "line_number": "00001",
+          "line_description": "passport photocopy",
+          "line_dollar_amount": 10,
+          "disbursment_gl_account": {
+            "dist_client_code": "074",
+            "dist_resp_code": "66020",
+            "dist_service_line_code": "44275",
+            "dist_stob_code": "1278",
+            "dist_project_code": "6600000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000",
+            "EFT": {
+              "vendor": "xxx"
+            }
+          },
+          "revenue_gl_account": {
+            "dist_client_code": "074",
+            "dist_resp_code": "66020",
+            "dist_service_line_code": "44275",
+            "dist_stob_code": "1474",
+            "dist_project_code": "6600000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000"
+          }
+        },
+        {
+          "line_number": "00002",
+          "line_description": "PST G/L            ",
+          "line_dollar_amount": 0.7,
+          "disbursment_gl_account": {
+            "dist_client_code": "022",
+            "dist_resp_code": "12345",
+            "dist_service_line_code": "66123",
+            "dist_stob_code": "4123",
+            "dist_project_code": "3200000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000"
+          },
+          "revenue_gl_account": {
+            "dist_client_code": "074",
+            "dist_resp_code": "66020",
+            "dist_service_line_code": "44275",
+            "dist_stob_code": "1474",
+            "dist_project_code": "6600000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000"
+          }
+        },
+        {
+          "line_number": "00003",
+          "line_dollar_amount": 0.5,
+          "line_description": "GST G/L            ",
+          "disbursment_gl_account": {
+            "dist_client_code": "022",
+            "dist_resp_code": "4567",
+            "dist_service_line_code": "88123",
+            "dist_stob_code": "4123",
+            "dist_project_code": "3200000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000"
+          },
+          "revenue_gl_account": {
+            "dist_client_code": "074",
+            "dist_resp_code": "66020",
+            "dist_service_line_code": "44275",
+            "dist_stob_code": "1474",
+            "dist_project_code": "6600000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000"
+          }
+        }
+      ]
+    },
+    {
+      "sequence": "002",
+      "details": {
+        "code": "1234",
+        "description": "driving lic renewal"
+      },
+      "distributions": [
+        {
+          "line_number": "00001",
+          "line_description": "driving lic renewal",
+          "line_dollar_amount": 14,
+          "disbursment_gl_account": {
+            "dist_client_code": "010",
+            "dist_resp_code": "66213",
+            "dist_service_line_code": "44275",
+            "dist_stob_code": "1278",
+            "dist_project_code": "6600000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000",
+            "EFT": {
+              "vendor": "xxx"
+            }
+          },
+          "revenue_gl_account": {
+            "dist_client_code": "074",
+            "dist_resp_code": "66020",
+            "dist_service_line_code": "44275",
+            "dist_stob_code": "1474",
+            "dist_project_code": "6600000",
+            "dist_location_code": "000000",
+            "dist_future_code": "0000",
+            "supplier_code": "000000"
+          }
+        }
+      ]
+    }
+  ]
+})
+headers = {
+  'Content-Type': 'application/json'
+}
+
+response = requests.request("POST", url, headers=headers, data=payload)
+
+print(response.text)
+```
+
 ## Reconciliaiton Report API
 ### Endpoints
 #### Endpoint URL: 

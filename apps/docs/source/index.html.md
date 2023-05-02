@@ -8,7 +8,6 @@ includes:
   - introduction
   - developers
   - troubleshooting
-  - knowledgebase
   - support
   - glossary
   - readme.md

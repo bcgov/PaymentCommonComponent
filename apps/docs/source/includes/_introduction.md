@@ -1,9 +1,14 @@
 # Introduction
 
 ## Overview
-This document provides guidance for onboarding to the Common Component for Payments' APIs.
+
+This document provides guidance for onboarding to the Common Component for Payments' APIs, specifically for bank deposit reconciliation.  
 
 ![pay](../images/pa7.jpeg?raw=true "Pay")
+
+### Our Digital Government Payments Site
+
+Welcome to our <a href="https://pay.digital.gov.bc.ca/" title="Common Component">Digital Government Payments Site</a> your go-to resource for all things related to sending or receiving payments in the British Columbia Government. By visiting our site, you'll have access to everything you need to know to manage payments efficiently and securely. Whether you're a government program looking to collect payments or an individual seeking to make a payment, our site provides comprehensive information and tools to simplify the payment process.
  
 ### What is the Common Component for Payments?
 
@@ -37,15 +42,13 @@ For Service BC, the transaction file includes line details for these types of tr
 
 The system then uses its reconciliation engine to reconcile the transaction file against the Treasury files. Specifically, the system sums up the cash and cheques in the transaction file and reconciles them with the total sum of cash and cheques in TDI 17. The system also reconciles the line detail point of sale transactions in the transaction file with the line detail point of sale transactions in TDI 34. The reconciliation engine performs a match and kill function to automatically reconcile the transactions and detect any discrepancies. Unmatched entries are flagged as exceptions, which are further investigated and resolved by the line of business finance staff.
 
-
 ## Audience
 This documentation is designed for developers and product owners.
 
 ## Project GitHub Repository
 We are hosting on Amazon Web Services (AWS) for BC Government.
 View the
-<a href="https://github.com/bcgov/PaymentCommonComponent" title="Common Component">Common Component Project repo</a> to explore the Common Component codebase.
-
+<a href="https://github.com/bcgov/PaymentCommonComponent" title="Common Component">Common Component Project repository</a> to explore the Common Component codebase.
 
 ## Diagrams
 
