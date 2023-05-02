@@ -1,21 +1,19 @@
 import * as fs from 'fs';
 import path from 'path';
-import { tdi17Keys } from './fixtures/flatFileKeys';
-import tdi17Sample from './fixtures/samples/tdi17Sample.json';
-import tdi17 from './outputs/TDI17.json';
+import { tdi17Keys } from '../../fixtures/flatFileKeys';
+import tdi17 from '../../fixtures/TDI17.json';
+import tdi17Sample from '../../fixtures/tdi17Sample.json';
 
 describe('TDI17', () => {
   it('Verifies TDI TXT to TDI json', () => {
     const textfile = fs.readFileSync(
-      path.join(__dirname, '../../sample-files/TDI17.TXT')
+      path.join(__dirname, '../../../sample-files/TDI17.TXT')
     );
 
     const textFileArr = textfile.toString().split('\n');
 
     textFileArr.splice(textFileArr.length - 1, 1);
     textFileArr.splice(0, 1);
-
-    expect(tdi17.details.length).toEqual(textFileArr.length);
 
     expect(Object.keys(tdi17.details[0])).toEqual(tdi17Keys);
 

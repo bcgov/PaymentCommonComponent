@@ -1,8 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { LocationEntity } from '../../src/location/entities';
-import { LocationService } from '../../src/location/location.service';
+import { LocationEntity } from '../../../src/location/entities';
+import { LocationService } from '../../../src/location/location.service';
 
 describe('LocationService', () => {
   let service: LocationService;

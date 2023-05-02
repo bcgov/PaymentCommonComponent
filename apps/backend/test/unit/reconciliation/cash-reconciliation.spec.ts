@@ -1,15 +1,15 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { CashDepositService } from './../../src/deposits/cash-deposit.service';
-import { CashDepositEntity } from './../../src/deposits/entities/cash-deposit.entity';
-import { LocationEntity } from './../../src/location/entities/master-location-data.entity';
-import { CashReconciliationService } from './../../src/reconciliation/cash-reconciliation.service';
-import { LocationService } from '../../src/location/location.service';
-import { PaymentService } from '../../src/transaction/payment.service';
+import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
+import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
+import { LocationService } from '../../../src/location/location.service';
+import { CashReconciliationService } from '../../../src/reconciliation/cash-reconciliation.service';
+import { PaymentService } from '../../../src/transaction/payment.service';
 
 //TODO WIP
-jest.mock('../../src/reconciliation/cash-reconciliation.service');
+jest.mock('../../../src/reconciliation/cash-reconciliation.service');
 describe('CashReconciliationService', () => {
   let service: CashReconciliationService;
 

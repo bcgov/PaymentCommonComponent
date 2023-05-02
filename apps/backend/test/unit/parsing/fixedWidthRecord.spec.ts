@@ -1,7 +1,7 @@
 import {
   FixedWidthRecord,
   IFixedWidthRecord
-} from '../../src/common/entities/FixedWidthRecord';
+} from '../../../src/common/entities/FixedWidthRecord';
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 describe('FixedWidthRecord', () => {
   it('delimiter options should  be defined when initializing a FixedWidthRecord', () => {

@@ -4,13 +4,13 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository, UpdateResult } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
-import { MatchStatus } from '../../src/common/const';
-import { ParseArgsTDI, FileTypes, Ministries } from '../../src/constants';
-import { CashDepositService } from '../../src/deposits/cash-deposit.service';
-import { CashDepositEntity } from '../../src/deposits/entities/cash-deposit.entity';
-import { TDI17Details } from '../../src/flat-files';
-import { parseTDI } from '../../src/lambdas/utils/parseTDI';
-import { LocationEntity } from '../../src/location/entities';
+import { MatchStatus } from '../../../src/common/const';
+import { ParseArgsTDI, FileTypes, Ministries } from '../../../src/constants';
+import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
+import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import { TDI17Details } from '../../../src/flat-files';
+import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
+import { LocationEntity } from '../../../src/location/entities';
 
 describe('CashDepositService', () => {
   let service: CashDepositService;
@@ -72,7 +72,7 @@ describe('CashDepositService', () => {
   describe('saveCashDepositEntities', () => {
     it('should create a new cash deposit from the parsed tdi17 details', async () => {
       const testCashFile = fs.readFileSync(
-        path.join(__dirname, '../../sample-files/TDI17.TXT')
+        path.join(__dirname, '../../../sample-files/TDI17.TXT')
       );
 
       const tdi17Mock: ParseArgsTDI = {
@@ -97,7 +97,7 @@ describe('CashDepositService', () => {
     });
     it('should throw an exception if the wrong file is used', async () => {
       const testCashFile = fs.readFileSync(
-        path.join(__dirname, '../../sample-files/TDI34.TXT')
+        path.join(__dirname, '../../../sample-files/TDI34.TXT')
       );
 
       const tdi17Mock: ParseArgsTDI = {

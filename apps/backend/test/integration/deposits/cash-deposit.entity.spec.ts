@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import path from 'path';
-import { ParseArgsTDI, FileTypes } from '../../src/constants';
-import { CashDepositEntity } from '../../src/deposits/entities/cash-deposit.entity';
-import { TDI17Details } from '../../src/flat-files';
-import { parseTDI } from '../../src/lambdas/utils/parseTDI';
+import { ParseArgsTDI, FileTypes } from '../../../src/constants';
+import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import { TDI17Details } from '../../../src/flat-files';
+import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
 
 test('Cash Deposit Entity Instance', () => {
   const testFile = fs.readFileSync(
-    path.join(__dirname, './fixtures/TDI17.TXT')
+    path.join(__dirname, '../../fixtures/TDI17.TXT')
   );
   const tdi17Mock: ParseArgsTDI = {
     type: FileTypes.TDI17,

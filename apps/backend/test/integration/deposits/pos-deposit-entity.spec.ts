@@ -1,13 +1,13 @@
 import * as fs from 'fs';
 import path from 'path';
-import { ParseArgsTDI, FileTypes } from '../../src/constants';
-import { POSDepositEntity } from '../../src/deposits/entities/pos-deposit.entity';
-import { TDI34Details } from '../../src/flat-files';
-import { parseTDI } from '../../src/lambdas/utils/parseTDI';
+import { ParseArgsTDI, FileTypes } from '../../../src/constants';
+import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
+import { TDI34Details } from '../../../src/flat-files';
+import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
 
 test('Pos Deposit Entity Instance', () => {
   const testFile = fs.readFileSync(
-    path.join(__dirname, './fixtures/TDI34.TXT')
+    path.join(__dirname, '../../fixtures/TDI34.TXT')
   );
   const tdi34Mock: ParseArgsTDI = {
     type: FileTypes.TDI34,

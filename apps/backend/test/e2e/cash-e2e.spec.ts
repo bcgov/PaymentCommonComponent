@@ -4,23 +4,23 @@ import * as csv from 'csvtojson';
 import { Repository } from 'typeorm';
 import fs from 'fs';
 import path, { join } from 'path';
-import { POSDepositEntity } from './../../src/deposits/entities/pos-deposit.entity';
-import { PosDepositService } from './../../src/deposits/pos-deposit.service';
-import { TDI17Details } from './../../src/flat-files/tdi17/TDI17Details';
-import { TDI34Details } from './../../src/flat-files/tdi34/TDI34Details';
-import { PaymentMethodEntity } from './../../src/transaction/entities/payment-method.entity';
-import { TransactionService } from './../../src/transaction/transaction.service';
 import { validationPipeConfig } from '../../src/app.config';
 import { AppModule } from '../../src/app.module';
 import { FileTypes } from '../../src/constants';
 import { CashDepositService } from '../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../src/deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../../src/deposits/entities/pos-deposit.entity';
+import { PosDepositService } from '../../src/deposits/pos-deposit.service';
+import { TDI17Details } from '../../src/flat-files/tdi17/TDI17Details';
+import { TDI34Details } from '../../src/flat-files/tdi34/TDI34Details';
 import { parseGarms } from '../../src/lambdas/utils/parseGarms';
 import { parseTDI } from '../../src/lambdas/utils/parseTDI';
 import { LocationEntity } from '../../src/location/entities';
 import { ILocation } from '../../src/location/interface/location.interface';
 import { TransactionEntity } from '../../src/transaction/entities';
+import { PaymentMethodEntity } from '../../src/transaction/entities/payment-method.entity';
 import { SBCGarmsJson } from '../../src/transaction/interface';
+import { TransactionService } from '../../src/transaction/transaction.service';
 import { TrimPipe } from '../../src/trim.pipe';
 
 //TODO WIP
@@ -91,7 +91,7 @@ describe('Reconciliation Service (e2e)', () => {
       program: 'SBC',
       fileContents: Buffer.from(
         fs.readFileSync(
-          join(__dirname, '/fixtures/PROD_SBC_F08TDI17_20230309.DAT'),
+          join(__dirname, '../fixtures/PROD_SBC_F08TDI17_20230309.DAT'),
           'utf8'
         )
       ).toString()
@@ -107,7 +107,7 @@ describe('Reconciliation Service (e2e)', () => {
       program: 'SBC',
       fileContents: Buffer.from(
         fs.readFileSync(
-          join(__dirname, '/fixtures/PROD_SBC_F08TDI34_20230309.DAT'),
+          join(__dirname, '../fixtures/PROD_SBC_F08TDI34_20230309.DAT'),
           'utf8'
         )
       ).toString()
@@ -124,7 +124,7 @@ describe('Reconciliation Service (e2e)', () => {
     const parsedGarmsFile: TransactionEntity[] = await parseGarms(
       (await JSON.parse(
         fs.readFileSync(
-          join(__dirname, '/fixtures/SBC_SALES_2023_03_08_23_17_53.JSON'),
+          join(__dirname, '../fixtures/SBC_SALES_2023_03_08_23_17_53.JSON'),
           'utf8'
         )
       )) as SBCGarmsJson[],

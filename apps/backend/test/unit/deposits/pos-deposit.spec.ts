@@ -4,15 +4,15 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
-import { CashDepositEntity } from './../../src/deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from './../../src/deposits/entities/pos-deposit.entity';
-import { LocationEntity } from './../../src/location/entities/master-location-data.entity';
-import { PaymentMethodEntity } from './../../src/transaction/entities/payment-method.entity';
-import { ParseArgsTDI, FileTypes } from '../../src/constants';
-import { PosDepositService } from '../../src/deposits/pos-deposit.service';
-import { TDI34Details } from '../../src/flat-files';
-import { parseTDI } from '../../src/lambdas/utils/parseTDI';
-import { LocationService } from '../../src/location/location.service';
+import { CashDepositEntity } from './../../../src/deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from './../../../src/deposits/entities/pos-deposit.entity';
+import { LocationEntity } from './../../../src/location/entities/master-location-data.entity';
+import { PaymentMethodEntity } from './../../../src/transaction/entities/payment-method.entity';
+import { ParseArgsTDI, FileTypes } from '../../../src/constants';
+import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
+import { TDI34Details } from '../../../src/flat-files';
+import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
+import { LocationService } from '../../../src/location/location.service';
 
 describe('POSDepositService', () => {
   let service: PosDepositService;
@@ -78,7 +78,7 @@ describe('POSDepositService', () => {
   describe('savePOSDepositEntities', () => {
     it('should create a new pos deposit from the parsed tdi34 details', async () => {
       const testFile = fs.readFileSync(
-        path.join(__dirname, '../../sample-files/TDI34.TXT')
+        path.join(__dirname, '../../../sample-files/TDI34.TXT')
       );
 
       const tdi34Mock: ParseArgsTDI = {
