@@ -224,12 +224,15 @@ aws-run-reports:
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
-	@docker-compose -f docker-compose.ci.yml up --build -d 
+	@docker-compose -f docker-compose.ci.yml up --build -d --force-recreate
 	
 run-test-pipeline:
 	@docker exec -i pcc-backend-test yarn run test:pipeline
 
-close-test:
+run-test-coverage:
+	@docker exec -i pcc-backend-test yarn run test:cov
+
+stop-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.ci.yml down
 
