@@ -1740,6 +1740,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@golevelup/ts-jest@npm:0.3.7":
+  version: 0.3.7
+  resolution: "@golevelup/ts-jest@npm:0.3.7"
+  checksum: e1c17b32bd37accd40f778357f65b44ac1c66f9c9cb5c25f515aff0bf324807029eb042586e06bd32a4cb4bd3b1cc4ff056fd7ab9a6ba08301ead1eff99446fb
+  languageName: node
+  linkType: hard
+
 "@humanwhocodes/config-array@npm:^0.11.8":
   version: 0.11.8
   resolution: "@humanwhocodes/config-array@npm:0.11.8"
@@ -2384,6 +2391,7 @@ __metadata:
   dependencies:
     "@compodoc/compodoc": 1.1.19
     "@faker-js/faker": 7.6.0
+    "@golevelup/ts-jest": 0.3.7
     "@nestjs/cli": 9.1.8
     "@nestjs/common": 9.2.1
     "@nestjs/config": 2.2.0
