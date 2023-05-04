@@ -9,7 +9,6 @@ export class Payment extends PaymentEntity {
   id: string;
   payment_method: PaymentMethodEntity;
   amount: number;
-
   constructor(
     classification: PaymentMethodClassification,
     status?: MatchStatus

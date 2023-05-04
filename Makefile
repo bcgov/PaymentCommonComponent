@@ -232,7 +232,7 @@ run-test-pipeline:
 run-test-coverage:
 	@docker exec -i pcc-backend-test yarn run test:cov
 
-stop-test:
+close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
 	@docker-compose -f docker-compose.ci.yml down
 
