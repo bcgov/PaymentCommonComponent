@@ -2,17 +2,9 @@ import { differenceInHours } from 'date-fns';
 import { CashDepositMock } from './classes/cash_deposit_mock';
 import { PaymentMock } from './classes/payment_mock';
 import { POSDepositMock } from './classes/pos_deposit_mock';
-import { generateDateRange } from './const/date_range_mock';
-import { generateMetadataMock } from './const/file_metadata_mock';
-import { generateLocation } from './const/location_mock';
-import { MockData } from './generateData';
+import { MockCashData, MockPosData } from './mocks';
 import { aggregatedPayments } from './../../src/common/utils/helpers';
-import { MatchStatus } from '../../src/common/const';
-import {
-  Ministries,
-  FileTypes,
-  PaymentMethodClassification
-} from '../../src/constants';
+
 describe('Tests the generated mock data', () => {
   let cashDepositsMock: CashDepositMock[];
   let cashPaymentsMock: PaymentMock[];
@@ -20,27 +12,10 @@ describe('Tests the generated mock data', () => {
   let posDepositsMock: POSDepositMock[];
 
   beforeEach(() => {
-    const dateRange = generateDateRange();
-    const program = Ministries.SBC;
-    const location = generateLocation();
-    const mockCashData = new MockData(
-      dateRange,
-      program,
-      location,
-      generateMetadataMock(FileTypes.TDI17),
-      PaymentMethodClassification.CASH,
-      MatchStatus.PENDING
-    );
+    const mockCashData = new MockCashData();
     cashDepositsMock = mockCashData.cashDepositsMock;
     cashPaymentsMock = mockCashData.paymentsMock;
-    const mockPOSData = new MockData(
-      dateRange,
-      program,
-      location,
-      generateMetadataMock(FileTypes.TDI34),
-      PaymentMethodClassification.POS,
-      MatchStatus.PENDING
-    );
+    const mockPOSData = new MockPosData();
     posPaymentsMock = mockPOSData.paymentsMock;
     posDepositsMock = mockPOSData.posDepositsMock;
     jest.resetModules();

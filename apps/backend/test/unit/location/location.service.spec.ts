@@ -65,7 +65,7 @@ describe('LocationService', () => {
     const locationRepoSpy = jest
       .spyOn(locationRepo, 'find')
       .mockResolvedValue(expectedResult);
-    const result = await service.generateLocationsBySource(source);
+    const result = await service.getLocationsBySource(source);
     expect(result).toEqual(expectedResult);
     expect(locationRepoSpy).toBeCalledWith({
       where: {
