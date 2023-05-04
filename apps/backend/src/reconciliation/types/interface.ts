@@ -27,7 +27,7 @@ export interface ReconciliationConfigInput {
     from: string;
     to: string;
   };
-  location_ids: number[];
+  location_ids: number[] | [];
   program: Ministries;
 }
 

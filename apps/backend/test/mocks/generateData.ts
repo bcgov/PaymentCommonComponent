@@ -1,13 +1,15 @@
 import { AggregatedPayment } from 'src/reconciliation/types';
 import { CashDeposit } from './classes/cash_deposit_mock';
-import { getDateRange } from './classes/date_range_mock';
 import { Payment } from './classes/payment_mock';
-import { POSDeposit } from './classes/pos-deposit_mock';
+import { POSDeposit } from './classes/pos_deposit_mock';
 import { Transaction } from './classes/transaction_mock';
+import { getDateRange } from './const/date_range_mock';
 import { BaseData } from './types/interface';
+import { FileMetadata } from './../../src/common/columns/metadata';
 import { MatchStatus } from './../../src/common/const';
 import { PaymentMethodClassification } from './../../src/constants';
 import { CashDepositEntity } from './../../src/deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from './../../src/deposits/entities/pos-deposit.entity';
 import { LocationEntity } from './../../src/location/entities/master-location-data.entity';
 import { PaymentEntity } from './../../src/transaction/entities/payment.entity';
 import { DateRange, Ministries } from '../../src/constants';
@@ -24,14 +26,19 @@ export class MockData {
   public cashDepositsMock(baseData: BaseData, payments: PaymentEntity[]) {
     return this.generateCashDeposits(baseData, payments);
   }
-  public posDepositsMock(baseData: BaseData) {
-    return this.generatePOSDeposits(baseData);
-  }
+
   public transactionsMock(
     classification: PaymentMethodClassification,
     baseData: BaseData
   ) {
     return this.generateTransactions(baseData, classification);
+  }
+  public posDepositsMock(baseData: BaseData, metadata: FileMetadata) {
+    return this.generatePOSDeposits(
+      baseData,
+      metadata,
+      this.generateTransactions(baseData, PaymentMethodClassification.POS)
+    );
   }
   public generatePayments(
     classification: PaymentMethodClassification,
@@ -123,29 +130,26 @@ export class MockData {
   }
   public generatePOSDeposit(
     baseData: BaseData,
+    metadata: FileMetadata,
     payment: Payment,
     transaction: Transaction,
     status?: MatchStatus
   ): POSDeposit {
-    return new POSDeposit(baseData, payment, transaction, status);
+    return new POSDeposit(baseData, metadata, payment, transaction, status);
   }
   public generatePOSDeposits(
     baseData: BaseData,
+    metadata: FileMetadata,
+    transactions: Transaction[],
     status?: MatchStatus
-  ): POSDeposit[] {
-    const posDeposits = [];
+  ): POSDepositEntity[] {
+    const posDeposits: POSDepositEntity[] = [];
 
-    for (let i = 0; i < 10; i++) {
-      const deposit = this.generatePOSDeposit(
-        baseData,
-        this.generatePayment(PaymentMethodClassification.POS),
-        this.generateTransaction(
-          baseData,
-          this.generatePayments(PaymentMethodClassification.POS, status)
-        )
-      );
-      posDeposits.push(deposit);
-    }
+    transactions.forEach((itm) =>
+      posDeposits.push(
+        this.generatePOSDeposit(baseData, metadata, itm.payments[0], itm)
+      )
+    );
     return posDeposits;
   }
 }
