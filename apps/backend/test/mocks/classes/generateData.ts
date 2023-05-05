@@ -34,12 +34,14 @@ export class MockData {
     status?: MatchStatus
   ): TransactionMock[] {
     const transactions = [];
-    const dateRange = generateDateRange();
-    const program = Ministries.SBC;
-    const location = generateLocation();
 
     for (let i = 0; i < 10; i++) {
-      const transaction = new TransactionMock(dateRange, program, location, []);
+      const transaction = new TransactionMock(
+        this.dateRange,
+        this.program,
+        this.location,
+        []
+      );
       transaction.payments = this.generatePayments(
         classification,
         transaction,
