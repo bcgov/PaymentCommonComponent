@@ -5,13 +5,18 @@ import { In, Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
 import { MatchStatus, MatchStatusAll } from '../../../src/common/const';
-import { ParseArgsTDI, FileTypes, Ministries } from '../../../src/constants';
+import {
+  ParseArgsTDI,
+  FileTypes,
+  Ministries,
+  PaymentMethodClassification
+} from '../../../src/constants';
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
 import { TDI17Details } from '../../../src/flat-files';
 import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
 import { LocationEntity } from '../../../src/location/entities';
-import { MockCashData } from '../../mocks/mocks';
+import { MockData } from '../../mocks/mocks';
 
 describe('CashDepositService', () => {
   let cashDepositService: CashDepositService;
@@ -33,8 +38,8 @@ describe('CashDepositService', () => {
       ]
     }).compile();
 
-    const mockCashData = new MockCashData();
-    cashDeposits = mockCashData.cashDepositsMock;
+    const mockCashData = new MockData(PaymentMethodClassification.CASH);
+    cashDeposits = mockCashData.depositsMock as CashDepositEntity[];
 
     cashDepositService = moduleRef.get<CashDepositService>(CashDepositService);
     cashDepositRepo = moduleRef.get<Repository<CashDepositEntity>>(

@@ -2,7 +2,10 @@ import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { MatchStatus } from '../../../src/common/const';
-import { Ministries } from '../../../src/constants';
+import {
+  Ministries,
+  PaymentMethodClassification
+} from '../../../src/constants';
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
 import { AppLogger } from '../../../src/logger/logger.service';
@@ -11,7 +14,7 @@ import { PaymentEntity } from '../../../src/transaction/entities';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { generateDateRange } from '../../mocks/const/date_range_mock';
 import { generateLocation } from '../../mocks/const/location_mock';
-import { MockCashData } from '../../mocks/mocks';
+import { MockData } from '../../mocks/mocks';
 
 describe('CashReconciliationService', () => {
   let service: CashReconciliationService;
@@ -27,8 +30,8 @@ describe('CashReconciliationService', () => {
     })
       .useMocker(createMock)
       .compile();
-    const mockCashData = new MockCashData();
-    cashDeposits = mockCashData.cashDepositsMock;
+    const mockCashData = new MockData(PaymentMethodClassification.CASH);
+    cashDeposits = mockCashData.depositsMock as CashDepositEntity[];
     cashPayments = mockCashData.paymentsMock;
 
     service = module.get<CashReconciliationService>(CashReconciliationService);
