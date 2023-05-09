@@ -3,11 +3,11 @@ import { ReconciliationType, AggregatedPayment } from './types';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
-import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
 
 @Injectable()
 export class CashReconciliationService {

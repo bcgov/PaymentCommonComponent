@@ -23,7 +23,7 @@ import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
-import { PaymentService } from './../transaction/payment.service';
+import { PaymentService } from '../transaction/payment.service';
 
 export class ReportingService {
   constructor(

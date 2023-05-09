@@ -6,8 +6,8 @@ import * as Excel from 'exceljs';
 import * as path from 'path';
 import { Stream } from 'stream';
 import { AppLogger } from '../logger/logger.service';
+import { Placement } from '../reporting/interfaces';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { Placement } from './../reporting/interfaces';
 
 @Injectable()
 export class ExcelExportService {

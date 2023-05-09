@@ -1,5 +1,5 @@
 import { DetailsReport } from './details-report';
-import { POSDepositEntity } from './../../deposits/entities/pos-deposit.entity';
+import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../../location/entities/master-location-data.entity';
 
 export class POSDepositDetailsReport extends DetailsReport {

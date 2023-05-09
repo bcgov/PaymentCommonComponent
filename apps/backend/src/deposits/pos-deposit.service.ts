@@ -9,7 +9,7 @@ import { DateRange, Ministries } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
-import { PaymentMethodEntity } from './../transaction/entities/payment-method.entity';
+import { PaymentMethodEntity } from '../transaction/entities/payment-method.entity';
 
 @Injectable()
 export class PosDepositService {
