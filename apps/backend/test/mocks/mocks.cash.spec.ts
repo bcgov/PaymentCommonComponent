@@ -1,15 +1,16 @@
 import { CashDepositMock } from './classes/cash_deposit_mock';
 import { PaymentMock } from './classes/payment_mock';
-import { MockCashData } from './mocks';
+import { MockData } from './mocks';
 import { aggregatedPayments } from './../../src/common/utils/helpers';
+import { PaymentMethodClassification } from '../../src/constants';
 
 describe('Tests the generated mock data', () => {
   let cashDepositsMock: CashDepositMock[];
   let cashPaymentsMock: PaymentMock[];
 
   beforeEach(() => {
-    const mockCashData = new MockCashData();
-    cashDepositsMock = mockCashData.cashDepositsMock;
+    const mockCashData = new MockData(PaymentMethodClassification.CASH);
+    cashDepositsMock = mockCashData.depositsMock as CashDepositMock[];
     cashPaymentsMock = mockCashData.paymentsMock;
 
     jest.resetModules();

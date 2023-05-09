@@ -1,15 +1,17 @@
 import { PaymentMock } from './classes/payment_mock';
 import { POSDepositMock } from './classes/pos_deposit_mock';
-import { MockPosData } from './mocks';
+import { MockData } from './mocks';
+import { PaymentMethodClassification } from '../../src/constants';
+import { POSDepositEntity } from '../../src/deposits/entities/pos-deposit.entity';
 
 describe('Tests the generated mock data', () => {
   let posPaymentsMock: PaymentMock[];
   let posDepositsMock: POSDepositMock[];
 
   beforeEach(() => {
-    const mockPOSData = new MockPosData();
+    const mockPOSData = new MockData(PaymentMethodClassification.POS);
     posPaymentsMock = mockPOSData.paymentsMock;
-    posDepositsMock = mockPOSData.posDepositsMock;
+    posDepositsMock = mockPOSData.depositsMock as POSDepositEntity[];
     jest.resetModules();
   });
 

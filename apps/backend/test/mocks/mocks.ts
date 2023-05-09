@@ -15,23 +15,59 @@ export class MockData {
   public location: LocationEntity;
   public dateRange: DateRange;
   public program: Ministries;
-  constructor() {
-    this.dateRange = generateDateRange();
-    this.program = Ministries.SBC;
-    this.location = generateLocation();
-  }
-}
-
-export class MockPaymentData extends MockData {
   public paymentsMock: PaymentMock[];
   public transactionsMock: TransactionMock[];
+  public depositsMock: CashDepositMock[] | POSDepositMock[];
+  public classification: PaymentMethodClassification;
+  public status: MatchStatus;
+
   constructor(
     classification: PaymentMethodClassification,
+    dateRange?: DateRange,
+    location?: LocationEntity,
+    program?: Ministries,
     status?: MatchStatus
   ) {
-    super();
-    this.transactionsMock = this.generateTransactions(classification, status);
+    this.classification = classification;
+    this.dateRange = dateRange ?? generateDateRange();
+    this.location = location ?? generateLocation();
+    this.program = program ?? Ministries.SBC;
+    this.status = status ?? MatchStatus.PENDING;
+    this.transactionsMock = this.generateTransactions();
     this.paymentsMock = this.transactionsMock.flatMap((itm) => itm.payments);
+    this.setDepositsMock();
+  }
+
+  generateCashDeposits(): CashDepositMock[] {
+    const paymentTotals = aggregatedPayments(this.paymentsMock).map(
+      (itm) => itm.amount
+    );
+    return paymentTotals.flatMap(
+      (payment_total: number) =>
+        new CashDepositMock(
+          this.dateRange,
+          this.location,
+          payment_total,
+          this.status
+        )
+    );
+  }
+  public setDepositsMock() {
+    this.classification === PaymentMethodClassification.CASH
+      ? (this.depositsMock = this.generateCashDeposits())
+      : (this.depositsMock = this.generatePosDeposits());
+  }
+
+  public generatePosDeposits(): POSDepositMock[] {
+    return this.paymentsMock.flatMap(
+      (payment: PaymentMock) =>
+        new POSDepositMock(
+          this.location,
+          generateMetadataMock(FileTypes.TDI34),
+          payment,
+          this.status
+        )
+    );
   }
   public generatePayments(
     classification: PaymentMethodClassification,
@@ -44,12 +80,9 @@ export class MockPaymentData extends MockData {
     }
     return payments;
   }
-  public generateTransactions(
-    classification: PaymentMethodClassification,
-    status?: MatchStatus
-  ): TransactionMock[] {
-    const transactions = [];
 
+  public generateTransactions(): TransactionMock[] {
+    const transactions = [];
     for (let i = 0; i < 10; i++) {
       const transaction = new TransactionMock(
         this.dateRange,
@@ -58,55 +91,12 @@ export class MockPaymentData extends MockData {
         []
       );
       transaction.payments = this.generatePayments(
-        classification,
+        this.classification,
         transaction,
-        status
+        this.status
       );
       transactions.push(transaction);
     }
     return transactions;
-  }
-}
-export class MockPosData extends MockData {
-  paymentsMock: PaymentMock[];
-  posDepositsMock: POSDepositMock[];
-  constructor() {
-    super();
-    this.paymentsMock = new MockPaymentData(
-      PaymentMethodClassification.POS
-    ).paymentsMock;
-    this.posDepositsMock = this.paymentsMock.flatMap(
-      (payment: PaymentMock) =>
-        new POSDepositMock(
-          this.location,
-          generateMetadataMock(FileTypes.TDI34),
-          payment,
-          MatchStatus.PENDING
-        )
-    );
-  }
-}
-
-export class MockCashData extends MockData {
-  paymentsMock: PaymentMock[];
-  cashDepositsMock: CashDepositMock[];
-
-  constructor() {
-    super();
-    this.paymentsMock = new MockPaymentData(
-      PaymentMethodClassification.CASH
-    ).paymentsMock;
-    const paymentTotals = aggregatedPayments(this.paymentsMock).map(
-      (itm) => itm.amount
-    );
-    this.cashDepositsMock = paymentTotals.flatMap(
-      (payment_total: number) =>
-        new CashDepositMock(
-          this.dateRange,
-          this.location,
-          payment_total,
-          MatchStatus.PENDING
-        )
-    );
   }
 }
