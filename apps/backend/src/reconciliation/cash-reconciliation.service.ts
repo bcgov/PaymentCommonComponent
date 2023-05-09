@@ -136,12 +136,13 @@ export class CashReconciliationService {
         dateRange,
         location
       );
+
     this.appLogger.log(
-      `${aggregatedPayments?.length} AGGREGATED PAYMENTS PENDING RECONCILIATION`,
+      `${aggregatedPayments.length} aggregated payments pending reconciliation`,
       CashReconciliationService.name
     );
     this.appLogger.log(
-      `${pendingDeposits?.length} DEPOSITS PENDING RECONCILIATION`,
+      `${pendingDeposits?.length} deposits pending reconciliation`,
       CashReconciliationService.name
     );
     if (pendingDeposits.length === 0 && aggregatedPayments.length === 0) {
@@ -196,11 +197,11 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(inProgressPayments).length
-      } PAYMENTS MARKED IN_PROGRESS`,
+      } payments set as in progress`,
       CashReconciliationService.name
     );
     this.appLogger.log(
-      `${inProgressDeposits.length} DEPOSITS MARKED IN_PROGRESS`,
+      `${inProgressDeposits.length} deposits set as in progress`,
       CashReconciliationService.name
     );
 
@@ -217,7 +218,7 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(paymentsMatched).length
-      } PAYMENTS UPDATED AS MATCH`,
+      } payments updated as matched`,
       CashReconciliationService.name
     );
     const updatedPaymentsInProgress: PaymentEntity[] =
@@ -225,21 +226,21 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(updatedPaymentsInProgress).length
-      } PAYMENTS UPDATED AS IN_PROGRESS`,
+      } payments updated as in progress`,
       CashReconciliationService.name
     );
 
     const updatedDepositsMatched: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(matchedDeposits);
     this.appLogger.log(
-      `${updatedDepositsMatched.length} DEPOSITS UPDATED TO MATCH`,
+      `${updatedDepositsMatched.length} deposits updated as matched`,
       CashReconciliationService.name
     );
     const updatedDepositsInProgress: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(inProgressDeposits);
 
     this.appLogger.log(
-      `${updatedDepositsInProgress.length} DEPOSITS UPDATED TO IN_PROGRESS`,
+      `${updatedDepositsInProgress.length} deposits updated as in progress`,
       CashReconciliationService.name
     );
 

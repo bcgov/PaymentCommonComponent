@@ -25,14 +25,17 @@ export class CashExceptionsService {
   public async findExceptions(
     location: LocationEntity,
     program: Ministries,
-    pastDueDate: string
+    exceptionsDate: string
   ): Promise<{ payments: number; deposits: number }> {
     const payments: PaymentEntity[] =
-      await this.paymentService.findPaymentsExceptions(location, pastDueDate);
+      await this.paymentService.findPaymentsExceptions(
+        location,
+        exceptionsDate
+      );
 
     const deposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositExceptions(
-        pastDueDate,
+        exceptionsDate,
         program,
         location
       );
