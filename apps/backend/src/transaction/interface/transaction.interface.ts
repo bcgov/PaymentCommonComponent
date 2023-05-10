@@ -1,6 +1,6 @@
 import { SBCGarmsDistribution, SBCGarmsPayment } from './sbc_garms';
-import { PaymentMethodClassification } from './../../constants';
-import { PaymentEntity } from './../entities/payment.entity';
+import { PaymentEntity } from '../entities/payment.entity';
+import { PaymentMethodClassification } from '../../constants';
 
 export enum PaymentChannel {
   INPERSON = 'in-person',

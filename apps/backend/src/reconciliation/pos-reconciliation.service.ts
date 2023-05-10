@@ -2,13 +2,13 @@ import { Injectable, Inject, Logger } from '@nestjs/common';
 import { differenceInMinutes } from 'date-fns';
 import { ReconciliationType } from './types';
 import { MatchStatus } from '../common/const';
+import { Ministries } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { LocationEntity } from '../location/entities/master-location-data.entity';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
-import { Ministries } from './../constants';
-import { LocationEntity } from './../location/entities/master-location-data.entity';
 
 @Injectable()
 export class POSReconciliationService {

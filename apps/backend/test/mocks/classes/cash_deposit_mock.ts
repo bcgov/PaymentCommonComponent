@@ -1,24 +1,22 @@
 import { faker } from '@faker-js/faker';
-import { BaseData } from '../types/interface';
+import { DateRange } from './../../../dist/src/constants.d';
+import { LocationEntity } from './../../../src/location/entities/master-location-data.entity';
 import { MatchStatus, MatchStatusAll } from '../../../src/common/const';
-import { Ministries } from '../../../src/constants';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
-import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
 /*eslint-disable */
 
-export class CashDeposit extends CashDepositEntity {
-  program: Ministries;
-  location: LocationEntity;
-  deposit_date: string;
-  deposit_amt_cdn: number;
-  status: MatchStatus;
-  constructor(data: BaseData, amount: number, status?: MatchStatus) {
+export class CashDepositMock extends CashDepositEntity {
+  constructor(
+    dateRange: DateRange,
+    location: LocationEntity,
+    amount: number,
+    status?: MatchStatus
+  ) {
     super();
-    this.id = '1';
-    this.program = data.program;
-    this.location = data.location;
-    this.deposit_date = data.dateRange.to_date;
+    this.id = faker.datatype.uuid();
+    this.deposit_date = dateRange.to_date;
     this.deposit_amt_cdn = amount;
+    this.pt_location_id = location.pt_location_id;
     this.status = status ?? faker.helpers.arrayElement(MatchStatusAll);
   }
 }

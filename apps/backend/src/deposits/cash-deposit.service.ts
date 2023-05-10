@@ -3,11 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { In, LessThanOrEqual, Raw, Repository } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
+import { MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
-import { MatchStatusAll } from './../common/const';
 
 @Injectable()
 export class CashDepositService {

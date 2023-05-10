@@ -1,6 +1,6 @@
 import { format } from 'date-fns';
-import { DateRange } from './../../constants';
 import { MatchStatus } from '../../common/const';
+import { DateRange } from '../../constants';
 import { LocationEntity } from '../../location/entities';
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/

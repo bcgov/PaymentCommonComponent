@@ -17,7 +17,7 @@ export const handler = async (
 ) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const cashReconciliationService = app.get(CashReconciliationService);
-  const posRecociliationService = app.get(POSReconciliationService);
+  const posReconciliationService = app.get(POSReconciliationService);
   const cashExceptionsService = app.get(CashExceptionsService);
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
@@ -38,7 +38,7 @@ export const handler = async (
     event,
     locations,
     appLogger,
-    posRecociliationService
+    posReconciliationService
   );
 
   appLogger.log({ posReconciliationRun }, POSReconciliationService.name);
@@ -77,7 +77,7 @@ const runPosReconciliation = async (
   event: ReconciliationConfigInput,
   locations: LocationEntity[],
   appLogger: Logger,
-  posRecociliationService: POSReconciliationService
+  posReconciliationService: POSReconciliationService
 ): Promise<void> => {
   for (const location of locations) {
     const dates: Date[] = eachDayOfInterval({
@@ -92,7 +92,7 @@ const runPosReconciliation = async (
         POSReconciliationService.name
       );
 
-      const results = await posRecociliationService.reconcile(
+      const results = await posReconciliationService.reconcile(
         location,
         event.program,
         format(dates[index], 'yyyy-MM-dd')
@@ -118,7 +118,6 @@ const runCashReconciliation = async (
         },
         location
       );
-
     for (const [dindex, date] of cashDates.entries()) {
       const lastDepositDate =
         cashDates[dindex - 2] ?? format(new Date(period.from), 'yyyy-MM-dd');
@@ -132,6 +131,11 @@ const runCashReconciliation = async (
 
       appLogger.log(
         `Processing Cash Reconciliation for: ${location.description} (${location.location_id}) for ${dateRange.from_date} - ${dateRange.to_date}`,
+        CashReconciliationService.name
+      );
+
+      appLogger.log(
+        `CURRENT DEPOSIT DATE: ${dateRange.to_date}`,
         CashReconciliationService.name
       );
 

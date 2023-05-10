@@ -224,10 +224,13 @@ aws-run-reports:
 
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
-	@docker-compose -f docker-compose.ci.yml up --build -d 
+	@docker-compose -f docker-compose.ci.yml up --build -d --force-recreate
 	
 run-test-pipeline:
 	@docker exec -i pcc-backend-test yarn run test:pipeline
+
+run-test-coverage:
+	@docker exec -i pcc-backend-test yarn run test:cov
 
 close-test:
 	@echo "+\n++ Make: Closing test container ...\n+"
@@ -285,8 +288,6 @@ drop:
 dev-docs:
 	@docker exec -it $(PROJECT)-backend yarn run compodoc
 	
-generateMockData:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/test/mocks/generate-data/mock-data-generator.ts")'
 
 # ===================================
 # Migrations
