@@ -155,7 +155,7 @@ const runCashExceptions = async (
   locations: LocationEntity[],
   appLogger: Logger,
   cashReconciliationService: CashReconciliationService,
-  exceptionsService: CashExceptionsService
+  cashExceptionsService: CashExceptionsService
 ): Promise<void> => {
   for (const location of locations) {
     const cashDates: string[] =
@@ -176,7 +176,7 @@ const runCashExceptions = async (
         CashReconciliationService.name
       );
 
-      const exceptions = await exceptionsService.findExceptions(
+      const exceptions = await cashExceptionsService.findExceptions(
         location,
         event.program,
         exceptionsDate
