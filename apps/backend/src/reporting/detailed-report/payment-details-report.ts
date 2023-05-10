@@ -1,7 +1,7 @@
 import { DetailsReport } from './details-report';
-import { DateRange } from './../../constants';
-import { PaymentEntity } from './../../transaction/entities/payment.entity';
+import { DateRange } from '../../constants';
 import { LocationEntity } from '../../location/entities/master-location-data.entity';
+import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
 export class PaymentDetailsReport extends DetailsReport {
   /*eslint-disable */

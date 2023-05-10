@@ -3,11 +3,11 @@ import { ReconciliationType, AggregatedPayment } from './types';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
-import { CashDepositEntity } from './../deposits/entities/cash-deposit.entity';
 
 @Injectable()
 export class CashReconciliationService {
@@ -35,49 +35,42 @@ export class CashReconciliationService {
       location
     );
   }
-  /**
-   *
-   * @param event
-   * @returns PaymentEntity[]
-   * @description Find all payments and deposits that are older than the past due date and mark as exceptions
-   */
 
-  public async findExceptions(
-    location: LocationEntity,
-    program: Ministries,
-    pastDueDate: string
-  ): Promise<unknown> {
-    const payments: PaymentEntity[] =
-      await this.paymentService.findPaymentsExceptions(location, pastDueDate);
+  public checkStatus(
+    payment: AggregatedPayment,
+    deposit: CashDepositEntity
+  ): boolean {
+    if (
+      payment.status !== MatchStatus.MATCH &&
+      deposit.status !== MatchStatus.MATCH
+    ) {
+      return true;
+    }
+    return false;
+  }
 
-    const deposits: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositExceptions(
-        pastDueDate,
-        program,
-        location
-      );
+  public checkPaymentCashMatch(payment: AggregatedPayment): boolean {
+    return payment.payments.every(
+      ({ cash_deposit_match }) => cash_deposit_match === undefined
+    );
+  }
 
-    const paymentExceptions: PaymentEntity[] =
-      await this.paymentService.updatePayments(
-        payments.map((itm) => ({
-          ...itm,
-          timestamp: itm.timestamp,
-          status: MatchStatus.EXCEPTION
-        }))
-      );
+  public checkAggregatedPaymentAmountToCashDepositAmount(
+    payment: AggregatedPayment,
+    deposit: CashDepositEntity
+  ) {
+    return Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.001;
+  }
 
-    const depositExceptions: CashDepositEntity[] =
-      await this.cashDepositService.updateDeposits(
-        deposits.map((itm) => ({
-          ...itm,
-          status: MatchStatus.EXCEPTION
-        }))
-      );
-
-    return {
-      payments: paymentExceptions.length ?? 0,
-      deposits: depositExceptions.length ?? 0
-    };
+  public checkMatch(
+    payment: AggregatedPayment,
+    deposit: CashDepositEntity
+  ): boolean {
+    return (
+      this.checkStatus(payment, deposit) &&
+      this.checkPaymentCashMatch(payment) &&
+      this.checkAggregatedPaymentAmountToCashDepositAmount(payment, deposit)
+    );
   }
 
   /**
@@ -94,20 +87,13 @@ export class CashReconciliationService {
     aggregatedPayments: AggregatedPayment[];
     deposits: CashDepositEntity[];
   } {
-    this.appLogger.log(
-      `MATCHING: ${aggregatedPayments.length} AGGREGATED PAYMENTS to ${deposits.length} DEPOSITS`,
-      CashReconciliationService.name
-    );
     for (const [dindex, deposit] of deposits.entries()) {
       for (const [pindex, payment] of aggregatedPayments.entries()) {
-        if (
-          payment.status !== MatchStatus.MATCH &&
-          deposit.status !== MatchStatus.MATCH &&
-          payment.payments.every(
-            ({ cash_deposit_match }) => cash_deposit_match === undefined
-          ) &&
-          Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.001
-        ) {
+        if (this.checkMatch(payment, deposit)) {
+          this.appLogger.log(
+            `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
+            CashReconciliationService.name
+          );
           deposits[dindex].status = MatchStatus.MATCH;
           aggregatedPayments[pindex].status = MatchStatus.MATCH;
           aggregatedPayments[pindex].payments = payment.payments.map((itm) => ({
@@ -116,16 +102,10 @@ export class CashReconciliationService {
             status: MatchStatus.MATCH,
             cash_deposit_match: deposits[dindex]
           }));
-
-          this.appLogger.log(
-            `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
-            CashReconciliationService.name
-          );
           break;
         }
       }
     }
-
     return {
       aggregatedPayments,
       deposits
@@ -156,12 +136,13 @@ export class CashReconciliationService {
         dateRange,
         location
       );
+
     this.appLogger.log(
-      `${aggregatedPayments.length} AGGREGATED PAYMENTS PENDING RECONCILIATION`,
+      `${aggregatedPayments.length} aggregated payments pending reconciliation`,
       CashReconciliationService.name
     );
     this.appLogger.log(
-      `${pendingDeposits.length} DEPOSITS PENDING RECONCILIATION`,
+      `${pendingDeposits?.length} deposits pending reconciliation`,
       CashReconciliationService.name
     );
     if (pendingDeposits.length === 0 && aggregatedPayments.length === 0) {
@@ -216,11 +197,11 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(inProgressPayments).length
-      } PAYMENTS MARKED IN_PROGRESS`,
+      } payments set as in progress`,
       CashReconciliationService.name
     );
     this.appLogger.log(
-      `${inProgressDeposits.length} DEPOSITS MARKED IN_PROGRESS`,
+      `${inProgressDeposits.length} deposits set as in progress`,
       CashReconciliationService.name
     );
 
@@ -237,7 +218,7 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(paymentsMatched).length
-      } PAYMENTS UPDATED AS MATCH`,
+      } payments updated as matched`,
       CashReconciliationService.name
     );
     const updatedPaymentsInProgress: PaymentEntity[] =
@@ -245,21 +226,21 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(updatedPaymentsInProgress).length
-      } PAYMENTS UPDATED AS IN_PROGRESS`,
+      } payments updated as in progress`,
       CashReconciliationService.name
     );
 
     const updatedDepositsMatched: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(matchedDeposits);
     this.appLogger.log(
-      `${updatedDepositsMatched.length} DEPOSITS UPDATED TO MATCH`,
+      `${updatedDepositsMatched.length} deposits updated as matched`,
       CashReconciliationService.name
     );
     const updatedDepositsInProgress: CashDepositEntity[] =
       await this.cashDepositService.updateDeposits(inProgressDeposits);
 
     this.appLogger.log(
-      `${updatedDepositsInProgress.length} DEPOSITS UPDATED TO IN_PROGRESS`,
+      `${updatedDepositsInProgress.length} deposits updated as in progress`,
       CashReconciliationService.name
     );
 

@@ -1,5 +1,5 @@
 import { Column, PrimaryColumn, Entity } from 'typeorm';
-import { PaymentMethodClassification } from './../../constants';
+import { PaymentMethodClassification } from '../../constants';
 
 @Entity('payment_method')
 export class PaymentMethodEntity {

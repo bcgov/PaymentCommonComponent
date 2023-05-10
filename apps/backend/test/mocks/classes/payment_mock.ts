@@ -1,20 +1,18 @@
 import { faker } from '@faker-js/faker';
+import { TransactionMock } from './transaction_mock';
 import { paymentMethods } from '../const/payment-methods';
 import { MatchStatus, MatchStatusAll } from '../../../src/common/const';
 import { PaymentMethodClassification } from '../../../src/constants';
-import { PaymentMethodEntity } from '../../../src/transaction/entities';
 import { PaymentEntity } from '../../../src/transaction/entities/payment.entity';
 
-export class Payment extends PaymentEntity {
-  id: string;
-  payment_method: PaymentMethodEntity;
-  amount: number;
+export class PaymentMock extends PaymentEntity {
   constructor(
     classification: PaymentMethodClassification,
+    transaction: TransactionMock,
     status?: MatchStatus
   ) {
     super();
-    this.id = `${faker.datatype.uuid()}`;
+    this.id = faker.datatype.uuid();
     this.amount = Math.abs(
       faker.datatype.number({ min: 1, max: 1000, precision: 0.01 })
     );
@@ -22,5 +20,6 @@ export class Payment extends PaymentEntity {
       paymentMethods.filter((itm) => itm.classification === classification)
     );
     this.status = status ?? faker.helpers.arrayElement(MatchStatusAll);
+    this.transaction = transaction;
   }
 }

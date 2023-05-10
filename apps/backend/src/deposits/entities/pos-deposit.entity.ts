@@ -64,7 +64,7 @@ export class POSDepositEntity {
   @JoinColumn({ name: 'payment_method', referencedColumnName: 'method' })
   payment_method: Relation<PaymentMethodEntity>;
 
-  constructor(data: TDI34Details) {
+  constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);
   }
 

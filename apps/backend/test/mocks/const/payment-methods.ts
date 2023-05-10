@@ -1,7 +1,7 @@
-import { PaymentMethod } from '../types/interface';
 import { PaymentMethodClassification } from './../../../src/constants';
+import { PaymentMethodEntity } from './../../../src/transaction/entities/payment-method.entity';
 
-export const paymentMethods: PaymentMethod[] = [
+export const paymentMethods: PaymentMethodEntity[] = [
   {
     method: 'AX',
     description: 'AMEX',

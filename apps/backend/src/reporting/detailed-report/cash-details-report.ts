@@ -1,5 +1,5 @@
 import { DetailsReport } from './details-report';
-import { DateRange } from './../../constants';
+import { DateRange } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { LocationEntity } from '../../location/entities/master-location-data.entity';
 

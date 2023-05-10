@@ -10,10 +10,10 @@ import {
 } from 'typeorm';
 import { PaymentMethodEntity } from './payment-method.entity';
 import { TransactionEntity } from './transaction.entity';
-import { POSDepositEntity } from './../../deposits/entities/pos-deposit.entity';
 import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 
 @Entity('payment')
 export class PaymentEntity {
