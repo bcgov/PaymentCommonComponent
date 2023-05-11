@@ -1,6 +1,7 @@
 name: PR - All Checks
 
 on:
+  workflow_dispatch:
   pull_request:
     paths:
       - apps/backend/**
