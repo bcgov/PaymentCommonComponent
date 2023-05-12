@@ -104,10 +104,43 @@ describe('POSReconciliationService', () => {
     });
 
     it('should have updated the status from PENDING to MATCH', () => {
-      matchedRoundOne.forEach((itm) => {
-        expect(itm.deposit.status === MatchStatus.MATCH);
-        expect(itm.payment.status === MatchStatus.MATCH);
-      });
+      const matchedDeposits = matchedRoundOne.map((itm) => itm.deposit);
+      const matchedPayments = matchedRoundOne.map((itm) => itm.payment);
+      const updatedPaymentsToMatched = payments.filter(
+        (itm) => itm.status === MatchStatus.MATCH
+      );
+      const unmatchedPayments = payments.filter(
+        (itm) => itm.status === MatchStatus.PENDING
+      );
+      const updatedDepositsToMatched = deposits.filter(
+        (itm) => itm.status === MatchStatus.MATCH
+      );
+      const unmatchedDeposits = deposits.filter(
+        (itm) => itm.status === MatchStatus.PENDING
+      );
+
+      expect(
+        matchedDeposits.every((itm) => itm.status === MatchStatus.MATCH)
+      ).toBe(true);
+      expect(
+        matchedPayments.every((itm) => itm.status === MatchStatus.MATCH)
+      ).toBe(true);
+
+      //the original array items which have been set to match should equal the returned matched items
+      expect(updatedPaymentsToMatched).toStrictEqual(
+        expect.arrayContaining(matchedPayments)
+      );
+      expect(updatedDepositsToMatched).toStrictEqual(
+        expect.arrayContaining(matchedDeposits)
+      );
+
+      // the total number of returned matched items + unmatched items from the original array should equal the length of the original array
+      expect(unmatchedPayments.length + matchedPayments.length).toBe(
+        payments.length
+      );
+      expect(unmatchedDeposits.length + matchedDeposits.length).toBe(
+        deposits.length
+      );
     });
   });
 

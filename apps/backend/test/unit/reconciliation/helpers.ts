@@ -16,9 +16,16 @@ export const setSomePaymentsToTwentyMinutesLater = (
           timestamp: itm.timestamp,
           transaction: {
             ...itm.transaction,
-            transaction_time: setTransactionTimeAheadBy20Minutes(
-              itm.transaction.transaction_date,
-              itm.transaction.transaction_time
+            transaction_time: format(
+              getTime(
+                parse(
+                  `${itm.transaction.transaction_date} ${itm.transaction.transaction_time}`,
+                  'yyyy-MM-dd HH:mm:ss',
+                  new Date()
+                )
+              ) +
+                1000 * 60 * 20,
+              'HH:mm:ss'
             )
           }
         }
@@ -28,16 +35,6 @@ export const setSomePaymentsToTwentyMinutesLater = (
         }
   );
 };
-
-export const setTransactionTimeAheadBy20Minutes = (
-  date: string,
-  time: string
-) =>
-  format(
-    getTime(parse(`${date} ${time}`, 'yyyy-MM-dd HH:mm:ss', new Date())) +
-      1000 * 60 * 20,
-    'HH:mm:ss'
-  );
 
 export const unmatchedTestData = (
   data: MockData
