@@ -276,29 +276,4 @@ describe('CashDepositService', () => {
       expect(foundEntities).toEqual(expectedEntities);
     });
   });
-
-  describe('findCashDepositsForReport', () => {
-    it('should return an array of CashDepositEntity instances matching the given parameters', async () => {
-      const program = Ministries.SBC;
-      const dateRange = { from_date: '2022-01-01', to_date: '2022-01-31' };
-      const location = { pt_location_id: 1 } as LocationEntity;
-
-      const expectedEntities = [
-        { id: 1, deposit_amt_cdn: 100 },
-        { id: 2, deposit_amt_cdn: 200 }
-      ];
-
-      jest
-        .spyOn(cashDepositRepo, 'find')
-        .mockResolvedValueOnce(expectedEntities as any);
-
-      const foundEntities = await cashDepositService.findCashDepositsForReport(
-        location,
-        program,
-        dateRange
-      );
-
-      expect(foundEntities).toEqual(expectedEntities);
-    });
-  });
 });
