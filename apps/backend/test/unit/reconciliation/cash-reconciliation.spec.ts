@@ -34,7 +34,7 @@ describe('CashReconciliationService', () => {
       .useMocker(createMock)
       .compile();
 
-    const data = new MockData(PaymentMethodClassification.POS);
+    const data = new MockData(PaymentMethodClassification.CASH);
     matches = [];
     service = module.get<CashReconciliationService>(CashReconciliationService);
     payments = aggregatedPayments(data.paymentsMock);
