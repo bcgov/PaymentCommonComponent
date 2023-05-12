@@ -5,7 +5,12 @@ import { In, Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
 import { MatchStatus } from '../../../src/common/const';
-import { ParseArgsTDI, FileTypes, Ministries } from '../../../src/constants';
+import {
+  ParseArgsTDI,
+  FileTypes,
+  Ministries,
+  PaymentMethodClassification
+} from '../../../src/constants';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { TDI34Details } from '../../../src/flat-files';
@@ -13,13 +18,19 @@ import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
 import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
 import { LocationService } from '../../../src/location/location.service';
 import { generateLocation } from '../../mocks/const/location_mock';
+import { MockData } from '../../mocks/mocks';
 
 describe('POSDepositService', () => {
   let service: PosDepositService;
   let repository: Repository<POSDepositEntity>;
   let posDepositMock: POSDepositEntity;
   let locationService: LocationService;
+
   beforeEach(async () => {
+    const mockPOSData = new MockData(PaymentMethodClassification.POS);
+    const posDepositsMock = mockPOSData.depositsMock as POSDepositEntity[];
+    posDepositMock = posDepositsMock[0];
+    jest.resetModules();
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PosDepositService,
@@ -29,7 +40,7 @@ describe('POSDepositService', () => {
           provide: getRepositoryToken(POSDepositEntity),
           useValue: {
             findOneByOrFail: jest.fn(),
-            find: jest.fn().mockResolvedValue(posDepositMock),
+            find: jest.fn().mockResolvedValue(posDepositsMock),
             save: jest.fn().mockReturnValue(posDepositMock),
             create: jest.fn().mockReturnValue(posDepositMock),
             createQueryBuilder: jest
