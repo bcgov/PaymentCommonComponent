@@ -20,7 +20,7 @@
     "test:cov": "NODE_ENV=ci RUNTIME_ENV=ci jest",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json --runInBand",
-    "test:pipeline": "NODE_ENV=ci RUNTIME_ENV=ci jest  --config ./test/jest.json --runInBand --detectOpenHandles",
+    "test:pipeline": "NODE_ENV=ci RUNTIME_ENV=ci jest  --config ./test/jest.json --runInBand --detectOpenHandles --verbose",
     "lint-staged": "lint-staged",
     "nibble": "eslint-nibble --ext .ts .",
     "typeorm": "ts-node ../../../../node_modules/.bin/typeorm",

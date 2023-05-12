@@ -1,60 +1,50 @@
 import { Logger } from '@nestjs/common';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
-import { MatchStatus } from '../../../src/common/const';
-import { ParseArgsTDI, FileTypes, Ministries } from '../../../src/constants';
+import { MatchStatus, MatchStatusAll } from '../../../src/common/const';
+import {
+  ParseArgsTDI,
+  FileTypes,
+  Ministries,
+  PaymentMethodClassification
+} from '../../../src/constants';
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
 import { TDI17Details } from '../../../src/flat-files';
 import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
 import { LocationEntity } from '../../../src/location/entities';
+import { MockData } from '../../mocks/mocks';
 
 describe('CashDepositService', () => {
-  let service: CashDepositService;
-  let repository: Repository<CashDepositEntity>;
-  let cashDepositMock: CashDepositEntity;
-  let locationMock: LocationEntity;
-  let updateResult: UpdateResult;
-
+  let cashDepositService: CashDepositService;
+  let cashDepositRepo: Repository<CashDepositEntity>;
+  let cashDeposits: CashDepositEntity[];
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
       providers: [
         CashDepositService,
-        Logger,
         {
           provide: getRepositoryToken(CashDepositEntity),
           useValue: {
             findOneByOrFail: jest.fn(),
-            delete: jest.fn(),
-            where: jest.fn(),
-            execute: jest.fn(),
-            findOneOrFail: jest.fn(() => Promise.resolve({})),
-            findAll: jest.fn().mockResolvedValue([]),
-            save: jest.fn().mockResolvedValue(cashDepositMock),
-            create: jest.fn().mockReturnValue(cashDepositMock),
-            createQueryBuilder: jest
-              .fn()
-              .mockReturnValue({ cash_deposit_source_file_name: 'test/TDI17' })
+            find: jest.fn(),
+            save: jest.fn()
           }
-        }
+        },
+        { provide: Logger, useValue: {} }
       ]
     }).compile();
 
-    service = module.get<CashDepositService>(CashDepositService);
-    repository = module.get<Repository<CashDepositEntity>>(
+    const mockCashData = new MockData(PaymentMethodClassification.CASH);
+    cashDeposits = mockCashData.depositsMock as CashDepositEntity[];
+
+    cashDepositService = moduleRef.get<CashDepositService>(CashDepositService);
+    cashDepositRepo = moduleRef.get<Repository<CashDepositEntity>>(
       getRepositoryToken(CashDepositEntity)
     );
-  });
-
-  it('service should be defined', () => {
-    expect(service).toBeDefined();
-  });
-
-  it('repository should be defined', () => {
-    expect(repository).toBeDefined();
   });
 
   /*eslint-disable */
@@ -62,9 +52,9 @@ describe('CashDepositService', () => {
     it('should return all previously uploaded cash deposit files', async () => {
       const result = [{ source_file_name: 'test/TDI17' }];
       const spy = jest
-        .spyOn(service, 'findAllUploadedFiles')
+        .spyOn(cashDepositService, 'findAllUploadedFiles')
         .mockImplementation((): any => result);
-      expect(await service.findAllUploadedFiles()).toEqual(result);
+      expect(await cashDepositService.findAllUploadedFiles()).toEqual(result);
       expect(spy).toBeCalledTimes(1);
     });
   });
@@ -72,7 +62,7 @@ describe('CashDepositService', () => {
   describe('saveCashDepositEntities', () => {
     it('should create a new cash deposit from the parsed tdi17 details', async () => {
       const testCashFile = fs.readFileSync(
-        path.join(__dirname, '../../../sample-files/TDI17.TXT')
+        path.join(__dirname, '../../fixtures/TDI17.TXT')
       );
 
       const tdi17Mock: ParseArgsTDI = {
@@ -86,119 +76,229 @@ describe('CashDepositService', () => {
         (itm) => new CashDepositEntity(itm)
       );
       const spy = jest
-        .spyOn(service, 'saveCashDepositEntities')
+        .spyOn(cashDepositService, 'saveCashDepositEntities')
         .mockResolvedValue(cashDeposit);
 
-      expect(service.saveCashDepositEntities(cashDeposit)).resolves.toEqual(
-        cashDeposit
-      );
+      expect(
+        cashDepositService.saveCashDepositEntities(cashDeposit)
+      ).resolves.toEqual(cashDeposit);
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith(cashDeposit);
     });
+
     it('should throw an exception if the wrong file is used', async () => {
       const testCashFile = fs.readFileSync(
-        path.join(__dirname, '../../../sample-files/TDI34.TXT')
+        path.join(__dirname, '../../fixtures/TDI34.TXT')
       );
 
-      const tdi17Mock: ParseArgsTDI = {
-        type: FileTypes.TDI17,
-        fileName: 'test/TDI17',
+      const tdi34Mock: ParseArgsTDI = {
+        type: FileTypes.TDI34,
+        fileName: 'test/TDI34',
         program: 'SBC',
         fileContents: Buffer.from(testCashFile).toString()
       };
-      const data: TDI17Details[] = [...parseTDI(tdi17Mock)] as TDI17Details[];
-      const cashDeposit: CashDepositEntity[] = data.map(
+      const data: TDI17Details[] = [...parseTDI(tdi34Mock)] as TDI17Details[];
+      const cashDeposits: CashDepositEntity[] = data.map(
         (itm) => new CashDepositEntity(itm)
       );
       const spy = jest
-        .spyOn(service, 'saveCashDepositEntities')
+        .spyOn(cashDepositService, 'saveCashDepositEntities')
         .mockRejectedValue(testCashFile);
 
-      expect(service.saveCashDepositEntities(cashDeposit)).rejects.toEqual(
-        testCashFile
-      );
+      expect(
+        cashDepositService.saveCashDepositEntities(cashDeposits)
+      ).rejects.toEqual(testCashFile);
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(cashDeposit);
+      expect(cashDepositService.saveCashDepositEntities).toBeCalledWith(
+        cashDeposits
+      );
     });
   });
 
-  describe('updateDepositStatus', () => {
-    it('should update the cash deposit status', async () => {
-      const spy = jest
-        .spyOn(service, 'updateDeposit')
-        .mockResolvedValue(cashDepositMock);
+  describe('findCashDepositDatesByLocation', () => {
+    describe('findCashDepositsByDate', () => {
+      it('should return an array of CashDepositEntity instances matching the given parameters', async () => {
+        const program = Ministries.SBC;
+        const depositDate = '2022-01-01';
+        const location = { pt_location_id: 1 } as LocationEntity;
+        const status = [MatchStatus.PENDING, MatchStatus.IN_PROGRESS];
 
-      expect(service.updateDeposit(cashDepositMock)).resolves.toEqual(
-        cashDepositMock
-      );
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(cashDepositMock);
+        const expectedEntities = [
+          { id: 1, deposit_amt_cdn: 100 },
+          { id: 2, deposit_amt_cdn: 200 }
+        ];
+
+        jest
+          .spyOn(cashDepositRepo, 'find')
+          .mockResolvedValueOnce(expectedEntities as any);
+
+        const result = await cashDepositService.findCashDepositsByDate(
+          program,
+          depositDate,
+          location,
+          status
+        );
+
+        expect(result).toEqual(expectedEntities);
+        expect(cashDepositRepo.find).toHaveBeenCalledTimes(1);
+        expect(cashDepositRepo.find).toHaveBeenCalledWith({
+          where: {
+            pt_location_id: location.pt_location_id,
+            metadata: { program },
+            deposit_date: depositDate,
+            status: In(status)
+          },
+          order: { deposit_amt_cdn: 'ASC' }
+        });
+      });
+
+      it('should return an empty array if no matching CashDepositEntity instances are found', async () => {
+        const program = Ministries.SBC;
+        const depositDate = '2022-01-01';
+        const location = { pt_location_id: 1 } as LocationEntity;
+        const status = [MatchStatus.PENDING, MatchStatus.IN_PROGRESS];
+
+        jest.spyOn(cashDepositRepo, 'find').mockResolvedValueOnce([]);
+
+        const result = await cashDepositService.findCashDepositsByDate(
+          program,
+          depositDate,
+          location,
+          status
+        );
+
+        expect(result).toEqual([]);
+        expect(cashDepositRepo.find).toHaveBeenCalledTimes(1);
+        expect(cashDepositRepo.find).toHaveBeenCalledWith({
+          where: {
+            pt_location_id: location.pt_location_id,
+            metadata: { program },
+            deposit_date: depositDate,
+            status: In(status)
+          },
+          order: { deposit_amt_cdn: 'ASC' }
+        });
+      });
+
+      it('should return an array of CashDepositEntity instances matching the given parameters when status is undefined', async () => {
+        const program = Ministries.SBC;
+        const depositDate = '2022-01-01';
+        const location = { pt_location_id: 1 } as LocationEntity;
+
+        const expectedEntities = [
+          { id: 1, deposit_amt_cdn: 100 },
+          { id: 2, deposit_amt_cdn: 200 }
+        ];
+
+        jest
+          .spyOn(cashDepositRepo, 'find')
+          .mockResolvedValueOnce(expectedEntities as any);
+
+        const result = await cashDepositService.findCashDepositsByDate(
+          program,
+          depositDate,
+          location
+        );
+
+        expect(result).toEqual(expectedEntities);
+        expect(cashDepositRepo.find).toHaveBeenCalledTimes(1);
+        expect(cashDepositRepo.find).toHaveBeenCalledWith({
+          where: {
+            pt_location_id: location.pt_location_id,
+            metadata: { program },
+            deposit_date: depositDate,
+            status: In(MatchStatusAll)
+          },
+          order: { deposit_amt_cdn: 'ASC' }
+        });
+      });
     });
   });
 
   describe('updateDeposits', () => {
-    it('should mark cash deposits as matched', async () => {
-      const spy = jest
-        .spyOn(service, 'updateDeposits')
-        .mockResolvedValue([cashDepositMock]);
+    it('should update and return an array of CashDepositEntity instances', async () => {
+      jest
+        .spyOn(cashDepositRepo, 'save')
+        .mockResolvedValueOnce(cashDeposits[0] as any);
+      jest
+        .spyOn(cashDepositRepo, 'save')
+        .mockResolvedValueOnce(cashDeposits[1] as any);
 
-      expect(
-        service.updateDeposits([
-          { ...cashDepositMock, status: MatchStatus.MATCH }
-        ])
-      ).resolves.toEqual([updateResult]);
-      expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith([
-        { ...cashDepositMock, status: MatchStatus.MATCH }
+      const updatedEntities = await cashDepositService.updateDeposits(
+        cashDeposits
+      );
+
+      expect([updatedEntities[0], updatedEntities[1]]).toEqual([
+        cashDeposits[0],
+        cashDeposits[1]
       ]);
     });
   });
 
-  describe('findDistinctDepositDates', () => {
-    it('should return all distinct deposit dates', async () => {
-      const spy = jest
-        .spyOn(service, 'findCashDepositDatesByLocation')
-        .mockResolvedValue(['2020-01-01', '2020-01-02']);
-      const params = {
-        program: Ministries.SBC,
-        dateRange: {
-          to_date: '2020-01-02',
-          from_date: '2020-01-01'
-        },
-        location: locationMock
-      };
-      expect(
-        service.findCashDepositDatesByLocation(
-          params.program,
-          params.dateRange,
-          params.location
-        )
-      ).resolves.toEqual(['2020-01-01', '2020-01-02']);
-      expect(spy).toBeCalledTimes(1);
+  describe('updateDeposit', () => {
+    it('should update and return a single CashDepositEntity instance', async () => {
+      const expected = cashDeposits[0];
+      expected.status = MatchStatus.MATCH;
+
+      jest
+        .spyOn(cashDepositRepo, 'save')
+        .mockResolvedValueOnce(expected as any);
+
+      const updatedEntity = await cashDepositService.updateDeposit(
+        cashDeposits[0]
+      );
+
+      expect(updatedEntity).toEqual(expected);
     });
   });
 
-  describe('findCashDepositsByDateLocationAndProgram', () => {
-    it('should return all cash deposits for a given date, location and program', async () => {
-      const spy = jest
-        .spyOn(service, 'findCashDepositsByDate')
-        .mockResolvedValue([cashDepositMock]);
-      const params = {
-        program: Ministries.SBC,
-        dateRange: {
-          to_date: '2020-01-02',
-          from_date: '2020-01-01'
-        },
-        location: locationMock
-      };
-      expect(
-        service.findCashDepositsByDate(
-          params.program,
-          params.dateRange.to_date,
-          params.location
-        )
-      ).resolves.toEqual([cashDepositMock]);
-      expect(spy).toBeCalledTimes(1);
+  describe('findCashDepositExceptions', () => {
+    it('should return an array of CashDepositEntity instances matching the given parameters', async () => {
+      const program = Ministries.SBC;
+      const depositDate = '2022-01-01';
+      const location = { pt_location_id: 1 } as LocationEntity;
+
+      const expectedEntities = [
+        { id: 1, deposit_amt_cdn: 100 },
+        { id: 2, deposit_amt_cdn: 200 }
+      ];
+
+      jest
+        .spyOn(cashDepositRepo, 'find')
+        .mockResolvedValueOnce(expectedEntities as any);
+
+      const foundEntities = await cashDepositService.findCashDepositExceptions(
+        depositDate,
+        program,
+        location
+      );
+
+      expect(foundEntities).toEqual(expectedEntities);
+    });
+  });
+
+  describe('findCashDepositsForReport', () => {
+    it('should return an array of CashDepositEntity instances matching the given parameters', async () => {
+      const program = Ministries.SBC;
+      const dateRange = { from_date: '2022-01-01', to_date: '2022-01-31' };
+      const location = { pt_location_id: 1 } as LocationEntity;
+
+      const expectedEntities = [
+        { id: 1, deposit_amt_cdn: 100 },
+        { id: 2, deposit_amt_cdn: 200 }
+      ];
+
+      jest
+        .spyOn(cashDepositRepo, 'find')
+        .mockResolvedValueOnce(expectedEntities as any);
+
+      const foundEntities = await cashDepositService.findCashDepositsForReport(
+        location,
+        program,
+        dateRange
+      );
+
+      expect(foundEntities).toEqual(expectedEntities);
     });
   });
 });
