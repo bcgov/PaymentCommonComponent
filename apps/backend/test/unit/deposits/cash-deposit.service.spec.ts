@@ -23,7 +23,7 @@ describe('CashDepositService', () => {
   let repository: Repository<CashDepositEntity>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const moduleRef = await Test.createTestingModule({
       providers: [
         CashDepositService,
         {
