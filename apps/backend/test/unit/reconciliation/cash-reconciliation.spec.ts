@@ -21,12 +21,12 @@ describe('CashReconciliationService', () => {
   let payments: jest.Mocked<AggregatedPayment[]>;
   let deposits: jest.Mocked<CashDepositEntity[]>;
   let matches: jest.Mocked<
-    { deposit: CashDepositEntity; payment: AggregatedPayment }[]
+    { deposit: CashDepositEntity; aggregatedPayment: AggregatedPayment }[]
   >;
   let matchedAggregatedPayments: jest.Mocked<AggregatedPayment[]>;
   let matchedDeposits: jest.Mocked<CashDepositEntity[]>;
   let matchedPayments: jest.Mocked<PaymentEntity[]>;
-
+  let spy: jest.SpyInstance;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [CashReconciliationService]
@@ -35,13 +35,14 @@ describe('CashReconciliationService', () => {
       .compile();
 
     const data = new MockData(PaymentMethodClassification.POS);
-
+    matches = [];
     service = module.get<CashReconciliationService>(CashReconciliationService);
     payments = aggregatedPayments(data.paymentsMock);
     deposits = data.depositsMock as CashDepositEntity[];
     cashDepositService = module.get(CashDepositService);
     paymentService = module.get(PaymentService);
     logger = module.get(Logger);
+    spy = jest.spyOn(service, 'matchPaymentsToDeposits');
     service.checkMatch = jest.fn();
   });
 
@@ -59,32 +60,36 @@ describe('CashReconciliationService', () => {
   });
   describe('checkMatch', () => {
     it('calls matchPaymentsToDeposits', () => {
-      const spy = jest.spyOn(service, 'matchPaymentsToDeposits');
       service.matchPaymentsToDeposits(payments, deposits);
       expect(spy).toBeCalledTimes(1);
       expect(service.checkMatch).toBeCalled();
     });
   });
   describe('matchPaymentsToDeposits', () => {
-    it('calls matchPaymentsToDeposits', () => {
-      jest.spyOn(service, 'matchPaymentsToDeposits');
+    beforeEach(() => {
       matches = service.matchPaymentsToDeposits(payments, deposits);
-      matchedAggregatedPayments = matches.map((itm) => itm.payment);
+      matchedAggregatedPayments = matches.map((itm) => itm.aggregatedPayment);
       matchedDeposits = matches.map((itm) => itm.deposit);
       matchedPayments = matchedAggregatedPayments.flatMap(
         (itm) => itm.payments
       );
     });
+    it('should call the inner funtion', () => {
+      expect(spy).toBeCalledTimes(1);
+      expect(service.checkMatch).toBeCalled();
+    });
     it('should match payments to deposits', () => {
-      matchedAggregatedPayments.forEach((itm) =>
-        expect(itm.status).toBe(MatchStatus.MATCH)
-      );
-      matchedDeposits.forEach((itm) =>
-        expect(itm.status).toBe(MatchStatus.MATCH)
-      );
-      matchedPayments.forEach((itm) =>
-        expect(itm.status).toBe(MatchStatus.MATCH)
-      );
+      expect(
+        matchedAggregatedPayments.every(
+          (itm) => itm.status === MatchStatus.MATCH
+        )
+      ).toBe(true);
+      expect(
+        matchedDeposits.every((itm) => itm.status === MatchStatus.MATCH)
+      ).toBe(true);
+      expect(
+        matchedPayments.every((itm) => itm.status === MatchStatus.MATCH)
+      ).toBe(true);
     });
     it('checks that there is one fiscal_close_date per cash_deposit date in the matches array', () => {
       const matchedPaymentsDates = matchedPayments.map(
@@ -108,16 +113,20 @@ describe('CashReconciliationService', () => {
       ).toStrictEqual(expect.arrayContaining(matchedDeposits));
     });
     it('checks the amount matched', () => {
-      matches.forEach((itm) => {
-        expect(itm.payment.amount).toBe(itm.deposit.deposit_amt_cdn);
-      });
+      expect(
+        matches.every(
+          (itm) => itm.aggregatedPayment.amount === itm.deposit.deposit_amt_cdn
+        )
+      ).toBe(true);
     });
     it('checks the correct deposit id is set to each matched group of payments', () => {
-      matches.forEach((itm) => {
-        expect(
-          itm.payment.payments.flatMap((payment) => payment.cash_deposit_match)
-        ).toStrictEqual(expect.arrayContaining([itm.deposit]));
-      });
+      expect(
+        matches.every((itm) =>
+          itm.aggregatedPayment.payments.every(
+            (p) => p.cash_deposit_match === itm.deposit
+          )
+        )
+      ).toBe(true);
     });
     it('checks that deposits are matched only once', () => {
       const matchedDepositsFromPaymentArray = matchedPayments.map(
@@ -130,36 +139,24 @@ describe('CashReconciliationService', () => {
       const unmatchedPayments = payments
         .filter((itm) => itm.status !== MatchStatus.MATCH)
         .flatMap((itm) => itm.payments.map((payment) => payment));
-      unmatchedPayments.map((itm) => {
-        expect(itm.cash_deposit_match).toBeUndefined();
-      });
-      unmatchedPayments.map((itm) => {
-        expect(itm.cash_deposit_match).toBeUndefined();
-      });
+
+      expect(
+        unmatchedPayments.every((itm) => itm.cash_deposit_match === undefined)
+      ).toBe(true);
     });
 
     describe('matchPaymentsToDeposits - verifies against false matches', () => {
-      it('calls matchPaymentsToDeposits with unmatched data', () => {
-        // generate mock data for payments
-        const transactions = new MockData(PaymentMethodClassification.CASH)
-          .transactionsMock;
-        payments = aggregatedPayments(
-          transactions.flatMap((itm) => itm.payments)
-        );
-
-        // generate new mock data for deposists - not matched to payments
-        deposits = new MockData(PaymentMethodClassification.CASH)
-          .depositsMock as CashDepositEntity[];
-
-        jest.spyOn(service, 'matchPaymentsToDeposits');
-
+      beforeEach(() => {
         // extremely small chance of a match which would cause the test to fail due to random generation of data
         matches = service.matchPaymentsToDeposits(payments, deposits);
-        matchedAggregatedPayments = matches.map((itm) => itm.payment);
+        matchedAggregatedPayments = matches.map((itm) => itm.aggregatedPayment);
         matchedDeposits = matches.map((itm) => itm.deposit);
         matchedPayments = matchedAggregatedPayments.flatMap(
           (itm) => itm.payments
         );
+      });
+      it('should call the inner function', () => {
+        expect(service.checkMatch).toBeCalled();
       });
       it('should not match any payments to deposits', () => {
         expect(matchedAggregatedPayments.length).toBe(0);

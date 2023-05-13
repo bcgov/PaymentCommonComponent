@@ -84,11 +84,11 @@ export class CashReconciliationService {
     aggregatedPayments: AggregatedPayment[],
     deposits: CashDepositEntity[]
   ): {
-    payment: AggregatedPayment;
+    aggregatedPayment: AggregatedPayment;
     deposit: CashDepositEntity;
   }[] {
     const matches: {
-      payment: AggregatedPayment;
+      aggregatedPayment: AggregatedPayment;
       deposit: CashDepositEntity;
     }[] = [];
 
@@ -111,7 +111,7 @@ export class CashReconciliationService {
               }))
             });
           matches.push({
-            payment: aggregatedPayments[pindex],
+            aggregatedPayment: aggregatedPayments[pindex],
             deposit: deposits[dindex]
           });
         }
@@ -172,7 +172,7 @@ export class CashReconciliationService {
     );
 
     const matchedPayments: PaymentEntity[] = matches
-      .map((itm) => itm.payment)
+      .map((itm) => itm.aggregatedPayment)
       .flatMap((itm) => itm.payments);
 
     const matchedDeposits: CashDepositEntity[] = matches.map(
