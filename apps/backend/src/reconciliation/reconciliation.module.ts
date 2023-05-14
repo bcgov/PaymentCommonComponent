@@ -1,7 +1,8 @@
 import { Module, Logger } from '@nestjs/common';
 import { CashExceptionsService } from './cash-exceptions.service';
 import { CashReconciliationService } from './cash-reconciliation.service';
-import { POSReconciliationService } from './pos-reconciliation.service';
+import { PosMatchHeuristics } from './pos-heuristics';
+import { PosReconciliationService } from './pos-reconciliation.service';
 import { DepositModule } from '../deposits/deposit.module';
 import { LocationModule } from '../location/location.module';
 import { TransactionModule } from '../transaction/transaction.module';
@@ -10,9 +11,10 @@ import { TransactionModule } from '../transaction/transaction.module';
   imports: [DepositModule, TransactionModule, LocationModule],
   providers: [
     CashReconciliationService,
-    POSReconciliationService,
+    PosReconciliationService,
     Logger,
     CashExceptionsService,
+    PosMatchHeuristics
   ],
   exports: [],
 })

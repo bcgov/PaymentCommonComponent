@@ -17,20 +17,24 @@ export class PaymentService {
   ) {}
 
   async findPosPayments(
-    date: string,
+    dateQuery: { yesterday: Date; today: Date },
     location: LocationEntity,
-    status?: MatchStatus
+    status?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
-    const paymentStatus = status ? status : In(MatchStatusAll);
+    const paymentStatus = status ? status : MatchStatusAll;
+    const { yesterday, today } = dateQuery;
 
     return await this.paymentRepo.find({
       where: {
         transaction: {
-          transaction_date: date,
-          location_id: location.location_id,
+          transaction_date: Raw(
+            (alias) => `${alias} >= :yesterday AND ${alias} <= :today`,
+            { yesterday, today }
+          ),
+          location_id: location.location_id
         },
-        status: paymentStatus,
-        payment_method: { classification: PaymentMethodClassification.POS },
+        status: In(paymentStatus),
+        payment_method: { classification: PaymentMethodClassification.POS }
       },
       relations: {
         payment_method: true,
@@ -39,8 +43,8 @@ export class PaymentService {
       order: {
         amount: 'ASC',
         payment_method: { method: 'ASC' },
-        transaction: { transaction_time: 'ASC' },
-      },
+        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' }
+      }
     });
   }
 

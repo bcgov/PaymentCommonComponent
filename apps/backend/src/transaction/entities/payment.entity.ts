@@ -118,6 +118,9 @@ export class PaymentEntity {
   })
   pos_deposit_match?: Relation<POSDepositEntity>;
 
+  @Column({ nullable: true })
+  heuristic_match_round: number;
+
   constructor(payment?: Partial<PaymentEntity>) {
     Object.assign(this, payment);
   }

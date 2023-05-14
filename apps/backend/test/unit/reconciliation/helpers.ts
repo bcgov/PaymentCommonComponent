@@ -1,5 +1,11 @@
 import { faker } from '@faker-js/faker';
-import { differenceInMinutes, format, getTime, parse } from 'date-fns';
+import {
+  differenceInMinutes,
+  format,
+  getTime,
+  parse,
+  subBusinessDays
+} from 'date-fns';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { AggregatedPayment } from '../../../src/reconciliation/types';
 import { PaymentEntity } from '../../../src/transaction/entities';
@@ -62,6 +68,22 @@ export const setSomePaymentsToTwentyMinutesLater = (
   );
 };
 
+export const setSomePaymentsToOneBusinessDayBehind = (
+  payments: PaymentEntity[]
+) => {
+  return payments.map((itm) => ({
+    ...itm,
+    timestamp: itm.timestamp,
+    tranaction: {
+      ...itm.transaction,
+      transaction_date: subBusinessDays(
+        new Date(itm.transaction.transaction_date),
+        1
+      )
+    }
+  }));
+};
+
 export const unmatchedTestData = (
   data: MockData
 ): { payments: PaymentEntity[]; deposits: POSDepositEntity[] } => {
@@ -96,6 +118,14 @@ export const timeBetweenMatchedPaymentAndDeposit = (
   deposit: POSDepositEntity
 ) =>
   differenceInMinutes(
-    parse(payment.transaction.transaction_time, 'HH:mm:ss', new Date()),
-    parse(deposit.transaction_time, 'HH:mm:ss', new Date())
+    parse(
+      `${payment.transaction.transaction_date} ${payment.transaction.transaction_time}`,
+      'yyyy-MM-dd HH:mm:ss',
+      new Date()
+    ),
+    parse(
+      `${deposit.transaction_date} ${deposit.transaction_time}`,
+      'yyyy-MM-dd HH:mm:ss',
+      new Date()
+    )
   );

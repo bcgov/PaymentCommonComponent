@@ -22,24 +22,28 @@ export class PosDepositService {
   ) {}
 
   async findPOSDeposits(
-    date: string,
+    dateQuery: { yesterday: Date; today: Date },
     program: Ministries,
     location: LocationEntity,
-    status?: MatchStatus
+    status?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
-    const depositStatus = status ? status : In(MatchStatusAll);
+    const depositStatus = status ? status : MatchStatusAll;
+    const { yesterday, today } = dateQuery;
     const merchant_ids: number[] =
       await this.locationService.getMerchantIdsByLocationId(
         location.location_id
       );
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: date,
+        transaction_date: Raw(
+          (alias) => `${alias} >= :yesterday AND ${alias} <= :today`,
+          { yesterday, today }
+        ),
         metadata: {
           program: program,
         },
-        status: depositStatus,
-        merchant_id: In(merchant_ids),
+        status: In(depositStatus),
+        merchant_id: In(merchant_ids)
       },
       relations: {
         payment_method: true,
@@ -47,6 +51,7 @@ export class PosDepositService {
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
       order: {
+        transaction_date: 'ASC',
         transaction_amt: 'ASC',
         payment_method: { method: 'ASC' },
         transaction_time: 'ASC',

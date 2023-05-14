@@ -1,4 +1,3 @@
-import { compareAsc, parse } from 'date-fns';
 import { CashDepositMock } from './classes/cash_deposit_mock';
 import { PaymentMock } from './classes/payment_mock';
 import { MockData } from './mocks';

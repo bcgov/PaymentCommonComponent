@@ -2,16 +2,26 @@ import { createMock } from '@golevelup/ts-jest';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import {
+  differenceInBusinessDays,
+  format,
+  getTime,
+  parse,
+  subBusinessDays
+} from 'date-fns';
+import {
+  setSomePaymentsToOneBusinessDayBehind,
   setSomePaymentsToTwentyMinutesLater,
   timeBetweenMatchedPaymentAndDeposit,
   unmatchedTestData,
 } from './helpers';
 import { PosDepositService } from './../../../src/deposits/pos-deposit.service';
-import { POSReconciliationService } from './../../../src/reconciliation/pos-reconciliation.service';
+import { PosReconciliationService } from './../../../src/reconciliation/pos-reconciliation.service';
 import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
 import { MatchStatus } from '../../../src/common/const';
 import { PaymentMethodClassification } from '../../../src/constants';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
+import { AppLogger } from '../../../src/logger/logger.service';
+import { PosMatchHeuristics } from '../../../src/reconciliation/pos-heuristics';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { locations } from '../../mocks/const/locations';
 import { MockData } from '../../mocks/mocks';
@@ -173,49 +183,170 @@ describe('POSReconciliationService', () => {
       matchedRoundTwo.forEach((itm) => {
         expect(itm.deposit.status === MatchStatus.MATCH);
         expect(itm.payment.status === MatchStatus.MATCH);
+    it('should have set the status to MATCH', () => {
+      matches.forEach(({ payment, deposit }) => {
+        expect(payment.status).toEqual(MatchStatus.MATCH);
+        expect(deposit.status).toEqual(MatchStatus.MATCH);
       });
     });
   });
 
-  describe('verify matched fields on all matches', () => {
-    it('should find matches for each heuristic round', () => {
-      //set some to 20 minutes later to verify that we're using the second round time heuristic
-      payments = setSomePaymentsToTwentyMinutesLater(payments);
-
-      const matchedRoundOne = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        5
+  describe('findMatches - round two', () => {
+    beforeEach(() => {
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
+      matches = [];
+      payments[2].transaction.transaction_time = format(
+        getTime(
+          parse(
+            `${payments[2].transaction.transaction_date} ${payments[2].transaction.transaction_time}`,
+            'yyyy-MM-dd HH:mm:ss',
+            new Date()
+          )
+        ) +
+          1000 * 60 * 20,
+        'HH:mm:ss'
       );
-
-      const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        1440
+      matches = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        2
       );
-
-      const matches = [...matchedRoundOne, ...matchedRoundTwo];
-
+    });
+    it('should find matches', async () => {
+      const spy = jest.spyOn(posMatchHeuristics, 'isMatch');
+      expect(posMatchHeuristics.isMatch).toBeCalledTimes(30);
+      expect(spy).toHaveBeenCalledTimes(30);
       expect(matches.length).toBeGreaterThan(0);
     });
-    it('should have updated the status from pending to matched', () => {
-      let timeDiff = 5;
+    it('should verify the time difference between matches on round two is > 5 minutes and < 24 hours', () => {
+      matches.forEach(({ payment, deposit }) =>
+        expect(
+          timeBetweenMatchedPaymentAndDeposit(payment, deposit)
+        ).toBeLessThanOrEqual(1440)
+      );
+    });
+  });
+  describe('findMatches - round three', () => {
+    beforeEach(() => {
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
+      matches = [];
+      payments[3].transaction.transaction_date = format(
+        subBusinessDays(new Date(payments[1].transaction.transaction_date), 1),
+        'yyyy-MM-dd'
+      );
+      matches = service.matchPosPaymentToPosDeposits(payments, deposits, 3);
+    });
+    it('should find matches', async () => {
+      const spy = jest.spyOn(posMatchHeuristics, 'isMatch');
+      expect(matches).toBeDefined();
+      expect(matches.length).toBeGreaterThan(0);
+      expect(spy).toHaveBeenCalledTimes(30);
+      expect(posMatchHeuristics.isMatch).toBeCalledTimes(30);
+    });
+    it('should verify the time difference between matches on round three is one business day', () => {
+      matches.forEach(({ payment, deposit }) =>
+        expect(
+          differenceInBusinessDays(
+            parse(
+              payment.transaction.transaction_date,
+              'yyyy-MM-dd',
+              new Date()
+            ),
+            parse(deposit.transaction_date, 'yyyy-MM-dd', new Date())
+          )
+        ).toBeLessThanOrEqual(1)
+      );
+    });
+  });
+  describe('findMatches', () => {
+    beforeAll(() => {
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
+      matches = [];
+      payments[2].transaction.transaction_time = format(
+        getTime(
+          parse(
+            `${payments[2].transaction.transaction_date} ${payments[2].transaction.transaction_time}`,
+            'yyyy-MM-dd HH:mm:ss',
+            new Date()
+          )
+        ) +
+          1000 * 60 * 20,
+        'HH:mm:ss'
+      );
+      payments[3].transaction.transaction_date = format(
+        subBusinessDays(new Date(payments[1].transaction.transaction_date), 1),
+        'yyyy-MM-dd'
+      );
+      const spy = jest.spyOn(service, 'matchPosPaymentToPosDeposits');
 
       //set some to 20 minutes later to verify that we're using the second round time heuristic
       payments = setSomePaymentsToTwentyMinutesLater(payments);
+      payments = setSomePaymentsToOneBusinessDayBehind(payments);
 
       const matchedRoundOne = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiff
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        1
       );
-      timeDiff = 1440;
+
       const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiff
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        2
       );
-      const matches = [...matchedRoundOne, ...matchedRoundTwo];
+
+      const matchedRoundThree = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        3
+      );
+
+      matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
+      expect(spy).toHaveBeenCalledTimes(3);
+      expect(posMatchHeuristics.isMatch).toBeCalled();
+      expect(matches).toBeDefined();
+      expect(matches.length).toBeGreaterThan(0);
+    });
+
+    it('should have updated the status from pending to matched', () => {
       matches.forEach((itm) => {
         expect(itm.deposit.status === MatchStatus.MATCH);
         expect(itm.payment.status === MatchStatus.MATCH);
@@ -248,7 +379,6 @@ describe('POSReconciliationService', () => {
         const depositLocation = locations.find(
           (loc) => loc.merchant_id === itm.deposit.merchant_id
         );
-
         expect(paymentLocation?.location_id).toBe(depositLocation?.location_id);
       });
     });
@@ -399,9 +529,8 @@ describe('POSReconciliationService', () => {
       expect(recordedDepositIds.length).toBe(uniqueRecordedDepositIds.length);
     });
   });
-
   describe('verifies that unmatched data will not be set as match', () => {
-    it('calls matchPosPaymentsToDeposits with unmatched data', () => {
+    beforeAll(() => {
       // create some data that will not match
       const unMatchedData = unmatchedTestData(
         new MockData(PaymentMethodClassification.POS)
@@ -416,16 +545,57 @@ describe('POSReconciliationService', () => {
         payments,
         deposits,
         timeDiffRoundTwo
+      const matchedRoundOne = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        1
       );
 
-      paymentExceptions = payments.filter(
+      const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        2
+      );
+
+      const matchedRoundThree = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        3
+      );
+
+      matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
+
+      unmatchedPayments = payments.filter(
         (payment) => payment.status === MatchStatus.PENDING
       );
-      depositExceptions = deposits.filter(
+      unmatchedDeposits = deposits.filter(
         (deposit) => deposit.status === MatchStatus.PENDING
       );
     });
-
     it('should update the status of matched items in the original array and return a new array with the matched pairs', () => {
       const unMatchedData = unmatchedTestData(
         new MockData(PaymentMethodClassification.POS)
@@ -486,48 +656,29 @@ describe('POSReconciliationService', () => {
       );
     });
     it('should not include unmatched items in the returned array', () => {
-      const unMatchedData = unmatchedTestData(
-        new MockData(PaymentMethodClassification.POS)
+      expect(matches.map((itm) => itm.payment)).not.toEqual(
+        expect.arrayContaining(
+          payments.filter((itm) => itm.status === MatchStatus.PENDING)
+        )
       );
-
-      payments = [...payments, ...unMatchedData.payments];
-      deposits = [...deposits, ...unMatchedData.deposits];
-
-      const timeDiffRoundTwo = 1440;
-
-      jest.spyOn(service, 'matchPosPaymentToPosDeposits');
-
-      const matches = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiffRoundTwo
-      );
-
-      paymentExceptions = payments.filter(
-        (payment) => payment.status === MatchStatus.PENDING
-      );
-      depositExceptions = deposits.filter(
-        (deposit) => deposit.status === MatchStatus.PENDING
-      );
-      expect(matches).not.toEqual(
-        expect.arrayContaining(unMatchedData.payments)
-      );
-      expect(matches).not.toEqual(
-        expect.arrayContaining(unMatchedData.deposits)
+      expect(matches.map((itm) => itm.deposit)).not.toEqual(
+        expect.arrayContaining(
+          deposits.filter((itm) => itm.status === MatchStatus.PENDING)
+        )
       );
     });
 
     it('should not change the status of unmatched payment and deposits', () => {
-      paymentExceptions.forEach((itm) =>
+      unmatchedPayments.forEach((itm) =>
         expect(itm.status).toBe(MatchStatus.PENDING)
       );
-      depositExceptions.forEach((itm) =>
+      unmatchedDeposits.forEach((itm) =>
         expect(itm.status).toBe(MatchStatus.PENDING)
       );
     });
 
     it('should not record the pos_deposit_match id if no match is found', () => {
-      paymentExceptions.forEach((itm) =>
+      unmatchedPayments.forEach((itm) =>
         expect(itm.pos_deposit_match).toBeUndefined()
       );
     });
