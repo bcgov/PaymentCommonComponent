@@ -40,7 +40,9 @@ export class CashDepositService {
     data: CashDepositEntity[]
   ): Promise<CashDepositEntity[]> {
     try {
-      const entities = data.map((d) => this.cashDepositRepo.create(d));
+      const entities = data.map((d: CashDepositEntity) =>
+        this.cashDepositRepo.create(d)
+      );
       return mapLimit(entities, (entity) => this.cashDepositRepo.save(entity));
     } catch (e) {
       this.appLogger.error(e);
