@@ -16,12 +16,12 @@ export class AppLogger implements LoggerService {
                 winston.format.simple(),
                 winston.format.colorize()
               ),
-              level: 'debug'
+              level: 'debug',
             }),
             new winston.transports.File({
               filename: `${format(new Date(), 'yyyy-MM-dd')}`,
-              level: 'verbose'
-            })
+              level: 'verbose',
+            }),
           ]
         : [
             new winston.transports.Console({
@@ -29,10 +29,10 @@ export class AppLogger implements LoggerService {
                 winston.format.simple(),
                 winston.format.colorize()
               ),
-              level: 'debug'
-            })
+              level: 'debug',
+            }),
           ],
-      exitOnError: false
+      exitOnError: false,
     });
   }
 
@@ -55,7 +55,7 @@ export class AppLogger implements LoggerService {
       message = {
         url: config?.url,
         method: config?.method,
-        ...(response?.data ? { data: response.data } : {})
+        ...(response?.data ? { data: response.data } : {}),
       };
     }
     // For handling manually crafted validation error message arrays, see 'exceptionFactory' in 'app.config.ts'

@@ -21,7 +21,7 @@ export class AppController {
   @ApiOperation({})
   getHealth(): object {
     return {
-      status: 'ok'
+      status: 'ok',
     };
   }
 }

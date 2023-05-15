@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   setSomePaymentsToTwentyMinutesLater,
   timeBetweenMatchedPaymentAndDeposit,
-  unmatchedTestData
+  unmatchedTestData,
 } from './helpers';
 import { PosDepositService } from './../../../src/deposits/pos-deposit.service';
 import { POSReconciliationService } from './../../../src/reconciliation/pos-reconciliation.service';
@@ -42,7 +42,7 @@ describe('POSReconciliationService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [POSReconciliationService]
+      providers: [POSReconciliationService],
     })
       .useMocker(createMock)
       .compile();

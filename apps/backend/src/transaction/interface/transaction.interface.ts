@@ -6,7 +6,7 @@ export enum PaymentChannel {
   INPERSON = 'in-person',
   PHONE = 'phone',
   MAIL = 'mail',
-  ONLINE = 'online'
+  ONLINE = 'online',
 }
 
 export interface PaymentMethod {
@@ -94,7 +94,7 @@ export class Distribution {
         project_code: data.dist_project_code,
         location_code: data.dist_location_code,
         future_code: data.dist_future_code,
-        supplier_code: data.supplier_code
+        supplier_code: data.supplier_code,
       });
       this.revenue_gl_account = new GL({
         client_code: data.dist_client_code,
@@ -104,7 +104,7 @@ export class Distribution {
         project_code: data.dist_project_code,
         location_code: data.dist_location_code,
         future_code: data.dist_future_code,
-        supplier_code: data.supplier_code
+        supplier_code: data.supplier_code,
       });
     } catch (e) {
       console.log(e);

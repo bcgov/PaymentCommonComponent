@@ -6,7 +6,7 @@ import {
   Controller,
   ClassSerializerInterceptor,
   Inject,
-  Logger
+  Logger,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -34,19 +34,19 @@ export class ParseController {
         program: {
           type: 'string',
           enum: ['SBC', 'LABOUR'],
-          nullable: false
+          nullable: false,
         },
         fileType: {
           type: 'string',
           enum: ['TDI17', 'TDI34'],
-          nullable: false
+          nullable: false,
         },
         file: {
           type: 'string',
-          format: 'binary'
-        }
-      }
-    }
+          format: 'binary',
+        },
+      },
+    },
   })
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
@@ -58,7 +58,7 @@ export class ParseController {
       type: body.fileType,
       fileName: file.originalname,
       program: body.program,
-      fileContents: contents
+      fileContents: contents,
     });
   }
 }

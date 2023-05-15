@@ -20,8 +20,8 @@ export const garmsKeys = [
       'line_dollar_amount',
       'line_description',
       'supplier_code',
-      'revenue_gl_account'
-    ]
+      'revenue_gl_account',
+    ],
   },
   {
     source: [
@@ -36,9 +36,9 @@ export const garmsKeys = [
           'dist_project_code',
           'dist_location_code',
           'dist_future_code',
-          'supplier_code'
-        ]
-      }
-    ]
-  }
+          'supplier_code',
+        ],
+      },
+    ],
+  },
 ];

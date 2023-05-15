@@ -23,7 +23,7 @@ test('Payment Entity Instance', () => {
       method: 'P',
       classification: PaymentMethodClassification.POS,
       description: 'Debit',
-      sbc_code: 17
+      sbc_code: 17,
     },
     transaction: {
       payments: [],
@@ -36,7 +36,7 @@ test('Payment Entity Instance', () => {
       source_id: 'SBC',
       location_id: 1,
       migrated: true,
-      source_file_name: 'sbc/SBC_SALES_2023_01_10_18_45_04.JSON'
+      source_file_name: 'sbc/SBC_SALES_2023_01_10_18_45_04.JSON',
     },
     cash_deposit_match: undefined,
     pos_deposit_match: {
@@ -57,16 +57,16 @@ test('Payment Entity Instance', () => {
         method: 'P',
         classification: PaymentMethodClassification.POS,
         description: 'Debit',
-        sbc_code: 17
+        sbc_code: 17,
       },
       metadata: {
         date_uploaded: new Date('2023-04-28T07:35:13.155Z'),
         program: 'SBC',
         source_file_name: 'bcm/PROD_SBC_F08TDI34_20230404.DAT',
         source_file_line: 1550,
-        source_file_length: 2116
-      }
-    }
+        source_file_length: 2116,
+      },
+    },
   });
   expect(payment).toBeInstanceOf(PaymentEntity);
 });

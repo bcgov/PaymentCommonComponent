@@ -17,7 +17,7 @@ export const tdi34Keys = [
   'invoice_no',
   'echo_data_field',
   'fill4',
-  'metadata'
+  'metadata',
 ];
 
 export const tdi17Keys = [
@@ -41,7 +41,7 @@ export const tdi17Keys = [
   'jv_no',
   'transaction_date',
   'filler',
-  'metadata'
+  'metadata',
 ];
 
 export const ddfKeys = [
@@ -66,5 +66,5 @@ export const ddfKeys = [
   'merchant_id',
   'filler4',
   'filler5',
-  'metadata'
+  'metadata',
 ];

@@ -18,10 +18,10 @@ describe('LocationService', () => {
         {
           provide: getRepositoryToken(LocationEntity),
           useValue: {
-            find: jest.fn()
-          }
-        }
-      ]
+            find: jest.fn(),
+          },
+        },
+      ],
     }).compile();
 
     service = module.get<LocationService>(LocationService);
@@ -46,15 +46,15 @@ describe('LocationService', () => {
     expect(result).toEqual(expectedResult.map((itm) => itm.merchant_id));
     expect(locationRepoSpy).toBeCalledWith({
       select: {
-        merchant_id: true
+        merchant_id: true,
       },
       where: {
         location_id,
-        method: Not('Bank')
+        method: Not('Bank'),
       },
       order: {
-        location_id: 'ASC'
-      }
+        location_id: 'ASC',
+      },
     });
   });
   it('should get locations by source', async () => {
@@ -70,11 +70,11 @@ describe('LocationService', () => {
     expect(locationRepoSpy).toBeCalledWith({
       where: {
         source_id: source,
-        method: `${LocationEnum.Bank}`
+        method: `${LocationEnum.Bank}`,
       },
       order: {
-        location_id: 'ASC'
-      }
+        location_id: 'ASC',
+      },
     });
   });
 });

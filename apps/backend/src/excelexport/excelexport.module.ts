@@ -4,6 +4,6 @@ import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
 @Module({
   providers: [ExcelExportService, S3ManagerService, Logger],
-  exports: [ExcelExportService]
+  exports: [ExcelExportService],
 })
 export class ExcelExportModule {}

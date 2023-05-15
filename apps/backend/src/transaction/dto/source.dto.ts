@@ -16,7 +16,7 @@ export class SourceDTO {
 
   @ApiProperty({
     description: 'Method Of Payment',
-    example: ['CASH', 'CHQ', 'P', 'M', 'V']
+    example: ['CASH', 'CHQ', 'P', 'M', 'V'],
   })
   @IsString()
   @Length(1, 10)

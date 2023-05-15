@@ -5,7 +5,7 @@ import {
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
-  Relation
+  Relation,
 } from 'typeorm';
 import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
@@ -38,7 +38,7 @@ export class POSDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer()
+    transformer: new ColumnNumericTransformer(),
   })
   transaction_amt: number;
 
@@ -59,7 +59,7 @@ export class POSDepositEntity {
 
   @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method, {
     eager: true,
-    cascade: false
+    cascade: false,
   })
   @JoinColumn({ name: 'payment_method', referencedColumnName: 'method' })
   payment_method: Relation<PaymentMethodEntity>;

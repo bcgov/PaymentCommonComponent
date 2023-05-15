@@ -3,7 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   TransactionEntity,
   PaymentMethodEntity,
-  PaymentEntity
+  PaymentEntity,
 } from './entities';
 import { PaymentMethodService } from './payment-method.service';
 import { PaymentService } from './payment.service';
@@ -19,8 +19,8 @@ import { LocationModule } from '../location/location.module';
       TransactionEntity,
       PaymentEntity,
       PaymentMethodEntity,
-      LocationModule
-    ])
+      LocationModule,
+    ]),
   ],
   controllers: [TransactionController],
   providers: [TransactionService, PaymentService, PaymentMethodService, Logger],
@@ -28,7 +28,7 @@ import { LocationModule } from '../location/location.module';
     TypeOrmModule,
     TransactionService,
     PaymentMethodService,
-    PaymentService
-  ]
+    PaymentService,
+  ],
 })
 export class TransactionModule {}

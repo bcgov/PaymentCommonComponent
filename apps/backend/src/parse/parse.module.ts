@@ -4,6 +4,6 @@ import { ParseService } from './parse.service';
 
 @Module({
   controllers: [ParseController],
-  providers: [ParseService, Logger]
+  providers: [ParseService, Logger],
 })
 export class ParseModule {}

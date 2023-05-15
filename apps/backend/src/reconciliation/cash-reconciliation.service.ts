@@ -107,12 +107,12 @@ export class CashReconciliationService {
               ...itm,
               timestamp: itm.timestamp,
               status: MatchStatus.MATCH,
-              cash_deposit_match: deposits[dindex]
-            }))
+              cash_deposit_match: deposits[dindex],
+            })),
           };
           matches.push({
             aggregatedPayment: aggregatedPayments[pindex],
-            deposit: deposits[dindex]
+            deposit: deposits[dindex],
           });
         }
         break;
@@ -197,7 +197,7 @@ export class CashReconciliationService {
         itm.payments.map((itm: PaymentEntity) => ({
           ...itm,
           timestamp: itm.timestamp,
-          status: MatchStatus.IN_PROGRESS
+          status: MatchStatus.IN_PROGRESS,
         }))
       );
 
@@ -205,7 +205,7 @@ export class CashReconciliationService {
       .filter((itm: CashDepositEntity) => itm.status !== MatchStatus.MATCH)
       .map((itm: CashDepositEntity) => ({
         ...itm,
-        status: MatchStatus.IN_PROGRESS
+        status: MatchStatus.IN_PROGRESS,
       }));
 
     this.appLogger.log(
@@ -221,11 +221,11 @@ export class CashReconciliationService {
 
     const updatePayments = await this.paymentService.updatePayments([
       ...matchedPayments,
-      ...inProgressPayments
+      ...inProgressPayments,
     ]);
     const updateDeposits = await this.cashDepositService.updateDeposits([
       ...matchedDeposits,
-      ...inProgressDeposits
+      ...inProgressDeposits,
     ]);
     const updatedAggregatedPayments =
       this.paymentService.aggregatePayments(updatePayments);
@@ -241,7 +241,7 @@ export class CashReconciliationService {
       depositsMatched: matchedDeposits.length,
       depositsInProgress: inProgressDeposits.length,
       totalUpdatedPayments: updatedAggregatedPayments.length,
-      totalUpdatedDeposits: updateDeposits.length
+      totalUpdatedDeposits: updateDeposits.length,
     };
   }
 }

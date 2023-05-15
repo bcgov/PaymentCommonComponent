@@ -21,7 +21,7 @@ export class TransactionEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer()
+    transformer: new ColumnNumericTransformer(),
   })
   total_transaction_amount: number;
 
@@ -45,7 +45,7 @@ export class TransactionEntity {
   source_file_name?: string;
 
   @OneToMany(() => PaymentEntity, (payment) => payment.transaction, {
-    cascade: true
+    cascade: true,
   })
   payments: Relation<PaymentEntity[]>;
 

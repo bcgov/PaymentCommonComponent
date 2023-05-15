@@ -18,11 +18,11 @@ describe('Tests the generated mock data', () => {
   it('should generate pos payments and deposits with the same date and amount', () => {
     const expectedPOSDeposits = posDepositsMock.map((itm) => ({
       date: itm.transaction_date,
-      amount: itm.transaction_amt
+      amount: itm.transaction_amt,
     }));
     const expectedPOSPayments = posPaymentsMock.map((itm) => ({
       date: itm.transaction.transaction_date,
-      amount: itm.amount
+      amount: itm.amount,
     }));
     expectedPOSDeposits.forEach((deposit) =>
       expect(

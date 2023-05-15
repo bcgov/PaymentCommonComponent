@@ -8,7 +8,7 @@ import {
   InternalServerErrorException,
   Logger,
   Post,
-  UseInterceptors
+  UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
@@ -29,20 +29,20 @@ export class TransactionController {
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiOperation({
-    summary: 'Post Sales Event'
+    summary: 'Post Sales Event',
   })
   @ApiBody({
     schema: {
-      example: transactionJson
-    }
+      example: transactionJson,
+    },
   })
   @ApiResponse({
     description: 'Returns the parsed sales reconciliation data',
     schema: {
       example: {
-        data: []
-      }
-    }
+        data: [],
+      },
+    },
   })
   @HttpCode(HttpStatus.CREATED)
   async saveTransactionEvent(@Body() transactionEvent: TransactionDTO[]) {

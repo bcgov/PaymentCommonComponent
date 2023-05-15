@@ -7,6 +7,6 @@ export const generateMetadataMock = (filetype: FileTypes): FileMetadata => {
     date_uploaded: new Date(),
     source_file_length: 0,
     source_file_line: 0,
-    program: Ministries.SBC
+    program: Ministries.SBC,
   };
 };

@@ -21,12 +21,12 @@ describe('Tests the generated mock data', () => {
     const expected = {
       deposits: cashDepositsMock.map((itm) => ({
         date: itm.deposit_date,
-        amount: itm.deposit_amt_cdn
+        amount: itm.deposit_amt_cdn,
       })),
       payments: aggregatedPayments(cashPaymentsMock).map((itm) => ({
         date: itm.fiscal_close_date,
-        amount: itm.amount
-      }))
+        amount: itm.amount,
+      })),
     };
     expect(expected.payments.map((itm) => itm.amount)).toEqual(
       expected.deposits.map((itm) => itm.amount)

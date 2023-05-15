@@ -2,12 +2,12 @@ import {
   BadRequestException,
   ValidationError,
   ValidationPipe,
-  ValidationPipeOptions
+  ValidationPipeOptions,
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
   ExpressAdapter,
-  NestExpressApplication
+  NestExpressApplication,
 } from '@nestjs/platform-express';
 import express from 'express';
 
@@ -38,7 +38,7 @@ export const validationPipeConfig: ValidationPipeOptions = {
       if (error.constraints) {
         messages.push({
           property: error.property,
-          errors: Object.values(error.constraints)
+          errors: Object.values(error.constraints),
         });
       }
       if (error.children && error.children?.length > 0) {
@@ -52,7 +52,7 @@ export const validationPipeConfig: ValidationPipeOptions = {
     };
     const errorMessages = errors.map((error) => getErrorMessages(error));
     throw new BadRequestException(errorMessages);
-  }
+  },
 };
 
 export async function createNestApp(): Promise<{
@@ -70,7 +70,7 @@ export async function createNestApp(): Promise<{
     process.env.RUNTIME_ENV === 'test'
   ) {
     app = await NestFactory.create(AppModule, {
-      bufferLogs: true
+      bufferLogs: true,
     });
     app.useLogger(app.get(AppLogger));
   } else {
@@ -105,11 +105,11 @@ export async function createNestApp(): Promise<{
     envName: process.env.ENV_NAME,
     nodeEnv: process.env.NODE_ENV,
     runtimeEnv: process.env.RUNTIME_ENV,
-    alertsEnabled: Boolean(false)
+    alertsEnabled: Boolean(false),
   });
 
   return {
     app,
-    expressApp
+    expressApp,
   };
 }

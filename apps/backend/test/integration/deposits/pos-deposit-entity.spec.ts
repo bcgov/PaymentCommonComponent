@@ -13,7 +13,7 @@ test('Pos Deposit Entity Instance', () => {
     type: FileTypes.TDI34,
     fileName: 'test/TDI34',
     program: 'SBC',
-    fileContents: Buffer.from(testFile).toString()
+    fileContents: Buffer.from(testFile).toString(),
   };
   const data: TDI34Details[] = [...parseTDI(tdi34Mock)] as TDI34Details[];
   const posDeposit: POSDepositEntity[] = data.map(

@@ -1,6 +1,6 @@
 export async function mapLimit<T, R>(
   arr: T[],
-  fn: (x: T , i: number) => Promise<R>,
+  fn: (x: T, i: number) => Promise<R>,
   limit = 10
 ): Promise<R[]> {
   if (limit < 1) {

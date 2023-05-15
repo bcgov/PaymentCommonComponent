@@ -10,7 +10,7 @@ import {
   IsNumber,
   IsDefined,
   ArrayUnique,
-  IsBoolean
+  IsBoolean,
 } from 'class-validator';
 import { AccountingDTO } from './accounting.dto';
 import { PaymentDTO } from './payment.dto';
@@ -19,7 +19,7 @@ import { SourceDTO } from './source.dto';
 export class TransactionDTO {
   @ApiProperty({
     description: 'Unique id representing the transaction in the source system',
-    example: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7'
+    example: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7',
   })
   @IsString()
   @IsNotEmpty()
@@ -29,7 +29,7 @@ export class TransactionDTO {
   @IsString()
   @IsNotEmpty()
   @IsDateString({
-    strict: true
+    strict: true,
   })
   transaction_date!: string;
 
@@ -42,7 +42,7 @@ export class TransactionDTO {
   @IsString()
   @IsNotEmpty()
   @IsDateString({
-    strict: true
+    strict: true,
   })
   fiscal_close_date!: string;
 
@@ -60,7 +60,7 @@ export class TransactionDTO {
   miscellaneous!: unknown;
 
   @ApiProperty({
-    description: 'Source of the Transaction'
+    description: 'Source of the Transaction',
   })
   @IsNotEmpty()
   @Type(() => SourceDTO)
@@ -68,7 +68,7 @@ export class TransactionDTO {
 
   @ApiProperty({
     type: PaymentDTO,
-    description: 'Payment of total amount by method'
+    description: 'Payment of total amount by method',
   })
   @IsDefined()
   @IsNotEmpty()
@@ -76,7 +76,7 @@ export class TransactionDTO {
   @Type(() => PaymentDTO)
   @IsArray()
   @ArrayMinSize(1, {
-    message: 'At least 1 Payment Method Required'
+    message: 'At least 1 Payment Method Required',
   })
   @ArrayUnique(
     (o: PaymentDTO) => {
@@ -91,7 +91,7 @@ export class TransactionDTO {
     type: AccountingDTO,
     description:
       'Distribution of funds to other ministries and program areas by GL codes',
-    example: []
+    example: [],
   })
   @IsDefined()
   @IsArray()

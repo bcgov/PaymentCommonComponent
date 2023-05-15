@@ -9,7 +9,7 @@ import {
   ParseArgsTDI,
   FileTypes,
   Ministries,
-  PaymentMethodClassification
+  PaymentMethodClassification,
 } from '../../../src/constants';
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
@@ -31,11 +31,11 @@ describe('CashDepositService', () => {
           useValue: {
             findOneByOrFail: jest.fn(),
             find: jest.fn(),
-            save: jest.fn()
-          }
+            save: jest.fn(),
+          },
         },
-        { provide: Logger, useValue: {} }
-      ]
+        { provide: Logger, useValue: {} },
+      ],
     }).compile();
 
     const mockCashData = new MockData(PaymentMethodClassification.CASH);
@@ -69,7 +69,7 @@ describe('CashDepositService', () => {
         type: FileTypes.TDI17,
         fileName: 'test/TDI17',
         program: 'SBC',
-        fileContents: Buffer.from(testCashFile).toString()
+        fileContents: Buffer.from(testCashFile).toString(),
       };
       const data: TDI17Details[] = [...parseTDI(tdi17Mock)] as TDI17Details[];
       const cashDeposit: CashDepositEntity[] = data.map(
@@ -95,7 +95,7 @@ describe('CashDepositService', () => {
         type: FileTypes.TDI34,
         fileName: 'test/TDI34',
         program: 'SBC',
-        fileContents: Buffer.from(testCashFile).toString()
+        fileContents: Buffer.from(testCashFile).toString(),
       };
       const data: TDI17Details[] = [...parseTDI(tdi34Mock)] as TDI17Details[];
       const cashDeposits: CashDepositEntity[] = data.map(
@@ -125,7 +125,7 @@ describe('CashDepositService', () => {
 
         const expectedEntities = [
           { id: 1, deposit_amt_cdn: 100 },
-          { id: 2, deposit_amt_cdn: 200 }
+          { id: 2, deposit_amt_cdn: 200 },
         ];
 
         jest
@@ -146,9 +146,9 @@ describe('CashDepositService', () => {
             pt_location_id: location.pt_location_id,
             metadata: { program },
             deposit_date: depositDate,
-            status: In(status)
+            status: In(status),
           },
-          order: { deposit_amt_cdn: 'ASC' }
+          order: { deposit_amt_cdn: 'ASC' },
         });
       });
 
@@ -174,9 +174,9 @@ describe('CashDepositService', () => {
             pt_location_id: location.pt_location_id,
             metadata: { program },
             deposit_date: depositDate,
-            status: In(status)
+            status: In(status),
           },
-          order: { deposit_amt_cdn: 'ASC' }
+          order: { deposit_amt_cdn: 'ASC' },
         });
       });
 
@@ -187,7 +187,7 @@ describe('CashDepositService', () => {
 
         const expectedEntities = [
           { id: 1, deposit_amt_cdn: 100 },
-          { id: 2, deposit_amt_cdn: 200 }
+          { id: 2, deposit_amt_cdn: 200 },
         ];
 
         jest
@@ -207,9 +207,9 @@ describe('CashDepositService', () => {
             pt_location_id: location.pt_location_id,
             metadata: { program },
             deposit_date: depositDate,
-            status: In(MatchStatusAll)
+            status: In(MatchStatusAll),
           },
-          order: { deposit_amt_cdn: 'ASC' }
+          order: { deposit_amt_cdn: 'ASC' },
         });
       });
     });
@@ -230,7 +230,7 @@ describe('CashDepositService', () => {
 
       expect([updatedEntities[0], updatedEntities[1]]).toEqual([
         cashDeposits[0],
-        cashDeposits[1]
+        cashDeposits[1],
       ]);
     });
   });
@@ -260,7 +260,7 @@ describe('CashDepositService', () => {
 
       const expectedEntities = [
         { id: 1, deposit_amt_cdn: 100 },
-        { id: 2, deposit_amt_cdn: 200 }
+        { id: 2, deposit_amt_cdn: 200 },
       ];
 
       jest

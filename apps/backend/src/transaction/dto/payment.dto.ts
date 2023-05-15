@@ -69,7 +69,7 @@ export class PaymentDTO {
   @ApiProperty({
     description: 'Channel',
     example: 'in-person',
-    enum: PaymentChannel
+    enum: PaymentChannel,
   })
   @IsString()
   @IsNotEmpty()

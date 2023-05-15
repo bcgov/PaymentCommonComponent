@@ -20,7 +20,7 @@ export class migration2524636800000 implements MigrationInterface {
         method: pm.method,
         description: pm.description,
         sbc_code: parseInt(pm.sbc_code),
-        classification: pm.classification
+        classification: pm.classification,
       });
     });
 

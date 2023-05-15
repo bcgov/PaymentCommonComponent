@@ -33,7 +33,7 @@ import { TransactionModule } from './transaction/transaction.module';
       ignoreEnvFile:
         process.env.RUNTIME_ENV === 'local' || process.env.RUNTIME_ENV === 'ci'
           ? false
-          : true
+          : true,
     }),
     AwsSdkModule.forRoot({
       defaultServiceOptions: {
@@ -42,14 +42,14 @@ import { TransactionModule } from './transaction/transaction.module';
           ? {
               endpoint: process.env.AWS_ENDPOINT || 'http://localhost:9000',
               region: 'ca-central-1',
-              s3ForcePathStyle: true
+              s3ForcePathStyle: true,
             }
-          : {})
+          : {}),
       },
-      services: [S3]
-    })
+      services: [S3],
+    }),
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [AppService],
 })
 export class AppModule {}

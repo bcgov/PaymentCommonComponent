@@ -8,7 +8,7 @@ export class EmptyResponse {
     `,
     example: {},
     nullable: false,
-    required: true
+    required: true,
   })
   // eslint-disable-next-line @typescript-eslint/ban-types
   data!: {};

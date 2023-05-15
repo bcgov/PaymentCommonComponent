@@ -67,7 +67,7 @@ export enum DataType {
   Card = 'Card',
   TransactionCode = 'TransactionCode',
   TransactionType = 'TransactionType',
-  MerchantLocation = 'MerchantLocation'
+  MerchantLocation = 'MerchantLocation',
 }
 
 export const ColumnMetadataKey = Symbol('Column:metadata');

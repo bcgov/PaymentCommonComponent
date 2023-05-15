@@ -41,7 +41,7 @@ export const handler = async (event: parseFlatFileEvent, context?: Context) => {
         type: event.type,
         fileContents: contents?.Body?.toString() || '',
         program: event.program,
-        fileName: event.filename
+        fileName: event.filename,
       }),
       appLogger,
       event?.outputPath ?? undefined

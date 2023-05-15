@@ -12,7 +12,7 @@ test('Transaction Entity Instance', () => {
     source_id: 'SBC',
     location_id: 1,
     migrated: true,
-    source_file_name: 'sbc/SBC_SALES_2023_01_10_18_45_04.JSON'
+    source_file_name: 'sbc/SBC_SALES_2023_01_10_18_45_04.JSON',
   });
 
   expect(transaction).toBeInstanceOf(TransactionEntity);

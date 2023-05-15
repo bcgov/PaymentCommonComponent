@@ -5,7 +5,7 @@ export const parseTDI = ({
   type,
   fileName,
   program,
-  fileContents
+  fileContents,
 }: ParseArgsTDI): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
   const lines = fileContents.split('\n').filter((l: string) => l);
   lines.splice(0, 1);
@@ -39,7 +39,7 @@ export const parseTDI = ({
       source_file_line: index + 1,
       program,
       source_file_name: fileName,
-      source_file_length: lines.length
+      source_file_length: lines.length,
     };
     return item;
   });

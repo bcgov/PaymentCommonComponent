@@ -27,10 +27,10 @@ export class TransactionMock extends TransactionEntity {
     this.transaction_date = dateRange.to_date;
     this.transaction_time = `${faker.datatype.number({
       min: 0,
-      max: 1
+      max: 1,
     })}${faker.datatype.number({
       min: 0,
-      max: 9
+      max: 9,
     })}:00:00`;
     this.total_transaction_amount = payments.reduce(
       (acc: any, payment: PaymentEntity) => (acc += payment.amount),

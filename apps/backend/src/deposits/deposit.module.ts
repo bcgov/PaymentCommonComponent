@@ -9,9 +9,9 @@ import { LocationModule } from '../location/location.module';
 @Module({
   imports: [
     LocationModule,
-    TypeOrmModule.forFeature([POSDepositEntity, CashDepositEntity])
+    TypeOrmModule.forFeature([POSDepositEntity, CashDepositEntity]),
   ],
   providers: [PosDepositService, CashDepositService, Logger],
-  exports: [PosDepositService, CashDepositService, TypeOrmModule]
+  exports: [PosDepositService, CashDepositService, TypeOrmModule],
 })
 export class DepositModule {}

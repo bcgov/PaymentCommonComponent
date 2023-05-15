@@ -33,7 +33,7 @@ describe('Reconciliation Service (e2e)', () => {
   let transService: TransactionService;
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [AppModule]
+      imports: [AppModule],
     }).compile();
 
     app = module.createNestApplication();
@@ -77,7 +77,7 @@ describe('Reconciliation Service (e2e)', () => {
         method: pm.method,
         description: pm.description,
         sbc_code: pm.sbc_code,
-        classification: pm.classification
+        classification: pm.classification,
       });
     });
 
@@ -94,7 +94,7 @@ describe('Reconciliation Service (e2e)', () => {
           join(__dirname, '../fixtures/PROD_SBC_F08TDI17_20230309.DAT'),
           'utf8'
         )
-      ).toString()
+      ).toString(),
     }) as TDI17Details[];
     const entities = parsedTDI17File.map((itm) => new CashDepositEntity(itm));
     await cashDepositService.saveCashDepositEntities(entities);
@@ -110,7 +110,7 @@ describe('Reconciliation Service (e2e)', () => {
           join(__dirname, '../fixtures/PROD_SBC_F08TDI34_20230309.DAT'),
           'utf8'
         )
-      ).toString()
+      ).toString(),
     }) as TDI34Details[];
     const tdi34Entities = parsedTDI34File.map(
       (itm) => new POSDepositEntity(itm)

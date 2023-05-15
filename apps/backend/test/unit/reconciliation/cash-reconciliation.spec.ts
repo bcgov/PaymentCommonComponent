@@ -29,7 +29,7 @@ describe('CashReconciliationService', () => {
   let spy: jest.SpyInstance;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [CashReconciliationService]
+      providers: [CashReconciliationService],
     })
       .useMocker(createMock)
       .compile();

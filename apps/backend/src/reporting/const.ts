@@ -6,7 +6,7 @@ export const dailySummaryColumns = [
   { header: 'Total Payments', key: 'total_payments' },
   { header: 'Total Unmatched', key: 'total_unmatched_payments' },
   { header: '% Unmatched', key: 'percent_unmatched' },
-  { header: 'Sum Of Payments', key: 'total_sum' }
+  { header: 'Sum Of Payments', key: 'total_sum' },
 ];
 
 export const detailedReportColumns = [
@@ -38,12 +38,12 @@ export const detailedReportColumns = [
   { header: 'Dist Stob Code', key: 'dist_stob_code' },
   { header: 'Dist Project Code', key: 'dist_project_code' },
   { header: 'Dist Location Code', key: 'dist_location_code' },
-  { header: 'Dist Future Code', key: 'dist_future_code' }
+  { header: 'Dist Future Code', key: 'dist_future_code' },
 ];
 export enum Report {
   DAILY_SUMMARY = 'Daily Summary',
   DETAILED_REPORT = 'Reconciliation Details',
-  CAS_REPORT = 'CAS Comparison'
+  CAS_REPORT = 'CAS Comparison',
 }
 
 export const casReportColumns = [
@@ -56,5 +56,5 @@ export const casReportColumns = [
   { header: 'Dist Resp Code', key: 'dist_resp_code' },
   { header: 'Dist Stob Code', key: 'dist_stob_code' },
   { header: 'Dist Service Line Code', key: 'dist_service_line_code' },
-  { header: 'Dist Project Code', key: 'dist_project_code' }
+  { header: 'Dist Project Code', key: 'dist_project_code' },
 ];

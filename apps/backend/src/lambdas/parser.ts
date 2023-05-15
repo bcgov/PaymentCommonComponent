@@ -133,7 +133,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           type: fileType,
           fileName: filename,
           program: ministry,
-          fileContents: Buffer.from(file.Body?.toString() || '').toString()
+          fileContents: Buffer.from(file.Body?.toString() || '').toString(),
         });
 
         if (fileType === FileTypes.TDI34) {

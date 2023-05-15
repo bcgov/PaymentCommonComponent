@@ -7,6 +7,6 @@ import { TransactionModule } from '../transaction/transaction.module';
 @Module({
   imports: [DepositModule, TransactionModule, LocationModule],
   providers: [ExceptionService, Logger],
-  exports: [ExceptionService]
+  exports: [ExceptionService],
 })
 export class ExceptionModule {}

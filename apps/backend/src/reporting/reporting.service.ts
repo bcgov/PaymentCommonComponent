@@ -7,7 +7,7 @@ import {
   dailySummaryColumns,
   detailedReportColumns,
   Report,
-  casReportColumns
+  casReportColumns,
 } from './const';
 import { DetailedReportService } from './details-report.service';
 import { DailySummary, ReportConfig } from './interfaces';
@@ -84,7 +84,7 @@ export class ReportingService {
 
     const dateRange = {
       from_date: format(from_date, 'yyyy-MM-dd'),
-      to_date: format(to_date, 'yyyy-MM-dd')
+      to_date: format(to_date, 'yyyy-MM-dd'),
     };
     this.appLogger.log(
       `Generating cas report for: ${format(from_date, 'yyyy-MM-dd')}-${format(
@@ -123,12 +123,12 @@ export class ReportingService {
     const filterOptions = {
       from: {
         column: 1,
-        row: 2
+        row: 2,
       },
       to: {
         column: casReportColumns.length,
-        row: details.length + 1
-      }
+        row: details.length + 1,
+      },
     };
 
     this.excelWorkbook.addFilterOptions(Report.CAS_REPORT, filterOptions);
@@ -136,7 +136,7 @@ export class ReportingService {
       'F',
       'H',
       'I',
-      'J'
+      'J',
     ]);
   }
   /**
@@ -161,7 +161,7 @@ export class ReportingService {
       .filter((itm) => itm.deposit_amt_cdn.toString() !== '0.00')
       .map((itm) => ({
         deposit_date: itm.deposit_date,
-        deposit_amt_cdn: itm.deposit_amt_cdn
+        deposit_amt_cdn: itm.deposit_amt_cdn,
       }));
 
     const posDeposits: POSDepositEntity[] =
@@ -179,7 +179,7 @@ export class ReportingService {
             location,
             payment_method,
             settlement_date,
-            amount: parseFloat(transaction_amt.toString())
+            amount: parseFloat(transaction_amt.toString()),
           })
       );
 
@@ -189,7 +189,7 @@ export class ReportingService {
           location,
           payment_method: 'CASH DEPOSIT',
           settlement_date: itm.deposit_date,
-          amount: itm.deposit_amt_cdn
+          amount: itm.deposit_amt_cdn,
         })
     );
 
@@ -255,12 +255,12 @@ export class ReportingService {
     const filterOptions = {
       from: {
         column: 1,
-        row: 2
+        row: 2,
       },
       to: {
         column: detailedReportColumns.length,
-        row: data.length + 1
-      }
+        row: data.length + 1,
+      },
     };
 
     this.excelWorkbook.addFilterOptions(Report.DETAILED_REPORT, filterOptions);
@@ -317,12 +317,12 @@ export class ReportingService {
     const filterOptions = {
       from: {
         column: 1,
-        row: 2
+        row: 2,
       },
       to: {
         column: dailySummaryColumns.length,
-        row: dailySummaryReport.length
-      }
+        row: dailySummaryReport.length,
+      },
     };
 
     this.excelWorkbook.addFilterOptions(Report.DAILY_SUMMARY, filterOptions);
@@ -367,9 +367,9 @@ export class ReportingService {
         total_payments: total,
         total_unmatched_payments: exceptions,
         percent_unmatched: unmatchedPercentage,
-        total_sum: parseFloat(totalSum.toFixed(2))
+        total_sum: parseFloat(totalSum.toFixed(2)),
       },
-      style: rowStyle(exceptions !== 0)
+      style: rowStyle(exceptions !== 0),
     };
   }
 

@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType
+  DataType,
 } from '../../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord
+  IFixedWidthRecord,
 } from '../../common/entities/FixedWidthRecord';
 
 export interface IDDFDetails extends IFixedWidthRecord<IDDFDetails> {
@@ -53,7 +53,7 @@ export class DDFDetails
     start: 0,
     width: 1,
     format: { type: DataType.Integer },
-    example: 2
+    example: 2,
   })
   public get rcd_type() {
     return this.resource.rcd_type;
@@ -65,7 +65,7 @@ export class DDFDetails
 
   @Column({
     start: 1,
-    width: 8
+    width: 8,
   })
   public get merchant_no() {
     return this.resource.merchant_no;
@@ -97,7 +97,7 @@ export class DDFDetails
     start: 26,
     width: 2,
     example: 'V ',
-    format: { type: DataType.Card }
+    format: { type: DataType.Card },
   })
   public get card_vendor() {
     return this.resource.card_vendor;
@@ -120,7 +120,7 @@ export class DDFDetails
     start: 47,
     width: 8,
     example: '20220404',
-    format: { type: DataType.Date }
+    format: { type: DataType.Date },
   })
   public get transaction_date() {
     return this.resource.transaction_date;
@@ -134,7 +134,7 @@ export class DDFDetails
     start: 55,
     width: 4,
     example: '1539',
-    format: { type: DataType.Time }
+    format: { type: DataType.Time },
   })
   public get transaction_time() {
     return this.resource.transaction_time;
@@ -148,7 +148,7 @@ export class DDFDetails
     start: 59,
     width: 8,
     example: '20220405',
-    format: { type: DataType.Date }
+    format: { type: DataType.Date },
   })
   public get settlement_date() {
     return this.resource.settlement_date;
@@ -162,7 +162,7 @@ export class DDFDetails
     start: 67,
     width: 2,
     example: '10',
-    format: { type: DataType.TransactionCode }
+    format: { type: DataType.TransactionCode },
   })
   public get transaction_code() {
     return this.resource.transaction_code;
@@ -204,7 +204,7 @@ export class DDFDetails
   }
   @Column({
     start: 80,
-    width: 9
+    width: 9,
   })
   public set transaction_amount(data) {
     this.resource.transaction_amount = data;

@@ -52,7 +52,7 @@ export class ExcelExportService {
               Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
               Body: stream,
               ContentType:
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
             })
             .promise();
         })

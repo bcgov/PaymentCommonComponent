@@ -12,8 +12,8 @@ import { TransactionModule } from '../transaction/transaction.module';
     CashReconciliationService,
     POSReconciliationService,
     Logger,
-    CashExceptionsService
+    CashExceptionsService,
   ],
-  exports: []
+  exports: [],
 })
 export class ReconciliationModule {}

@@ -1,11 +1,11 @@
 import { TransactionCode } from '../../common/const';
 import {
   Column,
-  DataType
+  DataType,
 } from '../../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord
+  IFixedWidthRecord,
 } from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
@@ -122,7 +122,7 @@ export class TDI34Details
   @Column({
     start: 59,
     width: 8,
-    format: { type: DataType.Date }
+    format: { type: DataType.Date },
   })
   public get settlement_date() {
     return this.resource.settlement_date;
@@ -161,7 +161,7 @@ export class TDI34Details
 
   @Column({
     start: 78,
-    width: 2
+    width: 2,
   })
   public get fill3() {
     return this.resource.fill3;

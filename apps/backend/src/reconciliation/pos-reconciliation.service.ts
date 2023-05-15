@@ -110,13 +110,13 @@ export class POSReconciliationService {
               ...payment,
               status: MatchStatus.MATCH,
               timestamp: payment.timestamp,
-              pos_deposit_match: deposit
+              pos_deposit_match: deposit,
             },
             deposit: {
               ...deposit,
               status: MatchStatus.MATCH,
-              timestamp: deposit.timestamp
-            }
+              timestamp: deposit.timestamp,
+            },
           });
           break;
         }
@@ -152,7 +152,7 @@ export class POSReconciliationService {
 
     if (pendingPayments.length === 0 && pendingDeposits.length === 0) {
       return {
-        message: 'No pending payments or deposits found'
+        message: 'No pending payments or deposits found',
       };
     }
 
@@ -213,7 +213,7 @@ export class POSReconciliationService {
           .map((itm) => ({
             ...itm,
             timestamp: itm.timestamp,
-            status: MatchStatus.EXCEPTION
+            status: MatchStatus.EXCEPTION,
           }))
       )
     );
@@ -224,7 +224,7 @@ export class POSReconciliationService {
           .map((itm) => ({
             ...itm,
             timestamp: itm.timestamp,
-            status: MatchStatus.EXCEPTION
+            status: MatchStatus.EXCEPTION,
           }))
       )
     );
@@ -238,7 +238,7 @@ export class POSReconciliationService {
       total_matched_payments: paymentsMatched.length,
       total_matched_deposits: depositsMatched.length,
       total_payment_exceptions: paymentExceptions.length,
-      total_deposit_exceptions: depositExcpetions.length
+      total_deposit_exceptions: depositExcpetions.length,
     };
   }
 }

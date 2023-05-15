@@ -5,12 +5,12 @@ import { PaymentMethodEntity } from '../../transaction/entities/payment-method.e
 import {
   SBCGarmsDistribution,
   SBCGarmsJson,
-  SBCGarmsPayment
+  SBCGarmsPayment,
 } from '../../transaction/interface';
 import {
   AccountingItem,
   Distribution,
-  Transaction
+  Transaction,
 } from '../../transaction/interface/transaction.interface';
 
 /**
@@ -28,7 +28,7 @@ export const parseGarms = async (
 ): Promise<TransactionEntity[]> => {
   const garmsData = garmsJson.map((itm) => ({
     ...itm,
-    payments: itm.payments.filter((payment) => payment.amount !== 0)
+    payments: itm.payments.filter((payment) => payment.amount !== 0),
   }));
   const parsedGarms = garmsData.map(
     ({
@@ -40,7 +40,7 @@ export const parseGarms = async (
       payments,
       source,
       misc,
-      distributions
+      distributions,
     }): TransactionEntity =>
       new TransactionEntity({
         source_id: Ministries.SBC,
@@ -71,12 +71,12 @@ export const parseGarms = async (
           ),
           void_indicator: void_indicator !== ' ' ? true : false,
           misc: {
-            ...misc
+            ...misc,
           },
           source: {
             location_id: source?.location_id,
             source_id: source?.source_id,
-            accepted_payment_methods: source?.accepted_payment_methods ?? []
+            accepted_payment_methods: source?.accepted_payment_methods ?? [],
           },
           accounting: Object.values(distributions)?.[0].map(
             (itm: SBCGarmsDistribution) =>
@@ -84,14 +84,14 @@ export const parseGarms = async (
                 sequence: itm.line_number,
                 details: {
                   description: itm.line_description,
-                  code: itm.dist_client_code
+                  code: itm.dist_client_code,
                 },
                 distributions: Object.values(distributions)?.[0].map(
                   (itm) => new Distribution(itm)
-                )
+                ),
               } as AccountingItem)
-          )
-        })
+          ),
+        }),
       })
   );
   return parsedGarms;
@@ -117,5 +117,5 @@ const parseSBCGarmsPayments = (
               2
             )
           )
-        : parseFloat(garmsPayment.amount?.toFixed(2))
+        : parseFloat(garmsPayment.amount?.toFixed(2)),
   });

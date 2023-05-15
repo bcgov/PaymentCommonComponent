@@ -36,21 +36,21 @@ export class PosDepositService {
       where: {
         transaction_date: date,
         metadata: {
-          program: program
+          program: program,
         },
         status: depositStatus,
-        merchant_id: In(merchant_ids)
+        merchant_id: In(merchant_ids),
       },
       relations: {
-        payment_method: true
+        payment_method: true,
       },
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
       order: {
         transaction_amt: 'ASC',
         payment_method: { method: 'ASC' },
-        transaction_time: 'ASC'
-      }
+        transaction_time: 'ASC',
+      },
     });
   }
 
@@ -92,7 +92,7 @@ export class PosDepositService {
         (alias) =>
           `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
         { from_date, to_date }
-      )
+      ),
     });
 
     qb.groupBy('settlement_date');
@@ -102,13 +102,13 @@ export class PosDepositService {
     qb.orderBy({
       settlement_date: 'ASC',
       transaction_amt: 'ASC',
-      terminal_no: 'ASC'
+      terminal_no: 'ASC',
     });
 
     const deposits = await qb.getRawMany();
     return deposits.map((d) => ({
       ...d,
-      settlement_date: format(new Date(d.settlement_date), 'yyyy-MM-dd')
+      settlement_date: format(new Date(d.settlement_date), 'yyyy-MM-dd'),
     }));
   }
   async savePOSDepositEntities(

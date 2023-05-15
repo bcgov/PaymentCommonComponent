@@ -6,7 +6,7 @@ import { LocationEntity } from '../location/entities';
 import {
   TransactionEntity,
   PaymentEntity,
-  PaymentMethodEntity
+  PaymentMethodEntity,
 } from '../transaction/entities/index';
 
 export default new DataSource({
@@ -22,10 +22,10 @@ export default new DataSource({
     TransactionEntity,
     POSDepositEntity,
     CashDepositEntity,
-    LocationEntity
+    LocationEntity,
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   synchronize: false,
   logging: logLevels,
-  logger: dbLogger
+  logger: dbLogger,
 });

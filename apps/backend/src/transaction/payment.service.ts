@@ -27,20 +27,20 @@ export class PaymentService {
       where: {
         transaction: {
           transaction_date: date,
-          location_id: location.location_id
+          location_id: location.location_id,
         },
         status: paymentStatus,
-        payment_method: { classification: PaymentMethodClassification.POS }
+        payment_method: { classification: PaymentMethodClassification.POS },
       },
       relations: {
         payment_method: true,
-        transaction: true
+        transaction: true,
       },
       order: {
         amount: 'ASC',
         payment_method: { method: 'ASC' },
-        transaction: { transaction_time: 'ASC' }
-      }
+        transaction: { transaction_time: 'ASC' },
+      },
     });
   }
 
@@ -54,7 +54,7 @@ export class PaymentService {
             status: payment.status,
             fiscal_close_date: payment.transaction.fiscal_close_date,
             amount: 0,
-            payments: []
+            payments: [],
           };
         }
         //TODO  I think we need to set the db precision to 2 decimal places to avoid this extra formatting??
@@ -78,20 +78,20 @@ export class PaymentService {
       select: {
         amount: true,
         payment_method: {
-          method: true
+          method: true,
         },
         status: true,
         transaction: {
           transaction_date: true,
-          location_id: true
-        }
+          location_id: true,
+        },
       },
       where: {
         transaction: {
           location_id: location.location_id,
-          transaction_date: date
-        }
-      }
+          transaction_date: date,
+        },
+      },
     });
   }
   /**
@@ -118,16 +118,16 @@ export class PaymentService {
             (alias) => `${alias} >= :from_date AND ${alias} <= :to_date`,
             {
               from_date: from_date,
-              to_date: to_date
+              to_date: to_date,
             }
-          )
-        }
+          ),
+        },
       },
       relations: { transaction: true, payment_method: true },
       order: {
         transaction: { fiscal_close_date: 'ASC' },
-        amount: 'ASC'
-      }
+        amount: 'ASC',
+      },
     });
 
     return payments;
@@ -154,13 +154,13 @@ export class PaymentService {
         status: MatchStatus.IN_PROGRESS,
         transaction: {
           location_id: location.location_id,
-          fiscal_close_date: LessThanOrEqual(pastDueDepositDate)
-        }
+          fiscal_close_date: LessThanOrEqual(pastDueDepositDate),
+        },
       },
       relations: {
         transaction: true,
-        payment_method: true
-      }
+        payment_method: true,
+      },
     });
   }
 

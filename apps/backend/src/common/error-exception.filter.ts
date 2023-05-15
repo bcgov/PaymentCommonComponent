@@ -6,7 +6,7 @@ import {
   HttpException,
   HttpStatus,
   Logger,
-  Inject
+  Inject,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { CommonError } from './common.errors';
@@ -36,7 +36,7 @@ export class ErrorExceptionFilter implements ExceptionFilter {
         (exception as any)?.response?.message ||
         CommonError.INTERNAL_ERROR.errorMessage,
 
-      errorDetails: {}
+      errorDetails: {},
     };
   }
 
