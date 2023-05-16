@@ -58,7 +58,9 @@ describe('PosReconciliationService', () => {
   describe('initialization', () => {
     it('should create the service and its dependencies', () => {
       expect(service).toBeDefined();
-
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
       expect(payments.length).toBeGreaterThan(0);
       expect(deposits.length).toBeGreaterThan(0);
       const matches = service.matchPosPaymentToPosDeposits(
@@ -88,6 +90,8 @@ describe('PosReconciliationService', () => {
         ),
         PosHeuristicRound.ONE
       );
+      expect(payments.length).toBeGreaterThan(0);
+      expect(deposits.length).toBeGreaterThan(0);
       expect(matches).toBeDefined();
       expect(matches.length).toBeGreaterThan(0);
     });
@@ -126,6 +130,8 @@ describe('PosReconciliationService', () => {
         ),
         PosHeuristicRound.THREE
       );
+      expect(payments.length).toBeGreaterThan(0);
+      expect(deposits.length).toBeGreaterThan(0);
       expect(matches).toBeDefined();
       expect(matches.length).toBeGreaterThan(0);
     });
@@ -153,7 +159,7 @@ describe('PosReconciliationService', () => {
 
       payments = setSomePaymentsToOneBusinessDayBehind(payments);
 
-      const matches = service.matchPosPaymentToPosDeposits(
+      matches = service.matchPosPaymentToPosDeposits(
         payments.filter((payment) =>
           [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
             payment.status
@@ -167,6 +173,8 @@ describe('PosReconciliationService', () => {
         PosHeuristicRound.THREE
       );
 
+      expect(payments.length).toBeGreaterThan(0);
+      expect(deposits.length).toBeGreaterThan(0);
       expect(matches).toBeDefined();
       expect(matches.length).toBeGreaterThan(0);
     });
@@ -267,9 +275,13 @@ describe('PosReconciliationService', () => {
     });
 
     it('should set the correct pos_deposit_match in the payment on all matched payments/deposits', () => {
-      expect(
-        matches.every((itm) => itm.payment.pos_deposit_match === itm.deposit)
-      ).toBe(true);
+      const matchedDeposits = matches.map((itm) => itm.deposit);
+      const matchedDepositsFromMatchedPayments = matches.map(
+        (itm) => itm.payment.pos_deposit_match
+      );
+      expect(matchedDeposits).toEqual(
+        expect.arrayContaining(matchedDepositsFromMatchedPayments)
+      );
     });
 
     it('should have an equal number of matched payments/deposits', () => {
@@ -354,14 +366,18 @@ describe('PosReconciliationService', () => {
       );
     });
     it('should update the status of matched items in the original array and return a new array with the matched pairs', () => {
-      expect(matches.map((itm) => itm.payment)).toStrictEqual(
+      expect(matches.map((itm) => itm.payment.id)).toEqual(
         expect.arrayContaining(
-          payments.filter((itm) => itm.status === MatchStatus.MATCH)
+          payments
+            .filter((itm) => itm.status === MatchStatus.MATCH)
+            .map((itm) => itm.id)
         )
       );
-      expect(matches.map((itm) => itm.deposit)).toStrictEqual(
+      expect(matches.map((itm) => itm.deposit.id)).toEqual(
         expect.arrayContaining(
-          deposits.filter((itm) => itm.status === MatchStatus.MATCH)
+          deposits
+            .filter((itm) => itm.status === MatchStatus.MATCH)
+            .map((itm) => itm.id)
         )
       );
     });

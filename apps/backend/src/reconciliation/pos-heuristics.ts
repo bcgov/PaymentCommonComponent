@@ -7,21 +7,6 @@ import { PaymentEntity } from '../transaction/entities/payment.entity';
 
 @Injectable()
 export class PosMatchHeuristics {
-  public verifyTimeMatch(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity,
-    timeDiff: number
-  ): boolean {
-    return differenceInMinutes(payment.timestamp, deposit.timestamp) < timeDiff;
-  }
-
-  public lookBackOneBusinessDay(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
-  ): boolean {
-    return differenceInBusinessDays(payment.timestamp, deposit.timestamp) <= 2;
-  }
-
   public verifyMethod(
     payment: PaymentEntity,
     deposit: POSDepositEntity
@@ -62,20 +47,21 @@ export class PosMatchHeuristics {
     round: PosHeuristicRound
   ): boolean {
     switch (round) {
-      case PosHeuristicRound.TWO:
-        return (
-          this.verifyMatch(payment, deposit) &&
-          this.verifyTimeMatch(payment, deposit, PosTimeMatch.ROUND_TWO)
-        );
       case PosHeuristicRound.ONE:
         return (
           this.verifyMatch(payment, deposit) &&
-          this.verifyTimeMatch(payment, deposit, PosTimeMatch.ROUND_ONE)
+          differenceInMinutes(payment.timestamp, deposit.timestamp) <=
+            PosTimeMatch.ROUND_ONE
+        );
+      case PosHeuristicRound.TWO:
+        return (
+          this.verifyMatch(payment, deposit) &&
+          payment.transaction.transaction_date === deposit.transaction_date
         );
       case PosHeuristicRound.THREE:
         return (
           this.verifyMatch(payment, deposit) &&
-          this.lookBackOneBusinessDay(payment, deposit)
+          differenceInBusinessDays(payment.timestamp, deposit.timestamp) < 2
         );
       default:
         return false;

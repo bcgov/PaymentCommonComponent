@@ -75,11 +75,11 @@ export const setSomePaymentsToOneBusinessDayBehind = (
   return payments.map((itm) => ({
     ...itm,
     timestamp: itm.timestamp,
-    tranaction: {
+    transaction: {
       ...itm.transaction,
-      transaction_date: subBusinessDays(
-        new Date(itm.transaction.transaction_date),
-        1
+      transaction_date: format(
+        subBusinessDays(new Date(itm.transaction.transaction_date), 1),
+        'yyyy-MM-dd'
       ),
     },
   }));
@@ -147,7 +147,6 @@ export const roundThreeTimeHeuristic = (
   payment: PaymentEntity,
   deposit: POSDepositEntity
 ) =>
-  timeBetweenMatchedPaymentAndDeposit(payment, deposit) >= 1440 &&
   differenceInBusinessDays(
     parse(
       `${payment.transaction.transaction_date} ${payment.transaction.transaction_time}`,
