@@ -15,7 +15,7 @@ test('Location Entity Instance', () => {
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591041
+    merchant_id: 23591041,
   });
   expect(location).toBeInstanceOf(LocationEntity);
 });

@@ -8,12 +8,12 @@ import { TransactionService } from '../../../src/transaction/transaction.service
 describe('TransactionService', () => {
   let service: TransactionService;
   const mockedRepo = {
-    findOneOrFail: jest.fn(() => Promise.resolve({}))
+    findOneOrFail: jest.fn(() => Promise.resolve({})),
   };
 
   const mockedPaymentService = {
     // mock the query method that is used
-    query: jest.fn(() => Promise.resolve({}))
+    query: jest.fn(() => Promise.resolve({})),
   };
 
   beforeEach(async () => {
@@ -23,13 +23,13 @@ describe('TransactionService', () => {
         Logger,
         {
           provide: getRepositoryToken(TransactionEntity),
-          useValue: mockedRepo
+          useValue: mockedRepo,
         },
         {
           provide: PaymentService,
-          useValue: mockedPaymentService
-        }
-      ]
+          useValue: mockedPaymentService,
+        },
+      ],
     }).compile();
 
     service = module.get<TransactionService>(TransactionService);

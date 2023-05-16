@@ -1,6 +1,6 @@
 import {
   FixedWidthRecord,
-  IFixedWidthRecord
+  IFixedWidthRecord,
 } from '../../../src/common/entities/FixedWidthRecord';
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 describe('FixedWidthRecord', () => {

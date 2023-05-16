@@ -8,7 +8,7 @@ describe('ExcelExportService', () => {
 
   const s3ServiceMock = {
     // mock the query method that is used
-    query: jest.fn(() => Promise.resolve({}))
+    query: jest.fn(() => Promise.resolve({})),
   };
 
   beforeEach(async () => {
@@ -18,9 +18,9 @@ describe('ExcelExportService', () => {
         Logger,
         {
           provide: S3ManagerService,
-          useValue: s3ServiceMock
-        }
-      ]
+          useValue: s3ServiceMock,
+        },
+      ],
     }).compile();
 
     service = module.get<ExcelExportService>(ExcelExportService);

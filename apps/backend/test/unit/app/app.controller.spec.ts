@@ -8,7 +8,7 @@ describe('AppController', () => {
   beforeEach(async () => {
     const app: TestingModule = await Test.createTestingModule({
       controllers: [AppController],
-      providers: [AppService]
+      providers: [AppService],
     }).compile();
 
     appController = app.get<AppController>(AppController);
@@ -19,7 +19,7 @@ describe('AppController', () => {
       expect(appController.getVersion()).toStrictEqual({
         buildId: 'NA',
         info: 'NA',
-        env: 'NA'
+        env: 'NA',
       });
     });
   });

@@ -9,7 +9,7 @@ describe('TransactionController', () => {
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TransactionController],
-      providers: [Logger, { provide: TransactionService, useValue: jest.fn() }]
+      providers: [Logger, { provide: TransactionService, useValue: jest.fn() }],
     }).compile();
 
     controller = module.get<TransactionController>(TransactionController);

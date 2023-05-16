@@ -19,10 +19,10 @@ describe('ReportingService', () => {
   let service: ReportingService;
 
   const mockedRepo = {
-    findOneOrFail: jest.fn(() => Promise.resolve({}))
+    findOneOrFail: jest.fn(() => Promise.resolve({})),
   };
   const s3ServiceMock = {
-    query: jest.fn(() => Promise.resolve({}))
+    query: jest.fn(() => Promise.resolve({})),
   };
 
   beforeEach(async () => {
@@ -39,29 +39,29 @@ describe('ReportingService', () => {
         Logger,
         {
           provide: S3ManagerService,
-          useValue: s3ServiceMock
+          useValue: s3ServiceMock,
         },
         {
           provide: getRepositoryToken(CashDepositEntity),
-          useValue: mockedRepo
+          useValue: mockedRepo,
         },
         {
           provide: getRepositoryToken(POSDepositEntity),
-          useValue: mockedRepo
+          useValue: mockedRepo,
         },
         {
           provide: getRepositoryToken(PaymentEntity),
-          useValue: mockedRepo
+          useValue: mockedRepo,
         },
         {
           provide: getRepositoryToken(PaymentMethodEntity),
-          useValue: mockedRepo
+          useValue: mockedRepo,
         },
         {
           provide: getRepositoryToken(LocationEntity),
-          useValue: mockedRepo
-        }
-      ]
+          useValue: mockedRepo,
+        },
+      ],
     }).compile();
 
     service = module.get<ReportingService>(ReportingService);

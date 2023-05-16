@@ -4,7 +4,7 @@ import {
   APIGatewayProxyResult,
   Context,
   Callback,
-  Handler
+  Handler,
 } from 'aws-lambda';
 import { createNestApp } from './app.config';
 

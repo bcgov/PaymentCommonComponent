@@ -3,7 +3,7 @@ import {
   OneToMany,
   Column,
   Entity,
-  PrimaryGeneratedColumn
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 import { FileMetadata } from '../../common/columns/metadata';
 import { MatchStatus } from '../../common/const';
@@ -45,7 +45,7 @@ export class CashDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer()
+    transformer: new ColumnNumericTransformer(),
   })
   deposit_amt_curr: number;
 
@@ -56,7 +56,7 @@ export class CashDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer()
+    transformer: new ColumnNumericTransformer(),
   })
   exchange_adj_amt: number;
 
@@ -64,7 +64,7 @@ export class CashDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer()
+    transformer: new ColumnNumericTransformer(),
   })
   deposit_amt_cdn: number;
 
@@ -84,7 +84,7 @@ export class CashDepositEntity {
   status: MatchStatus;
 
   @OneToMany(() => PaymentEntity, (payment) => payment.cash_deposit_match, {
-    nullable: true
+    nullable: true,
   })
   payment_match?: Relation<PaymentEntity[]>;
 

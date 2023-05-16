@@ -1,3 +1,3 @@
 export enum LocationEnum {
-  Bank = 'Bank'
+  Bank = 'Bank',
 }

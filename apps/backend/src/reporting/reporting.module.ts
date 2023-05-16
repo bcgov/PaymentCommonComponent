@@ -13,9 +13,9 @@ import { TransactionModule } from '../transaction/transaction.module';
     LocationModule,
     ExcelExportModule,
     DepositModule,
-    TransactionModule
+    TransactionModule,
   ],
   providers: [ReportingService, DetailedReportService, Logger],
-  exports: [ReportingService]
+  exports: [ReportingService],
 })
 export class ReportingModule {}

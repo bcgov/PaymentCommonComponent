@@ -4,7 +4,7 @@ import {
   IsString,
   Length,
   IsNumber,
-  IsNumberString
+  IsNumberString,
 } from 'class-validator';
 
 /* 
@@ -16,7 +16,7 @@ export class GlDTO {
   @ApiProperty({
     description:
       '3 character Client Number - the legal entity (Ministry, Trust, Special Account, Special Fund) and the balancing segment in the General Ledger.',
-    example: '130'
+    example: '130',
   })
   @IsString()
   @IsNotEmpty()
@@ -26,7 +26,7 @@ export class GlDTO {
   @ApiProperty({
     description:
       '5 Character Responsibility Centre - identifies how the ministry has assigned responsibility and accountability to manage human, financial and capital resources.',
-    example: '29KGT'
+    example: '29KGT',
   })
   @IsString()
   @IsNotEmpty()
@@ -36,7 +36,7 @@ export class GlDTO {
   @ApiProperty({
     description:
       '5 Character Service Line Code -  identifies the ministry program or service at the lowest functional level desired.',
-    example: '38513'
+    example: '38513',
   })
   @IsString()
   @IsNotEmpty()
@@ -46,7 +46,7 @@ export class GlDTO {
   @ApiProperty({
     description:
       '4 Character STOB (Standard Object of Expenditure) -  identifies the nature of goods and services purchased (office supplies, salaries) and the nature of payment (government transfers). Also used to classify transactions according to common characteristics such as expenses, revenue, assets, liabilities and equity.',
-    example: '4303'
+    example: '4303',
   })
   @IsString()
   @IsNotEmpty()
@@ -56,7 +56,7 @@ export class GlDTO {
   @ApiProperty({
     description:
       '7 Character Project Code - identifies projects or additional activity detail as defined by ministries or agencies',
-    example: '29KGT'
+    example: '29KGT',
   })
   @IsString()
   @IsNotEmpty()
@@ -66,7 +66,7 @@ export class GlDTO {
   @ApiProperty({
     description:
       ' 6 Character Location Code - (not yet implemented) defines where (the location) the benefit was received as a result of the transaction.',
-    example: '000000'
+    example: '000000',
   })
   @IsString()
   @IsNotEmpty()
@@ -76,7 +76,7 @@ export class GlDTO {
   @ApiProperty({
     description:
       '5 Character Future Code -  (not yet implemented) segment reserved for future business.',
-    example: '0000'
+    example: '0000',
   })
   @IsString()
   @IsNotEmpty()
@@ -86,7 +86,7 @@ export class GlDTO {
   // Supplier Code
   @ApiProperty({
     description: 'Free text description of the distribution',
-    example: 'lorem ipsum dolor sit amet'
+    example: 'lorem ipsum dolor sit amet',
   })
   @IsString()
   @Length(6, 9)
@@ -96,7 +96,7 @@ export class GlDTO {
 export class DistributionDTO {
   @ApiProperty({ description: 'Line Number', example: '00001' })
   @IsNumberString({
-    no_symbols: true
+    no_symbols: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -117,7 +117,7 @@ export class DistributionDTO {
   @ApiProperty({
     description: 'Disbursment GL Account',
     example: 'Disbursment GL Account',
-    type: GlDTO
+    type: GlDTO,
   })
   @IsNotEmpty()
   disbursment_gl_account!: GlDTO;
@@ -125,7 +125,7 @@ export class DistributionDTO {
   @ApiProperty({
     description: 'Revenue GL Account',
     example: 'Revenue GL Account',
-    type: GlDTO
+    type: GlDTO,
   })
   @IsNotEmpty()
   revenue_gl_account!: GlDTO;
@@ -135,10 +135,10 @@ export class AccountingDTO {
   @ApiProperty({
     description:
       'Sequential numbers representing an item of sale / service or equivalent',
-    example: '00001'
+    example: '00001',
   })
   @IsNumberString({
-    no_symbols: true
+    no_symbols: true,
   })
   @IsString()
   @IsNotEmpty()
@@ -146,13 +146,13 @@ export class AccountingDTO {
   sequence!: string;
 
   @ApiProperty({
-    description: 'Details'
+    description: 'Details',
   })
   @IsNotEmpty()
   details!: unknown[];
 
   @ApiProperty({
-    description: 'Distributions'
+    description: 'Distributions',
   })
   @IsNotEmpty()
   distributions!: DistributionDTO[];

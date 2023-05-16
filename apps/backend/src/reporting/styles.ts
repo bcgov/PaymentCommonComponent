@@ -8,15 +8,15 @@ export const fontStyle: Partial<Excel.Font> = {
   family: 2,
   size: 12,
   italic: false,
-  bold: false
+  bold: false,
 };
 
 export const titleStyle: Partial<Excel.Style> = {
   font: {
     ...fontStyle,
     size: 16,
-    bold: true
-  }
+    bold: true,
+  },
 };
 
 export const placement = (mergeRange: string): Placement => {
@@ -24,18 +24,18 @@ export const placement = (mergeRange: string): Placement => {
     row: 1,
     column: 'A1',
     height: 40,
-    merge: mergeRange
+    merge: mergeRange,
   };
 };
 
 export const columnStyle: Partial<Excel.Style> = {
   font: {
     ...fontStyle,
-    bold: true
-  }
+    bold: true,
+  },
 };
 export const rowCommonStyle: Partial<Excel.Style> = {
-  font: { ...fontStyle }
+  font: { ...fontStyle },
 };
 
 export const rowStyle = (exceptions?: boolean): Partial<Excel.Style> => {
@@ -44,9 +44,9 @@ export const rowStyle = (exceptions?: boolean): Partial<Excel.Style> => {
       fill: {
         type: 'pattern',
         pattern: 'solid',
-        fgColor: { argb: '1AE78587' }
+        fgColor: { argb: '1AE78587' },
       },
-      font: { ...fontStyle }
+      font: { ...fontStyle },
     };
   }
   return rowCommonStyle;

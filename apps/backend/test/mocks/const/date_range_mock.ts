@@ -12,6 +12,6 @@ export const generateDateRange = (): DateRanges => {
   return {
     pastDueDate: format(faker.date.recent(5, from_date), 'yyyy-MM-dd'),
     to_date,
-    from_date
+    from_date,
   };
 };

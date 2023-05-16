@@ -45,7 +45,7 @@ export class CashExceptionsService {
         payments.map((itm) => ({
           ...itm,
           timestamp: itm.timestamp,
-          status: MatchStatus.EXCEPTION
+          status: MatchStatus.EXCEPTION,
         }))
       );
 
@@ -53,13 +53,13 @@ export class CashExceptionsService {
       await this.cashDepositService.updateDeposits(
         deposits.map((itm) => ({
           ...itm,
-          status: MatchStatus.EXCEPTION
+          status: MatchStatus.EXCEPTION,
         }))
       );
 
     return {
       payments: paymentExceptions?.length ?? 0,
-      deposits: depositExceptions?.length ?? 0
+      deposits: depositExceptions?.length ?? 0,
     };
   }
 }

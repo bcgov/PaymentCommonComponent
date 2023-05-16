@@ -82,7 +82,7 @@ const runPosReconciliation = async (
   for (const location of locations) {
     const dates: Date[] = eachDayOfInterval({
       start: new Date(event.period.from),
-      end: new Date(event.period.to)
+      end: new Date(event.period.to),
     });
 
     for (const [index, pos_date] of dates.entries()) {
@@ -114,7 +114,7 @@ const runCashReconciliation = async (
         program,
         {
           to_date: period.to,
-          from_date: period.from
+          from_date: period.from,
         },
         location
       );
@@ -124,7 +124,7 @@ const runCashReconciliation = async (
 
       const dateRange = {
         from_date: lastDepositDate,
-        to_date: date
+        to_date: date,
       };
 
       appLogger.log({ dateRange }, CashReconciliationService.name);
@@ -163,7 +163,7 @@ const runCashExceptions = async (
         event.program,
         {
           to_date: event.period.to,
-          from_date: event.period.from
+          from_date: event.period.from,
         },
         location
       );

@@ -15,12 +15,12 @@ describe('Parser (e2e)', () => {
           defaultServiceOptions: {
             endpoint: 'http://minio:9000',
             region: 'ca-central-1',
-            s3ForcePathStyle: true
+            s3ForcePathStyle: true,
           },
-          services: [S3]
-        })
+          services: [S3],
+        }),
       ],
-      providers: [S3ManagerService]
+      providers: [S3ManagerService],
     }).compile();
     service = module.get<S3ManagerService>(S3ManagerService);
   });

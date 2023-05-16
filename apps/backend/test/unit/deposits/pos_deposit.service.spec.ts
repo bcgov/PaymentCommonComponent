@@ -9,7 +9,7 @@ import {
   ParseArgsTDI,
   FileTypes,
   Ministries,
-  PaymentMethodClassification
+  PaymentMethodClassification,
 } from '../../../src/constants';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
@@ -48,14 +48,14 @@ describe('POSDepositService', () => {
               .mockReturnValue([{ source_file_name: 'test/TDI34' }]),
             delete: jest.fn(),
             where: jest.fn(),
-            execute: jest.fn()
-          }
+            execute: jest.fn(),
+          },
         },
         {
           provide: getRepositoryToken(LocationEntity),
-          useValue: {}
-        }
-      ]
+          useValue: {},
+        },
+      ],
     }).compile();
     locationService = module.get<LocationService>(LocationService);
     service = module.get<PosDepositService>(PosDepositService);
@@ -90,7 +90,7 @@ describe('POSDepositService', () => {
         type: FileTypes.TDI34,
         fileName: 'test/TDI34',
         program: 'SBC',
-        fileContents: Buffer.from(testFile).toString()
+        fileContents: Buffer.from(testFile).toString(),
       };
       const data: TDI34Details[] = [...parseTDI(tdi34Mock)] as TDI34Details[];
       const posDeposit: POSDepositEntity[] = data.map(
@@ -120,7 +120,7 @@ describe('POSDepositService', () => {
 
       const expectedPOSDeposits = [
         new POSDepositEntity(),
-        new POSDepositEntity()
+        new POSDepositEntity(),
       ];
       jest.spyOn(repository, 'find').mockResolvedValue(expectedPOSDeposits);
 
@@ -138,19 +138,19 @@ describe('POSDepositService', () => {
         where: {
           transaction_date: date,
           metadata: {
-            program: program
+            program: program,
           },
           status: status,
-          merchant_id: In([location.merchant_id])
+          merchant_id: In([location.merchant_id]),
         },
         relations: {
-          payment_method: true
+          payment_method: true,
         },
         order: {
           transaction_amt: 'ASC',
           payment_method: { method: 'ASC' },
-          transaction_time: 'ASC'
-        }
+          transaction_time: 'ASC',
+        },
       });
       expect(result).toEqual(expectedPOSDeposits);
     });

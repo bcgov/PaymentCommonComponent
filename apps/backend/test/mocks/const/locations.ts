@@ -15,7 +15,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591041
+    merchant_id: 23591041,
   },
   {
     id: '5a71a6cb-8d6f-415c-a87a-ae97f408113c',
@@ -31,7 +31,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591645
+    merchant_id: 23591645,
   },
   {
     id: 'dd5dc8b0-47df-4459-8d6f-7b0e1cb06125',
@@ -47,7 +47,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591066
+    merchant_id: 23591066,
   },
   {
     id: 'f77871f8-1c18-47c7-9d9e-4e944edfc3c6',
@@ -63,7 +63,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591074
+    merchant_id: 23591074,
   },
   {
     id: 'fd0e49ff-b9d3-4c58-b928-53ebaee5e2c5',
@@ -79,7 +79,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591082
+    merchant_id: 23591082,
   },
   {
     id: '06ca8316-d844-40ab-933c-9ab6caad0bd2',
@@ -95,7 +95,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 28624979
+    merchant_id: 28624979,
   },
   {
     id: '7b581825-12c2-426e-bc11-b1ab47aea029',
@@ -111,7 +111,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591090
+    merchant_id: 23591090,
   },
   {
     id: '858a3f3d-3d2b-446e-8227-a656fcb124b4',
@@ -127,7 +127,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591116
+    merchant_id: 23591116,
   },
   {
     id: '8107c36b-c2b7-42c3-b25e-022d489e6c8b',
@@ -143,7 +143,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591124
+    merchant_id: 23591124,
   },
   {
     id: '8e355776-29d0-49f3-bbd9-f8f4bf1a7e12',
@@ -159,7 +159,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591132
+    merchant_id: 23591132,
   },
   {
     id: 'b1cb8e11-1f96-4759-9ded-9db7ebf64185',
@@ -175,7 +175,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591157
+    merchant_id: 23591157,
   },
   {
     id: 'a792c6d9-d086-42cb-9bbd-35d4d5e62542',
@@ -191,7 +191,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591173
+    merchant_id: 23591173,
   },
   {
     id: '7dba37c0-0899-450f-94e1-fd55c4c49448',
@@ -207,7 +207,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591199
+    merchant_id: 23591199,
   },
   {
     id: '017c76f0-e80a-40b9-b455-c3174ca4cece',
@@ -223,7 +223,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591207
+    merchant_id: 23591207,
   },
   {
     id: '1d668d37-fb02-4dc2-9062-6373f99b16e4',
@@ -239,7 +239,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591363
+    merchant_id: 23591363,
   },
   {
     id: '57657021-e329-49c7-b853-499b3581a244',
@@ -255,7 +255,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591371
+    merchant_id: 23591371,
   },
   {
     id: '2412a095-d4ce-45c7-bf6a-9db60bdb3f44',
@@ -271,7 +271,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591389
+    merchant_id: 23591389,
   },
   {
     id: '988b76c4-d9ff-4a45-b608-6b1172702f8a',
@@ -287,7 +287,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591397
+    merchant_id: 23591397,
   },
   {
     id: 'a64c0d39-e01b-40a1-b794-4d5e3e3d1b7c',
@@ -303,7 +303,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591413
+    merchant_id: 23591413,
   },
   {
     id: '1a3e6d79-9dfa-4a56-9779-d32b7acb6a02',
@@ -319,7 +319,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591587
+    merchant_id: 23591587,
   },
   {
     id: '32cd129c-774d-4667-a7ee-215bf651fdad',
@@ -335,7 +335,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591595
+    merchant_id: 23591595,
   },
   {
     id: 'd05f5322-1b7c-49a1-b351-bb3ce3c6367c',
@@ -351,7 +351,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591603
+    merchant_id: 23591603,
   },
   {
     id: '145324ad-47c4-4bc5-85cf-1ee81921ce1f',
@@ -367,7 +367,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591629
+    merchant_id: 23591629,
   },
   {
     id: '20b79ad4-8787-4ce6-90c7-886ad7651b31',
@@ -383,7 +383,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591637
+    merchant_id: 23591637,
   },
   {
     id: '1f47657b-7046-469a-bdf5-66561847d25d',
@@ -399,7 +399,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591660
+    merchant_id: 23591660,
   },
   {
     id: '87b671ef-8836-45a2-aa7a-cbb63f672f2b',
@@ -415,7 +415,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23591835
+    merchant_id: 23591835,
   },
   {
     id: '54b136bc-f113-4c91-8b9c-88b2c96543b2',
@@ -431,7 +431,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592072
+    merchant_id: 23592072,
   },
   {
     id: 'd6406b4f-16e5-4b66-9bc5-f591bc5314f5',
@@ -447,7 +447,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592098
+    merchant_id: 23592098,
   },
   {
     id: 'd4019561-c525-47e2-af06-9112764198f1',
@@ -463,7 +463,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592114
+    merchant_id: 23592114,
   },
   {
     id: 'b8cfd546-84e2-4c1e-8b43-d0151f2ba67c',
@@ -479,7 +479,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592122
+    merchant_id: 23592122,
   },
   {
     id: '19a12f86-5a7f-4345-95a5-2046ed9fd7c7',
@@ -495,7 +495,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592155
+    merchant_id: 23592155,
   },
   {
     id: 'd9bf5d03-fbc9-45aa-b145-04fe23d3927a',
@@ -511,7 +511,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592189
+    merchant_id: 23592189,
   },
   {
     id: '45d54209-b8d4-4d02-97fa-4a2a96615850',
@@ -527,7 +527,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592205
+    merchant_id: 23592205,
   },
   {
     id: '029a5c3f-6183-4773-9c3a-813e44c25401',
@@ -543,7 +543,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592247
+    merchant_id: 23592247,
   },
   {
     id: '71701891-93ba-4d10-9f5f-d05d123b3cc2',
@@ -559,7 +559,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592262
+    merchant_id: 23592262,
   },
   {
     id: '6bcdd9a8-4d2a-4213-944f-60d7387caf38',
@@ -575,7 +575,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592270
+    merchant_id: 23592270,
   },
   {
     id: '7c84de41-d4cc-4349-ac47-f6b2f32e4e17',
@@ -591,7 +591,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592288
+    merchant_id: 23592288,
   },
   {
     id: 'b5422565-6c53-4901-a1ce-97707796bada',
@@ -607,7 +607,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592296
+    merchant_id: 23592296,
   },
   {
     id: 'b7cff60b-6f33-4a27-aaa2-63d66f0d1910',
@@ -623,7 +623,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592304
+    merchant_id: 23592304,
   },
   {
     id: 'eb3c3102-62f1-4c28-b160-4e31e091896f',
@@ -639,7 +639,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592312
+    merchant_id: 23592312,
   },
   {
     id: '4f453779-d958-4ed9-bf23-985c9170cedf',
@@ -655,7 +655,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592320
+    merchant_id: 23592320,
   },
   {
     id: 'aa396585-a4dc-4421-8564-f037826d27f1',
@@ -671,7 +671,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592338
+    merchant_id: 23592338,
   },
   {
     id: '02e66d7a-6ef5-4ba9-9be6-a6db3b05adab',
@@ -687,7 +687,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592346
+    merchant_id: 23592346,
   },
   {
     id: '7aaa9da9-c2ce-4fa3-a117-d955e6f1cc0f',
@@ -703,7 +703,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592353
+    merchant_id: 23592353,
   },
   {
     id: '3b1587e5-b654-4c8a-9dc4-ca6872d57dba',
@@ -719,7 +719,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592361
+    merchant_id: 23592361,
   },
   {
     id: '6b3fe170-19fd-41aa-89f2-dca3252192b5',
@@ -735,7 +735,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592379
+    merchant_id: 23592379,
   },
   {
     id: 'cafd48ae-b77d-44bb-903c-29cf92fe65de',
@@ -751,7 +751,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592387
+    merchant_id: 23592387,
   },
   {
     id: '737d283f-f135-4c68-af84-c41c8c13de55',
@@ -767,7 +767,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592395
+    merchant_id: 23592395,
   },
   {
     id: '33368d5f-2d7b-437a-a4c2-ec2cb8ca4cb1',
@@ -783,7 +783,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592403
+    merchant_id: 23592403,
   },
   {
     id: '6c5ce9aa-a068-494d-9ab8-e3ddf3de015a',
@@ -799,7 +799,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592411
+    merchant_id: 23592411,
   },
   {
     id: '9ca830a1-d2ed-4c81-9ee9-58a85f3fc0d1',
@@ -815,7 +815,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592429
+    merchant_id: 23592429,
   },
   {
     id: '91289920-29f5-4f62-9f3e-98773e6915e5',
@@ -831,7 +831,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592437
+    merchant_id: 23592437,
   },
   {
     id: '88a2f02d-5eba-486d-810c-f90816b940ea',
@@ -847,7 +847,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592445
+    merchant_id: 23592445,
   },
   {
     id: 'c03f9e19-06f8-4178-b32b-3c23b54b4984',
@@ -863,7 +863,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592452
+    merchant_id: 23592452,
   },
   {
     id: '3f35b4d8-b0fb-44c3-92f3-6b77a33d9f1b',
@@ -879,7 +879,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592460
+    merchant_id: 23592460,
   },
   {
     id: 'f9eb8500-f60e-4f2d-9c0e-9aa49d733366',
@@ -895,7 +895,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592478
+    merchant_id: 23592478,
   },
   {
     id: 'f9e3dae1-a6dd-45a7-8ab1-1d8f1ff9c506',
@@ -911,7 +911,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592486
+    merchant_id: 23592486,
   },
   {
     id: 'ceeb142d-ba59-4dba-9794-fefbcc4209ca',
@@ -927,7 +927,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592494
+    merchant_id: 23592494,
   },
   {
     id: '9a5ad29b-2897-4334-86aa-5d2353973478',
@@ -943,7 +943,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592502
+    merchant_id: 23592502,
   },
   {
     id: 'dc051660-0d19-4181-b7d5-6e8feb116fdc',
@@ -959,7 +959,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592510
+    merchant_id: 23592510,
   },
   {
     id: '2404a9c1-898c-4a5d-b250-337f643e7d53',
@@ -975,7 +975,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592528
+    merchant_id: 23592528,
   },
   {
     id: '351192e3-f1e0-4fb0-a7ff-65c1c7d6a03d',
@@ -991,7 +991,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23759473
+    merchant_id: 23759473,
   },
   {
     id: '10e3a9c2-4530-49fc-9412-3725fa722243',
@@ -1007,7 +1007,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23592536
+    merchant_id: 23592536,
   },
   {
     id: '44fc16b3-a8b0-4e8e-a646-39d6b408ecd3',
@@ -1023,7 +1023,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 93683283
+    merchant_id: 93683283,
   },
   {
     id: '5e0c190d-128b-43b4-a545-523ad7f76d29',
@@ -1039,7 +1039,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 93683143
+    merchant_id: 93683143,
   },
   {
     id: 'bdd22234-0b70-495c-9e21-22360c70a469',
@@ -1055,7 +1055,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 93683267
+    merchant_id: 93683267,
   },
   {
     id: '33e58c1e-a7c4-48e2-90cc-8fe4b1de06b1',
@@ -1071,7 +1071,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 93683176
+    merchant_id: 93683176,
   },
   {
     id: 'c81ff0dd-9a30-4491-b799-443de67ca404',
@@ -1087,7 +1087,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 93683275
+    merchant_id: 93683275,
   },
   {
     id: 'cfa18149-e9fe-4e10-bee0-00642c6ef325',
@@ -1103,7 +1103,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 93683184
+    merchant_id: 93683184,
   },
   {
     id: 'abcb0312-6f81-43ee-8bf5-1c0f64caac7d',
@@ -1119,7 +1119,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 93683226
+    merchant_id: 93683226,
   },
   {
     id: '9c1d3c4b-f100-49af-86ea-91ca11327738',
@@ -1135,7 +1135,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 25276773
+    merchant_id: 25276773,
   },
   {
     id: '17bc592e-a08a-4460-a61a-ad7d0e351aa3',
@@ -1151,7 +1151,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 29266051
+    merchant_id: 29266051,
   },
   {
     id: '4ee4bc8b-3798-4a2a-88c3-cf1b7d51f2be',
@@ -1167,7 +1167,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 91226713
+    merchant_id: 91226713,
   },
   {
     id: '9c1c45a2-0eeb-458e-a355-9cbfd3e16214',
@@ -1183,7 +1183,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 91226721
+    merchant_id: 91226721,
   },
   {
     id: '7a9cd8b4-e1f4-4087-b197-d7845dea7d9a',
@@ -1199,7 +1199,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '1f032089-aa04-4c3f-a361-7ebe7270eeae',
@@ -1215,7 +1215,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'f8730291-e471-4d9b-b36a-7e09492d2135',
@@ -1231,7 +1231,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '866e0a69-3925-459b-83bc-1993646e4a23',
@@ -1247,7 +1247,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '1f8f2b24-bf9b-46e4-8f7f-67d63e37c776',
@@ -1263,7 +1263,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'ed758c83-4078-4253-9a12-b8eefa464e6a',
@@ -1279,7 +1279,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '0e7c0f0d-745a-4d91-80f0-a4316b36ed76',
@@ -1295,7 +1295,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '542213c1-17b0-46e7-8616-060c7f604ed7',
@@ -1311,7 +1311,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'c446b111-7124-4318-9881-cc48a0cfd03e',
@@ -1327,7 +1327,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'd1e920a3-6b4a-4870-8b1c-f6a3fcedb156',
@@ -1343,7 +1343,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'a82cce81-ec49-472a-b644-264b0c0f1d12',
@@ -1359,7 +1359,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'ca8b7182-70ed-45f1-8a3d-2e7b80e7222e',
@@ -1375,7 +1375,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'f2f25d8f-9266-4ea9-bad8-7ab40db376f0',
@@ -1391,7 +1391,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'cfade807-c255-42a3-bb0b-48a69c68baae',
@@ -1407,7 +1407,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'd9e58dd7-98ca-4172-ba70-86c62b6ead6c',
@@ -1423,7 +1423,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '11a1eeb1-1cc7-4a91-bead-a01d05617252',
@@ -1439,7 +1439,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'b7535615-9b12-4ac6-9772-14a3b68391a1',
@@ -1455,7 +1455,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '85da9e62-674e-4bec-8874-4eeaf1461628',
@@ -1471,7 +1471,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '00881110-042e-4bd3-bf72-0ca445e5e18e',
@@ -1487,7 +1487,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '2d002b79-8e48-4028-b5e9-7aab10a0a2c9',
@@ -1503,7 +1503,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '9fb4356d-6258-48a3-be19-786fbc3a13f4',
@@ -1519,7 +1519,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'cd354f69-9599-4d40-9f8d-59ef2bdd2496',
@@ -1535,7 +1535,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '5ef04c5f-8e3c-4a36-a355-6b5b825893ca',
@@ -1551,7 +1551,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '7e913300-c9f1-4314-a8f7-8c8754ec8f29',
@@ -1567,7 +1567,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'aae9e22c-8f87-49f7-844d-c803ac966ab2',
@@ -1583,7 +1583,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'f08be8a0-8c31-4b59-a855-9298ef8e013b',
@@ -1599,7 +1599,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '81f6a8c3-8513-48a2-a3aa-905c1cbf7a4f',
@@ -1615,7 +1615,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'd87af0de-fa9d-447a-ad4a-3694e09d54bd',
@@ -1631,7 +1631,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '9a35756b-5b51-4606-94cd-60cb22091ccf',
@@ -1647,7 +1647,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '27f9c020-063e-47c5-9f85-13ce7fe15672',
@@ -1663,7 +1663,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'b2f38042-c413-428b-b465-6bac2d4f3cc7',
@@ -1679,7 +1679,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'b7f9d55d-6a5e-4dc2-8a1f-245de3e5429a',
@@ -1695,7 +1695,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '8f2c3e46-fba9-4644-8c98-0fc79104e1c1',
@@ -1711,7 +1711,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'f614f8d9-c23f-46ea-8280-3198ac9f77e7',
@@ -1727,7 +1727,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'bb9253ea-1e32-44a1-ab91-1c26618e1c08',
@@ -1743,7 +1743,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'd77d18c0-9877-4e61-b2e8-b5800b17d755',
@@ -1759,7 +1759,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'a505ff3c-e917-4ffa-9a84-3c73bcbb35f6',
@@ -1775,7 +1775,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '8539e463-ba17-45f0-850d-80ce057dcc73',
@@ -1791,7 +1791,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '4926e099-5cc3-467d-bd77-36e4240a6635',
@@ -1807,7 +1807,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'b677895e-e5f9-411d-b8e5-beda41dfd844',
@@ -1823,7 +1823,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'b0eb0ce3-573b-4ab8-bf2e-3cd8a5c44b61',
@@ -1839,7 +1839,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '1f6bf42d-05b3-45cd-b3e0-417714a227bd',
@@ -1855,7 +1855,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '6a1236c1-aa13-4d51-a4ee-b50c5267a347',
@@ -1871,7 +1871,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '67c96c21-a14b-4e13-92e5-ca38f3307d10',
@@ -1887,7 +1887,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '2b51a65f-63cd-4178-bca6-46dff33027fb',
@@ -1903,7 +1903,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'eda780a0-929e-42ee-9931-cef7ad0a12ec',
@@ -1919,7 +1919,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'f1d8379d-effd-4126-adcd-27144d1082f2',
@@ -1935,7 +1935,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '3c2a41d9-3b0b-4054-8649-a298acc8878c',
@@ -1951,7 +1951,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '23516d9c-7dce-451b-a275-ac528880ecd4',
@@ -1967,7 +1967,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'eba2f927-33a7-4a79-a27c-6384a41dc9c7',
@@ -1983,7 +1983,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '61b0fbe4-0bb7-4d98-838c-8e12636eb3f8',
@@ -1999,7 +1999,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '2f6a0845-d035-49d1-8cf6-bd8fe84b8260',
@@ -2015,7 +2015,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'dcd5a422-d93e-4d93-99bb-7d14d43a7fb1',
@@ -2031,7 +2031,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'c168afa9-d95f-4876-8799-26e6f362e314',
@@ -2047,7 +2047,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '7c1b48c1-9149-4cbe-a87e-5e5786dad030',
@@ -2063,7 +2063,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'd199dafa-06b5-44de-a01c-fe6bc0ac9a7c',
@@ -2079,7 +2079,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '922627b9-ad0d-4aee-b785-a718ca9abdef',
@@ -2095,7 +2095,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '1840efb7-a69e-410a-a5d5-beac8de1a40e',
@@ -2111,7 +2111,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'e8ba5408-7748-4f03-8aeb-47cd7452a034',
@@ -2127,7 +2127,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '567291bd-0bef-4c5e-bc7d-9160ffe42468',
@@ -2143,7 +2143,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '7fb587bf-eee8-4760-9403-5ade64f1ea58',
@@ -2159,7 +2159,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '83208abb-7410-4b55-9541-e82026df2abe',
@@ -2175,7 +2175,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '9ea05fc0-c381-4a68-be0c-c1db5dc88760',
@@ -2191,7 +2191,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '9d762741-a053-42be-8940-34d0b3729cd1',
@@ -2207,7 +2207,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '4d0e01d1-a2cd-4af1-bc13-99f408ddd65d',
@@ -2223,7 +2223,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '237986c7-cb0c-4fda-961d-fecb674a4d6f',
@@ -2239,7 +2239,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '5272bbde-433e-4349-b4b1-9ded8d057391',
@@ -2255,7 +2255,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '7dfd3da4-bb2d-48ca-a103-88142e106dc4',
@@ -2271,7 +2271,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '8106d0d3-270d-4f64-8b9c-c033fad4e1ef',
@@ -2287,7 +2287,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'ff2d0ee9-66da-4a35-b126-ecc75b39513c',
@@ -2303,7 +2303,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'ec4cda72-f2a9-40ac-8d42-c8aa5674c7a5',
@@ -2319,7 +2319,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: 'a0f6fc0f-e5de-4bea-8b95-e76bb45e8ffb',
@@ -2335,7 +2335,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 999999999
+    merchant_id: 999999999,
   },
   {
     id: '0346cb85-576d-4237-9715-1afe687b7a90',
@@ -2351,7 +2351,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054353
+    merchant_id: 22054353,
   },
   {
     id: '1a94ece5-fad0-422f-b79b-30faf593a3df',
@@ -2367,7 +2367,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043448
+    merchant_id: 22043448,
   },
   {
     id: '81140b2c-8ec8-4e38-b711-e14ebdd330e2',
@@ -2383,7 +2383,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054387
+    merchant_id: 22054387,
   },
   {
     id: '97572915-ebea-4d22-b4ac-733678630f86',
@@ -2399,7 +2399,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054486
+    merchant_id: 22054486,
   },
   {
     id: '1c872a34-eb28-4ba9-a272-23859eda0247',
@@ -2415,7 +2415,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054577
+    merchant_id: 22054577,
   },
   {
     id: '09a59218-bd24-4f55-a6b8-27afee039b7f',
@@ -2431,7 +2431,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23684779
+    merchant_id: 23684779,
   },
   {
     id: '07a3aaad-1a42-479a-b71e-8907dbbb24b4',
@@ -2447,7 +2447,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042705
+    merchant_id: 22042705,
   },
   {
     id: 'dfdefda8-6f47-48f5-81bb-1961edffd9e9',
@@ -2463,7 +2463,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042747
+    merchant_id: 22042747,
   },
   {
     id: '373026cf-0e8e-40a7-95e0-5d82fc7763b8',
@@ -2479,7 +2479,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042754
+    merchant_id: 22042754,
   },
   {
     id: '2d5f8763-5227-4cd1-85b1-1cb2fcec4c7a',
@@ -2495,7 +2495,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042796
+    merchant_id: 22042796,
   },
   {
     id: 'f55462fe-ecfc-4978-bdd2-03890b0cd48d',
@@ -2511,7 +2511,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042820
+    merchant_id: 22042820,
   },
   {
     id: '27a1f0d3-6413-44c6-b993-665690ae0a26',
@@ -2527,7 +2527,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042838
+    merchant_id: 22042838,
   },
   {
     id: 'e210d15a-321e-4039-9ed6-8396bb3a3cea',
@@ -2543,7 +2543,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042887
+    merchant_id: 22042887,
   },
   {
     id: '8285cccd-6264-47c5-bdc1-566fb2a5ae8d',
@@ -2559,7 +2559,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043067
+    merchant_id: 22043067,
   },
   {
     id: '219fc28c-b341-4eba-a2f2-7e2e2a57658c',
@@ -2575,7 +2575,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043083
+    merchant_id: 22043083,
   },
   {
     id: '60f5d0db-e830-4645-9e46-b681f244ea4c',
@@ -2591,7 +2591,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043141
+    merchant_id: 22043141,
   },
   {
     id: 'de01ba80-d9e7-429f-9edf-624b22ff4d1e',
@@ -2607,7 +2607,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043182
+    merchant_id: 22043182,
   },
   {
     id: '3ff68b8c-390a-4642-837d-bf4fa3e64496',
@@ -2623,7 +2623,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043208
+    merchant_id: 22043208,
   },
   {
     id: '254ec724-53c7-459e-a2e2-8153d30eb4ae',
@@ -2639,7 +2639,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043281
+    merchant_id: 22043281,
   },
   {
     id: '5dfb2bf3-1867-4985-9b34-1e3bffc66cda',
@@ -2655,7 +2655,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043315
+    merchant_id: 22043315,
   },
   {
     id: 'a1f6ea8e-546a-4b66-b99b-43f3e4675397',
@@ -2671,7 +2671,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043372
+    merchant_id: 22043372,
   },
   {
     id: '629a7435-9c02-4de7-9148-1af82bf9b5c4',
@@ -2687,7 +2687,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043380
+    merchant_id: 22043380,
   },
   {
     id: 'f2dfd6cc-7d06-434b-b9e6-47627ed98916',
@@ -2703,7 +2703,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043406
+    merchant_id: 22043406,
   },
   {
     id: '80a0f048-00ba-4a8d-9696-ddb73d036598',
@@ -2719,7 +2719,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043430
+    merchant_id: 22043430,
   },
   {
     id: '0ecdfa0f-662d-4f71-a145-8f4a2b8e589d',
@@ -2735,7 +2735,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043463
+    merchant_id: 22043463,
   },
   {
     id: '99462db6-9dc3-45ab-b5b2-8dfc9ded83a0',
@@ -2751,7 +2751,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043505
+    merchant_id: 22043505,
   },
   {
     id: '8c9e78fc-d408-4280-8287-1b4ed89e7ada',
@@ -2767,7 +2767,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043539
+    merchant_id: 22043539,
   },
   {
     id: 'b41c01e7-f20b-4a4d-8927-788c538bd3e6',
@@ -2783,7 +2783,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043547
+    merchant_id: 22043547,
   },
   {
     id: '8dfb94d4-7bb3-4a90-9c1b-c3b1a8f48244',
@@ -2799,7 +2799,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22455675
+    merchant_id: 22455675,
   },
   {
     id: '8bbb93eb-92e3-43db-aa2d-a9804ec99a67',
@@ -2815,7 +2815,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043562
+    merchant_id: 22043562,
   },
   {
     id: '5c44eefb-4e10-4774-9075-f44435f35267',
@@ -2831,7 +2831,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043596
+    merchant_id: 22043596,
   },
   {
     id: '4b721820-35e2-4ab8-bca7-42e890de3a1d',
@@ -2847,7 +2847,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043604
+    merchant_id: 22043604,
   },
   {
     id: '46714ce7-93e5-415b-a4b9-17a2580d26ee',
@@ -2863,7 +2863,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043620
+    merchant_id: 22043620,
   },
   {
     id: '6a1f5263-f032-4890-80c8-9406e2a3c753',
@@ -2879,7 +2879,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 20803999
+    merchant_id: 20803999,
   },
   {
     id: '107140fa-1ea3-4098-a4a3-f3734c8428af',
@@ -2895,7 +2895,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043646
+    merchant_id: 22043646,
   },
   {
     id: '75340602-a111-41fb-b301-873b37e703f3',
@@ -2911,7 +2911,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043653
+    merchant_id: 22043653,
   },
   {
     id: '262806ea-bcf0-4502-aff7-8de28233add1',
@@ -2927,7 +2927,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043661
+    merchant_id: 22043661,
   },
   {
     id: '8ec8d6ff-75e5-4d5e-89b2-ec2fb814ad41',
@@ -2943,7 +2943,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043679
+    merchant_id: 22043679,
   },
   {
     id: 'f9c14e76-c28d-44e0-b97c-fe69543e36e1',
@@ -2959,7 +2959,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043703
+    merchant_id: 22043703,
   },
   {
     id: 'b332795d-afc0-4dff-8511-a5d9e4bda161',
@@ -2975,7 +2975,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043745
+    merchant_id: 22043745,
   },
   {
     id: '73a7a6da-7b35-4e8c-974b-6b00f5b440e9',
@@ -2991,7 +2991,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043810
+    merchant_id: 22043810,
   },
   {
     id: '62f65935-1460-4a4c-b404-56c263f592a5',
@@ -3007,7 +3007,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043828
+    merchant_id: 22043828,
   },
   {
     id: 'fcd62d3a-b411-4a18-8ceb-68ce9a19d548',
@@ -3023,7 +3023,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043836
+    merchant_id: 22043836,
   },
   {
     id: 'f7c8fef4-69f9-4028-8faa-9e13933ba78c',
@@ -3039,7 +3039,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043893
+    merchant_id: 22043893,
   },
   {
     id: '640e24f6-0dcc-4a2f-a163-6f27d280906f',
@@ -3055,7 +3055,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043919
+    merchant_id: 22043919,
   },
   {
     id: 'fbb07d90-7a38-4570-b955-f48236aa4fca',
@@ -3071,7 +3071,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043984
+    merchant_id: 22043984,
   },
   {
     id: '17b68976-bf22-47b7-bc98-dfced6e5cf34',
@@ -3087,7 +3087,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044008
+    merchant_id: 22044008,
   },
   {
     id: '3723c1ee-62a4-4375-a050-7697136a8e81',
@@ -3103,7 +3103,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044164
+    merchant_id: 22044164,
   },
   {
     id: '7a0b161a-21f1-441a-9774-a795de1b8941',
@@ -3119,7 +3119,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044230
+    merchant_id: 22044230,
   },
   {
     id: 'f7345ce2-d6f4-4a5b-ac8c-fa5d3f7c370d',
@@ -3135,7 +3135,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044255
+    merchant_id: 22044255,
   },
   {
     id: 'e51a6e75-633e-4899-b63e-974a4d307ebf',
@@ -3151,7 +3151,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044297
+    merchant_id: 22044297,
   },
   {
     id: '2c4daa6d-8bf9-4878-8a83-e3afadf458eb',
@@ -3167,7 +3167,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044305
+    merchant_id: 22044305,
   },
   {
     id: 'a94e2394-bc6b-46ac-85ab-db00b91f6e58',
@@ -3183,7 +3183,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044313
+    merchant_id: 22044313,
   },
   {
     id: '4531674a-5886-4cd5-84a5-e5462408cbbe',
@@ -3199,7 +3199,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044362
+    merchant_id: 22044362,
   },
   {
     id: '20784c9c-9ee1-4526-8f5d-6153c95bdf13',
@@ -3215,7 +3215,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044412
+    merchant_id: 22044412,
   },
   {
     id: 'ccb6316e-e9a7-41e9-a0bc-637dc793cc02',
@@ -3231,7 +3231,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044438
+    merchant_id: 22044438,
   },
   {
     id: '71d926d9-fcb0-4c92-9470-3bb302a33947',
@@ -3247,7 +3247,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044545
+    merchant_id: 22044545,
   },
   {
     id: '1e18eb67-765a-4776-ba12-51b49f7b613c',
@@ -3263,7 +3263,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044628
+    merchant_id: 22044628,
   },
   {
     id: '4315ccfd-058d-4cf2-9eb8-6118b9344e7f',
@@ -3279,7 +3279,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044701
+    merchant_id: 22044701,
   },
   {
     id: '8e513882-a003-4078-86b5-a62fa9b26c23',
@@ -3295,7 +3295,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044750
+    merchant_id: 22044750,
   },
   {
     id: '0ac01838-b122-45a3-9610-d935d6980e5b',
@@ -3311,7 +3311,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044859
+    merchant_id: 22044859,
   },
   {
     id: '7353793c-f1a0-4b54-9b4f-3c5bff77bbaa',
@@ -3327,7 +3327,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 20777441
+    merchant_id: 20777441,
   },
   {
     id: 'c1ffb7f8-f6ec-4db7-a168-2c50caa876d9',
@@ -3343,7 +3343,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044933
+    merchant_id: 22044933,
   },
   {
     id: '1dbbbb6b-52a3-4c1e-9afb-4d0d3b12d816',
@@ -3359,7 +3359,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103846
+    merchant_id: 24103846,
   },
   {
     id: '2359c225-a609-44ba-8682-f73d26965f2e',
@@ -3375,7 +3375,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103838
+    merchant_id: 24103838,
   },
   {
     id: '695c8c0a-cbc3-4749-8880-8cb4a1ab51a6',
@@ -3391,7 +3391,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103895
+    merchant_id: 24103895,
   },
   {
     id: 'aada838d-4941-4c00-b065-7a1cea35676d',
@@ -3407,7 +3407,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103879
+    merchant_id: 24103879,
   },
   {
     id: 'eda7e785-b232-43f8-922f-c691861fe64d',
@@ -3423,7 +3423,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103861
+    merchant_id: 24103861,
   },
   {
     id: '45f81c60-4eb9-46a2-9ce0-1fd1c98c6536',
@@ -3439,7 +3439,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103853
+    merchant_id: 24103853,
   },
   {
     id: 'dd5e070d-9135-449b-981a-ee86f9a05eee',
@@ -3455,7 +3455,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103887
+    merchant_id: 24103887,
   },
   {
     id: 'db14d002-efe0-43cc-844f-5e5ab31294ac',
@@ -3471,7 +3471,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054353
+    merchant_id: 22054353,
   },
   {
     id: 'd61b5b6d-1039-4ef5-862c-85e3215e54dd',
@@ -3487,7 +3487,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043448
+    merchant_id: 22043448,
   },
   {
     id: '8999be85-11d3-49ff-925d-dd0811ba69e0',
@@ -3503,7 +3503,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054387
+    merchant_id: 22054387,
   },
   {
     id: '3a3e8a8a-5b3e-4d7b-bbb9-7767919527a8',
@@ -3519,7 +3519,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054486
+    merchant_id: 22054486,
   },
   {
     id: 'f7422d70-2d66-4e66-8c4f-81e51d5a4c3b',
@@ -3535,7 +3535,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054577
+    merchant_id: 22054577,
   },
   {
     id: 'be011a81-0f1a-4d4a-964e-bc0eb9e74f67',
@@ -3551,7 +3551,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23684779
+    merchant_id: 23684779,
   },
   {
     id: '8eb5bc42-12da-423e-bfaa-813868b7b931',
@@ -3567,7 +3567,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042705
+    merchant_id: 22042705,
   },
   {
     id: '84ddab7d-8567-41c8-944f-288e11105744',
@@ -3583,7 +3583,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042747
+    merchant_id: 22042747,
   },
   {
     id: '91b04da3-9f2c-415e-b54e-a8fd3c0efc94',
@@ -3599,7 +3599,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042754
+    merchant_id: 22042754,
   },
   {
     id: '40644485-b633-4fb4-8a41-52a7301ec199',
@@ -3615,7 +3615,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042796
+    merchant_id: 22042796,
   },
   {
     id: '14d9cb02-6a5a-470f-8a79-4104290d4345',
@@ -3631,7 +3631,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042820
+    merchant_id: 22042820,
   },
   {
     id: 'fbd385d9-b61c-4daf-8973-a9f4f28051f7',
@@ -3647,7 +3647,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042838
+    merchant_id: 22042838,
   },
   {
     id: '237c4124-356a-48bd-8d4b-2faa2d5958ba',
@@ -3663,7 +3663,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042887
+    merchant_id: 22042887,
   },
   {
     id: '5a8e6538-1343-4ca2-a36f-cf12a95c4afe',
@@ -3679,7 +3679,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043067
+    merchant_id: 22043067,
   },
   {
     id: '4c57ad1a-c490-4951-9885-4be3a30dfc0e',
@@ -3695,7 +3695,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043083
+    merchant_id: 22043083,
   },
   {
     id: '873ff904-f407-4be8-8a64-daec2d079a81',
@@ -3711,7 +3711,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043141
+    merchant_id: 22043141,
   },
   {
     id: '84c3184b-abcd-4a12-be84-e62d7373e5f2',
@@ -3727,7 +3727,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043182
+    merchant_id: 22043182,
   },
   {
     id: '807dc335-8376-4fad-a42e-0b5903598ae1',
@@ -3743,7 +3743,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043208
+    merchant_id: 22043208,
   },
   {
     id: '0a853ff8-d865-4ef8-9be0-ae60a1a63778',
@@ -3759,7 +3759,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043281
+    merchant_id: 22043281,
   },
   {
     id: 'aca14140-7776-4eab-910f-93fc0e3ec4ab',
@@ -3775,7 +3775,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043315
+    merchant_id: 22043315,
   },
   {
     id: '1d9a6358-a5e1-48b5-a0a5-0b2b7cb5bf03',
@@ -3791,7 +3791,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043372
+    merchant_id: 22043372,
   },
   {
     id: 'd2e787cc-97da-46cf-9bd5-d60440917413',
@@ -3807,7 +3807,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043380
+    merchant_id: 22043380,
   },
   {
     id: '1f6c0cd6-8dc1-45ed-9dc4-aba9301d7cfe',
@@ -3823,7 +3823,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043406
+    merchant_id: 22043406,
   },
   {
     id: '0040982a-a72d-4474-903f-677e4c6c7d45',
@@ -3839,7 +3839,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043430
+    merchant_id: 22043430,
   },
   {
     id: '4a5643be-6753-4cf0-951d-f4723f2228f3',
@@ -3855,7 +3855,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043463
+    merchant_id: 22043463,
   },
   {
     id: '10d42ab7-ce61-4ae8-8ca9-a89f4ccb663e',
@@ -3871,7 +3871,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043505
+    merchant_id: 22043505,
   },
   {
     id: '1533ac17-dc2f-407a-af1d-4e14fe4ab95e',
@@ -3887,7 +3887,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043539
+    merchant_id: 22043539,
   },
   {
     id: '28ee68da-682b-4e36-ae22-3d6b2c38c304',
@@ -3903,7 +3903,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043547
+    merchant_id: 22043547,
   },
   {
     id: 'dc7ecd16-a57c-49cc-975d-cb8c3155ca97',
@@ -3919,7 +3919,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22455675
+    merchant_id: 22455675,
   },
   {
     id: '74f09e85-d00f-458d-bffe-587e3b267c8f',
@@ -3935,7 +3935,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043562
+    merchant_id: 22043562,
   },
   {
     id: 'c4d21a9e-70df-4671-ba5f-7c17446fd354',
@@ -3951,7 +3951,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043596
+    merchant_id: 22043596,
   },
   {
     id: '59cfe960-d833-49a0-be23-67f7c72c7fb5',
@@ -3967,7 +3967,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043604
+    merchant_id: 22043604,
   },
   {
     id: 'a1caa98b-b049-426b-a432-517d2e9f7305',
@@ -3983,7 +3983,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043620
+    merchant_id: 22043620,
   },
   {
     id: 'f0fb0e47-a52b-4aec-9cda-8ad6382e1cdd',
@@ -3999,7 +3999,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 20803999
+    merchant_id: 20803999,
   },
   {
     id: '425db771-b1cd-49d6-9d14-61e133d8a1d0',
@@ -4015,7 +4015,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043646
+    merchant_id: 22043646,
   },
   {
     id: '531ac121-c298-490f-a198-623d01984b5b',
@@ -4031,7 +4031,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043653
+    merchant_id: 22043653,
   },
   {
     id: 'a5c35fe6-85e0-4e34-be89-49c2043df548',
@@ -4047,7 +4047,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043661
+    merchant_id: 22043661,
   },
   {
     id: '8dfe5274-e9fc-4252-9dbe-9e8c520ee952',
@@ -4063,7 +4063,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043679
+    merchant_id: 22043679,
   },
   {
     id: '07c47ba0-414c-4b34-884f-2a5f6371bde5',
@@ -4079,7 +4079,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043703
+    merchant_id: 22043703,
   },
   {
     id: 'efd32b25-fae6-4feb-8624-73eef578fa2e',
@@ -4095,7 +4095,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043745
+    merchant_id: 22043745,
   },
   {
     id: '7528fffc-9ebf-487d-a36b-77b1e0536f98',
@@ -4111,7 +4111,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043810
+    merchant_id: 22043810,
   },
   {
     id: '43c79d1f-07ef-479c-92d4-37a047b4be2b',
@@ -4127,7 +4127,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043828
+    merchant_id: 22043828,
   },
   {
     id: '694c35ee-9c25-4269-ad1c-55953574707f',
@@ -4143,7 +4143,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043836
+    merchant_id: 22043836,
   },
   {
     id: 'eda35e58-68da-4d78-aeb1-f5b8b9d90ad1',
@@ -4159,7 +4159,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043893
+    merchant_id: 22043893,
   },
   {
     id: '6044ea55-bdb1-4d74-bfbd-431ecfe4aeac',
@@ -4175,7 +4175,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043919
+    merchant_id: 22043919,
   },
   {
     id: '804da3b1-50fa-4f74-9540-6d33dfa15680',
@@ -4191,7 +4191,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043984
+    merchant_id: 22043984,
   },
   {
     id: 'de3951d4-d710-41f4-8eb8-b6825db8d52b',
@@ -4207,7 +4207,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044008
+    merchant_id: 22044008,
   },
   {
     id: 'be1232e1-9cd2-4525-b58f-a3cc8e96862d',
@@ -4223,7 +4223,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044164
+    merchant_id: 22044164,
   },
   {
     id: 'b5ab69ad-19b5-482b-8bb9-e16e3c4d4c5f',
@@ -4239,7 +4239,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044230
+    merchant_id: 22044230,
   },
   {
     id: 'db958b93-73fb-4f18-93e4-0318cda188ae',
@@ -4255,7 +4255,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044255
+    merchant_id: 22044255,
   },
   {
     id: '2829c62c-4671-44ab-a0e5-d42d8a735dec',
@@ -4271,7 +4271,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044297
+    merchant_id: 22044297,
   },
   {
     id: 'c1741b43-d4d6-4ebd-9234-83b67192fc43',
@@ -4287,7 +4287,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044305
+    merchant_id: 22044305,
   },
   {
     id: '42f4ae60-a372-4427-8094-7c2cfad59df7',
@@ -4303,7 +4303,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044313
+    merchant_id: 22044313,
   },
   {
     id: 'f5851797-45ca-4b61-9fa9-9a41b455a236',
@@ -4319,7 +4319,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044362
+    merchant_id: 22044362,
   },
   {
     id: '147b7d97-4b37-4090-8949-c8b450bf0e7d',
@@ -4335,7 +4335,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044412
+    merchant_id: 22044412,
   },
   {
     id: '344dcf1e-eb8f-4b8d-aaf9-415d56307db1',
@@ -4351,7 +4351,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044438
+    merchant_id: 22044438,
   },
   {
     id: '31dcfba6-c8f9-4a72-b56e-0cf9853e105a',
@@ -4367,7 +4367,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044545
+    merchant_id: 22044545,
   },
   {
     id: 'b5d1fd20-29c8-47c0-877b-3a8aa0eedf8b',
@@ -4383,7 +4383,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044628
+    merchant_id: 22044628,
   },
   {
     id: 'c129897e-f29f-4e92-9ae1-5cca28b41829',
@@ -4399,7 +4399,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044701
+    merchant_id: 22044701,
   },
   {
     id: '47361bf3-9ff5-48c2-9d13-9b8e983f18a8',
@@ -4415,7 +4415,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044750
+    merchant_id: 22044750,
   },
   {
     id: '60f03709-b10b-4281-8528-a827149d1f93',
@@ -4431,7 +4431,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044859
+    merchant_id: 22044859,
   },
   {
     id: '04f61927-973c-41d0-b2ef-4bcdec16fc91',
@@ -4447,7 +4447,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 20777441
+    merchant_id: 20777441,
   },
   {
     id: '25d13d14-e6f6-4818-9bb8-0f1aa2d94748',
@@ -4463,7 +4463,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044933
+    merchant_id: 22044933,
   },
   {
     id: '881da99b-0f83-43d3-9a3a-7375c4e3b1c2',
@@ -4479,7 +4479,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103846
+    merchant_id: 24103846,
   },
   {
     id: '814064be-d686-4ca3-b8b7-318d8d061e89',
@@ -4495,7 +4495,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103838
+    merchant_id: 24103838,
   },
   {
     id: '0852ed2b-6065-4d14-9615-d76728b803b7',
@@ -4511,7 +4511,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103895
+    merchant_id: 24103895,
   },
   {
     id: 'b9e007a8-efd7-4bfc-9ae1-a38e185dd12e',
@@ -4527,7 +4527,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103879
+    merchant_id: 24103879,
   },
   {
     id: '6789c802-4cf8-46fd-a881-84ceb49df338',
@@ -4543,7 +4543,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103853
+    merchant_id: 24103853,
   },
   {
     id: 'a6f15b26-c4e0-4716-98c3-6cbe26f10a7b',
@@ -4559,7 +4559,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103887
+    merchant_id: 24103887,
   },
   {
     id: '430e6ab3-777e-4c79-93b6-3edbf6cdce50',
@@ -4575,7 +4575,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23302208
+    merchant_id: 23302208,
   },
   {
     id: '17ec0df8-e8aa-4c35-b15a-642b5aa50e2a',
@@ -4591,7 +4591,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23700609
+    merchant_id: 23700609,
   },
   {
     id: '365e1813-5033-4d1e-b645-2c8b3b54a9e5',
@@ -4607,7 +4607,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956607
+    merchant_id: 23956607,
   },
   {
     id: '4823154d-50c5-4776-9320-3e7449b86dad',
@@ -4623,7 +4623,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956599
+    merchant_id: 23956599,
   },
   {
     id: '57cf126f-0d7d-4b18-b16c-526cc94d2e3e',
@@ -4639,7 +4639,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23700609
+    merchant_id: 23700609,
   },
   {
     id: '3d02b0c7-3d84-4cca-9215-35ae050ddfaf',
@@ -4655,7 +4655,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956607
+    merchant_id: 23956607,
   },
   {
     id: '88e2c800-b474-46d8-ace2-b8aa80fe6dcb',
@@ -4671,7 +4671,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956599
+    merchant_id: 23956599,
   },
   {
     id: '483422db-fc92-4a84-a4bd-4a4860029cf0',
@@ -4687,7 +4687,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054353
+    merchant_id: 22054353,
   },
   {
     id: '15ad15a2-a054-492e-8057-f3099c43a383',
@@ -4703,7 +4703,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043448
+    merchant_id: 22043448,
   },
   {
     id: '3bce4b50-ab36-42dc-8df3-f11400925d66',
@@ -4719,7 +4719,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054387
+    merchant_id: 22054387,
   },
   {
     id: '8168626c-781a-4cd9-ac62-5e5061184396',
@@ -4735,7 +4735,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054486
+    merchant_id: 22054486,
   },
   {
     id: '4fd330af-ae70-4777-9bec-253b39cb3b2a',
@@ -4751,7 +4751,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22054577
+    merchant_id: 22054577,
   },
   {
     id: '2007a202-791d-4a0a-9f8f-669c94d23d11',
@@ -4767,7 +4767,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23684779
+    merchant_id: 23684779,
   },
   {
     id: 'e0aebfd5-99fc-4744-8244-1ec60a4cfc13',
@@ -4783,7 +4783,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042705
+    merchant_id: 22042705,
   },
   {
     id: 'bed331ff-2d7b-4a12-8e3d-933c4f795c70',
@@ -4799,7 +4799,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042747
+    merchant_id: 22042747,
   },
   {
     id: 'e35b059b-8832-4d0e-bd03-1cdccf3652c7',
@@ -4815,7 +4815,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042754
+    merchant_id: 22042754,
   },
   {
     id: '15ecd79c-4fad-4e78-8e2d-c872340c71f7',
@@ -4831,7 +4831,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042796
+    merchant_id: 22042796,
   },
   {
     id: '4a47916b-9317-4692-a4ed-77253219bc00',
@@ -4847,7 +4847,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042820
+    merchant_id: 22042820,
   },
   {
     id: '84955e6b-8a4a-42eb-8ce2-b5ca234e4935',
@@ -4863,7 +4863,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042838
+    merchant_id: 22042838,
   },
   {
     id: 'a0e90dd4-4016-4449-bcdb-af50e78e0567',
@@ -4879,7 +4879,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22042887
+    merchant_id: 22042887,
   },
   {
     id: '332e8a0b-bf66-4f54-b3ec-43de4ab131fa',
@@ -4895,7 +4895,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043067
+    merchant_id: 22043067,
   },
   {
     id: 'c9757a4e-cafb-43ec-8a77-a99e28e3a29b',
@@ -4911,7 +4911,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043083
+    merchant_id: 22043083,
   },
   {
     id: '8b1eabb4-7a22-458b-a850-c7f119657945',
@@ -4927,7 +4927,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043141
+    merchant_id: 22043141,
   },
   {
     id: '846b4d4f-6351-4fa8-bd23-26eb613420ff',
@@ -4943,7 +4943,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043182
+    merchant_id: 22043182,
   },
   {
     id: 'e405e771-fc03-42f1-bf18-0d40d25ccff8',
@@ -4959,7 +4959,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043208
+    merchant_id: 22043208,
   },
   {
     id: '80b23867-20db-4bab-86ff-c04cc6ffff1d',
@@ -4975,7 +4975,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043281
+    merchant_id: 22043281,
   },
   {
     id: '58804dcf-2ec3-410d-a714-9b103099155b',
@@ -4991,7 +4991,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043315
+    merchant_id: 22043315,
   },
   {
     id: '0dbbc7cf-86f9-414b-a051-c336806e4b75',
@@ -5007,7 +5007,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043372
+    merchant_id: 22043372,
   },
   {
     id: 'f0521e1b-237f-4988-a1c0-008381d0a32d',
@@ -5023,7 +5023,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043380
+    merchant_id: 22043380,
   },
   {
     id: '625629ab-380e-48c1-9452-69e9395466b7',
@@ -5039,7 +5039,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043406
+    merchant_id: 22043406,
   },
   {
     id: '7e18f686-9c24-48c6-8bf6-becb1e343a72',
@@ -5055,7 +5055,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043430
+    merchant_id: 22043430,
   },
   {
     id: 'cb0803ab-04e7-45ca-8b30-6a5537d8a353',
@@ -5071,7 +5071,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043463
+    merchant_id: 22043463,
   },
   {
     id: '01da5f35-338a-4475-9cde-44cd10177185',
@@ -5087,7 +5087,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043505
+    merchant_id: 22043505,
   },
   {
     id: '160b753c-54e7-4715-a0c1-87479368f141',
@@ -5103,7 +5103,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043539
+    merchant_id: 22043539,
   },
   {
     id: '7ab0df7c-1a90-475a-ab13-fd4572aa99c8',
@@ -5119,7 +5119,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043547
+    merchant_id: 22043547,
   },
   {
     id: 'd13c77a1-91cc-40c8-b999-05e02eb36058',
@@ -5135,7 +5135,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22455675
+    merchant_id: 22455675,
   },
   {
     id: '7eea7759-735c-4cd3-9aa8-2bf69979fddc',
@@ -5151,7 +5151,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043562
+    merchant_id: 22043562,
   },
   {
     id: 'fb3ab726-5ebf-466d-ad6d-470ffc290da5',
@@ -5167,7 +5167,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043596
+    merchant_id: 22043596,
   },
   {
     id: '9eaa610c-1011-4136-a2bf-ea47662da6db',
@@ -5183,7 +5183,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043604
+    merchant_id: 22043604,
   },
   {
     id: 'b573f556-437e-430f-b2e8-9e9394a8789a',
@@ -5199,7 +5199,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043620
+    merchant_id: 22043620,
   },
   {
     id: 'df4b68e0-485f-44bf-9974-f6bbfdfdd8b1',
@@ -5215,7 +5215,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 20803999
+    merchant_id: 20803999,
   },
   {
     id: '85cd8047-9768-43f8-b180-6fa9cd114bf8',
@@ -5231,7 +5231,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043646
+    merchant_id: 22043646,
   },
   {
     id: '9a1f3d74-9820-4fb1-adf3-a7a978524fc5',
@@ -5247,7 +5247,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043653
+    merchant_id: 22043653,
   },
   {
     id: 'f1441a38-05ca-4d88-887c-6fe4eb6bbee2',
@@ -5263,7 +5263,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043661
+    merchant_id: 22043661,
   },
   {
     id: '10c3f7a2-6897-4554-9fe1-1ac10c68080e',
@@ -5279,7 +5279,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043679
+    merchant_id: 22043679,
   },
   {
     id: 'c9efad1b-6461-4483-b2ab-de6c7e866fba',
@@ -5295,7 +5295,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043703
+    merchant_id: 22043703,
   },
   {
     id: 'f6efa109-c840-4b9f-afc9-6b4e4c68cd7e',
@@ -5311,7 +5311,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043745
+    merchant_id: 22043745,
   },
   {
     id: '42349f57-c3d5-4769-954d-2e5553110024',
@@ -5327,7 +5327,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043810
+    merchant_id: 22043810,
   },
   {
     id: '7dc4eb4a-fb9a-4c41-b494-c6f5869e7810',
@@ -5343,7 +5343,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043828
+    merchant_id: 22043828,
   },
   {
     id: '4deb7c85-4151-43de-9433-4f577053eead',
@@ -5359,7 +5359,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043836
+    merchant_id: 22043836,
   },
   {
     id: '7e41cd2e-48b8-4589-b4b8-c37e7c65afdb',
@@ -5375,7 +5375,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043893
+    merchant_id: 22043893,
   },
   {
     id: 'da49539f-7ac9-4ab0-adfc-e906203ded8c',
@@ -5391,7 +5391,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043919
+    merchant_id: 22043919,
   },
   {
     id: '6ab79027-ccce-44da-a385-e4f2051b42fb',
@@ -5407,7 +5407,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22043984
+    merchant_id: 22043984,
   },
   {
     id: 'bfbe1cb0-61f0-4b55-9006-696f3ccb2adb',
@@ -5423,7 +5423,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044008
+    merchant_id: 22044008,
   },
   {
     id: 'ca0daad2-00fb-4e84-ac45-dd9808e93f24',
@@ -5439,7 +5439,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044164
+    merchant_id: 22044164,
   },
   {
     id: 'e19cc1a1-69dd-46c8-a6de-14806fdd8260',
@@ -5455,7 +5455,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044230
+    merchant_id: 22044230,
   },
   {
     id: 'fc0bd184-ba0d-4105-97e2-8bb515061463',
@@ -5471,7 +5471,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044255
+    merchant_id: 22044255,
   },
   {
     id: '73a39996-287d-4e30-8780-091945e020f0',
@@ -5487,7 +5487,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044297
+    merchant_id: 22044297,
   },
   {
     id: 'b3290ce8-15db-41a0-bfa1-6e3cb93b6135',
@@ -5503,7 +5503,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044305
+    merchant_id: 22044305,
   },
   {
     id: 'e8674944-34d3-40db-8333-8533c21feed4',
@@ -5519,7 +5519,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044313
+    merchant_id: 22044313,
   },
   {
     id: '95406746-40f6-4a5a-b65d-008f614138d5',
@@ -5535,7 +5535,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044362
+    merchant_id: 22044362,
   },
   {
     id: '76bf1899-025b-4516-8f8c-c9be20206fb4',
@@ -5551,7 +5551,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044412
+    merchant_id: 22044412,
   },
   {
     id: '24139a4a-d926-40dc-aa45-0105489f020c',
@@ -5567,7 +5567,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044438
+    merchant_id: 22044438,
   },
   {
     id: 'd911f19a-91ab-40e8-9124-e6cbae6cc62c',
@@ -5583,7 +5583,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044545
+    merchant_id: 22044545,
   },
   {
     id: '83606b55-0f8b-4477-a5fb-8fb4f138cfe3',
@@ -5599,7 +5599,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044628
+    merchant_id: 22044628,
   },
   {
     id: '390ec068-0e22-431f-8e97-e5c499fe2cd4',
@@ -5615,7 +5615,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044701
+    merchant_id: 22044701,
   },
   {
     id: 'ae9c766a-5b84-4d62-8c70-b628bf2f3f2a',
@@ -5631,7 +5631,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044750
+    merchant_id: 22044750,
   },
   {
     id: '264d4e6c-d92a-45ec-9bbb-94e35782282d',
@@ -5647,7 +5647,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044859
+    merchant_id: 22044859,
   },
   {
     id: '17d9e554-a74d-4e2c-bedc-ac6c9ba7828e',
@@ -5663,7 +5663,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 20777441
+    merchant_id: 20777441,
   },
   {
     id: '03e62f42-926d-4205-800a-4179bbcc0603',
@@ -5679,7 +5679,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 22044933
+    merchant_id: 22044933,
   },
   {
     id: '8a530af3-419f-41da-b9cf-48e788e538b1',
@@ -5695,7 +5695,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103846
+    merchant_id: 24103846,
   },
   {
     id: 'c3b89b80-04a3-4f6a-bc2c-e5de445185d8',
@@ -5711,7 +5711,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103838
+    merchant_id: 24103838,
   },
   {
     id: '477ab12c-ab10-41d7-ae27-e48dc8978581',
@@ -5727,7 +5727,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103895
+    merchant_id: 24103895,
   },
   {
     id: '21153def-3d08-45a3-9f02-081ece350dd1',
@@ -5743,7 +5743,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103879
+    merchant_id: 24103879,
   },
   {
     id: 'dee7c22a-d21e-4586-8bcf-75325821bae7',
@@ -5759,7 +5759,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103861
+    merchant_id: 24103861,
   },
   {
     id: '6b25fbe2-7360-4317-96f2-8cdf97ce7d2c',
@@ -5775,7 +5775,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103861
+    merchant_id: 24103861,
   },
   {
     id: 'c1966864-603b-43dc-a72a-d89903e618a2',
@@ -5791,7 +5791,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103853
+    merchant_id: 24103853,
   },
   {
     id: '50831447-0695-4aac-82d7-bf1ee27995fd',
@@ -5807,7 +5807,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 24103887
+    merchant_id: 24103887,
   },
   {
     id: 'bf72302d-cf2d-4883-a636-5647b13b77d3',
@@ -5823,7 +5823,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23700609
+    merchant_id: 23700609,
   },
   {
     id: '7e0ac6ea-39c9-4a68-ba1e-f023a4bda86b',
@@ -5839,7 +5839,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956607
+    merchant_id: 23956607,
   },
   {
     id: 'e35eb1cd-ee90-4d30-875d-da211bb6b685',
@@ -5855,7 +5855,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956599
+    merchant_id: 23956599,
   },
   {
     id: '590437cf-e41d-4e44-abf3-d109d4813d61',
@@ -5871,7 +5871,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23302208
+    merchant_id: 23302208,
   },
   {
     id: 'f5f78b55-b937-4dd7-a139-574ac62db6d6',
@@ -5887,7 +5887,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23700609
+    merchant_id: 23700609,
   },
   {
     id: 'c659672e-bffe-49a8-8875-27acf2023f37',
@@ -5903,7 +5903,7 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956607
+    merchant_id: 23956607,
   },
   {
     id: '48fa6dcd-8af4-438b-ac48-97028e6d1300',
@@ -5919,8 +5919,8 @@ export const locations: LocationEntity[] = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchant_id: 23956599
-  }
+    merchant_id: 23956599,
+  },
 ];
 
 /*eslint-disable */
@@ -5946,7 +5946,7 @@ export const newLocationList = locations
               loc.description
           )?.description ?? '',
         merchant_ids: [],
-        pt_location_ids: []
+        pt_location_ids: [],
       };
     }
 

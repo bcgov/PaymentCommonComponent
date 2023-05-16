@@ -13,7 +13,7 @@ test('Cash Deposit Entity Instance', () => {
     type: FileTypes.TDI17,
     fileName: 'test/TDI17',
     program: 'SBC',
-    fileContents: Buffer.from(testFile).toString()
+    fileContents: Buffer.from(testFile).toString(),
   };
   const data: TDI17Details[] = [...parseTDI(tdi17Mock)] as TDI17Details[];
   const cashDeposit: CashDepositEntity[] = data.map(

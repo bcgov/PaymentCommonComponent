@@ -3,7 +3,7 @@ import {
   CashDepositDetailsReport,
   POSDepositDetailsReport,
   PaymentDetailsReport,
-  DetailsReport
+  DetailsReport,
 } from './detailed-report';
 import { DailySummary, ReportConfig } from './interfaces';
 import { rowStyle } from './styles';
@@ -66,9 +66,9 @@ export class DetailedReportService {
         total_payments: total,
         total_unmatched_payments: exceptions,
         percent_unmatched: unmatchedPercentage,
-        total_sum: parseFloat(totalSum.toFixed(2))
+        total_sum: parseFloat(totalSum.toFixed(2)),
       },
-      style: rowStyle(exceptions !== 0)
+      style: rowStyle(exceptions !== 0),
     };
   }
 
@@ -89,7 +89,7 @@ export class DetailedReportService {
     const allPendingAndInProgressCashPayments: PaymentEntity[] =
       await this.paymentService.findCashPayments(dateRange, location, [
         MatchStatus.PENDING,
-        MatchStatus.IN_PROGRESS
+        MatchStatus.IN_PROGRESS,
       ]);
 
     return [
@@ -99,7 +99,7 @@ export class DetailedReportService {
       ...currentCashPaymentsByDepositDates.map(
         (itm) =>
           new PaymentDetailsReport(location, itm, twoMostRecentDepositDates)
-      )
+      ),
     ];
   }
 
@@ -140,7 +140,7 @@ export class DetailedReportService {
 
     const twoMostRecentDepositDates = cashDepositDatesForPaymentsQuery && {
       from_date: cashDepositDatesForPaymentsQuery[1],
-      to_date: cashDepositDatesForPaymentsQuery[0]
+      to_date: cashDepositDatesForPaymentsQuery[0],
     };
 
     const payments = await this.findCashPaymentsForDetailedReport(
@@ -155,12 +155,12 @@ export class DetailedReportService {
       ),
       ...currentCashDeposits.map(
         (itm) => new CashDepositDetailsReport(location, itm)
-      )
+      ),
     ];
 
     return {
       payments,
-      deposits
+      deposits,
     };
   }
 
@@ -187,7 +187,7 @@ export class DetailedReportService {
       ),
       deposits: posDeposits.map(
         (itm) => new POSDepositDetailsReport(location, itm)
-      )
+      ),
     };
   }
   /**
@@ -202,7 +202,7 @@ export class DetailedReportService {
   ): Promise<DetailsReport[]> {
     const dateRange: DateRange = {
       from_date: config.period.from,
-      to_date: config.period.to
+      to_date: config.period.to,
     };
     const cashData = await this.findCashDataForDetailedReport(
       location,
@@ -218,7 +218,7 @@ export class DetailedReportService {
       ...posData.deposits,
       ...posData.payments,
       ...cashData.deposits,
-      ...cashData.payments
+      ...cashData.payments,
     ];
   }
 }

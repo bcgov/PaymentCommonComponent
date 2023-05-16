@@ -17,15 +17,15 @@ export class LocationService {
   ): Promise<number[]> {
     const merchant_ids = await this.locationRepo.find({
       select: {
-        merchant_id: true
+        merchant_id: true,
       },
       where: {
         location_id,
-        method: Not('Bank')
+        method: Not('Bank'),
       },
       order: {
-        location_id: 'ASC'
-      }
+        location_id: 'ASC',
+      },
     });
     return merchant_ids.map((itm) => itm.merchant_id) as number[];
   }
@@ -38,16 +38,16 @@ export class LocationService {
       select: {
         location_id: true,
         pt_location_id: true,
-        description: true
+        description: true,
       },
       where: {
         source_id: program,
         method: `${LocationEnum.Bank}`,
-        location_id: In(location_ids)
+        location_id: In(location_ids),
       },
       order: {
-        location_id: 'ASC'
-      }
+        location_id: 'ASC',
+      },
     });
   }
 
@@ -57,11 +57,11 @@ export class LocationService {
     return await this.locationRepo.find({
       where: {
         source_id: source,
-        method: `${LocationEnum.Bank}`
+        method: `${LocationEnum.Bank}`,
       },
       order: {
-        location_id: 'ASC'
-      }
+        location_id: 'ASC',
+      },
     });
   }
 }

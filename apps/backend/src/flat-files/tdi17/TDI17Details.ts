@@ -1,10 +1,10 @@
 import {
   Column,
-  DataType
+  DataType,
 } from '../../common/decorators/fixedWidthRecord.decorator';
 import {
   FixedWidthRecord,
-  IFixedWidthRecord
+  IFixedWidthRecord,
 } from '../../common/entities/FixedWidthRecord';
 
 export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
@@ -106,7 +106,7 @@ export class TDI17Details
 
   @Column({
     start: 24,
-    width: 3
+    width: 3,
   })
   public get seq_no() {
     return this.resource.seq_no;
@@ -165,7 +165,7 @@ export class TDI17Details
   @Column({
     start: 82,
     width: 12,
-    format: { type: DataType.Decimal }
+    format: { type: DataType.Decimal },
   })
   public get exchange_adj_amt() {
     return this.resource.exchange_adj_amt;

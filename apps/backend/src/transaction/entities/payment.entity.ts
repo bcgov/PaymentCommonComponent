@@ -6,7 +6,7 @@ import {
   JoinColumn,
   ManyToOne,
   OneToOne,
-  Relation
+  Relation,
 } from 'typeorm';
 import { PaymentMethodEntity } from './payment-method.entity';
 import { TransactionEntity } from './transaction.entity';
@@ -28,7 +28,7 @@ export class PaymentEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer()
+    transformer: new ColumnNumericTransformer(),
   })
   amount: number;
 
@@ -36,7 +36,7 @@ export class PaymentEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    nullable: true
+    nullable: true,
   })
   foreign_currency_amount?: number;
 
@@ -48,7 +48,7 @@ export class PaymentEntity {
     precision: 16,
     scale: 4,
     nullable: true,
-    transformer: new ColumnNumericTransformer()
+    transformer: new ColumnNumericTransformer(),
   })
   exchange_rate?: number;
 
@@ -98,12 +98,12 @@ export class PaymentEntity {
     () => CashDepositEntity,
     (cashDeposit: CashDepositEntity) => cashDeposit.id,
     {
-      nullable: true
+      nullable: true,
     }
   )
   @JoinColumn({
     name: 'cash_deposit_match',
-    referencedColumnName: 'id'
+    referencedColumnName: 'id',
   })
   cash_deposit_match?: Relation<CashDepositEntity>;
 
@@ -114,7 +114,7 @@ export class PaymentEntity {
   )
   @JoinColumn({
     referencedColumnName: 'id',
-    name: 'pos_deposit_match'
+    name: 'pos_deposit_match',
   })
   pos_deposit_match?: Relation<POSDepositEntity>;
 

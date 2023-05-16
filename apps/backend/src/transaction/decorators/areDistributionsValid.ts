@@ -1,7 +1,7 @@
 import {
   isArray,
   ValidatorConstraint,
-  ValidatorConstraintInterface
+  ValidatorConstraintInterface,
 } from 'class-validator';
 import { DistributionDTO } from '../dto/accounting.dto';
 

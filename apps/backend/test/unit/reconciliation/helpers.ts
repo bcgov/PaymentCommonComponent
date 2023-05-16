@@ -17,7 +17,7 @@ export const aggregatedPayments = (payments: PaymentEntity[]) => {
           status: payment.status,
           fiscal_close_date: payment.transaction.fiscal_close_date,
           amount: 0,
-          payments: []
+          payments: [],
         };
       }
       acc[key].amount += parseFloat(payment.amount.toFixed(2));
@@ -52,12 +52,12 @@ export const setSomePaymentsToTwentyMinutesLater = (
               ) +
                 1000 * 60 * 20,
               'HH:mm:ss'
-            )
-          }
+            ),
+          },
         }
       : {
           ...itm,
-          timestamp: itm.timestamp
+          timestamp: itm.timestamp,
         }
   );
 };
@@ -73,7 +73,7 @@ export const unmatchedTestData = (
       transaction: {
         ...itm.transaction,
         transaction_date: format(faker.date.recent(10), 'yyyy-MM-dd'),
-        location: faker.helpers.arrayElement(locations)
+        location: faker.helpers.arrayElement(locations),
       },
       timestamp: parse(
         format(faker.date.recent(10), 'yyyy-MM-dd'),
@@ -81,13 +81,13 @@ export const unmatchedTestData = (
         new Date()
       ),
       amount: faker.datatype.number({ min: 1, max: 1000 }),
-      payment_method: faker.helpers.arrayElement(paymentMethods)
+      payment_method: faker.helpers.arrayElement(paymentMethods),
     })),
     deposits: posData.map((itm) => ({
       ...itm,
       timestamp: itm.timestamp,
-      transaction_amt: faker.datatype.number({ min: 1, max: 1000 })
-    }))
+      transaction_amt: faker.datatype.number({ min: 1, max: 1000 }),
+    })),
   };
 };
 

@@ -11,7 +11,7 @@ export class ParseService {
     type,
     fileName,
     program,
-    fileContents
+    fileContents,
   }: ParseArgsTDI): Promise<unknown> {
     try {
       return parseTDI({ type, fileName, program, fileContents });

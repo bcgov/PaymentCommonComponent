@@ -65,11 +65,11 @@ export class CashDepositService {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
         deposit_date,
-        status: In(depositStatus)
+        status: In(depositStatus),
       },
       order: {
-        deposit_amt_cdn: 'ASC'
-      }
+        deposit_amt_cdn: 'ASC',
+      },
     });
   }
 
@@ -86,11 +86,11 @@ export class CashDepositService {
         deposit_date: Raw(
           (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
           { to_date, from_date }
-        )
+        ),
       },
       order: {
-        deposit_date: 'ASC'
-      }
+        deposit_date: 'ASC',
+      },
     });
     const uniqueDates = dates.map((d) => d.deposit_date);
     return Array.from(new Set(uniqueDates));
@@ -133,8 +133,8 @@ export class CashDepositService {
         pt_location_id: location.pt_location_id,
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
-        status: MatchStatus.IN_PROGRESS
-      }
+        status: MatchStatus.IN_PROGRESS,
+      },
     });
   }
   /**
@@ -159,15 +159,15 @@ export class CashDepositService {
             `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
           {
             from_date,
-            to_date
+            to_date,
           }
         ),
-        pt_location_id: location.pt_location_id
+        pt_location_id: location.pt_location_id,
       },
       order: {
         deposit_date: 'ASC',
-        deposit_amt_cdn: 'ASC'
-      }
+        deposit_amt_cdn: 'ASC',
+      },
     });
   }
 }

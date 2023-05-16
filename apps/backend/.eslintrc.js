@@ -19,6 +19,7 @@ module.exports = {
   },
   rules: {
     'no-console': 'off',
+    '@typescript-eslint/comma-dangle': ['error', 'only-multiline'],
     '@typescript-eslint/no-explicit-any': 'error',
     '@typescript-eslint/interface-name-prefix': 'off',
     '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -60,6 +61,7 @@ module.exports = {
         }
       }
     ],
+    'comma-dangle': 'off',
     'unused-imports/no-unused-imports': 'error',
     'unused-imports/no-unused-vars': [
       'warn',

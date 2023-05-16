@@ -2,7 +2,7 @@ import {
   ValidatorConstraint,
   ValidatorConstraintInterface,
   ValidationArguments,
-  isArray
+  isArray,
 } from 'class-validator';
 import { PaymentDTO } from '../dto/payment.dto';
 import { TransactionDTO } from '../dto/transaction.dto';

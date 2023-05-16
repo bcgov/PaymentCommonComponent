@@ -16,7 +16,7 @@ const config: PostgresConnectionOptions = {
   username: process.env.DB_USER || 'postgres',
   password: process.env.DB_PASSWORD,
   logging: !!process.env.DEBUG,
-  logger: process.env.DEBUG ? new DatabaseLogger() : undefined
+  logger: process.env.DEBUG ? new DatabaseLogger() : undefined,
 };
 
 const getEnvironmentSpecificConfig = (env?: string) => {
@@ -27,7 +27,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         migrationsRun: false,
         entities: [join(__dirname, '../**/*.entity.js')],
         migrations: [join(__dirname, '../migrations/*.js')],
-        logging: ['migration'] as LoggerOptions
+        logging: ['migration'] as LoggerOptions,
       };
     case 'test':
       return {
@@ -36,7 +36,7 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         autoLoadEntities: true,
         entities: [join(__dirname, '../**/*.entity.{js,ts}')],
         migrations: [join(__dirname, '../migrations/*.{js,ts}')],
-        logging: ['migration'] as LoggerOptions
+        logging: ['migration'] as LoggerOptions,
       };
     case 'ci':
       return {
@@ -46,14 +46,14 @@ const getEnvironmentSpecificConfig = (env?: string) => {
         dropSchema: true,
         entities: [join(__dirname, '../**/*.entity.{js,ts}')],
         migrations: [join(__dirname, '../migrations/*.{js,ts}')],
-        logging: ['migration'] as LoggerOptions
+        logging: ['migration'] as LoggerOptions,
       };
     default:
       return {
         synchronize: false,
         migrationsRun: false,
         autoLoadEntities: true,
-        logging: ['error', 'warn', 'migration'] as LoggerOptions
+        logging: ['error', 'warn', 'migration'] as LoggerOptions,
       };
   }
 };
@@ -63,14 +63,14 @@ const environmentSpecificConfig = getEnvironmentSpecificConfig(nodeEnv);
 
 export const appOrmConfig: PostgresConnectionOptions = {
   ...config,
-  ...environmentSpecificConfig
+  ...environmentSpecificConfig,
 };
 
 @Module({
   imports: [
     TypeOrmModule.forRootAsync({
-      useFactory: () => appOrmConfig
-    })
-  ]
+      useFactory: () => appOrmConfig,
+    }),
+  ],
 })
 export class DatabaseModule {}

@@ -5,12 +5,12 @@ import {
   ColumnMetadataKey,
   ColumnOptions,
   ColumnVariableKey,
-  DataType
+  DataType,
 } from '../decorators/fixedWidthRecord.decorator';
 import {
   decimalFormat,
   timeFormat,
-  parseFlatDateString
+  parseFlatDateString,
 } from '../utils/format';
 
 type DelimiterOptions = {
@@ -96,7 +96,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
     // get `__proto__` and (recursively) all parent classes
     const rs = new Set([
       ...(fields || []),
-      ...this.getAllFields(Object.getPrototypeOf(clz))
+      ...this.getAllFields(Object.getPrototypeOf(clz)),
     ]);
     return Array.from(rs);
   }
@@ -111,7 +111,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
       );
       return {
         field,
-        options
+        options,
       };
     });
     fieldsWithMeta.sort((a, b) => {
@@ -133,7 +133,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
         result = Buffer.concat([
           result.slice(0, pos + 1),
           Buffer.from(target.delimiter?.value),
-          result.slice(pos + 1)
+          result.slice(pos + 1),
         ]);
       });
     }
