@@ -10,16 +10,37 @@ import { LocationEntity } from '../location/entities/master-location-data.entity
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
-
+/**
+ * @description Reconciliation Service for matching POS payments to POS deposits
+ * @class
+ */
 @Injectable()
 export class PosReconciliationService {
+  /**
+   * @constructor
+   * @param appLogger
+   * @param posDepositService
+   * @param paymentService
+   * @param posMatchHeuristics
+   */
   constructor(
     @Inject(Logger) public readonly appLogger: AppLogger,
     @Inject(PosDepositService) public posDepositService: PosDepositService,
     @Inject(PaymentService) public paymentService: PaymentService,
     @Inject(PosMatchHeuristics) public posMatchHeuristics: PosMatchHeuristics
   ) {}
-  async reconcile(location: LocationEntity, program: Ministries, date: Date) {
+  /**
+   * Match POS payments to POS deposits on location, program, date and time based heuristics
+   * @param {LocationEntity} location
+   * @param {Ministries} program
+   * @param {Date} date
+   * @returns {Promise<unknown>}
+   */
+  async reconcile(
+    location: LocationEntity,
+    program: Ministries,
+    date: Date
+  ): Promise<unknown> {
     const dateQuery = {
       minDate: format(subBusinessDays(date, 2), 'yyyy-MM-dd'),
       maxDate: format(subBusinessDays(date, 1), 'yyyy-MM-dd'),
@@ -178,7 +199,13 @@ export class PosReconciliationService {
       total_updated_deposits: total_updated_deposits.length,
     };
   }
-
+  /**
+   * Loop through the list of payments and deposits and match them based on the heuristic round
+   * @param payments
+   * @param deposits
+   * @param heuristicRound
+   * @returns { payment: PaymentEntity; deposit: POSDepositEntity }[]
+   */
   public matchPosPaymentToPosDeposits(
     payments: PaymentEntity[],
     deposits: POSDepositEntity[],
@@ -217,7 +244,13 @@ export class PosReconciliationService {
     }
     return matches;
   }
-
+  /**
+   * Queries for the payments and deposits for a location and date range
+   * @param {DateQuery} dateQuery
+   * @param {LocationEntity} location
+   * @param {Ministries} program
+   * @returns {Promise<{pendingPayments: PaymentEntity[]; pendingDeposits: POSDepositEntity[];}> }
+   */
   public async findPendingDepositsAndPayments(
     dateQuery: DateQuery,
     location: LocationEntity,
@@ -243,7 +276,12 @@ export class PosReconciliationService {
       pendingDeposits,
     };
   }
-
+  /**
+   * Filter out remaining pending after trying to match and set to in progress
+   * @param pendingPayments
+   * @param pendingDeposits
+   * @returns {paymentsInProgress: PaymentEntity[]; depositsInProgress: POSDepositEntity[];}
+   */
   public setPendingToInProgress(
     pendingPayments: PaymentEntity[],
     pendingDeposits: POSDepositEntity[]
@@ -265,7 +303,12 @@ export class PosReconciliationService {
 
     return { paymentsInProgress, depositsInProgress };
   }
-
+  /**
+   * Filter out the any in progress payments and deposits after trying to match and set to exception
+   * @param {PaymentEntity} inProgressPayments
+   * @param {POSDepositEntity} inProgressDeposits
+   * @returns {paymentExceptions: PaymentEntity[]; depositExceptions: POSDepositEntity[];}
+   */
   public setInProgressToExceptions(
     inProgressPayments: PaymentEntity[],
     inProgressDeposits: POSDepositEntity[]
