@@ -1,10 +1,11 @@
 import { faker } from '@faker-js/faker';
 import {
+  differenceInBusinessDays,
   differenceInMinutes,
   format,
   getTime,
   parse,
-  subBusinessDays
+  subBusinessDays,
 } from 'date-fns';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { AggregatedPayment } from '../../../src/reconciliation/types';
@@ -79,8 +80,8 @@ export const setSomePaymentsToOneBusinessDayBehind = (
       transaction_date: subBusinessDays(
         new Date(itm.transaction.transaction_date),
         1
-      )
-    }
+      ),
+    },
   }));
 };
 
@@ -129,3 +130,33 @@ export const timeBetweenMatchedPaymentAndDeposit = (
       new Date()
     )
   );
+
+export const roundOneTimeHeuristic = (
+  payment: PaymentEntity,
+  deposit: POSDepositEntity
+) => timeBetweenMatchedPaymentAndDeposit(payment, deposit) <= 5;
+
+export const roundTwoTimeHeuristic = (
+  payment: PaymentEntity,
+  deposit: POSDepositEntity
+) =>
+  timeBetweenMatchedPaymentAndDeposit(payment, deposit) >= 5 &&
+  timeBetweenMatchedPaymentAndDeposit(payment, deposit) <= 1440;
+
+export const roundThreeTimeHeuristic = (
+  payment: PaymentEntity,
+  deposit: POSDepositEntity
+) =>
+  timeBetweenMatchedPaymentAndDeposit(payment, deposit) >= 1440 &&
+  differenceInBusinessDays(
+    parse(
+      `${payment.transaction.transaction_date} ${payment.transaction.transaction_time}`,
+      'yyyy-MM-dd HH:mm:ss',
+      new Date()
+    ),
+    parse(
+      `${deposit.transaction_date} ${deposit.transaction_time}`,
+      'yyyy-MM-dd HH:mm:ss',
+      new Date()
+    )
+  ) < 2;

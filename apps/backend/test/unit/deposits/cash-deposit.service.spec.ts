@@ -1,5 +1,5 @@
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { In, LessThanOrEqual, Repository } from 'typeorm';
 import * as fs from 'fs';
@@ -23,7 +23,7 @@ describe('CashDepositService', () => {
   let repository: Repository<CashDepositEntity>;
 
   beforeEach(async () => {
-    const moduleRef = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       providers: [
         CashDepositService,
         {
