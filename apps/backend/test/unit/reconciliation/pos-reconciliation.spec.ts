@@ -26,39 +26,39 @@ import { PaymentService } from '../../../src/transaction/payment.service';
 import { locations } from '../../mocks/const/locations';
 import { MockData } from '../../mocks/mocks';
 
-describe('POSReconciliationService', () => {
-  let service: POSReconciliationService;
-
-  let payments: PaymentEntity[];
+describe('PosReconciliationService', () => {
+  let service: PosReconciliationService;
+  let posDepositService: DeepMocked<PosDepositService>;
+  let paymentService: DeepMocked<PaymentService>;
+  let posMatchHeuristics: DeepMocked<PosMatchHeuristics>;
+  let logger: DeepMocked<AppLogger>;
+  let payments: jest.Mocked<PaymentEntity[]>;
   let deposits: POSDepositEntity[];
-  let paymentExceptions: PaymentEntity[];
-  let depositExceptions: POSDepositEntity[];
+  let matches: jest.Mocked<
+    { payment: PaymentEntity; deposit: POSDepositEntity }[]
+  >;
+  let unmatchedPayments: jest.Mocked<PaymentEntity[]>;
+  let unmatchedDeposits: jest.Mocked<POSDepositEntity[]>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        POSReconciliationService,
-        {
-          provide: PaymentService,
-          useValue: createMock<PaymentService>(),
-        },
-        {
-          provide: PosDepositService,
-          useValue: createMock<PosDepositService>(),
-        },
-        {
-          provide: Logger,
-          useValue: createMock<Logger>(),
-        },
-      ],
-    }).compile();
+      providers: [PosReconciliationService]
+    })
+      .useMocker(createMock)
+      .compile();
 
     const data = new MockData(PaymentMethodClassification.POS);
 
     payments = data.paymentsMock as PaymentEntity[];
     deposits = data.depositsMock as POSDepositEntity[];
-
-    service = module.get<POSReconciliationService>(POSReconciliationService);
+    matches = [];
+    unmatchedPayments = [];
+    unmatchedDeposits = [];
+    service = module.get<PosReconciliationService>(PosReconciliationService);
+    posMatchHeuristics = module.get(PosMatchHeuristics);
+    posDepositService = module.get(PosDepositService);
+    paymentService = module.get(PaymentService);
+    logger = module.get(Logger);
   });
 
   afterEach(() => {
@@ -80,109 +80,33 @@ describe('POSReconciliationService', () => {
     });
   });
 
-  describe('matchPaymentsToDeposits first round heuristics', () => {
-    it('should verify the test data status is PENDING prior to running reconciliation', () => {
-      payments.forEach((itm) => expect(itm.status).toBe(MatchStatus.PENDING));
-      deposits.forEach((itm) => expect(itm.status).toBe(MatchStatus.PENDING));
-    });
-
-    it('calls a function to match based on the first round of heuristics', () => {
-      const timeDiff = 5;
-
-      const matchedRoundOne = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiff
+  describe('findMatches - round one ', () => {
+    beforeAll(() => {
+      matches = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        1
       );
-      expect(matchedRoundOne.length).toBeGreaterThan(0);
+      expect(matches).toBeDefined();
+      expect(matches.length).toBeGreaterThan(0);
+      expect(posMatchHeuristics.isMatch).toBeCalled();
     });
 
     it('should verify the time difference between matches on round one is 5 minutes or less', () => {
-      const matchedRoundOne = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        5
-      );
-      matchedRoundOne.forEach(({ payment, deposit }) =>
+      matches.forEach(({ payment, deposit }) =>
         expect(
           timeBetweenMatchedPaymentAndDeposit(payment, deposit)
         ).toBeLessThanOrEqual(5)
       );
     });
-
-    it('should have updated the status from PENDING to MATCH', () => {
-      const timeDiff = 5;
-      const matchedRoundOne = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiff
-      );
-      matchedRoundOne.forEach((itm) => {
-        expect(itm.deposit.status === MatchStatus.MATCH);
-        expect(itm.payment.status === MatchStatus.MATCH);
-      });
-    });
-  });
-
-  describe('should match payments to deposits according to second round of heuristics', () => {
-    it('checks that there are still pending items to match for round two', () => {
-      expect(payments.some((itm) => itm.status === MatchStatus.PENDING)).toBe(
-        true
-      );
-      expect(deposits.some((itm) => itm.status === MatchStatus.PENDING)).toBe(
-        true
-      );
-    });
-    it('calls matchPosPaymentToPosDeposits with the timeDiff set to second round time-heuristic ', () => {
-      const timeDiff = 1440;
-      //set some to 20 minutes later to verify that we're using the second round time heuristic
-      payments = setSomePaymentsToTwentyMinutesLater(payments);
-      const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiff
-      );
-      //verify that there are matches to test
-      expect(matchedRoundTwo.length).toBeGreaterThan(0);
-    });
-
-    it('should verify the time difference between matched payments and deposits is less than 24 hours and greater than 5 minutes', () => {
-      const timeDiff = 1440;
-
-      //set some to 20 minutes later to verify that we're using the second round time heuristic
-      payments = setSomePaymentsToTwentyMinutesLater(payments);
-      //set round one matches
-      service.matchPosPaymentToPosDeposits(payments, deposits, 5);
-      const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiff
-      );
-      matchedRoundTwo.forEach(({ payment, deposit }) =>
-        expect(
-          timeBetweenMatchedPaymentAndDeposit(payment, deposit)
-        ).toBeLessThanOrEqual(1440)
-      );
-      matchedRoundTwo.forEach(({ payment, deposit }) =>
-        expect(
-          timeBetweenMatchedPaymentAndDeposit(payment, deposit)
-        ).toBeGreaterThan(5)
-      );
-    });
-
-    it('should have updated the status from PENDING to MATCH', () => {
-      const timeDiff = 1440;
-
-      //set some to 20 minutes later to verify that we're using the second round time heuristic
-      payments = setSomePaymentsToTwentyMinutesLater(payments);
-      const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiff
-      );
-      matchedRoundTwo.forEach((itm) => {
-        expect(itm.deposit.status === MatchStatus.MATCH);
-        expect(itm.payment.status === MatchStatus.MATCH);
     it('should have set the status to MATCH', () => {
       matches.forEach(({ payment, deposit }) => {
         expect(payment.status).toEqual(MatchStatus.MATCH);
@@ -539,12 +463,6 @@ describe('POSReconciliationService', () => {
       payments = [...payments, ...unMatchedData.payments];
       deposits = [...deposits, ...unMatchedData.deposits];
 
-      const timeDiffRoundTwo = 1440;
-
-      service.matchPosPaymentToPosDeposits(
-        payments,
-        deposits,
-        timeDiffRoundTwo
       const matchedRoundOne = service.matchPosPaymentToPosDeposits(
         payments.filter((payment) =>
           [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
