@@ -200,6 +200,7 @@ export class PosReconciliationService {
               pos_deposit_match: {
                 ...deposit,
                 timestamp: deposit.timestamp,
+                heuristic_match_round: heuristicRound,
                 status: MatchStatus.MATCH,
               },
             },
