@@ -116,7 +116,6 @@ export class CashReconciliationService {
           });
           break;
         }
-        break;
       }
     }
     return matches;
