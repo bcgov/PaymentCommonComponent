@@ -99,23 +99,23 @@ export class CashReconciliationService {
             `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
             CashReconciliationService.name
           );
-          deposits[dindex] = { ...deposit, status: MatchStatus.MATCH };
-          aggregatedPayments[pindex] = {
-            ...payment,
-            status: MatchStatus.MATCH,
-            payments: payment.payments.map((itm) => ({
-              ...itm,
-              timestamp: itm.timestamp,
-              status: MatchStatus.MATCH,
-              cash_deposit_match: deposits[dindex],
-            })),
-          };
+          aggregatedPayments[pindex].status = MatchStatus.MATCH;
+          deposits[dindex].status = MatchStatus.MATCH;
           matches.push({
-            aggregatedPayment: aggregatedPayments[pindex],
-            deposit: deposits[dindex],
+            aggregatedPayment: {
+              ...payment,
+              status: MatchStatus.MATCH,
+              payments: payment.payments.map((itm) => ({
+                ...itm,
+                timestamp: itm.timestamp,
+                status: MatchStatus.MATCH,
+                cash_deposit_match: { ...deposit, status: MatchStatus.MATCH },
+              })),
+            },
+            deposit: { ...deposit, status: MatchStatus.MATCH },
           });
+          break;
         }
-        break;
       }
     }
     return matches;

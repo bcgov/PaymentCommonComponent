@@ -1,5 +1,9 @@
 import { MatchStatus } from '../../common/const';
-import { DateRange, Ministries } from '../../constants';
+import {
+  DateRange,
+  Ministries,
+  PaymentMethodClassification,
+} from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../../location/entities';
@@ -40,6 +44,7 @@ export interface AggregatedPayment {
   fiscal_close_date: string;
   location_id: number;
   amount: number;
+  classification: PaymentMethodClassification.CASH;
   cash_deposit_match: CashDepositEntity;
   payments: PaymentEntity[];
 }

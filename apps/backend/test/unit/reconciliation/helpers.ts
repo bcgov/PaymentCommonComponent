@@ -7,7 +7,7 @@ import { paymentMethods } from '../../../test/mocks/const/payment-methods';
 import { locations } from '../../mocks/const/locations';
 import { MockData } from '../../mocks/mocks';
 
-export const aggregatedPayments = (payments: PaymentEntity[]) => {
+export const aggregatePayments = (payments: PaymentEntity[]) => {
   const groupedPayments = payments.reduce(
     /*eslint-disable */
     (acc: any, payment: PaymentEntity) => {
