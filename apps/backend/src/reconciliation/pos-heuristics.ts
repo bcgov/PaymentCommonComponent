@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { differenceInBusinessDays, differenceInMinutes } from 'date-fns';
+import { PosHeuristicRound, PosTimeMatch } from './types';
 import { MatchStatus } from '../common/const';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
@@ -44,57 +45,40 @@ export class PosMatchHeuristics {
       deposit.status !== MatchStatus.MATCH
     );
   }
-
-  public roundOneHeuristics(
+  public verifyMatch(
     payment: PaymentEntity,
     deposit: POSDepositEntity
   ): boolean {
     return (
       this.verifyMethod(payment, deposit) &&
       this.verifyAmount(payment, deposit) &&
-      this.verifyStatus(payment, deposit) &&
-      this.verifyTimeMatch(payment, deposit, 5)
-    );
-  }
-
-  public roundTwoHeuristics(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
-  ): boolean {
-    return (
-      this.verifyMethod(payment, deposit) &&
-      this.verifyAmount(payment, deposit) &&
-      this.verifyStatus(payment, deposit) &&
-      this.verifyTimeMatch(payment, deposit, 1440)
-    );
-  }
-
-  public roundThreeHeuristics(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
-  ): boolean {
-    return (
-      this.verifyMethod(payment, deposit) &&
-      this.verifyAmount(payment, deposit) &&
-      this.verifyStatus(payment, deposit) &&
-      this.lookBackOneBusinessDay(payment, deposit)
+      this.verifyStatus(payment, deposit)
     );
   }
 
   public isMatch(
     payment: PaymentEntity,
     deposit: POSDepositEntity,
-    round: number
+    round: PosHeuristicRound
   ): boolean {
     switch (round) {
-      case 1:
-        return this.roundOneHeuristics(payment, deposit);
-      case 2:
-        return this.roundTwoHeuristics(payment, deposit);
-      case 3:
-        return this.roundThreeHeuristics(payment, deposit);
+      case PosHeuristicRound.TWO:
+        return (
+          this.verifyMatch(payment, deposit) &&
+          this.verifyTimeMatch(payment, deposit, PosTimeMatch.ROUND_TWO)
+        );
+      case PosHeuristicRound.ONE:
+        return (
+          this.verifyMatch(payment, deposit) &&
+          this.verifyTimeMatch(payment, deposit, PosTimeMatch.ROUND_ONE)
+        );
+      case PosHeuristicRound.THREE:
+        return (
+          this.verifyMatch(payment, deposit) &&
+          this.lookBackOneBusinessDay(payment, deposit)
+        );
       default:
-        return this.roundOneHeuristics(payment, deposit);
+        return false;
     }
   }
 }

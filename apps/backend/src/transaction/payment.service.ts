@@ -3,7 +3,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, In, Repository, LessThanOrEqual } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
-import { DateRange, PaymentMethodClassification } from '../constants';
+import {
+  DateQuery,
+  DateRange,
+  PaymentMethodClassification,
+} from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -17,24 +21,24 @@ export class PaymentService {
   ) {}
 
   async findPosPayments(
-    dateQuery: { yesterday: Date; today: Date },
+    dateQuery: DateQuery,
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const paymentStatus = status ? status : MatchStatusAll;
-    const { yesterday, today } = dateQuery;
+    const { minDate, maxDate } = dateQuery;
 
     return await this.paymentRepo.find({
       where: {
         transaction: {
           transaction_date: Raw(
-            (alias) => `${alias} >= :yesterday AND ${alias} <= :today`,
-            { yesterday, today }
+            (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
+            { minDate, maxDate }
           ),
-          location_id: location.location_id
+          location_id: location.location_id,
         },
         status: In(paymentStatus),
-        payment_method: { classification: PaymentMethodClassification.POS }
+        payment_method: { classification: PaymentMethodClassification.POS },
       },
       relations: {
         payment_method: true,
@@ -43,8 +47,8 @@ export class PaymentService {
       order: {
         amount: 'ASC',
         payment_method: { method: 'ASC' },
-        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' }
-      }
+        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
+      },
     });
   }
 

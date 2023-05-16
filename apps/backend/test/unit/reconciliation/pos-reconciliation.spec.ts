@@ -16,6 +16,7 @@ import { MatchStatus } from '../../../src/common/const';
 import { PaymentMethodClassification } from '../../../src/constants';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { PosMatchHeuristics } from '../../../src/reconciliation/pos-heuristics';
+import { PosHeuristicRound } from '../../../src/reconciliation/types';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { MockData } from '../../mocks/mocks';
 
@@ -47,12 +48,6 @@ describe('PosReconciliationService', () => {
         },
       ],
     }).compile();
-
-    const data = new MockData(PaymentMethodClassification.POS);
-
-    payments = data.paymentsMock as PaymentEntity[];
-    deposits = data.depositsMock as POSDepositEntity[];
-
     service = module.get<PosReconciliationService>(PosReconciliationService);
   });
 
@@ -69,7 +64,7 @@ describe('PosReconciliationService', () => {
       const matches = service.matchPosPaymentToPosDeposits(
         payments,
         deposits,
-        1
+        PosHeuristicRound.ONE
       );
       expect(matches.length).toBeGreaterThan(0);
     });
@@ -91,7 +86,7 @@ describe('PosReconciliationService', () => {
             deposit.status
           )
         ),
-        1
+        PosHeuristicRound.ONE
       );
       expect(matches).toBeDefined();
       expect(matches.length).toBeGreaterThan(0);
@@ -129,8 +124,10 @@ describe('PosReconciliationService', () => {
             deposit.status
           )
         ),
-        2
+        PosHeuristicRound.THREE
       );
+      expect(matches).toBeDefined();
+      expect(matches.length).toBeGreaterThan(0);
     });
     it('should find matches', async () => {
       expect(
@@ -147,272 +144,265 @@ describe('PosReconciliationService', () => {
         matches.some((itm) => roundTwoTimeHeuristic(itm.payment, itm.deposit))
       ).toBe(true);
     });
-    describe('findMatches - round three', () => {
-      beforeAll(() => {
-        const data = new MockData(PaymentMethodClassification.POS);
-        payments = data.paymentsMock as PaymentEntity[];
-        deposits = data.depositsMock as POSDepositEntity[];
-        payments = setSomePaymentsToOneBusinessDayBehind(payments);
-        matches = service.matchPosPaymentToPosDeposits(
-          payments.filter((payment) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              payment.status
-            )
-          ),
-          deposits.filter((deposit) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              deposit.status
-            )
-          ),
-          3
-        );
-      });
-      it('should find matches', async () => {
-        expect(matches).toBeDefined();
-        expect(matches.length).toBeGreaterThan(0);
-        expect(
-          matches.every(
-            (itm) =>
-              itm.payment.status === MatchStatus.MATCH &&
-              itm.deposit.status === MatchStatus.MATCH
+  });
+  describe('findMatches - round three', () => {
+    beforeAll(() => {
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
+
+      payments = setSomePaymentsToOneBusinessDayBehind(payments);
+
+      const matches = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
           )
-        ).toBe(true);
-        expect(matches.length).toBeGreaterThan(0);
-      });
-      it('should verify the time difference between matches on round three is one business day', () => {
-        expect(
-          matches.some((itm) =>
-            roundThreeTimeHeuristic(itm.payment, itm.deposit)
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
           )
-        ).toBe(true);
-      });
+        ),
+        PosHeuristicRound.THREE
+      );
+
+      expect(matches).toBeDefined();
+      expect(matches.length).toBeGreaterThan(0);
     });
-    describe('findMatches - run all three heuristics rounds', () => {
-      beforeAll(() => {
-        const data = new MockData(PaymentMethodClassification.POS);
-        payments = data.paymentsMock as PaymentEntity[];
-        deposits = data.depositsMock as POSDepositEntity[];
-        payments = setSomePaymentsToTwentyMinutesLater(payments);
-        payments = setSomePaymentsToOneBusinessDayBehind(payments);
-
-        const matchedRoundOne = service.matchPosPaymentToPosDeposits(
-          payments.filter((payment) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              payment.status
-            )
-          ),
-          deposits.filter((deposit) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              deposit.status
-            )
-          ),
-          1
-        );
-
-        const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
-          payments.filter((payment) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              payment.status
-            )
-          ),
-          deposits.filter((deposit) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              deposit.status
-            )
-          ),
-          2
-        );
-
-        const matchedRoundThree = service.matchPosPaymentToPosDeposits(
-          payments.filter((payment) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              payment.status
-            )
-          ),
-          deposits.filter((deposit) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              deposit.status
-            )
-          ),
-          3
-        );
-
-        matches = [
-          ...matchedRoundOne,
-          ...matchedRoundTwo,
-          ...matchedRoundThree,
-        ];
-        expect(matches).toBeDefined();
-        expect(matches.length).toBeGreaterThan(0);
-        expect(
-          matches.every(
-            (itm) =>
-              itm.deposit.status === MatchStatus.MATCH &&
-              itm.payment.status === MatchStatus.MATCH
-          )
-        ).toBe(true);
-      });
-
-      it('should match payment method on all matched payments/deposits', () => {
-        expect(
-          matches.every(
-            (itm) =>
-              itm.deposit.payment_method.method ===
-              itm.payment.payment_method.method
-          )
-        ).toBe(true);
-      });
-
-      it('should match amount on all matched payments/deposits', () => {
-        expect(
-          matches.every(
-            (itm) => itm.payment.amount === itm.deposit.transaction_amt
-          )
-        ).toBe(true);
-      });
-
-      it('should set the correct pos_deposit_match in the payment on all matched payments/deposits', () => {
-        expect(
-          matches.every((itm) => itm.payment.pos_deposit_match === itm.deposit)
-        ).toBe(true);
-      });
-
-      it('should have an equal number of matched payments/deposits', () => {
-        expect(matches.map((itm) => itm.deposit).length).toBe(
-          matches.map((itm) => itm.payment).length
-        );
-      });
-
-      it('should not match the same deposit to multiple payments', () => {
-        const recordedDepositIds = matches.map(
-          (itm) => itm.payment.pos_deposit_match
-        );
-        const uniqueRecordedDepositIds = Array.from(
-          new Set(recordedDepositIds.map((itm) => itm))
-        );
-        expect(recordedDepositIds.length).toBe(uniqueRecordedDepositIds.length);
-      });
+    it('should find matches', async () => {
+      expect(
+        matches.every(
+          (itm) =>
+            itm.payment.status === MatchStatus.MATCH &&
+            itm.deposit.status === MatchStatus.MATCH
+        )
+      ).toBe(true);
+      expect(matches.length).toBeGreaterThan(0);
     });
-    describe('verifies that unmatched data will not be set as match', () => {
-      beforeAll(() => {
-        // create some data that will not match
-        const data = new MockData(PaymentMethodClassification.POS);
-        payments = data.paymentsMock as PaymentEntity[];
-        deposits = data.depositsMock as POSDepositEntity[];
+    it('should verify the time difference between matches on round three is one business day', () => {
+      expect(
+        matches.some((itm) => roundThreeTimeHeuristic(itm.payment, itm.deposit))
+      ).toBe(true);
+    });
+  });
+  describe('findMatches - run all three heuristics rounds', () => {
+    beforeAll(() => {
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
+      payments = setSomePaymentsToTwentyMinutesLater(payments);
+      payments = setSomePaymentsToOneBusinessDayBehind(payments);
 
-        const unMatchedData = unmatchedTestData(
-          new MockData(PaymentMethodClassification.POS)
-        );
-
-        payments = [...payments, ...unMatchedData.payments];
-        deposits = [...deposits, ...unMatchedData.deposits];
-
-        const matchedRoundOne = service.matchPosPaymentToPosDeposits(
-          payments.filter((payment) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              payment.status
-            )
-          ),
-          deposits.filter((deposit) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              deposit.status
-            )
-          ),
-          1
-        );
-
-        const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
-          payments.filter((payment) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              payment.status
-            )
-          ),
-          deposits.filter((deposit) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              deposit.status
-            )
-          ),
-          2
-        );
-
-        const matchedRoundThree = service.matchPosPaymentToPosDeposits(
-          payments.filter((payment) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              payment.status
-            )
-          ),
-          deposits.filter((deposit) =>
-            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-              deposit.status
-            )
-          ),
-          3
-        );
-
-        matches = [
-          ...matchedRoundOne,
-          ...matchedRoundTwo,
-          ...matchedRoundThree,
-        ];
-
-        unmatchedPayments = payments.filter(
-          (payment) => payment.status === MatchStatus.PENDING
-        );
-        unmatchedDeposits = deposits.filter(
-          (deposit) => deposit.status === MatchStatus.PENDING
-        );
-      });
-      it('should update the status of matched items in the original array and return a new array with the matched pairs', () => {
-        expect(matches.map((itm) => itm.payment)).toStrictEqual(
-          expect.arrayContaining(
-            payments.filter((itm) => itm.status === MatchStatus.MATCH)
+      const matchedRoundOne = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
           )
-        );
-        expect(matches.map((itm) => itm.deposit)).toStrictEqual(
-          expect.arrayContaining(
-            deposits.filter((itm) => itm.status === MatchStatus.MATCH)
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
           )
-        );
-      });
-      it('should return the same number of matched payments and deposits as the original array contained', () => {
-        expect(matches).not.toEqual(
-          expect.arrayContaining(
-            payments.filter((itm) => itm.status === MatchStatus.MATCH)
-          )
-        );
-        expect(matches).not.toEqual(
-          expect.arrayContaining(
-            deposits.filter((itm) => itm.status === MatchStatus.MATCH)
-          )
-        );
-      });
-      it('should not include unmatched items in the returned array', () => {
-        expect(matches.map((itm) => itm.payment)).not.toEqual(
-          expect.arrayContaining(
-            payments.filter((itm) => itm.status === MatchStatus.PENDING)
-          )
-        );
-        expect(matches.map((itm) => itm.deposit)).not.toEqual(
-          expect.arrayContaining(
-            deposits.filter((itm) => itm.status === MatchStatus.PENDING)
-          )
-        );
-      });
+        ),
+        PosHeuristicRound.ONE
+      );
 
-      it('should not change the status of unmatched payment and deposits', () => {
-        expect(
-          unmatchedPayments.every((itm) => itm.status === MatchStatus.PENDING)
-        ).toBe(true);
-        expect(
-          unmatchedDeposits.every((itm) => itm.status === MatchStatus.PENDING)
-        ).toBe(true);
-      });
+      const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        PosHeuristicRound.TWO
+      );
 
-      it('should not record the pos_deposit_match id if no match is found', () => {
-        expect(
-          unmatchedPayments.every((itm) => itm.pos_deposit_match === undefined)
-        ).toBe(true);
-      });
+      const matchedRoundThree = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        PosHeuristicRound.THREE
+      );
+
+      matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
+      expect(matches).toBeDefined();
+      expect(matches.length).toBeGreaterThan(0);
+      expect(
+        matches.every(
+          (itm) =>
+            itm.deposit.status === MatchStatus.MATCH &&
+            itm.payment.status === MatchStatus.MATCH
+        )
+      ).toBe(true);
+    });
+
+    it('should match payment method on all matched payments/deposits', () => {
+      expect(
+        matches.every(
+          (itm) =>
+            itm.deposit.payment_method.method ===
+            itm.payment.payment_method.method
+        )
+      ).toBe(true);
+    });
+
+    it('should match amount on all matched payments/deposits', () => {
+      expect(
+        matches.every(
+          (itm) => itm.payment.amount === itm.deposit.transaction_amt
+        )
+      ).toBe(true);
+    });
+
+    it('should set the correct pos_deposit_match in the payment on all matched payments/deposits', () => {
+      expect(
+        matches.every((itm) => itm.payment.pos_deposit_match === itm.deposit)
+      ).toBe(true);
+    });
+
+    it('should have an equal number of matched payments/deposits', () => {
+      expect(matches.map((itm) => itm.deposit).length).toBe(
+        matches.map((itm) => itm.payment).length
+      );
+    });
+
+    it('should not match the same deposit to multiple payments', () => {
+      const recordedDepositIds = matches.map(
+        (itm) => itm.payment.pos_deposit_match
+      );
+      const uniqueRecordedDepositIds = Array.from(
+        new Set(recordedDepositIds.map((itm) => itm))
+      );
+      expect(recordedDepositIds.length).toBe(uniqueRecordedDepositIds.length);
+    });
+  });
+  describe('verifies that unmatched data will not be set as match', () => {
+    beforeAll(() => {
+      // create some data that will not match
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
+
+      const unMatchedData = unmatchedTestData(
+        new MockData(PaymentMethodClassification.POS)
+      );
+
+      payments = [...payments, ...unMatchedData.payments];
+      deposits = [...deposits, ...unMatchedData.deposits];
+
+      const matchedRoundOne = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        PosHeuristicRound.ONE
+      );
+
+      const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        PosHeuristicRound.TWO
+      );
+
+      const matchedRoundThree = service.matchPosPaymentToPosDeposits(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        ),
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        ),
+        PosHeuristicRound.THREE
+      );
+
+      matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
+
+      unmatchedPayments = payments.filter(
+        (payment) => payment.status === MatchStatus.PENDING
+      );
+      unmatchedDeposits = deposits.filter(
+        (deposit) => deposit.status === MatchStatus.PENDING
+      );
+    });
+    it('should update the status of matched items in the original array and return a new array with the matched pairs', () => {
+      expect(matches.map((itm) => itm.payment)).toStrictEqual(
+        expect.arrayContaining(
+          payments.filter((itm) => itm.status === MatchStatus.MATCH)
+        )
+      );
+      expect(matches.map((itm) => itm.deposit)).toStrictEqual(
+        expect.arrayContaining(
+          deposits.filter((itm) => itm.status === MatchStatus.MATCH)
+        )
+      );
+    });
+    it('should return the same number of matched payments and deposits as the original array contained', () => {
+      expect(matches).not.toEqual(
+        expect.arrayContaining(
+          payments.filter((itm) => itm.status === MatchStatus.MATCH)
+        )
+      );
+      expect(matches).not.toEqual(
+        expect.arrayContaining(
+          deposits.filter((itm) => itm.status === MatchStatus.MATCH)
+        )
+      );
+    });
+    it('should not include unmatched items in the returned array', () => {
+      expect(matches.map((itm) => itm.payment)).not.toEqual(
+        expect.arrayContaining(
+          payments.filter((itm) => itm.status === MatchStatus.PENDING)
+        )
+      );
+      expect(matches.map((itm) => itm.deposit)).not.toEqual(
+        expect.arrayContaining(
+          deposits.filter((itm) => itm.status === MatchStatus.PENDING)
+        )
+      );
+    });
+
+    it('should not change the status of unmatched payment and deposits', () => {
+      expect(
+        unmatchedPayments.every((itm) => itm.status === MatchStatus.PENDING)
+      ).toBe(true);
+      expect(
+        unmatchedDeposits.every((itm) => itm.status === MatchStatus.PENDING)
+      ).toBe(true);
+    });
+
+    it('should not record the pos_deposit_match id if no match is found', () => {
+      expect(
+        unmatchedPayments.every((itm) => itm.pos_deposit_match === undefined)
+      ).toBe(true);
     });
   });
 });

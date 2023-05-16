@@ -30,6 +30,11 @@ export interface DateRange {
   to_date: string;
 }
 
+export interface DateQuery {
+  minDate: string;
+  maxDate: string;
+}
+
 export enum PaymentMethodClassification {
   CASH = 'CASH',
   POS = 'POS',

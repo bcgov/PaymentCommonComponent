@@ -5,7 +5,7 @@ import { In, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
-import { DateRange, Ministries } from '../constants';
+import { DateQuery, DateRange, Ministries } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
@@ -22,13 +22,13 @@ export class PosDepositService {
   ) {}
 
   async findPOSDeposits(
-    dateQuery: { yesterday: Date; today: Date },
+    dateQuery: DateQuery,
     program: Ministries,
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
     const depositStatus = status ? status : MatchStatusAll;
-    const { yesterday, today } = dateQuery;
+    const { minDate, maxDate } = dateQuery;
     const merchant_ids: number[] =
       await this.locationService.getMerchantIdsByLocationId(
         location.location_id
@@ -36,14 +36,14 @@ export class PosDepositService {
     return await this.posDepositRepo.find({
       where: {
         transaction_date: Raw(
-          (alias) => `${alias} >= :yesterday AND ${alias} <= :today`,
-          { yesterday, today }
+          (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
+          { minDate, maxDate }
         ),
         metadata: {
           program: program,
         },
         status: In(depositStatus),
-        merchant_id: In(merchant_ids)
+        merchant_id: In(merchant_ids),
       },
       relations: {
         payment_method: true,
@@ -51,9 +51,9 @@ export class PosDepositService {
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
       order: {
-        transaction_date: 'ASC',
         transaction_amt: 'ASC',
         payment_method: { method: 'ASC' },
+        transaction_date: 'ASC',
         transaction_time: 'ASC',
       },
     });

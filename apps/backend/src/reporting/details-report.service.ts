@@ -1,5 +1,5 @@
 import { Inject } from '@nestjs/common';
-import { parse, subBusinessDays } from 'date-fns';
+import { format, parse, subBusinessDays } from 'date-fns';
 import {
   CashDepositDetailsReport,
   POSDepositDetailsReport,
@@ -173,18 +173,23 @@ export class DetailedReportService {
     payments: PaymentDetailsReport[];
     deposits: POSDepositDetailsReport[];
   }> {
-    const today = subBusinessDays(
-      parse(dateRange.to_date, 'yyyy-MM-dd', new Date()),
-      1
-    );
-    const yesterday = subBusinessDays(today, 1);
+    const dateQuery = {
+      minDate: format(
+        subBusinessDays(parse(dateRange.to_date, 'yyyy-MM-dd', new Date()), 2),
+        'yyyy-MM-dd'
+      ),
+      maxDate: format(
+        subBusinessDays(parse(dateRange.to_date, 'yyyy-MM-dd', new Date()), 1),
+        'yyyy-MM-dd'
+      ),
+    };
 
     const posPayments: PaymentEntity[] =
-      await this.paymentService.findPosPayments({ yesterday, today }, location);
+      await this.paymentService.findPosPayments(dateQuery, location);
 
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSDeposits(
-        { yesterday, today },
+        dateQuery,
         program,
         location
       );
