@@ -1,6 +1,7 @@
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { format } from 'date-fns';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
@@ -30,9 +31,9 @@ describe('POSDepositService', () => {
         PosDepositService,
         {
           provide: getRepositoryToken(POSDepositEntity),
-          useValue: createMock<Repository<POSDepositEntity>>()
-        }
-      ]
+          useValue: createMock<Repository<POSDepositEntity>>(),
+        },
+      ],
     })
       .useMocker(createMock)
       .compile();
@@ -91,7 +92,10 @@ describe('POSDepositService', () => {
       const spy = jest.spyOn(service, 'findPOSDeposits');
       const location = generateLocation();
       await service.findPOSDeposits(
-        { yesterday: new Date(), today: new Date() },
+        {
+          minDate: format(new Date(), 'yyyy-MM-dd'),
+          maxDate: format(new Date(), 'yyyy-MM-dd'),
+        },
         Ministries.SBC,
         location
       );

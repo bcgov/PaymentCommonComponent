@@ -13,8 +13,14 @@ import { PaymentEntity } from '../../../src/transaction/entities';
 import { paymentMethods } from '../../../test/mocks/const/payment-methods';
 import { locations } from '../../mocks/const/locations';
 import { MockData } from '../../mocks/mocks';
-
-export const aggregatePayments = (payments: PaymentEntity[]) => {
+/**
+ * Aggregates the cash payments by fiscal close date and status in order to match 1:1 to a cash deposit
+ * @param {PaymentEntity[]} payments
+ * @returns {AggregatedPayment[]}
+ */
+export const aggregatePayments = (
+  payments: PaymentEntity[]
+): AggregatedPayment[] => {
   const groupedPayments = payments.reduce(
     /*eslint-disable */
     (acc: any, payment: PaymentEntity) => {
@@ -38,7 +44,11 @@ export const aggregatePayments = (payments: PaymentEntity[]) => {
     (a: AggregatedPayment, b: AggregatedPayment) => a.amount - b.amount
   );
 };
-
+/**
+ * Used for testing round two heuristics in POS reconciliation
+ * @param {PaymentEntity[]} payments
+ * @returns
+ */
 export const setSomePaymentsToTwentyMinutesLater = (
   payments: PaymentEntity[]
 ) => {
@@ -68,7 +78,11 @@ export const setSomePaymentsToTwentyMinutesLater = (
         }
   );
 };
-
+/**
+ * Used for testing round three heuristics in POS reconciliation
+ * @param {PaymentEntity[]} payments
+ * @returns
+ */
 export const setSomePaymentsToOneBusinessDayBehind = (
   payments: PaymentEntity[]
 ) => {
@@ -84,7 +98,11 @@ export const setSomePaymentsToOneBusinessDayBehind = (
     },
   }));
 };
-
+/**
+ * Used for creating "bad" test data
+ * @param {MockData[]} data
+ * @returns
+ */
 export const unmatchedTestData = (
   data: MockData
 ): { payments: PaymentEntity[]; deposits: POSDepositEntity[] } => {
@@ -113,11 +131,16 @@ export const unmatchedTestData = (
     })),
   };
 };
-
+/**
+ * Calculates the time between a matched payment and deposit
+ * @param {PaymentEntity} payment
+ * @param {POSDepositEntity} deposit
+ * @returns {number}
+ */
 export const timeBetweenMatchedPaymentAndDeposit = (
   payment: PaymentEntity,
   deposit: POSDepositEntity
-) =>
+): number =>
   differenceInMinutes(
     parse(
       `${payment.transaction.transaction_date} ${payment.transaction.transaction_time}`,
@@ -130,19 +153,34 @@ export const timeBetweenMatchedPaymentAndDeposit = (
       new Date()
     )
   );
-
+/**
+ * Verify's a match based on the rules for round one heuristics (< 5 mins time difference)
+ * @param {PaymentEntity} payment
+ * @param {POSDepositEntity} deposit
+ * @returns {boolean}
+ */
 export const roundOneTimeHeuristic = (
   payment: PaymentEntity,
   deposit: POSDepositEntity
 ) => timeBetweenMatchedPaymentAndDeposit(payment, deposit) <= 5;
-
+/**
+ * Verify's a match based on the rules for round two heuristics (date match - no time match)
+ * @param {PaymentEntity} payment
+ * @param {POSDepositEntity} deposit
+ * @returns {boolean}
+ */
 export const roundTwoTimeHeuristic = (
   payment: PaymentEntity,
   deposit: POSDepositEntity
 ) =>
   timeBetweenMatchedPaymentAndDeposit(payment, deposit) >= 5 &&
-  timeBetweenMatchedPaymentAndDeposit(payment, deposit) <= 1440;
-
+  payment.transaction.transaction_date === deposit.transaction_date;
+/**
+ * Verify's a match based on the rules for round three heuristics (look back one business day)
+ * @param {PaymentEntity} payment
+ * @param {POSDepositEntity} deposit
+ * @returns {boolean}
+ */
 export const roundThreeTimeHeuristic = (
   payment: PaymentEntity,
   deposit: POSDepositEntity
