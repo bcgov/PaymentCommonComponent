@@ -2,8 +2,9 @@ import { compareAsc, parse } from 'date-fns';
 import { CashDepositMock } from './classes/cash_deposit_mock';
 import { PaymentMock } from './classes/payment_mock';
 import { MockData } from './mocks';
-import { aggregatedPayments } from '../unit/reconciliation/helpers';
+import { aggregatePayments } from '../unit/reconciliation/helpers';
 import { PaymentMethodClassification } from '../../src/constants';
+import { AggregatedPayment } from '../../src/reconciliation/types';
 
 describe('Tests the generated mock data', () => {
   let cashDepositsMock: CashDepositMock[];
@@ -23,7 +24,7 @@ describe('Tests the generated mock data', () => {
         date: itm.deposit_date,
         amount: itm.deposit_amt_cdn,
       })),
-      payments: aggregatedPayments(cashPaymentsMock).map((itm) => ({
+      payments: aggregatePayments(cashPaymentsMock).map((itm) => ({
         date: itm.fiscal_close_date,
         amount: itm.amount,
       })),
@@ -37,8 +38,9 @@ describe('Tests the generated mock data', () => {
     const depositsDates = cashDepositsMock.map((itm) =>
       parse(itm.deposit_date, 'yyyy-MM-dd', new Date())
     );
-    const paymentsDates = aggregatedPayments(cashPaymentsMock).map((itm) =>
-      parse(itm.fiscal_close_date, 'yyyy-MM-dd', new Date())
+    const paymentsDates = aggregatePayments(cashPaymentsMock).map(
+      (itm: AggregatedPayment) =>
+        parse(itm.fiscal_close_date, 'yyyy-MM-dd', new Date())
     );
     // compareAsc returns -1 if the first date is before the second date, which causes this function to fail
     expect(

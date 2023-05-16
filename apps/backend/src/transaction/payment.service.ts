@@ -52,6 +52,7 @@ export class PaymentService {
         if (!acc[key]) {
           acc[key] = {
             status: payment.status,
+            classification: payment.payment_method.classification,
             fiscal_close_date: payment.transaction.fiscal_close_date,
             amount: 0,
             payments: [],

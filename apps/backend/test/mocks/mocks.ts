@@ -5,11 +5,13 @@ import { TransactionMock } from './classes/transaction_mock';
 import { generateDateRange } from './const/date_range_mock';
 import { generateMetadataMock } from './const/file_metadata_mock';
 import { generateLocation } from './const/location_mock';
-import { aggregatedPayments } from '../unit/reconciliation/helpers';
+import { aggregatePayments } from '../unit/reconciliation/helpers';
 import { MatchStatus } from '../../src/common/const';
 import { DateRange, FileTypes, Ministries } from '../../src/constants';
 import { PaymentMethodClassification } from '../../src/constants';
 import { LocationEntity } from '../../src/location/entities/master-location-data.entity';
+import { AggregatedPayment } from '../../src/reconciliation/types';
+import { PaymentEntity } from '../../src/transaction/entities';
 
 export class MockData {
   public location: LocationEntity;
@@ -21,41 +23,35 @@ export class MockData {
   public classification: PaymentMethodClassification;
   public status: MatchStatus;
 
-  constructor(
-    classification: PaymentMethodClassification,
-    dateRange?: DateRange,
-    location?: LocationEntity,
-    program?: Ministries,
-    status?: MatchStatus
-  ) {
+  constructor(classification: PaymentMethodClassification) {
     this.classification = classification;
-    this.dateRange = dateRange ?? generateDateRange();
-    this.location = location ?? generateLocation();
-    this.program = program ?? Ministries.SBC;
-    this.status = status ?? MatchStatus.PENDING;
-    this.transactionsMock = this.generateTransactions();
+    this.dateRange = generateDateRange();
+    this.location = generateLocation();
+    this.program = Ministries.SBC;
+    this.status = MatchStatus.PENDING;
+    this.transactionsMock = this.generateTransactions(classification);
     this.paymentsMock = this.transactionsMock.flatMap((itm) => itm.payments);
-    this.setDepositsMock();
+    this.depositsMock =
+      classification === PaymentMethodClassification.CASH
+        ? this.generateCashDeposits(this.paymentsMock)
+        : this.generatePosDeposits();
   }
 
-  generateCashDeposits(): CashDepositMock[] {
-    const paymentTotals = aggregatedPayments(this.paymentsMock).map(
-      (itm) => itm.amount
-    );
-    return paymentTotals.flatMap(
-      (payment_total: number) =>
+  generateCashDeposits(payments: PaymentEntity[]): CashDepositMock[] {
+    const aggregatedPayments = aggregatePayments(payments);
+    const cashDeposits: CashDepositMock[] = [];
+    aggregatedPayments.forEach((payment: AggregatedPayment) => {
+      cashDeposits.push(
         new CashDepositMock(
           this.dateRange,
           this.location,
-          payment_total,
+          generateMetadataMock(FileTypes.TDI17),
+          payment.amount,
           this.status
         )
-    );
-  }
-  public setDepositsMock() {
-    this.classification === PaymentMethodClassification.CASH
-      ? (this.depositsMock = this.generateCashDeposits())
-      : (this.depositsMock = this.generatePosDeposits());
+      );
+    });
+    return cashDeposits;
   }
 
   public generatePosDeposits(): POSDepositMock[] {
@@ -81,7 +77,9 @@ export class MockData {
     return payments;
   }
 
-  public generateTransactions(): TransactionMock[] {
+  public generateTransactions(
+    classification: PaymentMethodClassification
+  ): TransactionMock[] {
     const transactions = [];
     for (let i = 0; i < 10; i++) {
       const transaction = new TransactionMock(
@@ -91,7 +89,7 @@ export class MockData {
         []
       );
       transaction.payments = this.generatePayments(
-        this.classification,
+        classification,
         transaction,
         this.status
       );

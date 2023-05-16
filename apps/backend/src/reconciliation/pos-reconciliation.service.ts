@@ -110,7 +110,11 @@ export class POSReconciliationService {
               ...payment,
               status: MatchStatus.MATCH,
               timestamp: payment.timestamp,
-              pos_deposit_match: deposit,
+              pos_deposit_match: {
+                ...deposit,
+                timestamp: deposit.timestamp,
+                status: MatchStatus.MATCH,
+              },
             },
             deposit: {
               ...deposit,
