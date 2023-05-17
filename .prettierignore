@@ -1,0 +1,52 @@
+*.md
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# next.js
+.next
+_next
+/out/
+.yarn
+
+# production
+/build
+/dist
+dist
+build
+.build
+# misc
+.DS_Store
+*.pem
+.eslintcache
+
+# debug
+npm-debug.log*
+yarn.lock
+yarn-debug.log*
+yarn-error.log*
+.pgdata
+.yarn
+
+# local env files
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# vercel
+.vercel
+
+#hbs
+*.hbs
+
+
+
+*.yaml
+
+packages/accessibility/out

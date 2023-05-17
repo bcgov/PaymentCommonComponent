@@ -118,5 +118,11 @@
     "coverageReporters": [
       "html"
     ]
+  },
+  "lint-staged": {
+    "*.{tsx,ts}": [
+      "prettier --write",
+      "eslint  --fix"
+    ]
   }
 }
