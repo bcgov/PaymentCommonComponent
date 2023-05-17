@@ -25,9 +25,9 @@ export class PosDepositService {
     dateRange: DateRange,
     program: Ministries,
     location: LocationEntity,
-    status?: MatchStatus[]
+    statuses?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
-    const depositStatus = status ? status : MatchStatusAll;
+    const depositStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
     const merchant_ids: number[] =
       await this.locationService.getMerchantIdsByLocationId(
@@ -42,7 +42,7 @@ export class PosDepositService {
         metadata: {
           program: program,
         },
-        status: In(depositStatus),
+        status: In(depositStatuses),
         merchant_id: In(merchant_ids),
       },
       relations: {

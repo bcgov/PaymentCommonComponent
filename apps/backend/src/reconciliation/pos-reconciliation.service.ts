@@ -106,6 +106,7 @@ export class PosReconciliationService {
       ),
       PosHeuristicRound.ONE
     );
+
     this.appLogger.log(
       `MATCHES - ROUND 1 ${matchesRoundOne.length}`,
       PosReconciliationService.name
@@ -120,10 +121,12 @@ export class PosReconciliationService {
       ),
       PosHeuristicRound.TWO
     );
+
     this.appLogger.log(
       `MATCHES - ROUND 2 ${matchesRoundTwo.length}`,
       PosReconciliationService.name
     );
+
     const matchesRoundThree = this.matchPosPaymentToPosDeposits(
       pendingPayments.filter((payment) =>
         [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(payment.status)
@@ -133,10 +136,12 @@ export class PosReconciliationService {
       ),
       PosHeuristicRound.THREE
     );
+
     this.appLogger.log(
       `MATCHES - ROUND 3 ${matchesRoundThree.length}`,
       PosReconciliationService.name
     );
+
     const matches = [
       ...matchesRoundOne,
       ...matchesRoundTwo,
@@ -169,6 +174,7 @@ export class PosReconciliationService {
       ...depositsInProgress,
       ...depositExceptions,
     ]);
+
     this.appLogger.log(
       `UPDATED ${total_updated_payments.length}`,
       PosReconciliationService.name
@@ -178,6 +184,7 @@ export class PosReconciliationService {
       `UPDATED ${total_updated_deposits.length}`,
       PosReconciliationService.name
     );
+
     return {
       transaction_date: format(date, 'yyyy-MM-dd'),
       type: ReconciliationType.POS,
@@ -271,6 +278,7 @@ export class PosReconciliationService {
       location,
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
     );
+
     return {
       pendingPayments,
       pendingDeposits,

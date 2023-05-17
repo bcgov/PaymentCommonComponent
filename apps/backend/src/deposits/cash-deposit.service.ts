@@ -57,9 +57,9 @@ export class CashDepositService {
     program: Ministries,
     deposit_date: string,
     location: LocationEntity,
-    status?: MatchStatus[]
+    statuses?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
-    const depositStatus = status ?? MatchStatusAll;
+    const depositStatus = statuses ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
         pt_location_id: location.pt_location_id,

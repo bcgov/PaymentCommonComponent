@@ -14,7 +14,7 @@ export class PosMatchHeuristics {
    * Match payment to deposit on the same payment method
    * @param {PaymentEntity} payment
    * @param {POSDepositEntity} deposit
-   * @returns {boolen}
+   * @returns {boolean}
    */
   public verifySamePaymentMethod(
     payment: PaymentEntity,
@@ -26,7 +26,7 @@ export class PosMatchHeuristics {
    * Match payment to deposit on the same amount
    * @param {PaymentEntity} payment
    * @param {POSDepositEntity} deposit
-   * @returns {boolen}
+   * @returns {boolean}
    */
   public verifySameAmount(
     payment: PaymentEntity,
@@ -38,7 +38,7 @@ export class PosMatchHeuristics {
    * Only match if payment and deposit are not already matched
    * @param {PaymentEntity} payment
    * @param {POSDepositEntity} deposit
-   * @returns {boolen}
+   * @returns {boolean}
    */
   public verifyStatusNotMatched(
     payment: PaymentEntity,
