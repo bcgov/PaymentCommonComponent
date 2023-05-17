@@ -101,7 +101,7 @@ describe('POSDepositService', () => {
       );
       expect(spy).toBeCalledTimes(1);
       expect(repository.find).toBeCalledTimes(1);
-      expect(locationService.getMerchantIdsByLocationId).toBeCalledTimes(1);
+      expect(locationService.getLocationsByID).toBeCalledTimes(1);
     });
   });
   describe('update', () => {
