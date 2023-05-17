@@ -326,11 +326,12 @@ export class PosReconciliationService {
     heuristicRound: PosHeuristicRound
   ): boolean {
     if (heuristicRound === PosHeuristicRound.ONE) {
-      return differenceInMinutes(payment.timestamp, deposit.timestamp) <= 5;
-    } else if (heuristicRound === PosHeuristicRound.TWO) {
       return (
-        differenceInCalendarDays(payment.timestamp, deposit.timestamp) <= 1
+        payment.transaction.transaction_date === deposit.transaction_date &&
+        differenceInMinutes(payment.timestamp, deposit.timestamp) <= 5
       );
+    } else if (heuristicRound === PosHeuristicRound.TWO) {
+      return payment.transaction.transaction_date === deposit.transaction_date;
     } else if (heuristicRound === PosHeuristicRound.THREE) {
       return (
         differenceInCalendarDays(payment.timestamp, deposit.timestamp) <= 1
