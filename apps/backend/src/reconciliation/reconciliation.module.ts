@@ -14,7 +14,7 @@ import { TransactionModule } from '../transaction/transaction.module';
     PosReconciliationService,
     Logger,
     CashExceptionsService,
-    PosMatchHeuristics
+    PosMatchHeuristics,
   ],
   exports: [],
 })
