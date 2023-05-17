@@ -299,14 +299,16 @@ export class PosReconciliationService {
           'yyyy-MM-dd'
         )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
           differenceInMinutes(payment.timestamp, deposit.timestamp)
-        )}`
+        )}`,
+        PosReconciliationService.name
       );
       return (
         Math.abs(differenceInMinutes(payment.timestamp, deposit.timestamp)) <= 5
       );
     } else if (heuristicRound === PosHeuristicRound.TWO) {
       this.appLogger.log(
-        `ROUND 2: ${payment.transaction.transaction_date} === ${deposit.transaction_date}`
+        `ROUND 2: ${payment.transaction.transaction_date} === ${deposit.transaction_date}`,
+        PosReconciliationService.name
       );
       return payment.transaction.transaction_date === deposit.transaction_date;
     } else if (heuristicRound === PosHeuristicRound.THREE) {
@@ -316,7 +318,8 @@ export class PosReconciliationService {
           'yyyy-MM-dd'
         )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
           differenceInBusinessDays(payment.timestamp, deposit.timestamp)
-        )}`
+        )}`,
+        PosReconciliationService.name
       );
       return (
         Math.abs(
