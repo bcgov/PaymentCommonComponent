@@ -1,7 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import {
   differenceInBusinessDays,
-  differenceInCalendarDays,
   differenceInMinutes,
   format,
   subBusinessDays,
@@ -184,36 +183,7 @@ export class PosReconciliationService {
           }))
       )
     );
-    const paymentExceptions = await Promise.all(
-      await this.paymentService.updatePayments(
-        pendingPayments
-          .filter(
-            (itm) =>
-              itm.status === MatchStatus.IN_PROGRESS &&
-              differenceInBusinessDays(itm.timestamp, date) >= 2
-          )
-          .map((itm) => ({
-            ...itm,
-            timestamp: itm.timestamp,
-            status: MatchStatus.EXCEPTION,
-          }))
-      )
-    );
-    const depositExceptions = await Promise.all(
-      await this.posDepositService.updateDeposits(
-        pendingDeposits
-          .filter(
-            (itm) =>
-              itm.status === MatchStatus.IN_PROGRESS &&
-              differenceInBusinessDays(itm.timestamp, date) >= 2
-          )
-          .map((itm) => ({
-            ...itm,
-            timestamp: itm.timestamp,
-            status: MatchStatus.EXCEPTION,
-          }))
-      )
-    );
+
     return {
       transaction_date: format(date, 'yyyy-MM-dd'),
       type: ReconciliationType.POS,
@@ -224,8 +194,6 @@ export class PosReconciliationService {
       total_matched_deposits: depositsMatched.length,
       total_payments_in_progress: paymentsInProgress.length,
       total_deposits_in_progress: depositsInProgress.length,
-      total_payment_exceptions: paymentExceptions.length,
-      total_deposit_exceptions: depositExceptions.length,
     };
   }
   /**
@@ -334,7 +302,7 @@ export class PosReconciliationService {
       return payment.transaction.transaction_date === deposit.transaction_date;
     } else if (heuristicRound === PosHeuristicRound.THREE) {
       return (
-        differenceInCalendarDays(payment.timestamp, deposit.timestamp) <= 1
+        differenceInBusinessDays(payment.timestamp, deposit.timestamp) <= 1
       );
     } else return false;
   }
@@ -356,5 +324,65 @@ export class PosReconciliationService {
       this.verifyPendingStatus(payment, deposit) &&
       this.verifyTimeMatch(payment, deposit, posHeuristicRound)
     );
+  }
+
+  public async findExceptions(
+    location: LocationEntity,
+    program: Ministries,
+    date: Date
+  ): Promise<unknown> {
+    const dateRange = {
+      minDate: format(subBusinessDays(date, 2), 'yyyy-MM-dd'),
+      maxDate: format(subBusinessDays(date, 1), 'yyyy-MM-dd'),
+    };
+
+    this.appLogger.log(
+      `Exceptions POS: ${dateRange.maxDate} - ${location.description} - ${location.location_id}`,
+      PosReconciliationService.name
+    );
+
+    const inProgressPayments =
+      await this.paymentService.findPosPaymentExceptions(
+        dateRange.minDate,
+        location
+      );
+
+    const inProgressDeposits =
+      await this.posDepositService.findPOSDepositsExceptions(
+        dateRange.minDate,
+        location,
+        program
+      );
+
+    if (inProgressPayments.length === 0 && inProgressDeposits.length === 0) {
+      return {
+        message: 'No pending payments or deposits found',
+      };
+    }
+
+    const paymentExceptions = await Promise.all(
+      await this.paymentService.updatePayments(
+        inProgressPayments.map((itm) => ({
+          ...itm,
+          timestamp: itm.timestamp,
+          status: MatchStatus.EXCEPTION,
+        }))
+      )
+    );
+
+    const depositExceptions = await Promise.all(
+      await this.posDepositService.updateDeposits(
+        inProgressDeposits.map((itm) => ({
+          ...itm,
+          timestamp: itm.timestamp,
+          status: MatchStatus.EXCEPTION,
+        }))
+      )
+    );
+
+    return {
+      depositExceptions: depositExceptions.length,
+      paymentExceptions: paymentExceptions.length,
+    };
   }
 }

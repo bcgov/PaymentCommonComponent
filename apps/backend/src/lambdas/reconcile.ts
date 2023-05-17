@@ -38,12 +38,21 @@ export const handler = async (event: ReconciliationConfigInput) => {
 
   for (const location of locations) {
     for (const date of dates) {
-      const result = await posReconciliationService.reconcile(
+      const reconciled = await posReconciliationService.reconcile(
         location,
         event.program,
         date
       );
-      appLogger.log({ result }, PosReconciliationService.name);
+
+      appLogger.log({ reconciled }, PosReconciliationService.name);
+
+      const exceptions = await posReconciliationService.findExceptions(
+        location,
+        event.program,
+        date
+      );
+
+      appLogger.log({ exceptions }, PosReconciliationService.name);
     }
   }
 

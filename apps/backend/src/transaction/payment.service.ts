@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, In, Repository, LessThanOrEqual } from 'typeorm';
+import { Raw, In, Repository, LessThanOrEqual, LessThan } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
@@ -44,7 +44,30 @@ export class PaymentService {
       },
     });
   }
-
+  public async findPosPaymentExceptions(
+    date: string,
+    location: LocationEntity
+  ): Promise<PaymentEntity[]> {
+    return await this.paymentRepo.find({
+      where: {
+        transaction: {
+          transaction_date: LessThan(date),
+          location_id: location.location_id,
+        },
+        status: MatchStatus.IN_PROGRESS,
+        payment_method: { classification: PaymentMethodClassification.POS },
+      },
+      relations: {
+        payment_method: true,
+        transaction: true,
+      },
+      order: {
+        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
+        amount: 'ASC',
+        payment_method: { method: 'ASC' },
+      },
+    });
+  }
   public aggregatePayments(payments: PaymentEntity[]): AggregatedPayment[] {
     const groupedPayments = payments.reduce(
       /*eslint-disable */
