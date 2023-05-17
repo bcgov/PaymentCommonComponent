@@ -27,10 +27,7 @@ export class PaymentService {
     return await this.paymentRepo.find({
       where: {
         transaction: {
-          transaction_date: Raw(
-            (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
-            { minDate, maxDate }
-          ),
+          transaction_date: In([minDate, maxDate]),
           location_id: location.location_id,
         },
         status: In(paymentStatuses),
@@ -41,9 +38,9 @@ export class PaymentService {
         transaction: true,
       },
       order: {
+        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
         amount: 'ASC',
         payment_method: { method: 'ASC' },
-        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
       },
     });
   }
@@ -170,9 +167,7 @@ export class PaymentService {
   }
 
   async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
-    return await Promise.all(
-      payments.map(async (payment) => await this.updatePayment(payment))
-    );
+    return await this.paymentRepo.save(payments);
   }
 
   async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {

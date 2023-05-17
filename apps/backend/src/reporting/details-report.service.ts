@@ -178,6 +178,7 @@ export class DetailedReportService {
         subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2),
         'yyyy-MM-dd'
       ),
+
       maxDate: format(
         subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1),
         'yyyy-MM-dd'

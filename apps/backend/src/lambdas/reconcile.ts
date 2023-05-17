@@ -40,9 +40,10 @@ export const handler = async (event: ReconciliationConfigInput) => {
         event.program,
         date
       );
-      appLogger.log(result);
+      appLogger.log({ result }, PosReconciliationService.name);
     }
   }
+
   for (const location of locations) {
     const cashDates = await cashDepositService.findCashDepositDatesByLocation(
       event.program,
@@ -56,10 +57,12 @@ export const handler = async (event: ReconciliationConfigInput) => {
       const previousCashDepositDate =
         cashDates[index - 2] ??
         format(new Date(event.period.from), 'yyyy-MM-dd');
+
       const dateRange = {
         minDate: previousCashDepositDate,
         maxDate: date,
       };
+
       const result = await cashReconciliationService.reconcileCash(
         location,
         event.program,
