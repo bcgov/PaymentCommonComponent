@@ -78,17 +78,17 @@ export class ReportingService {
   ): Promise<void> {
     const details: CasReport[] = [];
 
-    const to_date = parse(config.period.to, 'yyyy-MM-dd', new Date());
+    const maxDate = parse(config.period.to, 'yyyy-MM-dd', new Date());
     /* extract the month from the "to-date"*/
-    const from_date = new Date(getYear(to_date), getMonth(to_date), 1);
+    const minDate = new Date(getYear(maxDate), getMonth(maxDate), 1);
 
     const dateRange = {
-      from_date: format(from_date, 'yyyy-MM-dd'),
-      to_date: format(to_date, 'yyyy-MM-dd'),
+      minDate: format(minDate, 'yyyy-MM-dd'),
+      maxDate: format(maxDate, 'yyyy-MM-dd'),
     };
     this.appLogger.log(
-      `Generating cas report for: ${format(from_date, 'yyyy-MM-dd')}-${format(
-        to_date,
+      `Generating cas report for: ${format(minDate, 'yyyy-MM-dd')}-${format(
+        maxDate,
         'yyyy-MM-dd'
       )}`,
       ReportingService.name
@@ -112,7 +112,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addTitleRow(
       Report.CAS_REPORT,
-      `${dateRange.from_date}-${dateRange.to_date}`,
+      `${dateRange.minDate}-${dateRange.maxDate}`,
       titleStyle,
       placement('A1:J1')
     );

@@ -42,14 +42,18 @@ describe('LocationService', () => {
     const locationRepoSpy = jest
       .spyOn(locationRepo, 'find')
       .mockResolvedValue(expectedResult);
-    const result = await service.getMerchantIdsByLocationId(location_id);
-    expect(result).toEqual(expectedResult.map((itm) => itm.merchant_id));
+    const result = await service.getMerchantIdsByLocationId(
+      location_id,
+      Ministries.SBC
+    );
+    expect(result).toEqual(expectedResult);
     expect(locationRepoSpy).toBeCalledWith({
       select: {
         merchant_id: true,
       },
       where: {
         location_id,
+        source_id: Ministries.SBC,
         method: Not('Bank'),
       },
       order: {

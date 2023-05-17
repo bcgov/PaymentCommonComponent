@@ -12,6 +12,7 @@ import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
+import { PosHeuristicRound } from '../../reconciliation/types/const';
 import { PaymentMethodEntity } from '../../transaction/entities';
 
 @Entity('pos_deposit')
@@ -63,6 +64,9 @@ export class POSDepositEntity {
   })
   @JoinColumn({ name: 'payment_method', referencedColumnName: 'method' })
   payment_method: Relation<PaymentMethodEntity>;
+
+  @Column({ type: 'enum', nullable: true, enum: PosHeuristicRound })
+  heuristic_match_round?: PosHeuristicRound;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

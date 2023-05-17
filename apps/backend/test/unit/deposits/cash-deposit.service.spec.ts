@@ -1,5 +1,5 @@
 import { createMock } from '@golevelup/ts-jest';
-import { Test, TestingModule } from '@nestjs/testing';
+import { Test } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { In, LessThanOrEqual, Repository } from 'typeorm';
 import * as fs from 'fs';
@@ -23,7 +23,7 @@ describe('CashDepositService', () => {
   let repository: Repository<CashDepositEntity>;
 
   beforeEach(async () => {
-    const module: TestingModule = await Test.createTestingModule({
+    const module = await Test.createTestingModule({
       providers: [
         CashDepositService,
         {
@@ -97,7 +97,7 @@ describe('CashDepositService', () => {
 
       await service.findCashDepositsByDate(
         program,
-        depositDate.to_date,
+        depositDate.maxDate,
         location,
         status
       );
@@ -107,7 +107,7 @@ describe('CashDepositService', () => {
         where: {
           pt_location_id: location.pt_location_id,
           metadata: { program },
-          deposit_date: depositDate.to_date,
+          deposit_date: depositDate.maxDate,
           status: In(status),
         },
         order: { deposit_amt_cdn: 'ASC' },
@@ -182,11 +182,7 @@ describe('CashDepositService', () => {
 
       jest.spyOn(service, 'findCashDepositExceptions');
 
-      await service.findCashDepositExceptions(
-        dates.from_date,
-        program,
-        location
-      );
+      await service.findCashDepositExceptions(dates.minDate, program, location);
 
       expect(repository.find).toHaveBeenCalledTimes(1);
 
@@ -194,7 +190,7 @@ describe('CashDepositService', () => {
         where: {
           pt_location_id: location.pt_location_id,
           metadata: { program: program },
-          deposit_date: LessThanOrEqual(dates.from_date),
+          deposit_date: LessThanOrEqual(dates.minDate),
           status: MatchStatus.IN_PROGRESS,
         },
       });
