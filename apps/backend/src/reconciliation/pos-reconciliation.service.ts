@@ -293,10 +293,26 @@ export class PosReconciliationService {
     heuristicRound: PosHeuristicRound
   ): boolean {
     if (heuristicRound === PosHeuristicRound.ONE) {
+      this.appLogger.log(
+        `ROUND 1: Difference in minutes ${payment.timestamp} - ${
+          deposit.timestamp
+        } ===  ${differenceInMinutes(payment.timestamp, deposit.timestamp)}`
+      );
       return differenceInMinutes(payment.timestamp, deposit.timestamp) <= 5;
     } else if (heuristicRound === PosHeuristicRound.TWO) {
+      this.appLogger.log(
+        `ROUND 2: ${payment.transaction.transaction_date} === ${deposit.transaction_date}`
+      );
       return payment.transaction.transaction_date === deposit.transaction_date;
     } else if (heuristicRound === PosHeuristicRound.THREE) {
+      this.appLogger.log(
+        `ROUND 3: Difference in days ${payment.timestamp} - ${
+          deposit.timestamp
+        } ===  ${differenceInBusinessDays(
+          payment.timestamp,
+          deposit.timestamp
+        )}`
+      );
       return (
         differenceInBusinessDays(payment.timestamp, deposit.timestamp) <= 1
       );
@@ -356,24 +372,20 @@ export class PosReconciliationService {
       };
     }
 
-    const paymentExceptions = await Promise.all(
-      await this.paymentService.updatePayments(
-        inProgressPayments.map((itm) => ({
-          ...itm,
-          timestamp: itm.timestamp,
-          status: MatchStatus.EXCEPTION,
-        }))
-      )
+    const paymentExceptions = await this.paymentService.updatePayments(
+      inProgressPayments.map((itm) => ({
+        ...itm,
+        timestamp: itm.timestamp,
+        status: MatchStatus.EXCEPTION,
+      }))
     );
 
-    const depositExceptions = await Promise.all(
-      await this.posDepositService.updateDeposits(
-        inProgressDeposits.map((itm) => ({
-          ...itm,
-          timestamp: itm.timestamp,
-          status: MatchStatus.EXCEPTION,
-        }))
-      )
+    const depositExceptions = await this.posDepositService.updateDeposits(
+      inProgressDeposits.map((itm) => ({
+        ...itm,
+        timestamp: itm.timestamp,
+        status: MatchStatus.EXCEPTION,
+      }))
     );
 
     return {
