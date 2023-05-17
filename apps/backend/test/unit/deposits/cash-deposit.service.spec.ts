@@ -97,7 +97,7 @@ describe('CashDepositService', () => {
 
       await service.findCashDepositsByDate(
         program,
-        depositDate.to_date,
+        depositDate.maxDate,
         location,
         status
       );
@@ -107,7 +107,7 @@ describe('CashDepositService', () => {
         where: {
           pt_location_id: location.pt_location_id,
           metadata: { program },
-          deposit_date: depositDate.to_date,
+          deposit_date: depositDate.maxDate,
           status: In(status),
         },
         order: { deposit_amt_cdn: 'ASC' },
@@ -182,11 +182,7 @@ describe('CashDepositService', () => {
 
       jest.spyOn(service, 'findCashDepositExceptions');
 
-      await service.findCashDepositExceptions(
-        dates.from_date,
-        program,
-        location
-      );
+      await service.findCashDepositExceptions(dates.minDate, program, location);
 
       expect(repository.find).toHaveBeenCalledTimes(1);
 
@@ -194,7 +190,7 @@ describe('CashDepositService', () => {
         where: {
           pt_location_id: location.pt_location_id,
           metadata: { program: program },
-          deposit_date: LessThanOrEqual(dates.from_date),
+          deposit_date: LessThanOrEqual(dates.minDate),
           status: MatchStatus.IN_PROGRESS,
         },
       });
