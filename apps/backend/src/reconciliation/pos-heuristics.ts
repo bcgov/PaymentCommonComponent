@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { differenceInBusinessDays, differenceInMinutes } from 'date-fns';
-import { PosHeuristicRound, PosTimeMatch } from './types';
+import { PosHeuristicRound } from './types';
 import { MatchStatus } from '../common/const';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
@@ -82,8 +82,7 @@ export class PosMatchHeuristics {
         return (
           this.verifyMatch(payment, deposit) &&
           /** Round one - nearly 1:1 time match */
-          differenceInMinutes(payment.timestamp, deposit.timestamp) <=
-            PosTimeMatch.ROUND_ONE
+          differenceInMinutes(payment.timestamp, deposit.timestamp) <= 5
         );
       case PosHeuristicRound.TWO:
         return (
@@ -95,7 +94,7 @@ export class PosMatchHeuristics {
         return (
           this.verifyMatch(payment, deposit) &&
           /** Round three - look back one business day */
-          differenceInBusinessDays(payment.timestamp, deposit.timestamp) < 2
+          differenceInBusinessDays(payment.timestamp, deposit.timestamp) <= 1
         );
       default:
         return false;

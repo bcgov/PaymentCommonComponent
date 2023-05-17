@@ -30,7 +30,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const cashDepositService = app.get(CashDepositService);
   const dates: Date[] = eachDayOfInterval({
     start: parse(event.period.from, 'yyyy-MM-dd', new Date()),
-    end: parse(event.period.to, 'yyyy-MM-dd', new Date())
+    end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
   });
 
   for (const location of locations) {
@@ -47,8 +47,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const cashDates = await cashDepositService.findCashDepositDatesByLocation(
       event.program,
       {
-        to_date: event.period.to,
-        from_date: event.period.from
+        maxDate: event.period.to,
+        minDate: event.period.from,
       },
       location
     );
@@ -57,8 +57,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
         cashDates[index - 2] ??
         format(new Date(event.period.from), 'yyyy-MM-dd');
       const dateRange = {
-        from_date: previousCashDepositDate,
-        to_date: date
+        minDate: previousCashDepositDate,
+        maxDate: date,
       };
       const result = await cashReconciliationService.reconcileCash(
         location,

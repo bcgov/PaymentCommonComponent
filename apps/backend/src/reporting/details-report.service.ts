@@ -120,7 +120,7 @@ export class DetailedReportService {
       );
 
     const currentCashDeposits = allCashDeposits
-      .filter((itm) => itm.deposit_date === dateRange.to_date)
+      .filter((itm) => itm.deposit_date === dateRange.maxDate)
       .filter(
         (itm) =>
           itm.status === MatchStatus.MATCH ||
@@ -140,8 +140,8 @@ export class DetailedReportService {
       ).reverse();
 
     const twoMostRecentDepositDates = cashDepositDatesForPaymentsQuery && {
-      from_date: cashDepositDatesForPaymentsQuery[1],
-      to_date: cashDepositDatesForPaymentsQuery[0],
+      minDate: cashDepositDatesForPaymentsQuery[1],
+      maxDate: cashDepositDatesForPaymentsQuery[0],
     };
 
     const payments = await this.findCashPaymentsForDetailedReport(
@@ -173,23 +173,23 @@ export class DetailedReportService {
     payments: PaymentDetailsReport[];
     deposits: POSDepositDetailsReport[];
   }> {
-    const dateQuery = {
+    dateRange = {
       minDate: format(
-        subBusinessDays(parse(dateRange.to_date, 'yyyy-MM-dd', new Date()), 2),
+        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2),
         'yyyy-MM-dd'
       ),
       maxDate: format(
-        subBusinessDays(parse(dateRange.to_date, 'yyyy-MM-dd', new Date()), 1),
+        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1),
         'yyyy-MM-dd'
       ),
     };
 
     const posPayments: PaymentEntity[] =
-      await this.paymentService.findPosPayments(dateQuery, location);
+      await this.paymentService.findPosPayments(dateRange, location);
 
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSDeposits(
-        dateQuery,
+        dateRange,
         program,
         location
       );
@@ -213,8 +213,8 @@ export class DetailedReportService {
     location: LocationEntity
   ): Promise<DetailsReport[]> {
     const dateRange: DateRange = {
-      from_date: config.period.from,
-      to_date: config.period.to,
+      minDate: config.period.from,
+      maxDate: config.period.to,
     };
     const cashData = await this.findCashDataForDetailedReport(
       location,

@@ -5,7 +5,7 @@ import { In, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
-import { DateQuery, DateRange, Ministries } from '../constants';
+import { DateRange, Ministries } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
@@ -22,13 +22,13 @@ export class PosDepositService {
   ) {}
 
   async findPOSDeposits(
-    dateQuery: DateQuery,
+    dateRange: DateRange,
     program: Ministries,
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
     const depositStatus = status ? status : MatchStatusAll;
-    const { minDate, maxDate } = dateQuery;
+    const { minDate, maxDate } = dateRange;
     const merchant_ids: number[] =
       await this.locationService.getMerchantIdsByLocationId(
         location.location_id
@@ -77,7 +77,7 @@ export class PosDepositService {
     const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
       location.location_id
     );
-    const { to_date, from_date } = dateRange;
+    const { minDate, maxDate } = dateRange;
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');
 
     qb.select(['settlement_date::date']);
@@ -94,9 +94,8 @@ export class PosDepositService {
       metadata: { program },
       merchant_id: In([...merchant_ids]),
       settlement_date: Raw(
-        (alias) =>
-          `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
-        { from_date, to_date }
+        (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
+        { minDate, maxDate }
       ),
     });
 

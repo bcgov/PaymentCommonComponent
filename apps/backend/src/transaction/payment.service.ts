@@ -3,11 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Raw, In, Repository, LessThanOrEqual } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
-import {
-  DateQuery,
-  DateRange,
-  PaymentMethodClassification,
-} from '../constants';
+import { DateRange, PaymentMethodClassification } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -21,12 +17,12 @@ export class PaymentService {
   ) {}
 
   async findPosPayments(
-    dateQuery: DateQuery,
+    dateRange: DateRange,
     location: LocationEntity,
     status?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const paymentStatus = status ? status : MatchStatusAll;
-    const { minDate, maxDate } = dateQuery;
+    const { minDate, maxDate } = dateRange;
 
     return await this.paymentRepo.find({
       where: {
@@ -116,7 +112,7 @@ export class PaymentService {
     status?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const paymentStatus = !status ? MatchStatusAll : status;
-    const { from_date, to_date } = dateRange;
+    const { minDate, maxDate } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
         payment_method: { classification: PaymentMethodClassification.CASH },
@@ -124,10 +120,10 @@ export class PaymentService {
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: Raw(
-            (alias) => `${alias} >= :from_date AND ${alias} <= :to_date`,
+            (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
             {
-              from_date: from_date,
-              to_date: to_date,
+              minDate,
+              maxDate,
             }
           ),
         },

@@ -26,11 +26,6 @@ export interface ParseArgsTDI {
 }
 
 export interface DateRange {
-  from_date: string;
-  to_date: string;
-}
-
-export interface DateQuery {
   minDate: string;
   maxDate: string;
 }

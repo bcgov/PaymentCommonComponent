@@ -3,7 +3,7 @@ import { format, subBusinessDays } from 'date-fns';
 import { PosMatchHeuristics } from './pos-heuristics';
 import { PosHeuristicRound, ReconciliationType } from './types';
 import { MatchStatus } from '../common/const';
-import { DateQuery, Ministries } from '../constants';
+import { DateRange, Ministries } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationEntity } from '../location/entities/master-location-data.entity';
@@ -41,19 +41,19 @@ export class PosReconciliationService {
     program: Ministries,
     date: Date
   ): Promise<unknown> {
-    const dateQuery = {
+    const dateRange = {
       minDate: format(subBusinessDays(date, 2), 'yyyy-MM-dd'),
       maxDate: format(subBusinessDays(date, 1), 'yyyy-MM-dd'),
     };
 
     this.appLogger.log(
-      `Reconciliation POS: ${dateQuery.maxDate} - ${location.description} - ${location.location_id}`,
+      `Reconciliation POS: ${dateRange.maxDate} - ${location.description} - ${location.location_id}`,
       PosReconciliationService.name
     );
 
     const { pendingPayments, pendingDeposits } =
       await this.findPendingDepositsAndPayments(
-        dateQuery,
+        dateRange,
         location,
         Ministries.SBC
       );
@@ -246,13 +246,13 @@ export class PosReconciliationService {
   }
   /**
    * Queries for the payments and deposits for a location and date range
-   * @param {DateQuery} dateQuery
+   * @param {DateRange} dateRange
    * @param {LocationEntity} location
    * @param {Ministries} program
    * @returns {Promise<{pendingPayments: PaymentEntity[]; pendingDeposits: POSDepositEntity[];}> }
    */
   public async findPendingDepositsAndPayments(
-    dateQuery: DateQuery,
+    dateRange: DateRange,
     location: LocationEntity,
     program: Ministries
   ): Promise<{
@@ -260,13 +260,13 @@ export class PosReconciliationService {
     pendingDeposits: POSDepositEntity[];
   }> {
     const pendingPayments = await this.paymentService.findPosPayments(
-      dateQuery,
+      dateRange,
       location,
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
     );
 
     const pendingDeposits = await this.posDepositService.findPOSDeposits(
-      dateQuery,
+      dateRange,
       program,
       location,
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]

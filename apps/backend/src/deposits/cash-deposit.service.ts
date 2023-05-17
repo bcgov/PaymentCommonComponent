@@ -78,14 +78,14 @@ export class CashDepositService {
     dateRange: DateRange,
     location: LocationEntity
   ): Promise<string[]> {
-    const { to_date, from_date } = dateRange;
+    const { minDate, maxDate } = dateRange;
     const dates: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
         pt_location_id: location.pt_location_id,
         metadata: { program },
         deposit_date: Raw(
-          (alias) => `${alias} <= :to_date and ${alias} >= :from_date`,
-          { to_date, from_date }
+          (alias) => `${alias} <= :maxDate and ${alias} >= :minDate`,
+          { maxDate, minDate }
         ),
       },
       order: {
@@ -149,17 +149,17 @@ export class CashDepositService {
     program: Ministries,
     dateRange: DateRange
   ): Promise<CashDepositEntity[]> {
-    const { to_date, from_date } = dateRange;
+    const { minDate, maxDate } = dateRange;
 
     return await this.cashDepositRepo.find({
       where: {
         metadata: { program },
         deposit_date: Raw(
           (alias) =>
-            `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
+            `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
           {
-            from_date,
-            to_date,
+            minDate,
+            maxDate,
           }
         ),
         pt_location_id: location.pt_location_id,
