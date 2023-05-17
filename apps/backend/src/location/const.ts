@@ -1,3 +1,4 @@
-export enum LocationEnum {
+export enum LocationMethod {
   Bank = 'Bank',
+  POS = 'POS',
 }

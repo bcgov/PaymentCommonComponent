@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, Not } from 'typeorm';
-import { LocationEnum } from './const';
+import { LocationEnum, LocationMethod } from './const';
 import { LocationEntity } from './entities/master-location-data.entity';
 import { Ministries } from '../constants';
 
@@ -12,29 +12,15 @@ export class LocationService {
     private locationRepo: Repository<LocationEntity>
   ) {}
 
-  public async getMerchantIdsByLocationId(
-    location_id: number,
-    program: Ministries
-  ): Promise<LocationEntity[]> {
-    return await this.locationRepo.find({
-      select: {
-        merchant_id: true,
-      },
-      where: {
-        source_id: program,
-        location_id,
-        method: Not('Bank'),
-      },
-      order: {
-        location_id: 'ASC',
-      },
-    });
-  }
-
   public async getLocationsByID(
     program: Ministries,
-    location_ids: number[]
+    location_ids: number[],
+    method: LocationMethod
   ): Promise<LocationEntity[]> {
+    const locationMethod =
+      method === LocationMethod.Bank
+        ? LocationMethod.Bank
+        : Not(LocationMethod.Bank);
     return await this.locationRepo.find({
       select: {
         location_id: true,
@@ -43,7 +29,7 @@ export class LocationService {
       },
       where: {
         source_id: program,
-        method: `${LocationEnum.Bank}`,
+        method: locationMethod,
         location_id: In(location_ids),
       },
       order: {

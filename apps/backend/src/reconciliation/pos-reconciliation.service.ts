@@ -68,7 +68,7 @@ export class PosReconciliationService {
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
     );
 
-    if (pendingPayments.length === 0 || pendingDeposits.length === 0) {
+    if (pendingPayments.length === 0 && pendingDeposits.length === 0) {
       return {
         message: 'No pending payments or deposits found',
       };
@@ -143,45 +143,44 @@ export class PosReconciliationService {
       ),
       PosHeuristicRound.THREE
     );
+
     this.appLogger.log(
       `MATCHES - ROUND TWO ${roundThreeMatches.length}`,
       PosReconciliationService.name
     );
-    const paymentsMatched = await Promise.all(
+
+    const paymentsMatched: PaymentEntity[] =
       await this.paymentService.updatePayments(
         [...roundOneMatches, ...roundTwoMatches, ...roundThreeMatches].map(
           (itm) => itm.payment
         )
-      )
+      );
+
+    const depositsMatched: POSDepositEntity[] =
+      await this.posDepositService.updateDeposits(
+        [...roundOneMatches, ...roundTwoMatches, ...roundThreeMatches].map(
+          (itm) => itm.deposit
+        )
+      );
+
+    const paymentsInProgress = await this.paymentService.updatePayments(
+      pendingPayments
+        .filter((itm) => itm.status === MatchStatus.PENDING)
+        .map((itm) => ({
+          ...itm,
+          timestamp: itm.timestamp,
+          status: MatchStatus.IN_PROGRESS,
+        }))
     );
 
-    const depositsMatched = await Promise.all(
-      await this.posDepositService.updateDeposits(
-        [...roundOneMatches, ...roundTwoMatches].map((itm) => itm.deposit)
-      )
-    );
-
-    const paymentsInProgress = await Promise.all(
-      await this.paymentService.updatePayments(
-        pendingPayments
-          .filter((itm) => itm.status === MatchStatus.PENDING)
-          .map((itm) => ({
-            ...itm,
-            timestamp: itm.timestamp,
-            status: MatchStatus.IN_PROGRESS,
-          }))
-      )
-    );
-    const depositsInProgress = await Promise.all(
-      await this.posDepositService.updateDeposits(
-        pendingDeposits
-          .filter((itm) => itm.status === MatchStatus.PENDING)
-          .map((itm) => ({
-            ...itm,
-            timestamp: itm.timestamp,
-            status: MatchStatus.IN_PROGRESS,
-          }))
-      )
+    const depositsInProgress = await this.posDepositService.updateDeposits(
+      pendingDeposits
+        .filter((itm) => itm.status === MatchStatus.PENDING)
+        .map((itm) => ({
+          ...itm,
+          timestamp: itm.timestamp,
+          status: MatchStatus.IN_PROGRESS,
+        }))
     );
 
     return {
@@ -294,10 +293,7 @@ export class PosReconciliationService {
     heuristicRound: PosHeuristicRound
   ): boolean {
     if (heuristicRound === PosHeuristicRound.ONE) {
-      return (
-        payment.transaction.transaction_date === deposit.transaction_date &&
-        differenceInMinutes(payment.timestamp, deposit.timestamp) <= 5
-      );
+      return differenceInMinutes(payment.timestamp, deposit.timestamp) <= 5;
     } else if (heuristicRound === PosHeuristicRound.TWO) {
       return payment.transaction.transaction_date === deposit.transaction_date;
     } else if (heuristicRound === PosHeuristicRound.THREE) {

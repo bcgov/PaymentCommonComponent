@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { locations, normalizedLocations } from './../../mocks/const/locations';
 import { Ministries } from '../../../src/constants';
-import { LocationEnum } from '../../../src/location/const';
+import { LocationMethod } from '../../../src/location/const';
 import { LocationEntity } from '../../../src/location/entities';
 import { LocationService } from '../../../src/location/location.service';
 
@@ -42,19 +42,17 @@ describe('LocationService', () => {
     const locationRepoSpy = jest
       .spyOn(locationRepo, 'find')
       .mockResolvedValue(expectedResult);
-    const result = await service.getMerchantIdsByLocationId(
-      location_id,
-      Ministries.SBC
+    const result = await service.getLocationsByID(
+      Ministries.SBC,
+      [location_id],
+      LocationMethod.POS
     );
     expect(result).toEqual(expectedResult);
     expect(locationRepoSpy).toBeCalledWith({
-      select: {
-        merchant_id: true,
-      },
       where: {
-        location_id,
+        location_id: In([location_id]),
         source_id: Ministries.SBC,
-        method: Not('Bank'),
+        method: Not(LocationMethod.Bank),
       },
       order: {
         location_id: 'ASC',
@@ -74,7 +72,7 @@ describe('LocationService', () => {
     expect(locationRepoSpy).toBeCalledWith({
       where: {
         source_id: source,
-        method: `${LocationEnum.Bank}`,
+        method: `${LocationMethod.Bank}`,
       },
       order: {
         location_id: 'ASC',

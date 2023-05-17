@@ -15,7 +15,6 @@ import { PaymentEntity } from './../../../src/transaction/entities/payment.entit
 import { MatchStatus } from '../../../src/common/const';
 import { PaymentMethodClassification } from '../../../src/constants';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
-import { PosMatchHeuristics } from '../../../src/reconciliation/pos-heuristics';
 import { PosHeuristicRound } from '../../../src/reconciliation/types';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { MockData } from '../../mocks/mocks';
@@ -33,7 +32,6 @@ describe('PosReconciliationService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         PosReconciliationService,
-        PosMatchHeuristics,
         {
           provide: PaymentService,
           useValue: createMock<PaymentService>(),

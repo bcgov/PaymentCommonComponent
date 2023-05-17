@@ -1,6 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
+import { LocationMethod } from 'src/location/const';
 import { In, LessThan, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
@@ -30,13 +31,18 @@ export class PosDepositService {
     const depositStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
     const locations: LocationEntity[] =
-      await this.locationService.getMerchantIdsByLocationId(
-        location.location_id,
-        program
+      await this.locationService.getLocationsByID(
+        program,
+        [location.location_id],
+        LocationMethod.POS
       );
+
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: In([minDate, maxDate]),
+        transaction_date: Raw(
+          (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
+          { minDate, maxDate }
+        ),
         metadata: {
           program: program,
         },
@@ -72,9 +78,10 @@ export class PosDepositService {
     location: LocationEntity,
     program: Ministries
   ): Promise<POSDepositEntity[]> {
-    const locations = await this.locationService.getMerchantIdsByLocationId(
-      location.location_id,
-      program
+    const locations = await this.locationService.getLocationsByID(
+      program,
+      [location.location_id],
+      LocationMethod.POS
     );
     return await this.posDepositRepo.find({
       where: {
@@ -91,9 +98,10 @@ export class PosDepositService {
     program: Ministries,
     dateRange: DateRange
   ) {
-    const locations = await this.locationService.getMerchantIdsByLocationId(
-      location.location_id,
-      program
+    const locations = await this.locationService.getLocationsByID(
+      program,
+      [location.location_id],
+      LocationMethod.POS
     );
     const { minDate, maxDate } = dateRange;
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');
