@@ -1,9 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { eachDayOfInterval, format, parse } from 'date-fns';
-import { LocationMethod } from 'src/location/const';
 import { AppModule } from '../app.module';
 import { CashDepositService } from '../deposits/cash-deposit.service';
+import { LocationMethod } from '../location/const';
 import { LocationService } from '../location/location.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';

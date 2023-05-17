@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository, Not } from 'typeorm';
-import { LocationEnum, LocationMethod } from './const';
+import { LocationMethod } from './const';
 import { LocationEntity } from './entities/master-location-data.entity';
 import { Ministries } from '../constants';
 
@@ -44,7 +44,7 @@ export class LocationService {
     return await this.locationRepo.find({
       where: {
         source_id: source,
-        method: `${LocationEnum.Bank}`,
+        method: LocationMethod.Bank,
       },
       order: {
         location_id: 'ASC',
