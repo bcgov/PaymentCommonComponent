@@ -11,13 +11,16 @@ import { ReconciliationConfigInput } from '../reconciliation/types';
 import { ReportingService } from '../reporting/reporting.service';
 
 export const handler = async (event: ReconciliationConfigInput) => {
-  const app = await NestFactory.createApplicationContext(AppModule);
+  const disableLogs = process.env.SILENCE_LOGS === 'true';
+  const app = await NestFactory.createApplicationContext(AppModule, {
+    logger: disableLogs ? false : ['error', 'warn', 'log', 'debug', 'verbose'],
+  });
   const cashExceptionsService = app.get(CashExceptionsService);
   const cashReconciliationService = app.get(CashReconciliationService);
   const posReconciliationService = app.get(PosReconciliationService);
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
-  const appLogger = new Logger();
+  const appLogger = app.get(Logger);
 
   const locations =
     event.location_ids.length === 0
