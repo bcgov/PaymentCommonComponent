@@ -294,11 +294,16 @@ export class PosReconciliationService {
   ): boolean {
     if (heuristicRound === PosHeuristicRound.ONE) {
       this.appLogger.log(
-        `ROUND 1: Difference in minutes ${payment.timestamp} - ${
-          deposit.timestamp
-        } ===  ${differenceInMinutes(payment.timestamp, deposit.timestamp)}`
+        `ROUND 1: Difference in minutes ${format(
+          payment.timestamp,
+          'yyyy-MM-dd'
+        )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
+          differenceInMinutes(payment.timestamp, deposit.timestamp)
+        )}`
       );
-      return differenceInMinutes(payment.timestamp, deposit.timestamp) <= 5;
+      return (
+        Math.abs(differenceInMinutes(payment.timestamp, deposit.timestamp)) <= 5
+      );
     } else if (heuristicRound === PosHeuristicRound.TWO) {
       this.appLogger.log(
         `ROUND 2: ${payment.transaction.transaction_date} === ${deposit.transaction_date}`
@@ -306,15 +311,17 @@ export class PosReconciliationService {
       return payment.transaction.transaction_date === deposit.transaction_date;
     } else if (heuristicRound === PosHeuristicRound.THREE) {
       this.appLogger.log(
-        `ROUND 3: Difference in days ${payment.timestamp} - ${
-          deposit.timestamp
-        } ===  ${differenceInBusinessDays(
+        `ROUND 3: Difference in days ${format(
           payment.timestamp,
-          deposit.timestamp
+          'yyyy-MM-dd'
+        )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
+          differenceInBusinessDays(payment.timestamp, deposit.timestamp)
         )}`
       );
       return (
-        differenceInBusinessDays(payment.timestamp, deposit.timestamp) <= 1
+        Math.abs(
+          differenceInBusinessDays(payment.timestamp, deposit.timestamp)
+        ) <= 2
       );
     } else return false;
   }
