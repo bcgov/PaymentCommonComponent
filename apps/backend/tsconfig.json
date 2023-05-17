@@ -5,5 +5,5 @@
     "baseUrl": "./",
     "allowJs": true
   },
-  "exclude": ["node_modules", "dist", "**/*.spec.ts", "./env.js"]
+  "exclude": ["node_modules", "**/*.spec.ts", "./env.js", "./dist"]
 }

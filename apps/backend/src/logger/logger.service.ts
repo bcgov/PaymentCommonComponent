@@ -1,34 +1,45 @@
 import { LoggerService } from '@nestjs/common';
 import axios from 'axios';
-import { format } from 'date-fns';
+import { format as dateFormat } from 'date-fns';
 import { WinstonModule } from 'nest-winston';
-import winston from 'winston';
+import { format, transports } from 'winston';
 import * as util from 'util';
 
 export class AppLogger implements LoggerService {
   private readonly logger;
-  constructor() {
+  private context?: string;
+
+  public setContext(context: string) {
+    this.context = context;
+  }
+
+  constructor(context?: string) {
+    this.context = context;
+
+    const logFormat = format.combine(
+      format.timestamp(),
+      format.colorize(),
+      format.printf(
+        (info) =>
+          `[${this.context}] [${info.timestamp}] ${info.level}: ${info.message}`
+      )
+    );
     this.logger = WinstonModule.createLogger({
       transports: process.env.LOG_FILE
         ? [
-            new winston.transports.Console({
-              format: winston.format.combine(
-                winston.format.simple(),
-                winston.format.colorize()
-              ),
+            new transports.Console({
+              format: logFormat,
               level: 'debug',
             }),
-            new winston.transports.File({
-              filename: `${format(new Date(), 'yyyy-MM-dd')}`,
+            new transports.File({
+              filename: `${dateFormat(new Date(), 'yyyy-MM-dd')}`,
+              format: logFormat,
               level: 'verbose',
             }),
           ]
         : [
-            new winston.transports.Console({
-              format: winston.format.combine(
-                winston.format.simple(),
-                winston.format.colorize()
-              ),
+            new transports.Console({
+              format: logFormat,
               level: 'debug',
             }),
           ],

@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { ReconciliationType, AggregatedPayment } from './types';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries } from '../constants';
@@ -12,10 +12,12 @@ import { PaymentService } from '../transaction/payment.service';
 @Injectable()
 export class CashReconciliationService {
   constructor(
-    @Inject(Logger) private appLogger: AppLogger,
     @Inject(CashDepositService) private cashDepositService: CashDepositService,
-    @Inject(PaymentService) private paymentService: PaymentService
-  ) {}
+    @Inject(PaymentService) private paymentService: PaymentService,
+    private appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(`CashReconciliationService`);
+  }
   /**
    *
    * @param event
@@ -27,7 +29,7 @@ export class CashReconciliationService {
     dateRange: DateRange,
     location: LocationEntity
   ): Promise<string[]> {
-    this.appLogger.log({ dateRange }, CashReconciliationService.name);
+    this.appLogger.log({ dateRange });
 
     return await this.cashDepositService.findCashDepositDatesByLocation(
       program,
@@ -96,8 +98,7 @@ export class CashReconciliationService {
       for (const [pindex, payment] of aggregatedPayments.entries()) {
         if (this.checkMatch(payment, deposit)) {
           this.appLogger.log(
-            `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
-            CashReconciliationService.name
+            `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`
           );
           aggregatedPayments[pindex].status = MatchStatus.MATCH;
           deposits[dindex].status = MatchStatus.MATCH;
@@ -146,20 +147,15 @@ export class CashReconciliationService {
         location
       );
     if (pendingDeposits.length === 0 && aggregatedPayments.length === 0) {
-      this.appLogger.log(
-        'No pending payments / deposits found',
-        CashReconciliationService.name
-      );
+      this.appLogger.log('No pending payments / deposits found');
       return;
     }
 
     this.appLogger.log(
-      `${aggregatedPayments.length} aggregated payments pending reconciliation`,
-      CashReconciliationService.name
+      `${aggregatedPayments.length} aggregated payments pending reconciliation`
     );
     this.appLogger.log(
-      `${pendingDeposits?.length} deposits pending reconciliation`,
-      CashReconciliationService.name
+      `${pendingDeposits?.length} deposits pending reconciliation`
     );
 
     const matches = this.matchPaymentsToDeposits(
@@ -179,14 +175,8 @@ export class CashReconciliationService {
       (itm) => itm.deposit
     );
 
-    this.appLogger.log(
-      `${matchedPayments.length} PAYMENTS MARKED MATCHED`,
-      CashReconciliationService.name
-    );
-    this.appLogger.log(
-      `${matchedDeposits.length} DEPOSITS MARKED MATCHED`,
-      CashReconciliationService.name
-    );
+    this.appLogger.log(`${matchedPayments.length} PAYMENTS MARKED MATCHED`);
+    this.appLogger.log(`${matchedDeposits.length} DEPOSITS MARKED MATCHED`);
 
     const inProgressPayments: PaymentEntity[] = aggregatedPayments
       .filter(
@@ -211,12 +201,10 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(inProgressPayments).length
-      } payments set as in progress`,
-      CashReconciliationService.name
+      } payments set as in progress`
     );
     this.appLogger.log(
-      `${inProgressDeposits.length} deposits set as in progress`,
-      CashReconciliationService.name
+      `${inProgressDeposits.length} deposits set as in progress`
     );
 
     const updatePayments = await this.paymentService.updatePayments([

@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { differenceInMinutes } from 'date-fns';
 import { ReconciliationType } from './types';
 import { MatchStatus } from '../common/const';
@@ -13,10 +13,12 @@ import { PaymentService } from '../transaction/payment.service';
 @Injectable()
 export class POSReconciliationService {
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(PosDepositService) private posDepositService: PosDepositService,
-    @Inject(PaymentService) private paymentService: PaymentService
-  ) {}
+    @Inject(PaymentService) private paymentService: PaymentService,
+    private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(`POSReconciliationService`);
+  }
 
   // TODO [CCFPCM-406] move the save as matched separately..
   // TODO [CCFPCM-406] implement as layer
@@ -160,15 +162,9 @@ export class POSReconciliationService {
       };
     }
 
-    this.appLogger.log(
-      `pending payments ${pendingPayments.length}`,
-      POSReconciliationService.name
-    );
+    this.appLogger.log(`pending payments ${pendingPayments.length}`);
 
-    this.appLogger.log(
-      `pending deposits ${pendingDeposits.length}`,
-      POSReconciliationService.name
-    );
+    this.appLogger.log(`pending deposits ${pendingDeposits.length}`);
 
     const roundOneMatches: {
       payment: PaymentEntity;
@@ -179,10 +175,7 @@ export class POSReconciliationService {
       5
     );
 
-    this.appLogger.log(
-      `MATCHES - ROUND ONE ${roundOneMatches.length}`,
-      POSReconciliationService.name
-    );
+    this.appLogger.log(`MATCHES - ROUND ONE ${roundOneMatches.length}`);
 
     const roundTwoMatches: {
       payment: PaymentEntity;
@@ -193,10 +186,7 @@ export class POSReconciliationService {
       1440
     );
 
-    this.appLogger.log(
-      `MATCHES - ROUND TWO ${roundTwoMatches.length}`,
-      POSReconciliationService.name
-    );
+    this.appLogger.log(`MATCHES - ROUND TWO ${roundTwoMatches.length}`);
 
     const paymentsMatched = await Promise.all(
       await this.paymentService.updatePayments(

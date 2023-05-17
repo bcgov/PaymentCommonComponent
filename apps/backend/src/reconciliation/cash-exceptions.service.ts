@@ -11,10 +11,12 @@ import { PaymentService } from '../transaction/payment.service';
 @Injectable()
 export class CashExceptionsService {
   constructor(
-    @Inject(Logger) private appLogger: AppLogger,
     @Inject(CashDepositService) private cashDepositService: CashDepositService,
-    @Inject(PaymentService) private paymentService: PaymentService
-  ) {}
+    @Inject(PaymentService) private paymentService: PaymentService,
+    private appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(`CashExceptionsService`);
+  }
   /**
    *
    * @param event

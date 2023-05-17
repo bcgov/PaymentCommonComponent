@@ -1,4 +1,5 @@
-import { Module, Logger } from '@nestjs/common';
+import { Module } from '@nestjs/common';
+import { AppLogger } from '../logger/logger.service';
 import { CashExceptionsService } from './cash-exceptions.service';
 import { CashReconciliationService } from './cash-reconciliation.service';
 import { POSReconciliationService } from './pos-reconciliation.service';
@@ -9,9 +10,9 @@ import { TransactionModule } from '../transaction/transaction.module';
 @Module({
   imports: [DepositModule, TransactionModule, LocationModule],
   providers: [
+    AppLogger,
     CashReconciliationService,
     POSReconciliationService,
-    Logger,
     CashExceptionsService,
   ],
   exports: [],
