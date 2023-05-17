@@ -34,23 +34,29 @@ describe('LocationService', () => {
     expect(service).toBeDefined();
   });
   it('get merchant ids by location_id', async () => {
-    const location_id = 1;
+    const location_ids = [1];
+
     const expectedResult = normalizedLocations.filter(
-      (location) => location.location_id === location_id
+      (location) => location.location_id === location_ids[0]
     );
 
     const locationRepoSpy = jest
       .spyOn(locationRepo, 'find')
       .mockResolvedValue(expectedResult);
+
+    const method = LocationMethod.POS;
+
     const result = await service.getLocationsByID(
       Ministries.SBC,
-      [location_id],
-      LocationMethod.POS
+      location_ids,
+      method
     );
+
     expect(result).toEqual(expectedResult);
+
     expect(locationRepoSpy).toBeCalledWith({
       where: {
-        location_id: In([location_id]),
+        location_id: In(location_ids),
         source_id: Ministries.SBC,
         method: Not(LocationMethod.Bank),
       },

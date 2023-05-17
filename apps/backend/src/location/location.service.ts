@@ -22,11 +22,6 @@ export class LocationService {
         ? LocationMethod.Bank
         : Not(LocationMethod.Bank);
     return await this.locationRepo.find({
-      select: {
-        location_id: true,
-        pt_location_id: true,
-        description: true,
-      },
       where: {
         source_id: program,
         method: locationMethod,
