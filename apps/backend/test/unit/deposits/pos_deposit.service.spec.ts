@@ -97,7 +97,7 @@ describe('POSDepositService', () => {
           maxDate: format(new Date(), 'yyyy-MM-dd'),
         },
         Ministries.SBC,
-        location
+        location.location_id
       );
       expect(spy).toBeCalledTimes(1);
       expect(repository.find).toBeCalledTimes(1);
@@ -107,9 +107,11 @@ describe('POSDepositService', () => {
   describe('update', () => {
     it('should update a pos deposit', async () => {
       const spy = jest
-        .spyOn(service, 'update')
-        .mockResolvedValue(posDepositMock);
-      expect(service.update(posDepositMock)).resolves.toEqual(posDepositMock);
+        .spyOn(service, 'updateDeposits')
+        .mockResolvedValue([posDepositMock]);
+      expect(service.updateDeposits([posDepositMock])).resolves.toEqual([
+        posDepositMock,
+      ]);
       expect(spy).toBeCalledTimes(1);
       expect(spy).toBeCalledWith(posDepositMock);
     });
