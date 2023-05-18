@@ -145,7 +145,7 @@ export class PosReconciliationService {
     );
 
     this.appLogger.log(
-      `MATCHES - ROUND TWO ${roundThreeMatches.length}`,
+      `MATCHES - ROUND THREE ${roundThreeMatches.length}`,
       PosReconciliationService.name
     );
 
@@ -276,8 +276,8 @@ export class PosReconciliationService {
     deposit: POSDepositEntity
   ): boolean {
     return (
-      payment.status === MatchStatus.PENDING &&
-      deposit.status === MatchStatus.PENDING
+      payment.status !== MatchStatus.MATCH &&
+      deposit.status !== MatchStatus.MATCH
     );
   }
   /**
