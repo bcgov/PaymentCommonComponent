@@ -23,8 +23,5 @@ export class migration1684273295940 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "pos_deposit" DROP COLUMN "heuristic_match_round"`
     );
-    await queryRunner.query(
-      `ALTER TABLE "pos_deposit" ADD "heuristic_match_round" integer`
-    );
   }
 }
