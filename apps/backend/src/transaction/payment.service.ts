@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, In, Repository, LessThanOrEqual } from 'typeorm';
+import { Raw, In, Repository, LessThanOrEqual, LessThan } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
@@ -17,19 +17,23 @@ export class PaymentService {
   ) {}
 
   async findPosPayments(
-    date: string,
+    dateRange: DateRange,
     location: LocationEntity,
-    status?: MatchStatus
+    statuses?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
-    const paymentStatus = status ? status : In(MatchStatusAll);
+    const paymentStatuses = statuses ? statuses : MatchStatusAll;
+    const { minDate, maxDate } = dateRange;
 
     return await this.paymentRepo.find({
       where: {
         transaction: {
-          transaction_date: date,
+          transaction_date: Raw(
+            (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
+            { minDate, maxDate }
+          ),
           location_id: location.location_id,
         },
-        status: paymentStatus,
+        status: In(paymentStatuses),
         payment_method: { classification: PaymentMethodClassification.POS },
       },
       relations: {
@@ -37,13 +41,36 @@ export class PaymentService {
         transaction: true,
       },
       order: {
+        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
         amount: 'ASC',
         payment_method: { method: 'ASC' },
-        transaction: { transaction_time: 'ASC' },
       },
     });
   }
-
+  public async findPosPaymentExceptions(
+    date: string,
+    location: LocationEntity
+  ): Promise<PaymentEntity[]> {
+    return await this.paymentRepo.find({
+      where: {
+        transaction: {
+          transaction_date: LessThan(date),
+          location_id: location.location_id,
+        },
+        status: MatchStatus.IN_PROGRESS,
+        payment_method: { classification: PaymentMethodClassification.POS },
+      },
+      relations: {
+        payment_method: true,
+        transaction: true,
+      },
+      order: {
+        transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
+        amount: 'ASC',
+        payment_method: { method: 'ASC' },
+      },
+    });
+  }
   public aggregatePayments(payments: PaymentEntity[]): AggregatedPayment[] {
     const groupedPayments = payments.reduce(
       /*eslint-disable */
@@ -105,21 +132,21 @@ export class PaymentService {
   public async findCashPayments(
     dateRange: DateRange,
     location: LocationEntity,
-    status?: MatchStatus[]
+    statuses?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
-    const paymentStatus = !status ? MatchStatusAll : status;
-    const { from_date, to_date } = dateRange;
+    const paymentStatuses = statuses ? statuses : MatchStatusAll;
+    const { minDate, maxDate } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
         payment_method: { classification: PaymentMethodClassification.CASH },
-        status: In(paymentStatus),
+        status: In(paymentStatuses),
         transaction: {
           location_id: location.location_id,
           fiscal_close_date: Raw(
-            (alias) => `${alias} >= :from_date AND ${alias} <= :to_date`,
+            (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
             {
-              from_date: from_date,
-              to_date: to_date,
+              minDate,
+              maxDate,
             }
           ),
         },
@@ -166,12 +193,6 @@ export class PaymentService {
   }
 
   async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
-    return await Promise.all(
-      payments.map(async (payment) => await this.updatePayment(payment))
-    );
-  }
-
-  async updatePayment(payment: PaymentEntity): Promise<PaymentEntity> {
-    return await this.paymentRepo.save(payment);
+    return await this.paymentRepo.save(payments);
   }
 }

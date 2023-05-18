@@ -1,9 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Not, Repository } from 'typeorm';
+import { In, Not, Repository } from 'typeorm';
 import { locations, normalizedLocations } from './../../mocks/const/locations';
 import { Ministries } from '../../../src/constants';
-import { LocationEnum } from '../../../src/location/const';
+import { LocationMethod } from '../../../src/location/const';
 import { LocationEntity } from '../../../src/location/entities';
 import { LocationService } from '../../../src/location/location.service';
 
@@ -34,23 +34,31 @@ describe('LocationService', () => {
     expect(service).toBeDefined();
   });
   it('get merchant ids by location_id', async () => {
-    const location_id = 1;
+    const location_ids = [1];
+
     const expectedResult = normalizedLocations.filter(
-      (location) => location.location_id === location_id
+      (location) => location.location_id === location_ids[0]
     );
 
     const locationRepoSpy = jest
       .spyOn(locationRepo, 'find')
       .mockResolvedValue(expectedResult);
-    const result = await service.getMerchantIdsByLocationId(location_id);
-    expect(result).toEqual(expectedResult.map((itm) => itm.merchant_id));
+
+    const method = LocationMethod.POS;
+
+    const result = await service.getLocationsByID(
+      Ministries.SBC,
+      location_ids,
+      method
+    );
+
+    expect(result).toEqual(expectedResult);
+
     expect(locationRepoSpy).toBeCalledWith({
-      select: {
-        merchant_id: true,
-      },
       where: {
-        location_id,
-        method: Not('Bank'),
+        location_id: In(location_ids),
+        source_id: Ministries.SBC,
+        method: Not(LocationMethod.Bank),
       },
       order: {
         location_id: 'ASC',
@@ -70,7 +78,7 @@ describe('LocationService', () => {
     expect(locationRepoSpy).toBeCalledWith({
       where: {
         source_id: source,
-        method: `${LocationEnum.Bank}`,
+        method: `${LocationMethod.Bank}`,
       },
       order: {
         location_id: 'ASC',

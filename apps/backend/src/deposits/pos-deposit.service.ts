@@ -1,11 +1,12 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
-import { In, Raw, Repository } from 'typeorm';
+import { In, LessThan, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
+import { LocationMethod } from '../location/const';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
@@ -22,24 +23,31 @@ export class PosDepositService {
   ) {}
 
   async findPOSDeposits(
-    date: string,
+    dateRange: DateRange,
     program: Ministries,
-    location: LocationEntity,
-    status?: MatchStatus
+    location_id: number,
+    statuses?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
-    const depositStatus = status ? status : In(MatchStatusAll);
-    const merchant_ids: number[] =
-      await this.locationService.getMerchantIdsByLocationId(
-        location.location_id
+    const depositStatuses = statuses ? statuses : MatchStatusAll;
+    const { minDate, maxDate } = dateRange;
+    const locations: LocationEntity[] =
+      await this.locationService.getLocationsByID(
+        program,
+        [location_id],
+        LocationMethod.POS
       );
+
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: date,
+        transaction_date: Raw(
+          (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
+          { minDate, maxDate }
+        ),
         metadata: {
           program: program,
         },
-        status: depositStatus,
-        merchant_id: In(merchant_ids),
+        status: In(depositStatuses),
+        merchant_id: In(locations.map((itm) => itm.merchant_id)),
       },
       relations: {
         payment_method: true,
@@ -47,9 +55,10 @@ export class PosDepositService {
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
       order: {
+        transaction_date: 'ASC',
+        transaction_time: 'ASC',
         transaction_amt: 'ASC',
         payment_method: { method: 'ASC' },
-        transaction_time: 'ASC',
       },
     });
   }
@@ -64,15 +73,39 @@ export class PosDepositService {
       .getRawMany();
   }
 
+  async findPOSDepositsExceptions(
+    date: string,
+    location_id: number,
+    program: Ministries
+  ): Promise<POSDepositEntity[]> {
+    // Get all corresponding locations for a location id and program
+    const locations = await this.locationService.getLocationsByID(
+      program,
+      [location_id],
+      LocationMethod.POS
+    );
+    return await this.posDepositRepo.find({
+      where: {
+        transaction_date: LessThan(date),
+        status: MatchStatus.IN_PROGRESS,
+        merchant_id: In(locations.map((itm) => itm.merchant_id)),
+        metadata: { program },
+      },
+    });
+  }
+
   async findPOSBySettlementDate(
-    location: LocationEntity,
+    location_id: number,
     program: Ministries,
     dateRange: DateRange
   ) {
-    const merchant_ids = await this.locationService.getMerchantIdsByLocationId(
-      location.location_id
+    // Get all corresponding locations for a location id and program
+    const locations = await this.locationService.getLocationsByID(
+      program,
+      [location_id],
+      LocationMethod.POS
     );
-    const { to_date, from_date } = dateRange;
+    const { minDate, maxDate } = dateRange;
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');
 
     qb.select(['settlement_date::date']);
@@ -87,11 +120,10 @@ export class PosDepositService {
     );
     qb.where({
       metadata: { program },
-      merchant_id: In([...merchant_ids]),
+      merchant_id: In(locations.map((itm) => itm.merchant_id)),
       settlement_date: Raw(
-        (alias) =>
-          `${alias} >= :from_date::date and ${alias} <= :to_date::date`,
-        { from_date, to_date }
+        (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
+        { minDate, maxDate }
       ),
     });
 
@@ -126,10 +158,6 @@ export class PosDepositService {
   async updateDeposits(
     deposits: POSDepositEntity[]
   ): Promise<POSDepositEntity[]> {
-    return await Promise.all(deposits.map((itm) => this.update(itm)));
-  }
-
-  async update(deposit: POSDepositEntity): Promise<POSDepositEntity> {
-    return await this.posDepositRepo.save(deposit);
+    return await this.posDepositRepo.save(deposits);
   }
 }

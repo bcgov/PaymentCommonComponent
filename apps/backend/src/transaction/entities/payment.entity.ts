@@ -14,6 +14,7 @@ import { MatchStatus } from '../../common/const';
 import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
+import { PosHeuristicRound } from '../../reconciliation/types';
 
 @Entity('payment')
 export class PaymentEntity {
@@ -117,6 +118,9 @@ export class PaymentEntity {
     name: 'pos_deposit_match',
   })
   pos_deposit_match?: Relation<POSDepositEntity>;
+
+  @Column({ type: 'enum', nullable: true, enum: PosHeuristicRound })
+  heuristic_match_round?: PosHeuristicRound;
 
   constructor(payment?: Partial<PaymentEntity>) {
     Object.assign(this, payment);

@@ -135,7 +135,7 @@ export class CashReconciliationService {
     const pendingDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDate(
         program,
-        dateRange.to_date,
+        dateRange.maxDate,
         location,
         [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
       );

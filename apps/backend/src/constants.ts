@@ -26,8 +26,8 @@ export interface ParseArgsTDI {
 }
 
 export interface DateRange {
-  from_date: string;
-  to_date: string;
+  minDate: string;
+  maxDate: string;
 }
 
 export enum PaymentMethodClassification {

@@ -38,13 +38,12 @@ export class DetailsReport {
     this.foreign_currency_amount = null;
     this.currency = 'CAD';
     this.transaction_id = '';
-    this.deposit_date_range =
-      dateRange?.from_date && dateRange?.to_date
-        ? `${format(new Date(dateRange.from_date), 'yyyy-MM-dd')}-${format(
-            new Date(dateRange.to_date),
-            'yyyy-MM-dd'
-          )}`
-        : '';
+    this.deposit_date_range = dateRange
+      ? `${format(new Date(dateRange.minDate), 'yyyy-MM-dd')}-${format(
+          new Date(dateRange.maxDate),
+          'yyyy-MM-dd'
+        )}`
+      : '';
     this.misc = '';
     this.merchant_id = null;
     this.terminal_no = '';
