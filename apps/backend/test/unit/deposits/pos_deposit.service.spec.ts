@@ -109,11 +109,13 @@ describe('POSDepositService', () => {
       const spy = jest
         .spyOn(service, 'updateDeposits')
         .mockResolvedValue([posDepositMock]);
+
       expect(service.updateDeposits([posDepositMock])).resolves.toEqual([
         posDepositMock,
       ]);
+
       expect(spy).toBeCalledTimes(1);
-      expect(spy).toBeCalledWith(posDepositMock);
+      expect(spy).toBeCalledWith([posDepositMock]);
     });
   });
 });
