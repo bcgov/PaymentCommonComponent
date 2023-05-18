@@ -64,7 +64,7 @@ export class PosReconciliationService {
     const pendingDeposits = await this.posDepositService.findPOSDeposits(
       dateRange,
       program,
-      location,
+      location.location_id,
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
     );
 
@@ -372,7 +372,7 @@ export class PosReconciliationService {
     const inProgressDeposits =
       await this.posDepositService.findPOSDepositsExceptions(
         dateRange.minDate,
-        location,
+        location.location_id,
         program
       );
 

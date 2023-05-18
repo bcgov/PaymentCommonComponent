@@ -192,7 +192,7 @@ export class DetailedReportService {
       await this.posDepositService.findPOSDeposits(
         dateRange,
         program,
-        location
+        location.location_id
       );
     return {
       payments: posPayments.map(

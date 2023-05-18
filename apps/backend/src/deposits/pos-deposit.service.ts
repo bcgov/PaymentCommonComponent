@@ -25,7 +25,7 @@ export class PosDepositService {
   async findPOSDeposits(
     dateRange: DateRange,
     program: Ministries,
-    location: LocationEntity,
+    location_id: number,
     statuses?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
     const depositStatuses = statuses ? statuses : MatchStatusAll;
@@ -33,7 +33,7 @@ export class PosDepositService {
     const locations: LocationEntity[] =
       await this.locationService.getLocationsByID(
         program,
-        [location.location_id],
+        [location_id],
         LocationMethod.POS
       );
 
@@ -75,12 +75,13 @@ export class PosDepositService {
 
   async findPOSDepositsExceptions(
     date: string,
-    location: LocationEntity,
+    location_id: number,
     program: Ministries
   ): Promise<POSDepositEntity[]> {
+    // Get all corresponding locations for a location id and program
     const locations = await this.locationService.getLocationsByID(
       program,
-      [location.location_id],
+      [location_id],
       LocationMethod.POS
     );
     return await this.posDepositRepo.find({
@@ -94,13 +95,14 @@ export class PosDepositService {
   }
 
   async findPOSBySettlementDate(
-    location: LocationEntity,
+    location_id: number,
     program: Ministries,
     dateRange: DateRange
   ) {
+    // Get all corresponding locations for a location id and program
     const locations = await this.locationService.getLocationsByID(
       program,
-      [location.location_id],
+      [location_id],
       LocationMethod.POS
     );
     const { minDate, maxDate } = dateRange;
@@ -157,9 +159,5 @@ export class PosDepositService {
     deposits: POSDepositEntity[]
   ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.save(deposits);
-  }
-
-  async update(deposit: POSDepositEntity): Promise<POSDepositEntity> {
-    return await this.posDepositRepo.save(deposit);
   }
 }
