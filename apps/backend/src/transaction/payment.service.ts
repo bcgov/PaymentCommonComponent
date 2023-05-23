@@ -19,7 +19,7 @@ export class PaymentService {
 
   async findPosPayments(
     dateRange: DateRange,
-    location: LocationEntity,
+    locations: LocationEntity[],
     statuses?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const paymentStatuses = statuses ? statuses : MatchStatusAll;
@@ -32,7 +32,7 @@ export class PaymentService {
             (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
             { minDate, maxDate }
           ),
-          location_id: location.location_id,
+          location_id: In(locations.map((location) => location.location_id)),
         },
         status: In(paymentStatuses),
         payment_method: { classification: PaymentMethodClassification.POS },

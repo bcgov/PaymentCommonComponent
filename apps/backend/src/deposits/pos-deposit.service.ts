@@ -22,10 +22,10 @@ export class PosDepositService {
     private posDepositRepo: Repository<POSDepositEntity>
   ) {}
 
-  async findPOSDeposits(
+  async findPosDeposits(
     dateRange: DateRange,
     program: Ministries,
-    location_id: number,
+    location_ids: number[],
     statuses?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
     const depositStatuses = statuses ? statuses : MatchStatusAll;
@@ -33,7 +33,7 @@ export class PosDepositService {
     const locations: LocationEntity[] =
       await this.locationService.getLocationsByID(
         program,
-        [location_id],
+        location_ids,
         LocationMethod.POS
       );
 

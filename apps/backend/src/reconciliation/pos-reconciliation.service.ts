@@ -42,32 +42,10 @@ export class PosReconciliationService {
 
   public async reconcile(
     location: LocationEntity,
-    program: Ministries,
-    date: Date
+    date: Date,
+    pendingPayments: PaymentEntity[],
+    pendingDeposits: POSDepositEntity[]
   ): Promise<unknown> {
-    const dateRange = {
-      minDate: format(subBusinessDays(date, 2), 'yyyy-MM-dd'),
-      maxDate: format(subBusinessDays(date, 1), 'yyyy-MM-dd'),
-    };
-
-    this.appLogger.log(
-      `Reconciliation POS: ${dateRange.maxDate} - ${location.description} - ${location.location_id}`,
-      PosReconciliationService.name
-    );
-
-    const pendingPayments = await this.paymentService.findPosPayments(
-      dateRange,
-      location,
-      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
-    );
-
-    const pendingDeposits = await this.posDepositService.findPOSDeposits(
-      dateRange,
-      program,
-      location.location_id,
-      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
-    );
-
     if (pendingPayments.length === 0 && pendingDeposits.length === 0) {
       return {
         message: 'No pending payments or deposits found',

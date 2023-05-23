@@ -1,6 +1,9 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { eachDayOfInterval, format, parse } from 'date-fns';
+import { eachDayOfInterval, format, parse, subBusinessDays } from 'date-fns';
+import { MatchStatus } from 'src/common/const';
+import { PosDepositService } from 'src/deposits/pos-deposit.service';
+import { PaymentService } from 'src/transaction/payment.service';
 import { AppModule } from '../app.module';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { LocationMethod } from '../location/const';
@@ -19,6 +22,9 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const cashExceptionsService = app.get(CashExceptionsService);
   const cashReconciliationService = app.get(CashReconciliationService);
   const posReconciliationService = app.get(PosReconciliationService);
+  const cashDepositService = app.get(CashDepositService);
+  const paymentService = app.get(PaymentService);
+  const posDepositService = app.get(PosDepositService);
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
   const appLogger = app.get(Logger);
@@ -32,7 +38,19 @@ export const handler = async (event: ReconciliationConfigInput) => {
           LocationMethod.Bank
         );
 
-  const cashDepositService = app.get(CashDepositService);
+  const allPosPaymentsInDates = await paymentService.findPosPayments(
+    { minDate: event.period.from, maxDate: event.period.to },
+    locations,
+    [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+  );
+
+  const allPosDepositsInDates = await posDepositService.findPosDeposits(
+    { minDate: event.period.from, maxDate: event.period.to },
+    event.program,
+    locations.map((location) => location.location_id),
+    [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+  );
+
   const dates: Date[] = eachDayOfInterval({
     start: parse(event.period.from, 'yyyy-MM-dd', new Date()),
     end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
@@ -40,10 +58,28 @@ export const handler = async (event: ReconciliationConfigInput) => {
 
   for (const location of locations) {
     for (const date of dates) {
+      const minDate = format(subBusinessDays(date, 2), 'yyyy-MM-dd');
+      const maxDate = format(subBusinessDays(date, 1), 'yyyy-MM-dd');
+      const pendingPayments = allPosPaymentsInDates.filter(
+        (posPayment) =>
+          posPayment.transaction.transaction_date === minDate ||
+          posPayment.transaction.transaction_date === maxDate
+      );
+      const pendingDeposits = allPosDepositsInDates.filter(
+        (posDeposit) =>
+          posDeposit.transaction_date === minDate ||
+          posDeposit.transaction_date === maxDate
+      );
+
+      appLogger.log(
+        `Reconciliation POS: ${maxDate} - ${location.description} - ${location.location_id}`,
+        PosReconciliationService.name
+      );
       const reconciled = await posReconciliationService.reconcile(
         location,
-        event.program,
-        date
+        date,
+        pendingPayments,
+        pendingDeposits
       );
 
       appLogger.log({ reconciled }, PosReconciliationService.name);

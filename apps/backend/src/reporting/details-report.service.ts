@@ -188,15 +188,15 @@ export class DetailedReportService {
     const posPayments: PaymentEntity[] =
       await this.paymentService.findPosPayments(
         { minDate: dateRange.maxDate, maxDate: dateRange.maxDate },
-        location,
+        [location],
         [MatchStatus.PENDING, MatchStatus.IN_PROGRESS, MatchStatus.EXCEPTION]
       );
 
     const posDeposits: POSDepositEntity[] =
-      await this.posDepositService.findPOSDeposits(
+      await this.posDepositService.findPosDeposits(
         { minDate: dateRange.maxDate, maxDate: dateRange.maxDate },
         program,
-        location.location_id
+        [location.location_id]
       );
 
     const matchedPosPayments = await this.paymentService.findMatchedPosPayments(
