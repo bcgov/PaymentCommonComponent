@@ -46,8 +46,8 @@ export class PosReconciliationService {
     date: Date
   ): Promise<unknown> {
     const dateRange = {
-      minDate: format(subBusinessDays(date, 2), 'yyyy-MM-dd'),
-      maxDate: format(subBusinessDays(date, 1), 'yyyy-MM-dd'),
+      minDate: format(subBusinessDays(date, 1), 'yyyy-MM-dd'),
+      maxDate: format(date, 'yyyy-MM-dd'),
     };
 
     this.appLogger.log(

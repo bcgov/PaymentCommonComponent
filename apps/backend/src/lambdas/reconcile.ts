@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { eachDayOfInterval, format, parse } from 'date-fns';
+import { eachDayOfInterval, format, parse, subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { LocationMethod } from '../location/const';
@@ -23,6 +23,14 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const reportingService = app.get(ReportingService);
   const appLogger = app.get(Logger);
 
+  const reconciliationDates = {
+    start: subBusinessDays(
+      parse(event.period.from, 'yyyy-MM-dd', new Date()),
+      1
+    ),
+    end: subBusinessDays(parse(event.period.to, 'yyyy-MM-dd', new Date()), 1),
+  };
+
   const locations =
     event.location_ids.length === 0
       ? await locationService.getLocationsBySource(event.program)
@@ -34,8 +42,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
 
   const cashDepositService = app.get(CashDepositService);
   const dates: Date[] = eachDayOfInterval({
-    start: parse(event.period.from, 'yyyy-MM-dd', new Date()),
-    end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
+    start: reconciliationDates.start,
+    end: reconciliationDates.end,
   });
 
   for (const location of locations) {
@@ -62,8 +70,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const cashDates = await cashDepositService.findCashDepositDatesByLocation(
       event.program,
       {
-        maxDate: event.period.to,
-        minDate: event.period.from,
+        maxDate: format(reconciliationDates.end, 'yyyy-MM-dd'),
+        minDate: format(reconciliationDates.start, 'yyyy-MM-dd'),
       },
       location
     );
