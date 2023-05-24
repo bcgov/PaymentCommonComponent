@@ -1,6 +1,13 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format, getMonth, getYear, parse } from 'date-fns';
+import {
+  format,
+  getMonth,
+  getYear,
+  isSaturday,
+  isSunday,
+  parse,
+} from 'date-fns';
 import { Repository } from 'typeorm';
 import { CasReport } from './cas-report/cas-report';
 import {
@@ -57,6 +64,17 @@ export class ReportingService {
       `Generating Reconciliation Report For ${locations.length} locations`,
       ReportingService.name
     );
+
+    if (
+      isSaturday(parse(config.period.to, 'yyyy-MM-dd', new Date())) ||
+      isSunday(parse(config.period.to, 'yyyy-MM-dd', new Date()))
+    ) {
+      this.appLogger.log(
+        `Skipping Reconciliation Report generation for ${config.period.to} as it is a weekend`,
+        ReportingService.name
+      );
+      return;
+    }
 
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
     await this.generateDailySummary(config, locations);

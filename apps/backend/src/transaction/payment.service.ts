@@ -4,6 +4,7 @@ import { Raw, In, Repository, LessThanOrEqual, LessThan } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedPayment } from '../reconciliation/types/interface';
@@ -192,6 +193,11 @@ export class PaymentService {
     });
   }
 
+  async findMatchedPosPayments(posDeposits: POSDepositEntity[]) {
+    return await this.paymentRepo.find({
+      where: { pos_deposit_match: In(posDeposits) },
+    });
+  }
   async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
     return await this.paymentRepo.save(payments);
   }
