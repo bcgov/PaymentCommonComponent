@@ -175,27 +175,36 @@ export class DetailedReportService {
   }> {
     dateRange = {
       minDate: format(
-        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2),
+        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1),
         'yyyy-MM-dd'
       ),
 
       maxDate: format(
-        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1),
+        parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()),
         'yyyy-MM-dd'
       ),
     };
 
     const posPayments: PaymentEntity[] =
-      await this.paymentService.findPosPayments(dateRange, location);
+      await this.paymentService.findPosPayments(
+        { minDate: dateRange.maxDate, maxDate: dateRange.maxDate },
+        location,
+        [MatchStatus.PENDING, MatchStatus.IN_PROGRESS, MatchStatus.EXCEPTION]
+      );
 
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSDeposits(
-        dateRange,
+        { minDate: dateRange.maxDate, maxDate: dateRange.maxDate },
         program,
         location.location_id
       );
+
+    const matchedPosPayments = await this.paymentService.findMatchedPosPayments(
+      posDeposits.filter((itm) => itm.status === MatchStatus.MATCH)
+    );
+
     return {
-      payments: posPayments.map(
+      payments: [...posPayments, ...matchedPosPayments].map(
         (itm) => new PaymentDetailsReport(location, itm)
       ),
       deposits: posDeposits.map(
