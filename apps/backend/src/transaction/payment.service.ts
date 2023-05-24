@@ -195,7 +195,7 @@ export class PaymentService {
 
   async findMatchedPosPayments(posDeposits: POSDepositEntity[]) {
     return await this.paymentRepo.find({
-      where: { pos_deposit_match: In(posDeposits) },
+      where: { pos_deposit_match: In(posDeposits.map((itm) => itm.id)) },
     });
   }
   async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
