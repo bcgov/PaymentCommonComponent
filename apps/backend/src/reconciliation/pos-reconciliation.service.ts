@@ -5,7 +5,12 @@ import {
   format,
   subBusinessDays,
 } from 'date-fns';
-import { PosHeuristicRound, ReconciliationType } from './types';
+import {
+  PosDepositsAmountDictionary,
+  PosDepositsDateDictionary,
+  PosHeuristicRound,
+  ReconciliationType,
+} from './types';
 import { MatchStatus } from '../common/const';
 import { Ministries } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -42,11 +47,13 @@ export class PosReconciliationService {
 
   public async reconcile(
     location: LocationEntity,
-    date: Date,
     pendingPayments: PaymentEntity[],
     pendingDeposits: POSDepositEntity[]
   ): Promise<unknown> {
-    if (pendingPayments.length === 0 && pendingDeposits.length === 0) {
+    if (
+      pendingPayments.length === 0 &&
+      Object.keys(pendingDeposits).length === 0
+    ) {
       return {
         message: 'No pending payments or deposits found',
       };
@@ -61,6 +68,43 @@ export class PosReconciliationService {
       `Deposits to be matched: ${pendingDeposits.length}`,
       PosReconciliationService.name
     );
+
+    /*
+    {
+      "100.44": {
+        "2023-04-04": [
+          ...
+        ],
+      },
+      "40.12": {
+        "2023-04-05": [
+          ...
+        ],
+      }
+    }
+    */
+    const locationPosDepositsDictionary = pendingDeposits.reduce(
+      (acc: PosDepositsAmountDictionary, posDeposit) => {
+        const amount = posDeposit.transaction_amt;
+        const date = posDeposit.transaction_date;
+        if (acc[amount]) {
+          if (acc[amount][date]) {
+            acc[amount][date].push(posDeposit);
+          } else {
+            acc[amount][date] = [posDeposit];
+          }
+        } else {
+          acc[amount] = {
+            date: [posDeposit],
+          };
+        }
+        return acc;
+      },
+      {}
+    );
+
+    for (const heuristic in PosHeuristicRound) {
+    }
 
     const roundOneMatches: {
       payment: PaymentEntity;
@@ -162,7 +206,7 @@ export class PosReconciliationService {
     );
 
     return {
-      transaction_date: format(date, 'yyyy-MM-dd'),
+      // transaction_date: format(date, 'yyyy-MM-dd'),
       type: ReconciliationType.POS,
       location_id: location.location_id,
       total_deposits_pending: pendingDeposits.length,
@@ -173,6 +217,74 @@ export class PosReconciliationService {
       total_deposits_in_progress: depositsInProgress.length,
     };
   }
+
+  public matchPosPaymentToPosDepositsDict(
+    payments: PaymentEntity[],
+    locationDeposits: PosDepositsAmountDictionary,
+    posHeuristicRound: PosHeuristicRound
+  ): any {
+    const matches: { payment: PaymentEntity; deposit: POSDepositEntity }[] = [];
+    for (const [pindex, payment] of payments.entries()) {
+      // find amount
+      const depositsWithAmount: PosDepositsDateDictionary | null =
+        locationDeposits[payment.amount];
+      if (depositsWithAmount) {
+        // if amount found, find time
+        let dateToFind = payment.transaction.transaction_date;
+        let deposits: POSDepositEntity[] | null =
+          depositsWithAmount[dateToFind];
+        if (!deposits?.length) {
+          if (posHeuristicRound === PosHeuristicRound.THREE) {
+            dateToFind = subBusinessDays(new Date(dateToFind), 1).toString();
+            deposits = depositsWithAmount[dateToFind];
+          }
+        }
+
+        if (deposits?.length) {
+          const dIndex = deposits.findIndex(
+            (dpst) =>
+              dpst.status !== MatchStatus.MATCH &&
+              this.verifyMethod(payment, dpst) &&
+              this.verifyTimeMatch(payment, dpst, posHeuristicRound)
+          );
+          if (dIndex) {
+            // Match found!
+            const deposit = deposits.splice(dIndex, 1)[0];
+            // Affect payment
+            // Affect deposit
+            matches.push({
+              payment: {
+                ...payment,
+                status: MatchStatus.MATCH,
+                timestamp: payment.timestamp,
+                heuristic_match_round: posHeuristicRound,
+                pos_deposit_match: {
+                  ...deposit,
+                  heuristic_match_round: posHeuristicRound,
+                  timestamp: deposit.timestamp,
+                  status: MatchStatus.MATCH,
+                },
+              },
+              deposit: {
+                ...deposit,
+                heuristic_match_round: posHeuristicRound,
+                status: MatchStatus.MATCH,
+                timestamp: deposit.timestamp,
+              },
+            });
+            // Pull it out of the dictionary
+            if (deposits.length) {
+              depositsWithAmount[dateToFind] = deposits;
+            } else {
+              delete depositsWithAmount[dateToFind];
+              // delete from parent dictionary?
+            }
+          }
+        }
+      }
+    }
+  }
+
   /**
    * Loop through the list of payments and deposits and match them based on the heuristic round
    * @param payments
@@ -306,6 +418,7 @@ export class PosReconciliationService {
       );
     } else return false;
   }
+
   /**
    *
    * @param {PaymentEntity} payment
