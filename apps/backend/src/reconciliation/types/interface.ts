@@ -48,3 +48,11 @@ export interface AggregatedPayment {
   cash_deposit_match: CashDepositEntity;
   payments: PaymentEntity[];
 }
+
+export interface PosDepositsAmountDictionary {
+  [key: string]: PosDepositsDateDictionary;
+}
+
+export interface PosDepositsDateDictionary {
+  [key: string]: POSDepositEntity[];
+}

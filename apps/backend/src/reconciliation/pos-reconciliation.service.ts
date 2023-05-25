@@ -50,10 +50,7 @@ export class PosReconciliationService {
     pendingPayments: PaymentEntity[],
     pendingDeposits: POSDepositEntity[]
   ): Promise<unknown> {
-    if (
-      pendingPayments.length === 0 &&
-      Object.keys(pendingDeposits).length === 0
-    ) {
+    if (pendingPayments.length === 0 && pendingDeposits.length === 0) {
       return {
         message: 'No pending payments or deposits found',
       };
@@ -95,94 +92,114 @@ export class PosReconciliationService {
           }
         } else {
           acc[amount] = {
-            date: [posDeposit],
+            [date]: [posDeposit],
           };
         }
         return acc;
       },
       {}
     );
+    this.appLogger.log(locationPosDepositsDictionary);
 
+    const matches = [];
     for (const heuristic in PosHeuristicRound) {
+      const h: PosHeuristicRound = (() => {
+        if (heuristic === PosHeuristicRound.ONE) {
+          return PosHeuristicRound.ONE;
+        }
+        if (heuristic === PosHeuristicRound.TWO) {
+          return PosHeuristicRound.TWO;
+        }
+        if (heuristic === PosHeuristicRound.THREE) {
+          return PosHeuristicRound.THREE;
+        }
+        return PosHeuristicRound.ONE;
+      })();
+      const roundMatches = this.matchPosPaymentToPosDepositsDict(
+        pendingPayments,
+        locationPosDepositsDictionary,
+        h
+      );
+      matches.push(...roundMatches);
+      this.appLogger.log(
+        `MATCHES - ROUND ${roundMatches.length}`,
+        PosReconciliationService.name
+      );
     }
 
-    const roundOneMatches: {
-      payment: PaymentEntity;
-      deposit: POSDepositEntity;
-    }[] = this.matchPosPaymentToPosDeposits(
-      pendingPayments.filter(
-        (itm) =>
-          itm.status === MatchStatus.PENDING ||
-          itm.status === MatchStatus.IN_PROGRESS
-      ),
-      pendingDeposits.filter(
-        (itm) =>
-          itm.status === MatchStatus.PENDING ||
-          itm.status === MatchStatus.IN_PROGRESS
-      ),
-      PosHeuristicRound.ONE
-    );
+    // const roundOneMatches: {
+    //   payment: PaymentEntity;
+    //   deposit: POSDepositEntity;
+    // }[] = this.matchPosPaymentToPosDeposits(
+    //   pendingPayments.filter(
+    //     (itm) =>
+    //       itm.status === MatchStatus.PENDING ||
+    //       itm.status === MatchStatus.IN_PROGRESS
+    //   ),
+    //   pendingDeposits.filter(
+    //     (itm) =>
+    //       itm.status === MatchStatus.PENDING ||
+    //       itm.status === MatchStatus.IN_PROGRESS
+    //   ),
+    //   PosHeuristicRound.ONE
+    // );
 
-    this.appLogger.log(
-      `MATCHES - ROUND ONE ${roundOneMatches.length}`,
-      PosReconciliationService.name
-    );
+    // this.appLogger.log(
+    //   `MATCHES - ROUND ONE ${roundOneMatches.length}`,
+    //   PosReconciliationService.name
+    // );
 
-    const roundTwoMatches: {
-      payment: PaymentEntity;
-      deposit: POSDepositEntity;
-    }[] = this.matchPosPaymentToPosDeposits(
-      pendingPayments.filter(
-        (itm) =>
-          itm.status === MatchStatus.PENDING ||
-          itm.status === MatchStatus.IN_PROGRESS
-      ),
-      pendingDeposits.filter(
-        (itm) =>
-          itm.status === MatchStatus.PENDING ||
-          itm.status === MatchStatus.IN_PROGRESS
-      ),
-      PosHeuristicRound.TWO
-    );
+    // const roundTwoMatches: {
+    //   payment: PaymentEntity;
+    //   deposit: POSDepositEntity;
+    // }[] = this.matchPosPaymentToPosDeposits(
+    //   pendingPayments.filter(
+    //     (itm) =>
+    //       itm.status === MatchStatus.PENDING ||
+    //       itm.status === MatchStatus.IN_PROGRESS
+    //   ),
+    //   pendingDeposits.filter(
+    //     (itm) =>
+    //       itm.status === MatchStatus.PENDING ||
+    //       itm.status === MatchStatus.IN_PROGRESS
+    //   ),
+    //   PosHeuristicRound.TWO
+    // );
 
-    this.appLogger.log(
-      `MATCHES - ROUND TWO ${roundTwoMatches.length}`,
-      PosReconciliationService.name
-    );
-    const roundThreeMatches: {
-      payment: PaymentEntity;
-      deposit: POSDepositEntity;
-    }[] = this.matchPosPaymentToPosDeposits(
-      pendingPayments.filter(
-        (itm) =>
-          itm.status === MatchStatus.PENDING ||
-          itm.status === MatchStatus.IN_PROGRESS
-      ),
-      pendingDeposits.filter(
-        (itm) =>
-          itm.status === MatchStatus.PENDING ||
-          itm.status === MatchStatus.IN_PROGRESS
-      ),
-      PosHeuristicRound.THREE
-    );
+    // this.appLogger.log(
+    //   `MATCHES - ROUND TWO ${roundTwoMatches.length}`,
+    //   PosReconciliationService.name
+    // );
+    // const roundThreeMatches: {
+    //   payment: PaymentEntity;
+    //   deposit: POSDepositEntity;
+    // }[] = this.matchPosPaymentToPosDeposits(
+    //   pendingPayments.filter(
+    //     (itm) =>
+    //       itm.status === MatchStatus.PENDING ||
+    //       itm.status === MatchStatus.IN_PROGRESS
+    //   ),
+    //   pendingDeposits.filter(
+    //     (itm) =>
+    //       itm.status === MatchStatus.PENDING ||
+    //       itm.status === MatchStatus.IN_PROGRESS
+    //   ),
+    //   PosHeuristicRound.THREE
+    // );
 
-    this.appLogger.log(
-      `MATCHES - ROUND THREE ${roundThreeMatches.length}`,
-      PosReconciliationService.name
-    );
+    // this.appLogger.log(
+    //   `MATCHES - ROUND THREE ${roundThreeMatches.length}`,
+    //   PosReconciliationService.name
+    // );
 
     const paymentsMatched: PaymentEntity[] =
       await this.paymentService.updatePayments(
-        [...roundOneMatches, ...roundTwoMatches, ...roundThreeMatches].map(
-          (itm) => itm.payment
-        )
+        matches.map((itm) => itm.payment)
       );
 
     const depositsMatched: POSDepositEntity[] =
       await this.posDepositService.updateDeposits(
-        [...roundOneMatches, ...roundTwoMatches, ...roundThreeMatches].map(
-          (itm) => itm.deposit
-        )
+        matches.map((itm) => itm.deposit)
       );
 
     const paymentsInProgress = await this.paymentService.updatePayments(
@@ -195,8 +212,15 @@ export class PosReconciliationService {
         }))
     );
 
+    const inProgressDeposits: POSDepositEntity[] = [];
+    Object.keys(locationPosDepositsDictionary).forEach((amount) => {
+      Object.keys(locationPosDepositsDictionary[amount]).forEach((date) => {
+        inProgressDeposits.push(...locationPosDepositsDictionary[amount][date]);
+      });
+    });
+
     const depositsInProgress = await this.posDepositService.updateDeposits(
-      pendingDeposits
+      inProgressDeposits
         .filter((itm) => itm.status === MatchStatus.PENDING)
         .map((itm) => ({
           ...itm,
@@ -209,12 +233,12 @@ export class PosReconciliationService {
       // transaction_date: format(date, 'yyyy-MM-dd'),
       type: ReconciliationType.POS,
       location_id: location.location_id,
-      total_deposits_pending: pendingDeposits.length,
-      total_payments_pending: pendingPayments.length,
-      total_matched_payments: paymentsMatched.length,
-      total_matched_deposits: depositsMatched.length,
-      total_payments_in_progress: paymentsInProgress.length,
-      total_deposits_in_progress: depositsInProgress.length,
+      // total_deposits_pending: pendingDeposits.length,
+      // total_payments_pending: pendingPayments.length,
+      // total_matched_payments: paymentsMatched.length,
+      // total_matched_deposits: depositsMatched.length,
+      // total_payments_in_progress: paymentsInProgress.length,
+      // total_deposits_in_progress: depositsInProgress.length,
     };
   }
 
@@ -241,6 +265,9 @@ export class PosReconciliationService {
         }
 
         if (deposits?.length) {
+          this.appLogger.log(
+            `Payment ${payment.id} for date ${dateToFind} and deposits ${deposits.length}`
+          );
           const dIndex = deposits.findIndex(
             (dpst) =>
               dpst.status !== MatchStatus.MATCH &&
@@ -252,6 +279,7 @@ export class PosReconciliationService {
             const deposit = deposits.splice(dIndex, 1)[0];
             // Affect payment
             // Affect deposit
+            payments[pindex].status = MatchStatus.MATCH;
             matches.push({
               payment: {
                 ...payment,
@@ -283,6 +311,7 @@ export class PosReconciliationService {
         }
       }
     }
+    return matches;
   }
 
   /**
@@ -383,34 +412,34 @@ export class PosReconciliationService {
     heuristicRound: PosHeuristicRound
   ): boolean {
     if (heuristicRound === PosHeuristicRound.ONE) {
-      this.appLogger.log(
-        `ROUND 1: Difference in minutes ${format(
-          payment.timestamp,
-          'yyyy-MM-dd'
-        )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
-          differenceInMinutes(payment.timestamp, deposit.timestamp)
-        )}`,
-        PosReconciliationService.name
-      );
+      // this.appLogger.log(
+      //   `ROUND 1: Difference in minutes ${format(
+      //     payment.timestamp,
+      //     'yyyy-MM-dd'
+      //   )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
+      //     differenceInMinutes(payment.timestamp, deposit.timestamp)
+      //   )}`,
+      //   PosReconciliationService.name
+      // );
       return (
         Math.abs(differenceInMinutes(payment.timestamp, deposit.timestamp)) <= 5
       );
     } else if (heuristicRound === PosHeuristicRound.TWO) {
-      this.appLogger.log(
-        `ROUND 2: ${payment.transaction.transaction_date} === ${deposit.transaction_date}`,
-        PosReconciliationService.name
-      );
+      // this.appLogger.log(
+      //   `ROUND 2: ${payment.transaction.transaction_date} === ${deposit.transaction_date}`,
+      //   PosReconciliationService.name
+      // );
       return payment.transaction.transaction_date === deposit.transaction_date;
     } else if (heuristicRound === PosHeuristicRound.THREE) {
-      this.appLogger.log(
-        `ROUND 3: Difference in days ${format(
-          payment.timestamp,
-          'yyyy-MM-dd'
-        )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
-          differenceInBusinessDays(payment.timestamp, deposit.timestamp)
-        )}`,
-        PosReconciliationService.name
-      );
+      // this.appLogger.log(
+      //   `ROUND 3: Difference in days ${format(
+      //     payment.timestamp,
+      //     'yyyy-MM-dd'
+      //   )} - ${format(deposit.timestamp, 'yyyy-MM-dd')} ===  ${Math.abs(
+      //     differenceInBusinessDays(payment.timestamp, deposit.timestamp)
+      //   )}`,
+      //   PosReconciliationService.name
+      // );
       return (
         Math.abs(
           differenceInBusinessDays(payment.timestamp, deposit.timestamp)
