@@ -7,7 +7,7 @@ import {
   ReconciliationType,
 } from './types';
 import { MatchStatus } from '../common/const';
-import { Ministries } from '../constants';
+import { DateRange, Ministries } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationEntity } from '../location/entities/master-location-data.entity';

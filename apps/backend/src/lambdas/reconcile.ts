@@ -120,16 +120,16 @@ export const handler = async (event: ReconciliationConfigInput) => {
         cashDates[index - 2] ??
         format(new Date(event.period.from), 'yyyy-MM-dd');
 
-      const dateRange = {
-        minDate: previousCashDepositDate,
-        maxDate: date,
-      };
+  //     const dateRange = {
+  //       minDate: previousCashDepositDate,
+  //       maxDate: date,
+  //     };
 
-      const result = await cashReconciliationService.reconcileCash(
-        location,
-        event.program,
-        dateRange
-      );
+  //     const result = await cashReconciliationService.reconcileCash(
+  //       location,
+  //       event.program,
+  //       dateRange
+  //     );
 
       appLogger.log({ result });
       const exceptions = await cashExceptionsService.setExceptions(
