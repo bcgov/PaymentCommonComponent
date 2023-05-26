@@ -195,15 +195,17 @@ export class PosReconciliationService {
     //   PosReconciliationService.name
     // );
 
-    const paymentsMatched: PaymentEntity[] =
-      await this.paymentService.updatePayments(
-        matches.map((itm) => itm.payment)
-      );
+    // const paymentsMatched: PaymentEntity[] =
+    await this.paymentService.matchPayments(matches.map((itm) => itm.payment));
 
-    const depositsMatched: POSDepositEntity[] =
-      await this.posDepositService.updateDeposits(
-        matches.map((itm) => itm.deposit)
-      );
+    // const depositsMatched: POSDepositEntity[] =
+    //   await this.posDepositService.updateDeposits(
+    //     matches.map((itm) => itm.deposit)
+    //   );
+
+    await this.posDepositService.matchDeposits(
+      matches.map((itm) => itm.deposit)
+    );
 
     const paymentsInProgress = await this.paymentService.updatePayments(
       pendingPayments
@@ -262,7 +264,12 @@ export class PosReconciliationService {
           depositsWithAmount[dateToFind];
         if (!deposits?.length) {
           if (posHeuristicRound === PosHeuristicRound.THREE) {
-            dateToFind = subBusinessDays(new Date(dateToFind), 1).toString();
+            this.appLogger.log(dateToFind);
+            dateToFind = format(
+              subBusinessDays(new Date(dateToFind), 1),
+              'yyyy-MM-dd'
+            );
+            this.appLogger.log(dateToFind);
             deposits = depositsWithAmount[dateToFind];
           }
         }

@@ -160,4 +160,24 @@ export class PosDepositService {
   ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.save(deposits);
   }
+
+  async matchDeposits(deposits: POSDepositEntity[]): Promise<any> {
+    return this.posDepositRepo.manager.transaction(async (manager) => {
+      const updatedPayments = await Promise.all(
+        deposits.map((d) => {
+          const { timestamp, ...dep } = d;
+          return manager.update(
+            POSDepositEntity,
+            { id: dep.id },
+            {
+              ...dep,
+              status: MatchStatus.MATCH,
+              heuristic_match_round: dep.heuristic_match_round,
+            }
+          );
+        })
+      );
+      return updatedPayments;
+    });
+  }
 }

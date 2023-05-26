@@ -201,4 +201,29 @@ export class PaymentService {
   async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
     return await this.paymentRepo.save(payments);
   }
+
+  async matchPayments(payments: PaymentEntity[]): Promise<any> {
+    return this.paymentRepo.manager.transaction(async (manager) => {
+      const updatedPayments = await Promise.all(
+        payments.map((p) => {
+          const { timestamp, ...pay } = p;
+          return manager.update(
+            PaymentEntity,
+            { id: pay.id },
+            {
+              ...pay,
+              status: MatchStatus.MATCH,
+              heuristic_match_round: p.heuristic_match_round,
+              pos_deposit_match: {
+                ...pay.pos_deposit_match,
+                heuristic_match_round: p.heuristic_match_round,
+                status: MatchStatus.MATCH,
+              },
+            }
+          );
+        })
+      );
+      return updatedPayments;
+    });
+  }
 }
