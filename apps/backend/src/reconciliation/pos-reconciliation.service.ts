@@ -115,7 +115,11 @@ export class PosReconciliationService {
         return PosHeuristicRound.ONE;
       })();
       const roundMatches = this.matchPosPaymentToPosDepositsDict(
-        pendingPayments,
+        pendingPayments.filter(
+          (itm) =>
+            itm.status === MatchStatus.PENDING ||
+            itm.status === MatchStatus.IN_PROGRESS
+        ),
         locationPosDepositsDictionary,
         h
       );
@@ -276,13 +280,6 @@ export class PosReconciliationService {
           if (dIndex > -1) {
             // Match found!
             const deposit = deposits.splice(dIndex, 1)[0];
-            if (payment.amount === 17.0) {
-              this.appLogger.log(`payment 17.00 ${payment.id}`);
-              this.appLogger.log(depositsWithAmount);
-              this.appLogger.log(dateToFind);
-              this.appLogger.log(dIndex);
-              this.appLogger.log(deposit);
-            }
             // Affect payment
             // Affect deposit
             payments[pindex].status = MatchStatus.MATCH;
