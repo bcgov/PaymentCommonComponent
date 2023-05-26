@@ -99,7 +99,6 @@ export class PosReconciliationService {
       },
       {}
     );
-    this.appLogger.log(locationPosDepositsDictionary);
 
     const matches = [];
     for (const heuristic in PosHeuristicRound) {
@@ -265,18 +264,25 @@ export class PosReconciliationService {
         }
 
         if (deposits?.length) {
-          this.appLogger.log(
-            `Payment ${payment.id} for date ${dateToFind} and deposits ${deposits.length}`
-          );
+          // this.appLogger.log(
+          //   `Payment ${payment.id} for date ${dateToFind} and deposits ${deposits.length}`
+          // );
           const dIndex = deposits.findIndex(
             (dpst) =>
               dpst.status !== MatchStatus.MATCH &&
               this.verifyMethod(payment, dpst) &&
               this.verifyTimeMatch(payment, dpst, posHeuristicRound)
           );
-          if (dIndex) {
+          if (dIndex > -1) {
             // Match found!
             const deposit = deposits.splice(dIndex, 1)[0];
+            if (payment.amount === 17.0) {
+              this.appLogger.log(`payment 17.00 ${payment.id}`);
+              this.appLogger.log(depositsWithAmount);
+              this.appLogger.log(dateToFind);
+              this.appLogger.log(dIndex);
+              this.appLogger.log(deposit);
+            }
             // Affect payment
             // Affect deposit
             payments[pindex].status = MatchStatus.MATCH;
@@ -306,6 +312,9 @@ export class PosReconciliationService {
             } else {
               delete depositsWithAmount[dateToFind];
               // delete from parent dictionary?
+            }
+            if (payment.amount === 5.25) {
+              this.appLogger.log(depositsWithAmount[dateToFind]);
             }
           }
         }
