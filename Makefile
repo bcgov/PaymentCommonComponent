@@ -271,16 +271,12 @@ reconcile:
 report:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler($(REPORT_JSON))'
 
-clear: 
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.payment"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.transaction"
-
-
 clear-status: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null,  cash_deposit_match=null, heuristic_match_round=null;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.cash_deposit set status='PENDING';"
-	
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_deposits_pos_deposit"
+
 drop:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"

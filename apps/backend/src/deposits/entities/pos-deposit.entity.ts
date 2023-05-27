@@ -3,6 +3,8 @@ import {
   Column,
   Entity,
   JoinColumn,
+  JoinTable,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
   Relation,
@@ -13,7 +15,7 @@ import { ColumnNumericTransformer } from '../../common/transformers/numericColum
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
 import { PosHeuristicRound } from '../../reconciliation/types/const';
-import { PaymentMethodEntity } from '../../transaction/entities';
+import { PaymentEntity, PaymentMethodEntity } from '../../transaction/entities';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {
@@ -67,6 +69,12 @@ export class POSDepositEntity {
 
   @Column({ type: 'enum', nullable: true, enum: PosHeuristicRound })
   heuristic_match_round?: PosHeuristicRound;
+
+  @ManyToMany(() => PaymentEntity, (p) => p.round_four_deposits, {
+    nullable: true,
+  })
+  @JoinTable()
+  round_four_payments?: Relation<PaymentEntity[]>;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

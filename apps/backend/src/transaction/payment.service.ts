@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Raw, In, Repository, LessThanOrEqual, LessThan } from 'typeorm';
+import { Raw, In, Repository, LessThanOrEqual } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
@@ -55,7 +55,7 @@ export class PaymentService {
     return await this.paymentRepo.find({
       where: {
         transaction: {
-          transaction_date: LessThan(date),
+          transaction_date: LessThanOrEqual(date),
           location_id: location.location_id,
         },
         status: MatchStatus.IN_PROGRESS,
@@ -72,6 +72,7 @@ export class PaymentService {
       },
     });
   }
+
   public aggregatePayments(payments: PaymentEntity[]): AggregatedPayment[] {
     const groupedPayments = payments.reduce(
       /*eslint-disable */

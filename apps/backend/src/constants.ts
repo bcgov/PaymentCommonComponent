@@ -1,3 +1,6 @@
+import { POSDepositEntity } from './deposits/entities/pos-deposit.entity';
+import { PaymentEntity } from './transaction/entities';
+
 export const ALL = 'all';
 
 export enum Ministries {
@@ -34,4 +37,13 @@ export enum PaymentMethodClassification {
   CASH = 'CASH',
   POS = 'POS',
   IGNORE = 'IGNORE',
+}
+
+export interface AggregatedDeposit extends POSDepositEntity {
+  deposits: POSDepositEntity[];
+}
+
+export interface AggregatedPosPayment extends PaymentEntity {
+  transaction_date: string;
+  payments: PaymentEntity[];
 }
