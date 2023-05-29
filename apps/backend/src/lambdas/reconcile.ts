@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { eachDayOfInterval, format, parse, subBusinessDays } from 'date-fns';
+import { format } from 'date-fns';
 import { MatchStatus } from '../common/const';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { PaymentService } from '../transaction/payment.service';
@@ -11,10 +11,7 @@ import { LocationService } from '../location/location.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
-import {
-  PosDepositsAmountDictionary,
-  ReconciliationConfigInput,
-} from '../reconciliation/types';
+import { ReconciliationConfigInput } from '../reconciliation/types';
 import { ReportingService } from '../reporting/reporting.service';
 
 export const handler = async (event: ReconciliationConfigInput) => {
@@ -33,7 +30,6 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const appLogger = app.get(Logger);
   const dateRange = { minDate: event.period.from, maxDate: event.period.to };
 
-  console.time('time');
   const locations =
     event.location_ids.length === 0
       ? await locationService.getLocationsBySource(event.program)
@@ -71,8 +67,6 @@ export const handler = async (event: ReconciliationConfigInput) => {
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
-  appLogger.log('FIRST', allPosDepositsInDates.length);
-
   for (const location of locations) {
     const locationPayments = allPosPaymentsInDates.filter(
       (posPayment) =>
@@ -81,7 +75,6 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const locationDeposits = allPosDepositsInDates.filter((posDeposit) =>
       merchantIds[location.location_id].includes(posDeposit.merchant_id)
     );
-    appLogger.log('LENGTH', locationDeposits.length);
 
     appLogger.log(
       `Reconciliation POS: ${location.description} - ${location.location_id}`,
@@ -104,88 +97,45 @@ export const handler = async (event: ReconciliationConfigInput) => {
     appLogger.log({ exceptions }, PosReconciliationService.name);
   }
 
-  const dates: Date[] = eachDayOfInterval({
-    start: parse(event.period.from, 'yyyy-MM-dd', new Date()),
-    end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
-  });
+  for (const location of locations) {
+    // get just dates of deposits in each location
+    const cashDates = await cashDepositService.findCashDepositDatesByLocation(
+      event.program,
+      {
+        maxDate: event.period.to,
+        minDate: event.period.from,
+      },
+      location
+    );
+    for (const [index, date] of cashDates.entries()) {
+      const previousCashDepositDate =
+        cashDates[index - 2] ??
+        format(new Date(event.period.from), 'yyyy-MM-dd');
 
-  // for (const location of locations) {
-  //   for (const date of dates) {
-  // const minDate = format(subBusinessDays(date, 2), 'yyyy-MM-dd');
-  // const maxDate = format(subBusinessDays(date, 1), 'yyyy-MM-dd');
-  // const pendingPayments = allPosPaymentsInDates.filter(
-  //   (posPayment) =>
-  //     posPayment.transaction.transaction_date === minDate ||
-  //     posPayment.transaction.transaction_date === maxDate
-  // );
-  // const pendingDeposits = allPosDepositsInDates.filter(
-  //   (posDeposit) =>
-  //     posDeposit.transaction_date === minDate ||
-  //     posDeposit.transaction_date === maxDate
-  // );
+      const dateRange = {
+        minDate: previousCashDepositDate,
+        maxDate: date,
+      };
 
-  // appLogger.log(
-  //   `Reconciliation POS: ${maxDate} - ${location.description} - ${location.location_id}`,
-  //   PosReconciliationService.name
-  // );
-  // const reconciled = await posReconciliationService.reconcile(
-  //   location,
-  //   // date,
-  //   pendingPayments,
-  //   pendingDeposits
-  // );
+      const result = await cashReconciliationService.reconcileCash(
+        location,
+        event.program,
+        dateRange
+      );
 
-  // appLogger.log({ reconciled }, PosReconciliationService.name);
-
-  // const exceptions = await posReconciliationService.findExceptions(
-  //   location,
-  //   event.program,
-  //   date
-  // );
-
-  // appLogger.log({ exceptions }, PosReconciliationService.name);
-  //   }
-  // }
-
-  // for (const location of locations) {
-  //   const cashDates = await cashDepositService.findCashDepositDatesByLocation(
-  //     event.program,
-  //     {
-  //       maxDate: event.period.to,
-  //       minDate: event.period.from,
-  //     },
-  //     location
-  //   );
-  //   for (const [index, date] of cashDates.entries()) {
-  //     const previousCashDepositDate =
-  //       cashDates[index - 2] ??
-  //       format(new Date(event.period.from), 'yyyy-MM-dd');
-
-  //     const dateRange = {
-  //       minDate: previousCashDepositDate,
-  //       maxDate: date,
-  //     };
-
-  //     const result = await cashReconciliationService.reconcileCash(
-  //       location,
-  //       event.program,
-  //       dateRange
-  //     );
-
-  //     appLogger.log({ result });
-  //     const exceptions = await cashExceptionsService.findExceptions(
-  //       location,
-  //       event.program,
-  //       previousCashDepositDate
-  //     );
-  //     appLogger.log({ exceptions }, CashReconciliationService.name);
-  //   }
-  // }
-  // const posReport = await reportingService.reportPosMatchSummaryByDate();
-  // appLogger.log('\n\n=========POS Summary Report: =========\n');
-  // console.table(posReport);
-  // const cashReport = await reportingService.reportCashMatchSummaryByDate();
-  // appLogger.log('\n\n=========Cash Summary Report: =========\n');
-  // console.table(cashReport);
-  console.timeEnd('time');
+      appLogger.log({ result });
+      const exceptions = await cashExceptionsService.findExceptions(
+        location,
+        event.program,
+        previousCashDepositDate
+      );
+      appLogger.log({ exceptions }, CashReconciliationService.name);
+    }
+  }
+  const posReport = await reportingService.reportPosMatchSummaryByDate();
+  appLogger.log('\n\n=========POS Summary Report: =========\n');
+  console.table(posReport);
+  const cashReport = await reportingService.reportCashMatchSummaryByDate();
+  appLogger.log('\n\n=========Cash Summary Report: =========\n');
+  console.table(cashReport);
 };
