@@ -4,7 +4,6 @@ import {
   differenceInBusinessDays,
   differenceInMinutes,
   format,
-  subBusinessDays,
 } from 'date-fns';
 import {
   PosDepositsAmountDictionary,
@@ -13,13 +12,14 @@ import {
   ReconciliationType,
 } from './types';
 import { MatchStatus } from '../common/const';
-import { Ministries } from '../constants';
+import { DateRange, Ministries } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationEntity } from '../location/entities/master-location-data.entity';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
+
 /**
  * @description Reconciliation Service for matching POS payments to POS deposits
  * @class
@@ -121,10 +121,16 @@ export class PosReconciliationService {
     }
 
     const paymentsMatched = matches.map((itm) => itm.payment);
-    await this.paymentService.matchPayments(paymentsMatched);
+    await this.paymentService.updatePaymentStatus(
+      paymentsMatched,
+      MatchStatus.MATCH
+    );
 
     const depositsMatched = matches.map((itm) => itm.deposit);
-    await this.posDepositService.matchDeposits(depositsMatched);
+    await this.posDepositService.updateDepositStatus(
+      depositsMatched,
+      MatchStatus.MATCH
+    );
 
     const paymentsInProgress = await this.paymentService.updatePayments(
       pendingPayments
@@ -398,27 +404,19 @@ export class PosReconciliationService {
   public async findExceptions(
     location: LocationEntity,
     program: Ministries,
-    date: Date
+    maxDate: string
   ): Promise<unknown> {
-    const dateRange = {
-      minDate: format(subBusinessDays(date, 2), 'yyyy-MM-dd'),
-      maxDate: format(subBusinessDays(date, 1), 'yyyy-MM-dd'),
-    };
-
     this.appLogger.log(
-      `Exceptions POS: ${dateRange.maxDate} - ${location.description} - ${location.location_id}`,
+      `Exceptions POS: ${maxDate} - ${location.description} - ${location.location_id}`,
       PosReconciliationService.name
     );
 
     const inProgressPayments =
-      await this.paymentService.findPosPaymentExceptions(
-        dateRange.minDate,
-        location
-      );
+      await this.paymentService.findPosPaymentExceptions(maxDate, location);
 
     const inProgressDeposits =
       await this.posDepositService.findPOSDepositsExceptions(
-        dateRange.minDate,
+        maxDate,
         location.location_id,
         program
       );
@@ -429,25 +427,29 @@ export class PosReconciliationService {
       };
     }
 
-    const paymentExceptions = await this.paymentService.updatePayments(
-      inProgressPayments.map((itm) => ({
-        ...itm,
-        timestamp: itm.timestamp,
-        status: MatchStatus.EXCEPTION,
-      }))
+    const updatedPayments = inProgressPayments.map((itm) => ({
+      ...itm,
+      timestamp: itm.timestamp,
+      status: MatchStatus.EXCEPTION,
+    }));
+    const paymentExceptions = await this.paymentService.updatePaymentStatus(
+      updatedPayments,
+      MatchStatus.EXCEPTION
     );
 
-    const depositExceptions = await this.posDepositService.updateDeposits(
-      inProgressDeposits.map((itm) => ({
-        ...itm,
-        timestamp: itm.timestamp,
-        status: MatchStatus.EXCEPTION,
-      }))
+    const updatedDeposits = inProgressDeposits.map((itm) => ({
+      ...itm,
+      timestamp: itm.timestamp,
+      status: MatchStatus.EXCEPTION,
+    }));
+    const depositExceptions = await this.posDepositService.updateDepositStatus(
+      updatedDeposits,
+      MatchStatus.EXCEPTION
     );
 
     return {
-      depositExceptions: depositExceptions.length,
-      paymentExceptions: paymentExceptions.length,
+      depositExceptions: updatedDeposits.length,
+      paymentExceptions: updatedPayments.length,
     };
   }
 }

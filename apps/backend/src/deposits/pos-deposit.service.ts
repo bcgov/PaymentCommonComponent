@@ -73,8 +73,14 @@ export class PosDepositService {
       .getRawMany();
   }
 
+  /**
+   * findPOSDepositsExceptions - Finds all deposits to mark as exceptions
+   * @param maxDate
+   * @param location
+   * @returns
+   */
   async findPOSDepositsExceptions(
-    date: string,
+    maxDate: string,
     location_id: number,
     program: Ministries
   ): Promise<POSDepositEntity[]> {
@@ -86,7 +92,7 @@ export class PosDepositService {
     );
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: LessThan(date),
+        transaction_date: LessThan(maxDate),
         status: MatchStatus.IN_PROGRESS,
         merchant_id: In(locations.map((itm) => itm.merchant_id)),
         metadata: { program },
@@ -162,12 +168,16 @@ export class PosDepositService {
   }
 
   /**
-   * MatcDeposits
-   * This will match necessary deposits. This should be more performant as it is wrapped in a transaction
-   * @param deposits A list of deposit entities that we are set to "Match", with the new heuristic round
+   * updateDepositStatus
+   * This will update necessary deposits to a desired MatchStatus.
+   * This should be more performant as it is wrapped in a transaction
+   * @param deposits A list of deposit entities to set a new status for, with the expected heuristic round
    * @returns {void}
    */
-  async matchDeposits(deposits: POSDepositEntity[]): Promise<void> {
+  async updateDepositStatus(
+    deposits: POSDepositEntity[],
+    status: MatchStatus
+  ): Promise<void> {
     return this.posDepositRepo.manager.transaction(async (manager) => {
       await Promise.all(
         deposits.map((d) => {
@@ -177,7 +187,7 @@ export class PosDepositService {
             { id: dep.id },
             {
               ...dep,
-              status: MatchStatus.MATCH,
+              status,
               heuristic_match_round: dep.heuristic_match_round,
             }
           );

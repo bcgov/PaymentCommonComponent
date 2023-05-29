@@ -48,14 +48,21 @@ export class PaymentService {
       },
     });
   }
+
+  /**
+   * findPosPaymentExceptions - Finds all payments to mark as exceptions
+   * @param maxDate
+   * @param location
+   * @returns
+   */
   public async findPosPaymentExceptions(
-    date: string,
+    maxDate: string,
     location: LocationEntity
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       where: {
         transaction: {
-          transaction_date: LessThan(date),
+          transaction_date: LessThan(maxDate),
           location_id: location.location_id,
         },
         status: MatchStatus.IN_PROGRESS,
@@ -203,12 +210,16 @@ export class PaymentService {
   }
 
   /**
-   * MatchPayments
-   * This will match necessary payments. This should be more performant as it is wrapped in a transaction
-   * @param payments A list of payment entities that we are set to "Match", with the new heuristic round
+   * updatePaymentStatus
+   * This will match necessary payments to a desired MatchStatus.
+   * This should be more performant as it is wrapped in a transaction
+   * @param payments A list of payment entities to set a new status for, with the expected heuristic round
    * @returns {void}
    */
-  async matchPayments(payments: PaymentEntity[]): Promise<void> {
+  async updatePaymentStatus(
+    payments: PaymentEntity[],
+    status: MatchStatus
+  ): Promise<void> {
     return this.paymentRepo.manager.transaction(async (manager) => {
       await Promise.all(
         payments.map((p) => {
@@ -218,12 +229,12 @@ export class PaymentService {
             { id: pay.id },
             {
               ...pay,
-              status: MatchStatus.MATCH,
+              status,
               heuristic_match_round: p.heuristic_match_round,
               pos_deposit_match: {
                 ...pay.pos_deposit_match,
                 heuristic_match_round: p.heuristic_match_round,
-                status: MatchStatus.MATCH,
+                status,
               },
             }
           );

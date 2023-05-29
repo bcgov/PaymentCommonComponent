@@ -31,6 +31,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
   const appLogger = app.get(Logger);
+  const dateRange = { minDate: event.period.from, maxDate: event.period.to };
 
   console.time('time');
   const locations =
@@ -58,13 +59,13 @@ export const handler = async (event: ReconciliationConfigInput) => {
   }, {});
 
   const allPosPaymentsInDates = await paymentService.findPosPayments(
-    { minDate: event.period.from, maxDate: event.period.to },
+    dateRange,
     locations,
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
   const allPosDepositsInDates = await posDepositService.findPosDeposits(
-    { minDate: event.period.from, maxDate: event.period.to },
+    dateRange,
     event.program,
     locations.map((location) => location.location_id),
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
@@ -93,6 +94,14 @@ export const handler = async (event: ReconciliationConfigInput) => {
     );
 
     appLogger.log({ reconciled }, PosReconciliationService.name);
+
+    const exceptions = await posReconciliationService.findExceptions(
+      location,
+      event.program,
+      dateRange.maxDate
+    );
+
+    appLogger.log({ exceptions }, PosReconciliationService.name);
   }
 
   const dates: Date[] = eachDayOfInterval({
