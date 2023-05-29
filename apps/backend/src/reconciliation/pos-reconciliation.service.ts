@@ -188,7 +188,6 @@ export class PosReconciliationService {
           depositsWithAmount[dateToFind];
         if (!deposits?.length) {
           if (posHeuristicRound === PosHeuristicRound.THREE) {
-            this.appLogger.log(dateToFind);
             dateToFind = format(
               addBusinessDays(new Date(dateToFind), 1),
               'yyyy-MM-dd'

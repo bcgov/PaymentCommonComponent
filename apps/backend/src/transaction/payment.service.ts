@@ -232,9 +232,7 @@ export class PaymentService {
               status,
               heuristic_match_round: p.heuristic_match_round,
               pos_deposit_match: {
-                ...pay.pos_deposit_match,
-                heuristic_match_round: p.heuristic_match_round,
-                status,
+                ...p.pos_deposit_match,
               },
             }
           );
