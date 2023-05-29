@@ -202,9 +202,15 @@ export class PaymentService {
     return await this.paymentRepo.save(payments);
   }
 
-  async matchPayments(payments: PaymentEntity[]): Promise<any> {
+  /**
+   * MatchPayments
+   * This will match necessary payments. This should be more performant as it is wrapped in a transaction
+   * @param payments A list of payment entities that we are set to "Match", with the new heuristic round
+   * @returns {void}
+   */
+  async matchPayments(payments: PaymentEntity[]): Promise<void> {
     return this.paymentRepo.manager.transaction(async (manager) => {
-      const updatedPayments = await Promise.all(
+      await Promise.all(
         payments.map((p) => {
           const { timestamp, ...pay } = p;
           return manager.update(
@@ -223,7 +229,6 @@ export class PaymentService {
           );
         })
       );
-      return updatedPayments;
     });
   }
 }

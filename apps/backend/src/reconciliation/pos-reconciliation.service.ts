@@ -1,5 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import {
+  addBusinessDays,
   differenceInBusinessDays,
   differenceInMinutes,
   format,
@@ -66,20 +67,8 @@ export class PosReconciliationService {
       PosReconciliationService.name
     );
 
-    /*
-    {
-      "100.44": {
-        "2023-04-04": [
-          ...
-        ],
-      },
-      "40.12": {
-        "2023-04-05": [
-          ...
-        ],
-      }
-    }
-    */
+    // Put deposits into a dictionary, first layer keys are amount, second layer keys are dates
+    // This makes it more efficient to find than looping through all deposits
     const locationPosDepositsDictionary = pendingDeposits.reduce(
       (acc: PosDepositsAmountDictionary, posDeposit) => {
         const amount = posDeposit.transaction_amt;
@@ -101,8 +90,9 @@ export class PosReconciliationService {
     );
 
     const matches = [];
+    // This needs to be cleaned up. Had some issues passing in the enum to a function
     for (const heuristic in PosHeuristicRound) {
-      const h: PosHeuristicRound = (() => {
+      const heur: PosHeuristicRound = (() => {
         if (heuristic === PosHeuristicRound.ONE) {
           return PosHeuristicRound.ONE;
         }
@@ -121,91 +111,20 @@ export class PosReconciliationService {
             itm.status === MatchStatus.IN_PROGRESS
         ),
         locationPosDepositsDictionary,
-        h
+        heur
       );
       matches.push(...roundMatches);
       this.appLogger.log(
-        `MATCHES - ROUND ${roundMatches.length}`,
+        `MATCHES - ROUND ${heur} - ${roundMatches.length} matches`,
         PosReconciliationService.name
       );
     }
 
-    // const roundOneMatches: {
-    //   payment: PaymentEntity;
-    //   deposit: POSDepositEntity;
-    // }[] = this.matchPosPaymentToPosDeposits(
-    //   pendingPayments.filter(
-    //     (itm) =>
-    //       itm.status === MatchStatus.PENDING ||
-    //       itm.status === MatchStatus.IN_PROGRESS
-    //   ),
-    //   pendingDeposits.filter(
-    //     (itm) =>
-    //       itm.status === MatchStatus.PENDING ||
-    //       itm.status === MatchStatus.IN_PROGRESS
-    //   ),
-    //   PosHeuristicRound.ONE
-    // );
+    const paymentsMatched = matches.map((itm) => itm.payment);
+    await this.paymentService.matchPayments(paymentsMatched);
 
-    // this.appLogger.log(
-    //   `MATCHES - ROUND ONE ${roundOneMatches.length}`,
-    //   PosReconciliationService.name
-    // );
-
-    // const roundTwoMatches: {
-    //   payment: PaymentEntity;
-    //   deposit: POSDepositEntity;
-    // }[] = this.matchPosPaymentToPosDeposits(
-    //   pendingPayments.filter(
-    //     (itm) =>
-    //       itm.status === MatchStatus.PENDING ||
-    //       itm.status === MatchStatus.IN_PROGRESS
-    //   ),
-    //   pendingDeposits.filter(
-    //     (itm) =>
-    //       itm.status === MatchStatus.PENDING ||
-    //       itm.status === MatchStatus.IN_PROGRESS
-    //   ),
-    //   PosHeuristicRound.TWO
-    // );
-
-    // this.appLogger.log(
-    //   `MATCHES - ROUND TWO ${roundTwoMatches.length}`,
-    //   PosReconciliationService.name
-    // );
-    // const roundThreeMatches: {
-    //   payment: PaymentEntity;
-    //   deposit: POSDepositEntity;
-    // }[] = this.matchPosPaymentToPosDeposits(
-    //   pendingPayments.filter(
-    //     (itm) =>
-    //       itm.status === MatchStatus.PENDING ||
-    //       itm.status === MatchStatus.IN_PROGRESS
-    //   ),
-    //   pendingDeposits.filter(
-    //     (itm) =>
-    //       itm.status === MatchStatus.PENDING ||
-    //       itm.status === MatchStatus.IN_PROGRESS
-    //   ),
-    //   PosHeuristicRound.THREE
-    // );
-
-    // this.appLogger.log(
-    //   `MATCHES - ROUND THREE ${roundThreeMatches.length}`,
-    //   PosReconciliationService.name
-    // );
-
-    // const paymentsMatched: PaymentEntity[] =
-    await this.paymentService.matchPayments(matches.map((itm) => itm.payment));
-
-    // const depositsMatched: POSDepositEntity[] =
-    //   await this.posDepositService.updateDeposits(
-    //     matches.map((itm) => itm.deposit)
-    //   );
-
-    await this.posDepositService.matchDeposits(
-      matches.map((itm) => itm.deposit)
-    );
+    const depositsMatched = matches.map((itm) => itm.deposit);
+    await this.posDepositService.matchDeposits(depositsMatched);
 
     const paymentsInProgress = await this.paymentService.updatePayments(
       pendingPayments
@@ -235,15 +154,14 @@ export class PosReconciliationService {
     );
 
     return {
-      // transaction_date: format(date, 'yyyy-MM-dd'),
       type: ReconciliationType.POS,
       location_id: location.location_id,
-      // total_deposits_pending: pendingDeposits.length,
-      // total_payments_pending: pendingPayments.length,
-      // total_matched_payments: paymentsMatched.length,
-      // total_matched_deposits: depositsMatched.length,
-      // total_payments_in_progress: paymentsInProgress.length,
-      // total_deposits_in_progress: depositsInProgress.length,
+      total_deposits_pending: pendingDeposits.length,
+      total_payments_pending: pendingPayments.length,
+      total_matched_payments: paymentsMatched.length,
+      total_matched_deposits: depositsMatched.length,
+      total_payments_in_progress: paymentsInProgress.length,
+      total_deposits_in_progress: depositsInProgress.length,
     };
   }
 
@@ -266,10 +184,9 @@ export class PosReconciliationService {
           if (posHeuristicRound === PosHeuristicRound.THREE) {
             this.appLogger.log(dateToFind);
             dateToFind = format(
-              subBusinessDays(new Date(dateToFind), 1),
+              addBusinessDays(new Date(dateToFind), 1),
               'yyyy-MM-dd'
             );
-            this.appLogger.log(dateToFind);
             deposits = depositsWithAmount[dateToFind];
           }
         }
@@ -316,9 +233,6 @@ export class PosReconciliationService {
             } else {
               delete depositsWithAmount[dateToFind];
               // delete from parent dictionary?
-            }
-            if (payment.amount === 5.25) {
-              this.appLogger.log(depositsWithAmount[dateToFind]);
             }
           }
         }

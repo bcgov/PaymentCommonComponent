@@ -88,17 +88,11 @@ export const handler = async (event: ReconciliationConfigInput) => {
     );
     const reconciled = await posReconciliationService.reconcile(
       location,
-      // date range?
       locationPayments,
       locationDeposits
     );
 
     appLogger.log({ reconciled }, PosReconciliationService.name);
-
-    // heuristic matches
-    // update matching payments
-    // update rest payments
-    // update deposits
   }
 
   const dates: Date[] = eachDayOfInterval({

@@ -161,9 +161,15 @@ export class PosDepositService {
     return await this.posDepositRepo.save(deposits);
   }
 
-  async matchDeposits(deposits: POSDepositEntity[]): Promise<any> {
+  /**
+   * MatcDeposits
+   * This will match necessary deposits. This should be more performant as it is wrapped in a transaction
+   * @param deposits A list of deposit entities that we are set to "Match", with the new heuristic round
+   * @returns {void}
+   */
+  async matchDeposits(deposits: POSDepositEntity[]): Promise<void> {
     return this.posDepositRepo.manager.transaction(async (manager) => {
-      const updatedPayments = await Promise.all(
+      await Promise.all(
         deposits.map((d) => {
           const { timestamp, ...dep } = d;
           return manager.update(
@@ -177,7 +183,7 @@ export class PosDepositService {
           );
         })
       );
-      return updatedPayments;
+      return;
     });
   }
 }
