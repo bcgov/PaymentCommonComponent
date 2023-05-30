@@ -47,14 +47,17 @@ export const handler = async (event: ReconciliationConfigInput) => {
     LocationMethod.POS
   );
 
-  const merchantIds: any = masterLocations.reduce((acc: any, location) => {
-    if (acc[location.location_id]) {
-      acc[location.location_id].push(location.merchant_id);
-    } else {
-      acc[location.location_id] = [location.merchant_id];
-    }
-    return acc;
-  }, {});
+  const merchantIds: { [key: string]: number[] } = masterLocations.reduce(
+    (acc: { [key: string]: number[] }, location) => {
+      if (acc[location.location_id]) {
+        acc[location.location_id].push(location.merchant_id);
+      } else {
+        acc[location.location_id] = [location.merchant_id];
+      }
+      return acc;
+    },
+    {}
+  );
 
   // Get all pending pos payments whether its one day or many months
   const allPosPaymentsInDates = await paymentService.findPosPayments(
