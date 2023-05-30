@@ -5,7 +5,6 @@ import {
   format,
   getTime,
   parse,
-  subBusinessDays,
 } from 'date-fns';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { AggregatedPayment } from '../../../src/reconciliation/types';
@@ -13,6 +12,7 @@ import { PaymentEntity } from '../../../src/transaction/entities';
 import { paymentMethods } from '../../../test/mocks/const/payment-methods';
 import { locations } from '../../mocks/const/locations';
 import { MockData } from '../../mocks/mocks';
+import { subtractBusinessDaysNoTimezone } from '../../../src/common/utils/format';
 /**
  * Aggregates the cash payments by fiscal close date and status in order to match 1:1 to a cash deposit
  * @param {PaymentEntity[]} payments
@@ -86,17 +86,20 @@ export const setSomePaymentsToTwentyMinutesLater = (
 export const setSomePaymentsToOneBusinessDayBehind = (
   payments: PaymentEntity[]
 ) => {
-  return payments.map((itm) => ({
-    ...itm,
-    timestamp: itm.timestamp,
-    transaction: {
-      ...itm.transaction,
-      transaction_date: format(
-        subBusinessDays(new Date(itm.transaction.transaction_date), 1),
-        'yyyy-MM-dd'
-      ),
-    },
-  }));
+  return payments.map((itm) => {
+    const newDate = subtractBusinessDaysNoTimezone(
+      itm.transaction.transaction_date,
+      1
+    );
+    return {
+      ...itm,
+      timestamp: itm.timestamp,
+      transaction: {
+        ...itm.transaction,
+        transaction_date: newDate,
+      },
+    };
+  });
 };
 /**
  * Used for creating "bad" test data

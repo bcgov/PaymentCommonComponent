@@ -19,7 +19,7 @@ export class PaymentService {
 
   async findPosPayments(
     dateRange: DateRange,
-    location: LocationEntity,
+    locations: LocationEntity[],
     statuses?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const paymentStatuses = statuses ? statuses : MatchStatusAll;
@@ -32,7 +32,7 @@ export class PaymentService {
             (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
             { minDate, maxDate }
           ),
-          location_id: location.location_id,
+          location_id: In(locations.map((location) => location.location_id)),
         },
         status: In(paymentStatuses),
         payment_method: { classification: PaymentMethodClassification.POS },
@@ -48,14 +48,21 @@ export class PaymentService {
       },
     });
   }
+
+  /**
+   * findPosPaymentExceptions - Finds all payments to mark as exceptions
+   * @param maxDate
+   * @param location
+   * @returns
+   */
   public async findPosPaymentExceptions(
-    date: string,
+    maxDate: string,
     location: LocationEntity
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       where: {
         transaction: {
-          transaction_date: LessThan(date),
+          transaction_date: LessThan(maxDate),
           location_id: location.location_id,
         },
         status: MatchStatus.IN_PROGRESS,
@@ -200,5 +207,37 @@ export class PaymentService {
   }
   async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
     return await this.paymentRepo.save(payments);
+  }
+
+  /**
+   * updatePaymentStatus
+   * This will update all payments.
+   * This should be more performant as it is wrapped in a transaction
+   * @param payments A list of payment entities to set a new status for, with the expected heuristic round
+   * @returns {PaymentEntity[]} The same list of payments passed in
+   */
+  async updatePaymentStatus(
+    payments: PaymentEntity[]
+  ): Promise<PaymentEntity[]> {
+    // TODO: Wrap in a try catch
+    await this.paymentRepo.manager.transaction(async (manager) => {
+      await Promise.all(
+        payments.map((p) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { timestamp, ...pay } = p;
+          return manager.update(
+            PaymentEntity,
+            { id: pay.id },
+            {
+              ...pay,
+              pos_deposit_match: {
+                ...p.pos_deposit_match,
+              },
+            }
+          );
+        })
+      );
+    });
+    return payments;
   }
 }

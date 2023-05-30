@@ -22,10 +22,10 @@ export class PosDepositService {
     private posDepositRepo: Repository<POSDepositEntity>
   ) {}
 
-  async findPOSDeposits(
+  async findPosDeposits(
     dateRange: DateRange,
     program: Ministries,
-    location_id: number,
+    location_ids: number[],
     statuses?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
     const depositStatuses = statuses ? statuses : MatchStatusAll;
@@ -33,7 +33,7 @@ export class PosDepositService {
     const locations: LocationEntity[] =
       await this.locationService.getLocationsByID(
         program,
-        [location_id],
+        location_ids,
         LocationMethod.POS
       );
 
@@ -73,6 +73,12 @@ export class PosDepositService {
       .getRawMany();
   }
 
+  /**
+   * findPOSDepositsExceptions - Finds all deposits to mark as exceptions
+   * @param maxDate
+   * @param location
+   * @returns
+   */
   async findPOSDepositsExceptions(
     date: string,
     location_id: number,
@@ -159,5 +165,28 @@ export class PosDepositService {
     deposits: POSDepositEntity[]
   ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.save(deposits);
+  }
+
+  /**
+   * updateDepositStatus
+   * This will update necessary deposits to a desired MatchStatus.
+   * This should be more performant as it is wrapped in a transaction
+   * @param deposits A list of deposit entities to set a new status for, with the expected heuristic round
+   * @returns {POSDepositEntity[]} The same list of deposits passed in
+   */
+  async updateDepositStatus(
+    deposits: POSDepositEntity[]
+  ): Promise<POSDepositEntity[]> {
+    // TODO: Wrap in a try catch
+    await this.posDepositRepo.manager.transaction(async (manager) => {
+      await Promise.all(
+        deposits.map((d) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { timestamp, ...dep } = d;
+          return manager.update(POSDepositEntity, { id: dep.id }, { ...dep });
+        })
+      );
+    });
+    return deposits;
   }
 }

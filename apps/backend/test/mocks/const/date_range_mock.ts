@@ -6,11 +6,11 @@ export interface DateRanges extends DateRange {
   pastDueDate: string;
 }
 export const generateDateRange = (): DateRanges => {
-  const maxDate = format(faker.date.recent(10), 'yyyy-MM-dd');
-  const minDate = format(faker.date.recent(5, maxDate), 'yyyy-MM-dd');
+  const maxDate = format(new Date('2023-05-26'), 'yyyy-MM-dd');
+  const minDate = format(new Date('2023-05-22'), 'yyyy-MM-dd');
 
   return {
-    pastDueDate: format(faker.date.recent(5, minDate), 'yyyy-MM-dd'),
+    pastDueDate: format(new Date('2023-05-22'), 'yyyy-MM-dd'),
     minDate,
     maxDate,
   };

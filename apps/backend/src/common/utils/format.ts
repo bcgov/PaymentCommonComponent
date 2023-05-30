@@ -1,3 +1,5 @@
+import { format, addBusinessDays, subBusinessDays } from 'date-fns';
+
 /**
  * @param value
  * @returns
@@ -41,4 +43,26 @@ export const decimalFormat = (value: string): string => {
     '.' +
     value.slice(decimalPlace, stringLength)
   );
+};
+
+export const subtractBusinessDaysNoTimezone = (
+  date: string,
+  days: number
+): string => {
+  const subDay = subBusinessDays(new Date(date), days);
+  const dateWithoutTimezone = new Date(
+    subDay.valueOf() + subDay.getTimezoneOffset() * 60 * 1000
+  );
+  return format(dateWithoutTimezone, 'yyyy-MM-dd');
+};
+
+export const addBusinessDaysNoTimezone = (
+  date: string,
+  days: number
+): string => {
+  const addDay = addBusinessDays(new Date(date), days);
+  const dateWithoutTimezone = new Date(
+    addDay.valueOf() + addDay.getTimezoneOffset() * 60 * 1000
+  );
+  return format(dateWithoutTimezone, 'yyyy-MM-dd');
 };

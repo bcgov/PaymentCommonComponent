@@ -87,17 +87,17 @@ describe('POSDepositService', () => {
       expect(spy).toBeCalledWith([...posDeposit, ...posDepositMocks]);
     });
   });
-  describe('findPOSDeposits', () => {
+  describe('findPosDeposits', () => {
     it('should call find and return an array', async () => {
-      const spy = jest.spyOn(service, 'findPOSDeposits');
+      const spy = jest.spyOn(service, 'findPosDeposits');
       const location = generateLocation();
-      await service.findPOSDeposits(
+      await service.findPosDeposits(
         {
           minDate: format(new Date(), 'yyyy-MM-dd'),
           maxDate: format(new Date(), 'yyyy-MM-dd'),
         },
         Ministries.SBC,
-        location.location_id
+        [location.location_id]
       );
       expect(spy).toBeCalledTimes(1);
       expect(repository.find).toBeCalledTimes(1);
