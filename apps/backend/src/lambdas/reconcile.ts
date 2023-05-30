@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { format } from 'date-fns';
+import { format, subBusinessDays } from 'date-fns';
 import { MatchStatus } from '../common/const';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { PaymentService } from '../transaction/payment.service';
@@ -28,6 +28,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
   const appLogger = app.get(Logger);
+  // maxDate is the date we are reconciling until
+  // We reconcile 1 business day behind, so the user should only be passing in "yesterday" as maxDate
   const dateRange = { minDate: event.period.from, maxDate: event.period.to };
 
   const locations =
@@ -54,12 +56,14 @@ export const handler = async (event: ReconciliationConfigInput) => {
     return acc;
   }, {});
 
+  // Get all pending pos payments whether its one day or many months
   const allPosPaymentsInDates = await paymentService.findPosPayments(
     dateRange,
     locations,
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
+  // Get all pending deposits whether its one day or many months
   const allPosDepositsInDates = await posDepositService.findPosDeposits(
     dateRange,
     event.program,
@@ -88,10 +92,11 @@ export const handler = async (event: ReconciliationConfigInput) => {
 
     appLogger.log({ reconciled }, PosReconciliationService.name);
 
-    const exceptions = await posReconciliationService.findExceptions(
+    // Set exceptions for items still PENDING or IN PROGRESS for day before maxDate
+    const exceptions = await posReconciliationService.setExceptions(
       location,
       event.program,
-      dateRange.maxDate
+      format(subBusinessDays(new Date(dateRange.maxDate), 1), 'yyyy-MM-dd')
     );
 
     appLogger.log({ exceptions }, PosReconciliationService.name);
@@ -124,7 +129,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
       );
 
       appLogger.log({ result });
-      const exceptions = await cashExceptionsService.findExceptions(
+      const exceptions = await cashExceptionsService.setExceptions(
         location,
         event.program,
         previousCashDepositDate

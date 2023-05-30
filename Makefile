@@ -277,10 +277,17 @@ clear:
 
 
 clear-status: 
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null,  cash_deposit_match=null, heuristic_match_round=null;"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.cash_deposit set status='PENDING';"
-	
+
+from = 2023-04-01
+to = 2023-05-20
+clear-status-date:
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null where transaction in (select transaction_id from public.transaction where transaction_date >= '$(from)' AND transaction_date < '$(to)');"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null where transaction_date >= '$(from)' AND transaction_date < '$(to)';"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.cash_deposit set status='PENDING' where deposit_date >= '$(from)' AND deposit_date < '$(to)';"
+
 drop:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"

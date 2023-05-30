@@ -211,16 +211,16 @@ export class PaymentService {
 
   /**
    * updatePaymentStatus
-   * This will match necessary payments to a desired MatchStatus.
+   * This will update all payments.
    * This should be more performant as it is wrapped in a transaction
    * @param payments A list of payment entities to set a new status for, with the expected heuristic round
-   * @returns {void}
+   * @returns {PaymentEntity[]} The same list of payments passed in
    */
   async updatePaymentStatus(
-    payments: PaymentEntity[],
-    status: MatchStatus
-  ): Promise<void> {
-    return this.paymentRepo.manager.transaction(async (manager) => {
+    payments: PaymentEntity[]
+  ): Promise<PaymentEntity[]> {
+    // TODO: Wrap in a try catch
+    await this.paymentRepo.manager.transaction(async (manager) => {
       await Promise.all(
         payments.map((p) => {
           const { timestamp, ...pay } = p;
@@ -229,8 +229,6 @@ export class PaymentService {
             { id: pay.id },
             {
               ...pay,
-              status,
-              heuristic_match_round: p.heuristic_match_round,
               pos_deposit_match: {
                 ...p.pos_deposit_match,
               },
@@ -239,5 +237,6 @@ export class PaymentService {
         })
       );
     });
+    return payments;
   }
 }

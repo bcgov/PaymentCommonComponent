@@ -22,7 +22,7 @@ export class CashExceptionsService {
    * @description Find all payments and deposits that are older than the past due date and mark as exceptions
    */
 
-  public async findExceptions(
+  public async setExceptions(
     location: LocationEntity,
     program: Ministries,
     exceptionsDate: string

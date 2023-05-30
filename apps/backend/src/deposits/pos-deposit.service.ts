@@ -80,7 +80,7 @@ export class PosDepositService {
    * @returns
    */
   async findPOSDepositsExceptions(
-    maxDate: string,
+    date: string,
     location_id: number,
     program: Ministries
   ): Promise<POSDepositEntity[]> {
@@ -92,7 +92,7 @@ export class PosDepositService {
     );
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: LessThan(maxDate),
+        transaction_date: LessThan(date),
         status: MatchStatus.IN_PROGRESS,
         merchant_id: In(locations.map((itm) => itm.merchant_id)),
         metadata: { program },
@@ -172,28 +172,20 @@ export class PosDepositService {
    * This will update necessary deposits to a desired MatchStatus.
    * This should be more performant as it is wrapped in a transaction
    * @param deposits A list of deposit entities to set a new status for, with the expected heuristic round
-   * @returns {void}
+   * @returns {POSDepositEntity[]} The same list of deposits passed in
    */
   async updateDepositStatus(
-    deposits: POSDepositEntity[],
-    status: MatchStatus
-  ): Promise<void> {
-    return this.posDepositRepo.manager.transaction(async (manager) => {
+    deposits: POSDepositEntity[]
+  ): Promise<POSDepositEntity[]> {
+    // TODO: Wrap in a try catch
+    await this.posDepositRepo.manager.transaction(async (manager) => {
       await Promise.all(
         deposits.map((d) => {
           const { timestamp, ...dep } = d;
-          return manager.update(
-            POSDepositEntity,
-            { id: dep.id },
-            {
-              ...dep,
-              status,
-              heuristic_match_round: dep.heuristic_match_round,
-            }
-          );
+          return manager.update(POSDepositEntity, { id: dep.id }, { ...dep });
         })
       );
-      return;
     });
+    return deposits;
   }
 }
