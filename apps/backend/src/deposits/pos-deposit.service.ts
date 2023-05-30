@@ -181,6 +181,7 @@ export class PosDepositService {
     await this.posDepositRepo.manager.transaction(async (manager) => {
       await Promise.all(
         deposits.map((d) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { timestamp, ...dep } = d;
           return manager.update(POSDepositEntity, { id: dep.id }, { ...dep });
         })

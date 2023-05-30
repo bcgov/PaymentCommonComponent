@@ -68,28 +68,8 @@ export class PosReconciliationService {
       PosReconciliationService.name
     );
 
-    // Put deposits into a dictionary, first layer keys are amount, second layer keys are dates
-    // This makes it more efficient to find than looping through all deposits
-    const locationPosDepositsDictionary = pendingDeposits.reduce(
-      (acc: PosDepositsAmountDictionary, posDeposit) => {
-        const amount = posDeposit.transaction_amt;
-        const date = posDeposit.transaction_date;
-        const paymentMethod = posDeposit.payment_method;
-        if (acc[amount]) {
-          if (acc[amount][`${date}-${paymentMethod}`]) {
-            acc[amount][`${date}-${paymentMethod}`].push(posDeposit);
-          } else {
-            acc[amount][`${date}-${paymentMethod}`] = [posDeposit];
-          }
-        } else {
-          acc[amount] = {
-            [`${date}-${paymentMethod}`]: [posDeposit],
-          };
-        }
-        return acc;
-      },
-      {}
-    );
+    const locationPosDepositsDictionary =
+      this.buildPosDepositsDictionary(pendingDeposits);
 
     const matches = [];
     for (const heuristic in PosHeuristicRound) {
@@ -154,6 +134,30 @@ export class PosReconciliationService {
       total_payments_in_progress: paymentsInProgress.length,
       total_deposits_in_progress: depositsInProgress.length,
     };
+  }
+
+  public buildPosDepositsDictionary(
+    deposits: POSDepositEntity[]
+  ): PosDepositsAmountDictionary {
+    // Put deposits into a dictionary, first layer keys are amount, second layer keys are dates
+    // This makes it more efficient to find than looping through all deposits
+    return deposits.reduce((acc: PosDepositsAmountDictionary, posDeposit) => {
+      const amount = posDeposit.transaction_amt;
+      const date = posDeposit.transaction_date;
+      const paymentMethod = posDeposit.payment_method;
+      if (acc[amount]) {
+        if (acc[amount][`${date}-${paymentMethod}`]) {
+          acc[amount][`${date}-${paymentMethod}`].push(posDeposit);
+        } else {
+          acc[amount][`${date}-${paymentMethod}`] = [posDeposit];
+        }
+      } else {
+        acc[amount] = {
+          [`${date}-${paymentMethod}`]: [posDeposit],
+        };
+      }
+      return acc;
+    }, {});
   }
 
   public matchPosPaymentToPosDeposits(

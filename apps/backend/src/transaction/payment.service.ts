@@ -223,6 +223,7 @@ export class PaymentService {
     await this.paymentRepo.manager.transaction(async (manager) => {
       await Promise.all(
         payments.map((p) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { timestamp, ...pay } = p;
           return manager.update(
             PaymentEntity,

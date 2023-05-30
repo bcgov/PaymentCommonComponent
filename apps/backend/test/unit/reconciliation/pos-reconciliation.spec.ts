@@ -63,7 +63,7 @@ describe('PosReconciliationService', () => {
       expect(deposits.length).toBeGreaterThan(0);
       const matches = service.matchPosPaymentToPosDeposits(
         payments,
-        deposits,
+        service.buildPosDepositsDictionary(deposits),
         PosHeuristicRound.ONE
       );
       expect(matches.length).toBeGreaterThan(0);
@@ -81,9 +81,11 @@ describe('PosReconciliationService', () => {
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
+        service.buildPosDepositsDictionary(
+          deposits.filter((deposit) =>
+            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+              deposit.status
+            )
           )
         ),
         PosHeuristicRound.ONE
@@ -121,9 +123,11 @@ describe('PosReconciliationService', () => {
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
+        service.buildPosDepositsDictionary(
+          deposits.filter((deposit) =>
+            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+              deposit.status
+            )
           )
         ),
         PosHeuristicRound.THREE
@@ -163,9 +167,11 @@ describe('PosReconciliationService', () => {
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
+        service.buildPosDepositsDictionary(
+          deposits.filter((deposit) =>
+            [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+              deposit.status
+            )
           )
         ),
         PosHeuristicRound.THREE
@@ -200,17 +206,21 @@ describe('PosReconciliationService', () => {
       payments = setSomePaymentsToTwentyMinutesLater(payments);
       payments = setSomePaymentsToOneBusinessDayBehind(payments);
 
+      const depositsDictionary = service.buildPosDepositsDictionary(
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        )
+      );
+
       const matchedRoundOne = service.matchPosPaymentToPosDeposits(
         payments.filter((payment) =>
           [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
-          )
-        ),
+        depositsDictionary,
         PosHeuristicRound.ONE
       );
 
@@ -220,11 +230,7 @@ describe('PosReconciliationService', () => {
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
-          )
-        ),
+        depositsDictionary,
         PosHeuristicRound.TWO
       );
 
@@ -234,11 +240,7 @@ describe('PosReconciliationService', () => {
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
-          )
-        ),
+        depositsDictionary,
         PosHeuristicRound.THREE
       );
 
@@ -312,17 +314,21 @@ describe('PosReconciliationService', () => {
       payments = [...payments, ...unMatchedData.payments];
       deposits = [...deposits, ...unMatchedData.deposits];
 
+      const depositsDictionary = service.buildPosDepositsDictionary(
+        deposits.filter((deposit) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            deposit.status
+          )
+        )
+      );
+
       const matchedRoundOne = service.matchPosPaymentToPosDeposits(
         payments.filter((payment) =>
           [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
-          )
-        ),
+        depositsDictionary,
         PosHeuristicRound.ONE
       );
 
@@ -332,11 +338,7 @@ describe('PosReconciliationService', () => {
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
-          )
-        ),
+        depositsDictionary,
         PosHeuristicRound.TWO
       );
 
@@ -346,11 +348,7 @@ describe('PosReconciliationService', () => {
             payment.status
           )
         ),
-        deposits.filter((deposit) =>
-          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
-            deposit.status
-          )
-        ),
+        depositsDictionary,
         PosHeuristicRound.THREE
       );
 
