@@ -144,7 +144,7 @@ export class PosReconciliationService {
     return deposits.reduce((acc: PosDepositsAmountDictionary, posDeposit) => {
       const amount = posDeposit.transaction_amt;
       const date = posDeposit.transaction_date;
-      const paymentMethod = posDeposit.payment_method;
+      const paymentMethod = posDeposit.payment_method.method;
       if (acc[amount]) {
         if (acc[amount][`${date}-${paymentMethod}`]) {
           acc[amount][`${date}-${paymentMethod}`].push(posDeposit);
@@ -173,11 +173,12 @@ export class PosReconciliationService {
       // find amount
       const depositsWithAmount: PosDepositsDateDictionary | null =
         locationDeposits[payment.amount];
+      const paymentMethod = payment.payment_method.method;
       if (depositsWithAmount) {
         // if amount found, find time
         const dateToFind = payment.transaction.transaction_date;
         let deposits: POSDepositEntity[] | null =
-          depositsWithAmount[`${dateToFind}-${payment.payment_method}`];
+          depositsWithAmount[`${dateToFind}-${paymentMethod}`];
         if (!deposits?.length) {
           // For round three, a deposit can be one business day apart from the payment
           // Could be the day before, or the day after, so we search those days for the amount
@@ -187,18 +188,14 @@ export class PosReconciliationService {
               'yyyy-MM-dd'
             );
             deposits =
-              depositsWithAmount[
-                `${dayAfterDateToFind}-${payment.payment_method}`
-              ];
+              depositsWithAmount[`${dayAfterDateToFind}-${paymentMethod}`];
             if (!deposits?.length) {
               const dayBeforeDateToFind = format(
                 subBusinessDays(new Date(dateToFind), 1),
                 'yyyy-MM-dd'
               );
               deposits =
-                depositsWithAmount[
-                  `${dayBeforeDateToFind}-${payment.payment_method}`
-                ];
+                depositsWithAmount[`${dayBeforeDateToFind}-${paymentMethod}`];
             }
           }
         }
