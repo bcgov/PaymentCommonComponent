@@ -74,15 +74,16 @@ export class PosReconciliationService {
       (acc: PosDepositsAmountDictionary, posDeposit) => {
         const amount = posDeposit.transaction_amt;
         const date = posDeposit.transaction_date;
+        const paymentMethod = posDeposit.payment_method;
         if (acc[amount]) {
-          if (acc[amount][date]) {
-            acc[amount][date].push(posDeposit);
+          if (acc[amount][`${date}-${paymentMethod}`]) {
+            acc[amount][`${date}-${paymentMethod}`].push(posDeposit);
           } else {
-            acc[amount][date] = [posDeposit];
+            acc[amount][`${date}-${paymentMethod}`] = [posDeposit];
           }
         } else {
           acc[amount] = {
-            [date]: [posDeposit],
+            [`${date}-${paymentMethod}`]: [posDeposit],
           };
         }
         return acc;
