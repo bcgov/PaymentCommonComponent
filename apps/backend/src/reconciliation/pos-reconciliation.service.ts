@@ -319,13 +319,11 @@ export class PosReconciliationService {
             ...itm,
             status: MatchStatus.MATCH,
             timestamp: itm.timestamp,
-            heuristic_match_round: posHeuristicRound,
           }));
           deposits[dindex].deposits = deposits[dindex].deposits.map((itm) => ({
             ...itm,
             status: MatchStatus.MATCH,
             timestamp: itm.timestamp,
-            heuristic_match_round: posHeuristicRound,
           }));
           matches.push({
             payment: {
