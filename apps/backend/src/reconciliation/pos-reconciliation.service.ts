@@ -161,6 +161,9 @@ export class PosReconciliationService {
     locationDeposits: PosDepositsAmountDictionary,
     posHeuristicRound: PosHeuristicRound
   ): { payment: PaymentEntity; deposit: POSDepositEntity }[] {
+    if (posHeuristicRound === PosHeuristicRound.FOUR) {
+      return [];
+    }
     const matches: { payment: PaymentEntity; deposit: POSDepositEntity }[] = [];
     for (const [pindex, payment] of payments.entries()) {
       // find amount
@@ -179,13 +182,19 @@ export class PosReconciliationService {
               addBusinessDays(new Date(dateToFind), 1),
               'yyyy-MM-dd'
             );
-            deposits = depositsWithAmount[dayAfterDateToFind];
+            deposits =
+              depositsWithAmount[
+                `${dayAfterDateToFind}-${payment.payment_method}`
+              ];
             if (!deposits?.length) {
               const dayBeforeDateToFind = format(
                 subBusinessDays(new Date(dateToFind), 1),
                 'yyyy-MM-dd'
               );
-              deposits = depositsWithAmount[dayBeforeDateToFind];
+              deposits =
+                depositsWithAmount[
+                  `${dayBeforeDateToFind}-${payment.payment_method}`
+                ];
             }
           }
         }
