@@ -377,16 +377,9 @@ describe('PosReconciliationService', () => {
         )
       );
     });
-    it('should return the same number of matched payments and deposits as the original array contained', () => {
-      expect(matches).not.toEqual(
-        expect.arrayContaining(
-          payments.filter((itm) => itm.status === MatchStatus.MATCH)
-        )
-      );
-      expect(matches).not.toEqual(
-        expect.arrayContaining(
-          deposits.filter((itm) => itm.status === MatchStatus.MATCH)
-        )
+    it('should return the same number of matched payments as the original array contained', () => {
+      expect(matches.length).toEqual(
+        payments.filter((itm) => itm.status === MatchStatus.MATCH).length
       );
     });
     it('should not include unmatched items in the returned array', () => {
