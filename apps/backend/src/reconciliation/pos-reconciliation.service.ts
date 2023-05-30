@@ -1,11 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import {
-  addBusinessDays,
-  differenceInBusinessDays,
-  differenceInMinutes,
-  format,
-  subBusinessDays,
-} from 'date-fns';
+import { differenceInBusinessDays, differenceInMinutes } from 'date-fns';
 import {
   PosDepositsAmountDictionary,
   PosDepositsDateDictionary,
@@ -13,13 +7,17 @@ import {
   ReconciliationType,
 } from './types';
 import { MatchStatus } from '../common/const';
-import { DateRange, Ministries } from '../constants';
+import { Ministries } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationEntity } from '../location/entities/master-location-data.entity';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
+import {
+  addBusinessDaysNoTimezone,
+  subtractBusinessDaysNoTimezone,
+} from '../common/utils/format';
 
 /**
  * @description Reconciliation Service for matching POS payments to POS deposits
@@ -183,16 +181,13 @@ export class PosReconciliationService {
           // For round three, a deposit can be one business day apart from the payment
           // Could be the day before, or the day after, so we search those days for the amount
           if (posHeuristicRound === PosHeuristicRound.THREE) {
-            const dayAfterDateToFind = format(
-              addBusinessDays(new Date(dateToFind), 1),
-              'yyyy-MM-dd'
-            );
+            const dayAfterDateToFind = addBusinessDaysNoTimezone(dateToFind, 1);
             deposits =
               depositsWithAmount[`${dayAfterDateToFind}-${paymentMethod}`];
             if (!deposits?.length) {
-              const dayBeforeDateToFind = format(
-                subBusinessDays(new Date(dateToFind), 1),
-                'yyyy-MM-dd'
+              const dayBeforeDateToFind = subtractBusinessDaysNoTimezone(
+                dateToFind,
+                1
               );
               deposits =
                 depositsWithAmount[`${dayBeforeDateToFind}-${paymentMethod}`];
