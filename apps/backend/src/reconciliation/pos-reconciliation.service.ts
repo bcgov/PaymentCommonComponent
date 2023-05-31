@@ -127,10 +127,11 @@ export class PosReconciliationService {
         );
       }
     }
-
+    // calling save on round four matches vs update in order to insert new records on the many to many join
     const paymentsMatchedRoundFour = await this.paymentService.updatePayments(
       matchesRoundFour.flatMap((itm) => itm.payments)
     );
+
     const depositsMatchedRoundFour =
       await this.posDepositService.updateDeposits(
         matchesRoundFour.flatMap((itm) => itm.deposits)
@@ -349,20 +350,18 @@ export class PosReconciliationService {
               timestamp: itm.timestamp,
             }));
             matches.push({
-              payments: payment.payments.map((itm) => ({
+              payments: payment.payments.map((itm: PaymentEntity) => ({
                 ...itm,
                 status: MatchStatus.MATCH,
                 timestamp: itm.timestamp,
                 heuristic_match_round: posHeuristicRound,
-                round_four_deposits: deposit.deposits,
+                round_four_matches: deposit.deposits,
               })),
-
               deposits: deposit.deposits.map((itm) => ({
                 ...itm,
                 status: MatchStatus.MATCH,
                 timestamp: itm.timestamp,
                 heuristic_match_round: posHeuristicRound,
-                round_four_payments: payment.payments,
               })),
             });
 
@@ -498,34 +497,36 @@ export class PosReconciliationService {
    */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   public aggregatePayments(payments: PaymentEntity[]): AggregatedPosPayment[] {
-    const aggPayments = payments.reduce((acc: any, itm: PaymentEntity) => {
-      const key = `${itm.transaction.transaction_date}-${itm.payment_method.method}`;
-      if (!acc[key]) {
-        acc[key] = {
-          transaction: {
-            transaction_date: itm.transaction.transaction_date,
-          },
-          timestamp: itm.timestamp,
-          amount: 0,
-          status: itm.status,
-          payment_method: itm.payment_method,
-          heuristic_match_round: undefined,
-          round_four_matches: [],
-          payments: [],
-        };
-      }
-      acc[key].amount += itm.amount;
-      acc[key].payments.push(itm);
+    const aggPayments = payments.reduce(
+      (acc: { [key: string]: AggregatedPosPayment }, itm: PaymentEntity) => {
+        const key = `${itm.transaction.transaction_date}-${itm.payment_method.method}`;
+        if (!acc[key]) {
+          acc[key] = {
+            transaction: {
+              transaction_date: itm.transaction.transaction_date,
+            },
+            amount: 0,
+            status: itm.status,
+            payment_method: itm.payment_method,
+            heuristic_match_round: undefined,
+            round_four_matches: [],
+            payments: [],
+          };
+        }
+        acc[key].amount += itm.amount;
+        acc[key].payments.push(itm);
 
-      return acc;
-    }, {});
+        return acc;
+      },
+      {}
+    );
 
     const aggregatedPayments: AggregatedPosPayment[] =
       Object.values(aggPayments);
 
     return aggregatedPayments.sort(
       (a: AggregatedPosPayment, b: AggregatedPosPayment) => a.amount - b.amount
-    ) as AggregatedPosPayment[];
+    );
   }
   /**
    * Aggregate deposits by date and method for heuristic round four
@@ -534,29 +535,31 @@ export class PosReconciliationService {
    */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   public aggregateDeposits(deposits: POSDepositEntity[]): AggregatedDeposit[] {
-    const aggDeposits = deposits.reduce((acc: any, itm: POSDepositEntity) => {
-      const key = `${itm.transaction_date}-${itm.payment_method.method}`;
-      if (!acc[key]) {
-        acc[key] = {
-          transaction_amt: 0,
-          payment_method: itm.payment_method,
-          status: itm.status,
-          transaction_date: itm.transaction_date,
-          timestamp: itm.timestamp,
-          heuristic_match_round: undefined,
-          deposits: [],
-        };
-      }
-      acc[key].transaction_amt += itm.transaction_amt;
-      acc[key].deposits.push(itm);
-      return acc;
-    }, {});
+    const aggDeposits = deposits.reduce(
+      (acc: { [key: string]: AggregatedDeposit }, itm: POSDepositEntity) => {
+        const key = `${itm.transaction_date}-${itm.payment_method.method}`;
+        if (!acc[key]) {
+          acc[key] = {
+            transaction_amt: 0,
+            payment_method: itm.payment_method,
+            status: itm.status,
+            transaction_date: itm.transaction_date,
+            heuristic_match_round: undefined,
+            deposits: [],
+          };
+        }
+        acc[key].transaction_amt += itm.transaction_amt;
+        acc[key].deposits.push(itm);
+        return acc;
+      },
+      {}
+    );
 
     const aggregatedDeposits: AggregatedDeposit[] = Object.values(aggDeposits);
 
     return aggregatedDeposits.sort(
       (a: AggregatedDeposit, b: AggregatedDeposit) =>
         a.transaction_amt - b.transaction_amt
-    ) as AggregatedDeposit[];
+    );
   }
 }

@@ -44,9 +44,8 @@ export enum PaymentMethodClassification {
 export interface AggregatedDeposit {
   transaction_amt: number;
   transaction_date: string;
-  timestamp: Date;
   status: MatchStatus;
-  heuristic_match_round: PosHeuristicRound;
+  heuristic_match_round?: PosHeuristicRound;
   payment_method: PaymentMethodEntity;
   deposits: POSDepositEntity[];
 }
@@ -57,9 +56,8 @@ export interface AggregatedPosPayment {
   };
   amount: number;
   status: MatchStatus;
-  timestamp: Date;
-  heuristic_match_round: PosHeuristicRound;
-  round_four_deposits: POSDepositEntity[];
+  heuristic_match_round?: PosHeuristicRound;
+  round_four_matches: POSDepositEntity[];
   payment_method: PaymentMethodEntity;
   payments: PaymentEntity[];
 }
