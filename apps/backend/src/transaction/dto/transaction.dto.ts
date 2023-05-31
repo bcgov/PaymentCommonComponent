@@ -80,7 +80,7 @@ export class TransactionDTO {
   })
   @ArrayUnique(
     (o: PaymentDTO) => {
-      return o.method;
+      return o.payment_method;
     },
     { message: 'Payment Method items must be unique' }
   )

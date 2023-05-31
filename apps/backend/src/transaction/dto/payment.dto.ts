@@ -78,7 +78,7 @@ export class PaymentDTO {
   @ApiProperty({ description: 'Payment Method', example: 'cash' })
   @IsString()
   @IsNotEmpty()
-  method!: string;
+  payment_method!: string;
 
   @ApiProperty({ description: 'Terminal', type: TerminalDTO })
   @IsNotEmpty()

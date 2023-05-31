@@ -18,6 +18,10 @@ import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
 import { TransactionService } from '../transaction/transaction.service';
+import axios from 'axios';
+import FormData from 'form-data';
+import { Readable } from 'stream';
+
 export interface ParseEvent {
   eventType: string;
   filename: string;
@@ -65,7 +69,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
       // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
       const finalParseList = parseList.filter(
-        (filename) => !filename?.includes('LABOUR2')
+        (filename) => !filename?.includes('LABOUR')
       );
 
       // Parse & Save only files that have not been parsed before
@@ -97,7 +101,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
         process.exit(0);
       })();
 
-      const file = await s3.getObject(
+      const file = await s3.getObjectStream(
         `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
         filename
       );
@@ -117,40 +121,22 @@ export const handler = async (event?: unknown, _context?: Context) => {
         );
       })();
 
-      if (fileType === FileTypes.SBC_SALES) {
-        appLogger.log('Parse and store SBC Sales in DB...', filename);
-        const garmsSales: TransactionEntity[] = await parseGarms(
-          (await JSON.parse(file.Body?.toString() || '{}')) as SBCGarmsJson[],
-          filename,
-          paymentMethods
-        );
-        appLogger.log(`txn count: ${garmsSales.length}`);
-        await transactionService.saveTransactions(garmsSales);
-      }
-
-      if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
-        const parsed = parseTDI({
-          type: fileType,
-          fileName: filename,
-          program: ministry,
-          fileContents: Buffer.from(file.Body?.toString() || '').toString(),
+      appLogger.log('Call endpoint to upload file...', filename);
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', Readable.from(file), filename);
+        formData.append('fileName', filename);
+        formData.append('fileType', fileType);
+        formData.append('program', ministry);
+        axios.request({
+          method: 'post',
+          maxBodyLength: 100000,
+          url: 'http://localhost:3000/api/v1/parse/upload-file',
+          headers: {
+            ...formData.getHeaders(),
+          },
+          data: formData,
         });
-
-        if (fileType === FileTypes.TDI34) {
-          const tdi34Details = parsed as TDI34Details[];
-          const posEntities = tdi34Details.map(
-            (item) => new POSDepositEntity(item)
-          );
-          await posService.savePOSDepositEntities(posEntities);
-        }
-
-        if (fileType === FileTypes.TDI17) {
-          const tdi17Details = parsed as TDI17Details[];
-          const cashDeposits = tdi17Details.map(
-            (details) => new CashDepositEntity(details)
-          );
-          await cashService.saveCashDepositEntities(cashDeposits);
-        }
       }
     } catch (err) {
       appLogger.error(err);
