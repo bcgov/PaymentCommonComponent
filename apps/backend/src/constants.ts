@@ -1,3 +1,8 @@
+import { MatchStatus } from './common/const';
+import { POSDepositEntity } from './deposits/entities/pos-deposit.entity';
+import { PosHeuristicRound } from './reconciliation/types';
+import { PaymentEntity, PaymentMethodEntity } from './transaction/entities';
+
 export const ALL = 'all';
 
 export enum Ministries {
@@ -34,4 +39,27 @@ export enum PaymentMethodClassification {
   CASH = 'CASH',
   POS = 'POS',
   IGNORE = 'IGNORE',
+}
+
+export interface AggregatedDeposit {
+  transaction_amt: number;
+  transaction_date: string;
+  timestamp: Date;
+  status: MatchStatus;
+  heuristic_match_round: PosHeuristicRound;
+  payment_method: PaymentMethodEntity;
+  deposits: POSDepositEntity[];
+}
+
+export interface AggregatedPosPayment {
+  transaction: {
+    transaction_date: string;
+  };
+  amount: number;
+  status: MatchStatus;
+  timestamp: Date;
+  heuristic_match_round: PosHeuristicRound;
+  round_four_deposits: POSDepositEntity[];
+  payment_method: PaymentMethodEntity;
+  payments: PaymentEntity[];
 }

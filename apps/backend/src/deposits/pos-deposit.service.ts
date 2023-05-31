@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
-import { In, LessThan, Raw, Repository } from 'typeorm';
+import { In, LessThanOrEqual, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
@@ -92,7 +92,7 @@ export class PosDepositService {
     );
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: LessThan(date),
+        transaction_date: LessThanOrEqual(date),
         status: MatchStatus.IN_PROGRESS,
         merchant_id: In(locations.map((itm) => itm.merchant_id)),
         metadata: { program },

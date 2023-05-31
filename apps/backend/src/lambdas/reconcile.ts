@@ -1,11 +1,10 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { format, subBusinessDays } from 'date-fns';
-import { MatchStatus } from '../common/const';
-import { PosDepositService } from '../deposits/pos-deposit.service';
-import { PaymentService } from '../transaction/payment.service';
+import { format, parse, subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
+import { MatchStatus } from '../common/const';
 import { CashDepositService } from '../deposits/cash-deposit.service';
+import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationMethod } from '../location/const';
 import { LocationService } from '../location/location.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
@@ -13,6 +12,7 @@ import { CashReconciliationService } from '../reconciliation/cash-reconciliation
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationConfigInput } from '../reconciliation/types';
 import { ReportingService } from '../reporting/reporting.service';
+import { PaymentService } from '../transaction/payment.service';
 
 export const handler = async (event: ReconciliationConfigInput) => {
   const disableLogs = process.env.SILENCE_LOGS === 'true';
@@ -31,6 +31,11 @@ export const handler = async (event: ReconciliationConfigInput) => {
   // maxDate is the date we are reconciling until
   // We reconcile 1 business day behind, so the user should only be passing in "yesterday" as maxDate
   const dateRange = { minDate: event.period.from, maxDate: event.period.to };
+
+  const reconciliationDates = {
+    start: parse(event.period.from, 'yyyy-MM-dd', new Date()),
+    end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
+  };
 
   const locations =
     event.location_ids.length === 0
@@ -110,8 +115,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const cashDates = await cashDepositService.findCashDepositDatesByLocation(
       event.program,
       {
-        maxDate: event.period.to,
-        minDate: event.period.from,
+        maxDate: format(reconciliationDates.end, 'yyyy-MM-dd'),
+        minDate: format(reconciliationDates.start, 'yyyy-MM-dd'),
       },
       location
     );
@@ -120,16 +125,16 @@ export const handler = async (event: ReconciliationConfigInput) => {
         cashDates[index - 2] ??
         format(new Date(event.period.from), 'yyyy-MM-dd');
 
-  //     const dateRange = {
-  //       minDate: previousCashDepositDate,
-  //       maxDate: date,
-  //     };
+      const dateRange = {
+        minDate: previousCashDepositDate,
+        maxDate: date,
+      };
 
-  //     const result = await cashReconciliationService.reconcileCash(
-  //       location,
-  //       event.program,
-  //       dateRange
-  //     );
+      const result = await cashReconciliationService.reconcileCash(
+        location,
+        event.program,
+        dateRange
+      );
 
       appLogger.log({ result });
       const exceptions = await cashExceptionsService.setExceptions(
