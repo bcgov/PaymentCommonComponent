@@ -7,6 +7,8 @@ import {
   ManyToOne,
   OneToOne,
   Relation,
+  ManyToMany,
+  JoinTable,
 } from 'typeorm';
 import { PaymentMethodEntity } from './payment-method.entity';
 import { TransactionEntity } from './transaction.entity';
@@ -121,6 +123,12 @@ export class PaymentEntity {
 
   @Column({ type: 'enum', nullable: true, enum: PosHeuristicRound })
   heuristic_match_round?: PosHeuristicRound;
+
+  @ManyToMany(() => POSDepositEntity, (p) => p.round_four_matches, {
+    nullable: true,
+  })
+  @JoinTable()
+  round_four_matches?: Relation<POSDepositEntity[]>;
 
   constructor(payment?: Partial<PaymentEntity>) {
     Object.assign(this, payment);

@@ -1,17 +1,17 @@
 version: "3.7"
 services:
-  db:
+  db-test:
     image: postgres:14-alpine
     container_name: db-test
     restart: always
     environment:
       - POSTGRES_HOST=${DB_HOST}
-      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_DB=${DB_NAME}test
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
     ports:
-      - "5432:5432"
+      - "5454:5432"
     networks:
       - pcc-test
   backend-test:
@@ -26,8 +26,8 @@ services:
     ports:
       - "3100:3000"
     environment:
-      - DB_HOST=db
-      - DB_NAME=${DB_NAME}
+      - DB_HOST=db-test
+      - DB_NAME=${DB_NAME}test
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_LOGS_ENABLED=${DB_LOGS_ENABLED}
@@ -44,7 +44,7 @@ services:
       - ./apps/backend:/apps/backend
       - ./node_modules:/node_modules
     depends_on:
-      - db
+      - db-test
     networks:
       - pcc-test
 

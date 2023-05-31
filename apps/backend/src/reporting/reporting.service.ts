@@ -20,7 +20,11 @@ import { DetailedReportService } from './details-report.service';
 import { DailySummary, ReportConfig } from './interfaces';
 import { columnStyle, rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
-import { DateRange, Ministries } from '../constants';
+import {
+  DateRange,
+  Ministries,
+  PaymentMethodClassification,
+} from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -623,5 +627,186 @@ export class ReportingService {
       ORDER BY
         cash_pay.fiscal_close_date ASC
   `);
+  }
+  async getStatusReport() {
+    const qb = this.paymentRepo.createQueryBuilder('payment');
+    qb.select('payment.status');
+    qb.addSelect('COUNT(payment.status)', 'count');
+    qb.leftJoin('payment.payment_method', 'payment_method');
+    qb.andWhere('payment_method.classification = :classification', {
+      classification: PaymentMethodClassification.POS,
+    });
+    qb.groupBy('payment.status');
+    const paymentStatus = await qb.getRawMany();
+    const qb2 = this.posDepositRepo.createQueryBuilder('pos_deposit');
+    qb2.select('pos_deposit.status');
+    qb2.addSelect('COUNT(pos_deposit.status)', 'count');
+    qb2.groupBy('pos_deposit.status');
+    const depositStatus = await qb2.getRawMany();
+    return { paymentStatus, depositStatus };
+  }
+
+  async getHeuristicRoundReport() {
+    const qb = this.paymentRepo.createQueryBuilder('payment');
+    qb.select('payment.heuristic_match_round');
+    qb.addSelect('COUNT(payment.heuristic_match_round)', 'count');
+    qb.leftJoin('payment.payment_method', 'payment_method');
+    qb.andWhere('payment_method.classification = :classification', {
+      classification: PaymentMethodClassification.POS,
+    });
+    qb.groupBy('payment.heuristic_match_round');
+    const paymentHeuristicRound = await qb.getRawMany();
+    const qb2 = this.posDepositRepo.createQueryBuilder('pos_deposit');
+    qb2.select('pos_deposit.heuristic_match_round');
+    qb2.addSelect('COUNT(pos_deposit.heuristic_match_round)', 'count');
+    qb2.groupBy('pos_deposit.heuristic_match_round');
+    const posDepositHeuristicRound = await qb2.getRawMany();
+    return { paymentHeuristicRound, posDepositHeuristicRound };
+  }
+
+  async getPosDepositStatusByDate() {
+    const query = `select
+                  	pos_deposit.transaction_date::varchar,
+                  	pos_pending.pending_count::int,
+                  	pos_inprogress.in_progress_count::int,
+                  	pos_match.match_count::int,
+                  	pos_exception.exception_count::int
+                  from
+                  	pos_deposit
+                  left join 
+                  	(
+                  	select
+                  		COUNT(status) as pending_count,
+                  		transaction_date
+                  	from
+                  		pos_deposit pd
+                  	where
+                  		status = 'PENDING'
+                  	group by
+                  		transaction_date
+                  	order by
+                  		transaction_date asc) as pos_pending on
+                  	pos_pending.transaction_date = pos_deposit.transaction_date
+                  left join (
+                  	select
+                  		COUNT(status) as IN_PROGRESS_COUNT,
+                  		transaction_date
+                  	from
+                  		pos_deposit pd
+                  	where
+                  		status = 'IN_PROGRESS'
+                  	group by
+                  		transaction_date
+                  	order by
+                  		transaction_date asc) as pos_inprogress on
+                  	pos_inprogress.transaction_date = pos_deposit.transaction_date
+                  left join (
+                  	select
+                  		COUNT(status) as match_count,
+                  		transaction_date
+                  	from
+                  		pos_deposit pd
+                  	where
+                  		status = 'MATCH'
+                  	group by
+                  		transaction_date
+                  	order by
+                  		transaction_date asc) as pos_match on
+                  	pos_match.transaction_date = pos_deposit.transaction_date
+                  left join (
+                  	select
+                  		COUNT(status) as exception_count,
+                  		transaction_date
+                  	from
+                  		pos_deposit pd
+                  	where
+                  		status = 'EXCEPTION'
+                  	group by
+                  		transaction_date
+                  	order by
+                  		transaction_date asc) as pos_exception on
+                  	pos_exception.transaction_date = pos_deposit.transaction_date
+                  group by
+                  	pos_deposit.transaction_date,
+                  	pos_pending.pending_count,
+                  	pos_inprogress.in_progress_count,
+                  	pos_match.match_count,
+                  	pos_exception.exception_count
+                  order by
+                  	pos_deposit.transaction_date asc`;
+    return await this.paymentRepo.manager.query(query);
+  }
+
+  async getCashDepositStatusByDate() {
+    const query = `select
+                    	cash_deposit.deposit_date::varchar,
+                    	cash_pending.pending_count::int,
+                    	cash_inprogress.in_progress_count::int,
+                    	cash_match.match_count::int,
+                    	cash_exception.exception_count::int
+                    from
+                    				cash_deposit
+                    left join 
+                                      	(
+                    	select
+                    		COUNT(status) as pending_count,
+                    		deposit_date
+                    	from
+                    		cash_Deposit pd
+                    	where
+                    		status = 'PENDING'
+                    	group by
+                    		deposit_date
+                    	order by
+                    		deposit_date asc) as cash_pending on
+                    	cash_pending.deposit_date = cash_Deposit.deposit_date
+                    left join (
+                    	select
+                    		COUNT(status) as IN_PROGRESS_COUNT,
+                    		deposit_date
+                    	from
+                    		cash_Deposit pd
+                    	where
+                    		status = 'IN_PROGRESS'
+                    	group by
+                    		deposit_date
+                    	order by
+                    		deposit_date asc) as cash_inprogress on
+                    	cash_inprogress.deposit_date = cash_Deposit.deposit_date
+                    left join (
+                    	select
+                    		COUNT(status) as match_count,
+                    		deposit_date
+                    	from
+                    		cash_Deposit pd
+                    	where
+                    		status = 'MATCH'
+                    	group by
+                    		deposit_date
+                    	order by
+                    		deposit_date asc) as cash_match on
+                    	cash_match.deposit_date = cash_Deposit.deposit_date
+                    left join (
+                    	select
+                    		COUNT(status) as exception_count,
+                    		deposit_date
+                    	from
+                    		cash_Deposit pd
+                    	where
+                    		status = 'EXCEPTION'
+                    	group by
+                    		deposit_date
+                    	order by
+                    		deposit_date asc) as cash_exception on
+                    	cash_exception.deposit_date = cash_Deposit.deposit_date
+                    group by
+                    				cash_deposit.deposit_date,
+                    	cash_pending.pending_count,
+                    	cash_inprogress.in_progress_count,
+                    	cash_match.match_count,
+                    	cash_exception.exception_count
+                    order by
+                    				cash_deposit.deposit_date asc`;
+    return await this.paymentRepo.manager.query(query);
   }
 }

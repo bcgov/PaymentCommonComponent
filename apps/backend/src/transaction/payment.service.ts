@@ -79,6 +79,7 @@ export class PaymentService {
       },
     });
   }
+
   public aggregatePayments(payments: PaymentEntity[]): AggregatedPayment[] {
     const groupedPayments = payments.reduce(
       /*eslint-disable */
