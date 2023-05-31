@@ -380,7 +380,7 @@ export class PosReconciliationService {
     return matches;
   }
   /**
-   * chekc the payment and deposit are the same method
+   * check the payment and deposit are the same method
    * @param {PaymentEntity} payment
    * @param {POSDepositEntity} deposit
    * @returns {boolean}
@@ -391,21 +391,6 @@ export class PosReconciliationService {
     deposit: POSDepositEntity
   ): boolean {
     return payment.payment_method.method === deposit.payment_method.method;
-  }
-  /**
-   * check if payment and deposit are not already matched
-   * @param {PaymentEntity} payment
-   * @param {POSDepositEntity} deposit
-   * @returns {boolean}
-   */
-  public verifyPendingStatus(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
-  ): boolean {
-    return (
-      payment.status !== MatchStatus.MATCH &&
-      deposit.status !== MatchStatus.MATCH
-    );
   }
   /**
    * date/time match on first three heuristic rounds
