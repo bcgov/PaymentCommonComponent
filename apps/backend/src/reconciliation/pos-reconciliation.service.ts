@@ -185,14 +185,20 @@ export class PosReconciliationService {
       location_id: location.location_id,
       total_deposits_pending: pendingDeposits.length,
       total_payments_pending: pendingPayments.length,
-      total_matched_payments: paymentsMatched.length,
-      total_matched_deposits: depositsMatched.length,
+      total_matched_payments:
+        paymentsMatched.length + paymentsMatchedRoundFour.length,
+      total_matched_deposits:
+        depositsMatched.length + depositsMatchedRoundFour.length,
       total_payments_in_progress: paymentsInProgress.length,
       total_deposits_in_progress: depositsInProgress.length,
       total_payments_updated:
-        paymentsMatched.length + paymentsInProgress.length,
+        paymentsMatched.length +
+        paymentsInProgress.length +
+        paymentsMatchedRoundFour.length,
       total_deposits_updated:
-        depositsMatched.length + depositsInProgress.length,
+        depositsMatched.length +
+        depositsInProgress.length +
+        depositsMatchedRoundFour.length,
     };
   }
 
