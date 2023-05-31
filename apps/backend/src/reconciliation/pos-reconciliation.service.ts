@@ -448,7 +448,7 @@ export class PosReconciliationService {
   ): boolean {
     return (
       payment.transaction.transaction_date === deposit.transaction_date &&
-      Math.abs(deposit.transaction_amt - payment.amount) < 0.01 &&
+      Math.abs(deposit.transaction_amt) - Math.abs(payment.amount) < 0.01 &&
       payment.status !== MatchStatus.MATCH &&
       deposit.status !== MatchStatus.MATCH
     );
