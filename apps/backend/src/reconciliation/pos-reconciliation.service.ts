@@ -495,7 +495,6 @@ export class PosReconciliationService {
    * @param payments
    * @returns
    */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   public aggregatePayments(payments: PaymentEntity[]): AggregatedPosPayment[] {
     const aggPayments = payments.reduce(
       (acc: { [key: string]: AggregatedPosPayment }, itm: PaymentEntity) => {
@@ -533,7 +532,6 @@ export class PosReconciliationService {
    * @param deposits
    * @returns
    */
-  /* eslint-disable @typescript-eslint/no-explicit-any */
   public aggregateDeposits(deposits: POSDepositEntity[]): AggregatedDeposit[] {
     const aggDeposits = deposits.reduce(
       (acc: { [key: string]: AggregatedDeposit }, itm: POSDepositEntity) => {
