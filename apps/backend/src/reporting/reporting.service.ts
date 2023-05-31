@@ -642,8 +642,8 @@ export class ReportingService {
     qb2.select('pos_deposit.status');
     qb2.addSelect('COUNT(pos_deposit.status)', 'count');
     qb2.groupBy('pos_deposit.status');
-    const posDepositStatus = await qb2.getRawMany();
-    return { paymentStatus, posDepositStatus };
+    const depositStatus = await qb2.getRawMany();
+    return { paymentStatus, depositStatus };
   }
 
   async getHeuristicRoundReport() {

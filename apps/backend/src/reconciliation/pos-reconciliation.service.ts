@@ -297,10 +297,16 @@ export class PosReconciliationService {
     }
     return matches;
   }
-
+  /**
+   * round four matching based on aggregated payments and deposits by date and method
+   * @param payments
+   * @param locationDeposits
+   * @param posHeuristicRound
+   * @returns
+   */
   public matchPosPaymentToPosDepositsRoundFour(
-    payments: AggregatedPosPayment[],
-    locationDeposits: PosDepositsAmountDictionary,
+    aggregatedPayments: AggregatedPosPayment[],
+    aggregatedLocationDeposits: PosDepositsAmountDictionary,
     posHeuristicRound: PosHeuristicRound
   ): { payments: PaymentEntity[]; deposits: POSDepositEntity[] }[] {
     const matches: {
@@ -308,10 +314,10 @@ export class PosReconciliationService {
       deposits: POSDepositEntity[];
     }[] = [];
 
-    for (const [pindex, payment] of payments.entries()) {
+    for (const [pindex, payment] of aggregatedPayments.entries()) {
       // find amount
       const depositsWithAmount: PosDepositsDateDictionary | null =
-        locationDeposits[payment.amount];
+        aggregatedLocationDeposits[payment.amount];
       const paymentMethod = payment.payment_method.method;
       if (depositsWithAmount) {
         // if amount found, find time
@@ -334,14 +340,14 @@ export class PosReconciliationService {
               dIndex,
               1
             )[0] as unknown as AggregatedDeposit;
-            payments[pindex].status = MatchStatus.MATCH;
-            payments[pindex].payments = payments[pindex].payments.map(
-              (itm) => ({
-                ...itm,
-                status: MatchStatus.MATCH,
-                timestamp: itm.timestamp,
-              })
-            );
+            aggregatedPayments[pindex].status = MatchStatus.MATCH;
+            aggregatedPayments[pindex].payments = aggregatedPayments[
+              pindex
+            ].payments.map((itm) => ({
+              ...itm,
+              status: MatchStatus.MATCH,
+              timestamp: itm.timestamp,
+            }));
             matches.push({
               payments: payment.payments.map((itm) => ({
                 ...itm,
@@ -374,7 +380,7 @@ export class PosReconciliationService {
     return matches;
   }
   /**
-   *
+   * chekc the payment and deposit are the same method
    * @param {PaymentEntity} payment
    * @param {POSDepositEntity} deposit
    * @returns {boolean}
@@ -387,19 +393,7 @@ export class PosReconciliationService {
     return payment.payment_method.method === deposit.payment_method.method;
   }
   /**
-   *
-   * @param {PaymentEntity} payment
-   * @param {POSDepositEntity} deposit
-   * @returns {boolean}
-   */
-  public verifyAmount(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
-  ): boolean {
-    return Math.abs(deposit.transaction_amt - payment.amount) < 0.01;
-  }
-  /**
-   *
+   * check if payment and deposit are not already matched
    * @param {PaymentEntity} payment
    * @param {POSDepositEntity} deposit
    * @returns {boolean}
@@ -414,7 +408,7 @@ export class PosReconciliationService {
     );
   }
   /**
-   *
+   * date/time match on first three heuristic rounds
    * @param {PaymentEntity} payment
    * @param {POSDepositEntity} deposit
    * @param {PosHeuristicRound} posHeuristicRound
@@ -437,42 +431,32 @@ export class PosReconciliationService {
           differenceInBusinessDays(payment.timestamp, deposit.timestamp)
         ) <= 2
       );
-    } else if (heuristicRound === PosHeuristicRound.FOUR) {
-      return payment.transaction.transaction_date === deposit.transaction_date;
     } else return false;
   }
-
+  /**
+   * Check the required fields for a round four match
+   * @param payment
+   * @param deposit
+   * @returns
+   */
   public verifyRoundFour(
     payment: AggregatedPosPayment,
     deposit: AggregatedDeposit
   ): boolean {
     return (
       payment.transaction.transaction_date === deposit.transaction_date &&
-      Math.abs(deposit.transaction_amt) - Math.abs(payment.amount) < 0.01 &&
+      payment.payment_method.method === deposit.payment_method.method &&
       payment.status !== MatchStatus.MATCH &&
       deposit.status !== MatchStatus.MATCH
     );
   }
   /**
-   *
-   * @param {PaymentEntity} payment
-   * @param {POSDepositEntity} deposit
-   * @param {PosHeuristicRound} posHeuristicRound
-   * @returns {boolean}
+   * Set the exceptions for a given location and date
+   * @param location
+   * @param program
+   * @param date
+   * @returns
    */
-  public verifyMatch(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity,
-    posHeuristicRound: PosHeuristicRound
-  ): boolean {
-    return (
-      this.verifyMethod(payment, deposit) &&
-      this.verifyAmount(payment, deposit) &&
-      this.verifyPendingStatus(payment, deposit) &&
-      this.verifyTimeMatch(payment, deposit, posHeuristicRound)
-    );
-  }
-
   public async setExceptions(
     location: LocationEntity,
     program: Ministries,
@@ -522,7 +506,11 @@ export class PosReconciliationService {
       paymentExceptions: paymentExceptions.length,
     };
   }
-  /* eslint-disable @typescript-eslint/no-explicit-any */
+  /**
+   * Aggregate payments by date and payment method for heuristic round four
+   * @param payments
+   * @returns
+   */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   public aggregatePayments(payments: PaymentEntity[]): AggregatedPosPayment[] {
     const aggPayments = payments.reduce((acc: any, itm: PaymentEntity) => {
@@ -554,6 +542,11 @@ export class PosReconciliationService {
       (a: AggregatedPosPayment, b: AggregatedPosPayment) => a.amount - b.amount
     ) as AggregatedPosPayment[];
   }
+  /**
+   * Aggregate deposits by date and method for heuristic round four
+   * @param deposits
+   * @returns
+   */
   /* eslint-disable @typescript-eslint/no-explicit-any */
   public aggregateDeposits(deposits: POSDepositEntity[]): AggregatedDeposit[] {
     const aggDeposits = deposits.reduce((acc: any, itm: POSDepositEntity) => {

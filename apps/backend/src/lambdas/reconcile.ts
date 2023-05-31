@@ -146,8 +146,12 @@ export const handler = async (event: ReconciliationConfigInput) => {
     }
   }
   const posReport = await reportingService.reportPosMatchSummaryByDate();
+  const statusReport = await reportingService.getStatusReport();
   appLogger.log('\n\n=========POS Summary Report: =========\n');
   console.table(posReport);
+  const { paymentStatus, depositStatus } = statusReport;
+  console.table(paymentStatus);
+  console.table(depositStatus);
   const cashReport = await reportingService.reportCashMatchSummaryByDate();
   appLogger.log('\n\n=========Cash Summary Report: =========\n');
   console.table(cashReport);
