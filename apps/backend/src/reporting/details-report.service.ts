@@ -189,7 +189,12 @@ export class DetailedReportService {
       await this.paymentService.findPosPayments(
         { minDate: dateRange.maxDate, maxDate: dateRange.maxDate },
         [location],
-        [MatchStatus.PENDING, MatchStatus.IN_PROGRESS, MatchStatus.EXCEPTION]
+        [
+          MatchStatus.PENDING,
+          MatchStatus.IN_PROGRESS,
+          MatchStatus.EXCEPTION,
+          MatchStatus.MATCH,
+        ]
       );
 
     const posDeposits: POSDepositEntity[] =
@@ -199,12 +204,8 @@ export class DetailedReportService {
         [location.location_id]
       );
 
-    const matchedPosPayments = await this.paymentService.findMatchedPosPayments(
-      posDeposits.filter((itm) => itm.status === MatchStatus.MATCH)
-    );
-
     return {
-      payments: [...posPayments, ...matchedPosPayments].map(
+      payments: [...posPayments].map(
         (itm) => new PaymentDetailsReport(location, itm)
       ),
       deposits: posDeposits.map(
