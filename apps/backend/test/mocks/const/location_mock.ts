@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { locations } from './locations';
-import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
+import { normalizedLocations } from './locations';
+import { NormalizedLocation } from '../../../src/constants';
 
-export const generateLocation = (): LocationEntity => {
-  return faker.helpers.arrayElement(locations);
+export const generateLocation = (): NormalizedLocation => {
+  return faker.helpers.arrayElement(normalizedLocations);
 };

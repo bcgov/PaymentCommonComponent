@@ -1,4 +1,4 @@
-import { LocationEntity } from '../../location/entities/master-location-data.entity';
+import { NormalizedLocation } from '../../constants';
 
 export class CasLocationReport {
   location_id: number;
@@ -8,7 +8,7 @@ export class CasLocationReport {
   dist_stob_code: number;
   dist_service_line_code: number;
   dist_project_code: number;
-  constructor(location: LocationEntity) {
+  constructor(location: NormalizedLocation) {
     this.location_id = location.location_id;
     this.loction_name = location.description;
     this.dist_client_code = location.ministry_client;
@@ -26,7 +26,7 @@ export class CasReport extends CasLocationReport {
     payment_method: unknown;
     settlement_date: string;
     amount: number;
-    location: LocationEntity;
+    location: NormalizedLocation;
   }) {
     super(data.location);
     this.card_vendor = data?.payment_method as string;

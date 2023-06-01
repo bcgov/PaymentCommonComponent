@@ -1,10 +1,9 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { ReconciliationType, AggregatedPayment } from './types';
 import { MatchStatus } from '../common/const';
-import { DateRange, Ministries } from '../constants';
+import { DateRange, Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
@@ -25,14 +24,14 @@ export class CashReconciliationService {
   public async findCashDepositDatesByLocation(
     program: Ministries,
     dateRange: DateRange,
-    location: LocationEntity
+    location: NormalizedLocation
   ): Promise<string[]> {
     this.appLogger.log({ dateRange }, CashReconciliationService.name);
 
     return await this.cashDepositService.findCashDepositDatesByLocation(
       program,
       dateRange,
-      location
+      location.pt_location_id
     );
   }
 
@@ -128,7 +127,7 @@ export class CashReconciliationService {
    * @returns
    */
   public async reconcileCash(
-    location: LocationEntity,
+    location: NormalizedLocation,
     program: Ministries,
     dateRange: DateRange
   ): Promise<unknown> {
@@ -136,14 +135,14 @@ export class CashReconciliationService {
       await this.cashDepositService.findCashDepositsByDate(
         program,
         dateRange.maxDate,
-        location,
+        location.pt_location_id,
         [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
       );
 
     const aggregatedPayments: AggregatedPayment[] =
       await this.paymentService.getAggregatedPaymentsByCashDepositDates(
         dateRange,
-        location
+        location.location_id
       );
     if (pendingDeposits.length === 0 && aggregatedPayments.length === 0) {
       this.appLogger.log(

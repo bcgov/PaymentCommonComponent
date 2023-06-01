@@ -6,8 +6,6 @@ import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
-import { LocationMethod } from '../location/const';
-import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentMethodEntity } from '../transaction/entities/payment-method.entity';
@@ -25,17 +23,11 @@ export class PosDepositService {
   async findPosDeposits(
     dateRange: DateRange,
     program: Ministries,
-    location_ids: number[],
+    merchant_ids: number[],
     statuses?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
     const depositStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
-    const locations: LocationEntity[] =
-      await this.locationService.getLocationsByID(
-        program,
-        location_ids,
-        LocationMethod.POS
-      );
 
     return await this.posDepositRepo.find({
       where: {
@@ -47,7 +39,7 @@ export class PosDepositService {
           program: program,
         },
         status: In(depositStatuses),
-        merchant_id: In(locations.map((itm) => itm.merchant_id)),
+        merchant_id: In(merchant_ids),
       },
       relations: {
         payment_method: true,
@@ -81,36 +73,26 @@ export class PosDepositService {
    */
   async findPOSDepositsExceptions(
     date: string,
-    location_id: number,
+    merchant_ids: number[],
     program: Ministries
   ): Promise<POSDepositEntity[]> {
-    // Get all corresponding locations for a location id and program
-    const locations = await this.locationService.getLocationsByID(
-      program,
-      [location_id],
-      LocationMethod.POS
-    );
     return await this.posDepositRepo.find({
       where: {
         transaction_date: LessThan(date),
         status: MatchStatus.IN_PROGRESS,
-        merchant_id: In(locations.map((itm) => itm.merchant_id)),
+        merchant_id: In(merchant_ids),
         metadata: { program },
       },
     });
   }
 
   async findPOSBySettlementDate(
-    location_id: number,
+    merchant_ids: number[],
     program: Ministries,
     dateRange: DateRange
   ) {
     // Get all corresponding locations for a location id and program
-    const locations = await this.locationService.getLocationsByID(
-      program,
-      [location_id],
-      LocationMethod.POS
-    );
+
     const { minDate, maxDate } = dateRange;
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');
 
@@ -126,7 +108,7 @@ export class PosDepositService {
     );
     qb.where({
       metadata: { program },
-      merchant_id: In(locations.map((itm) => itm.merchant_id)),
+      merchant_id: In(merchant_ids),
       settlement_date: Raw(
         (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
         { minDate, maxDate }

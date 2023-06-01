@@ -1,11 +1,10 @@
 import { DetailsReport } from './details-report';
-import { DateRange } from '../../constants';
+import { DateRange, NormalizedLocation } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
-import { LocationEntity } from '../../location/entities/master-location-data.entity';
 
 export class CashDepositDetailsReport extends DetailsReport {
   constructor(
-    location: LocationEntity,
+    location: NormalizedLocation,
     deposit: CashDepositEntity,
     dates?: DateRange
   ) {
@@ -13,6 +12,8 @@ export class CashDepositDetailsReport extends DetailsReport {
     this.source_file = 'Cash/Chq (TDI 17)';
     this.reconciliation_status = deposit.status;
     this.transaction_id = deposit.jv_no ?? '';
+    this.location_id = location.location_id;
+    this.location = location.description;
     this.date = deposit.deposit_date;
     this.time = deposit.deposit_time ?? null;
     this.fiscal_date = deposit.deposit_date;
