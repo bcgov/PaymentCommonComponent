@@ -25,7 +25,7 @@ export default new DataSource({
     LocationEntity,
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
-  synchronize: false,
+  synchronize: process.env.ENV_NAME === 'ci' ?? false,
   logging: logLevels,
   logger: dbLogger,
 });

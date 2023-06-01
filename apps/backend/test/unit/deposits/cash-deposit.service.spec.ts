@@ -182,7 +182,11 @@ describe('CashDepositService', () => {
 
       jest.spyOn(service, 'findCashDepositExceptions');
 
-      await service.findCashDepositExceptions(dates.minDate, program, location);
+      await service.findCashDepositExceptions(
+        dates.minDate,
+        program,
+        location.pt_location_id
+      );
 
       expect(repository.find).toHaveBeenCalledTimes(1);
 

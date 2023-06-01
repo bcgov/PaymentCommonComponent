@@ -38,7 +38,7 @@ export class MockData {
     this.depositsMock =
       classification === PaymentMethodClassification.CASH
         ? this.generateCashDeposits(this.paymentsMock)
-        : this.generatePosDeposits();
+        : this.generatePosDeposits(this.paymentsMock);
   }
 
   generateCashDeposits(payments: PaymentEntity[]): CashDepositMock[] {
@@ -58,8 +58,8 @@ export class MockData {
     return cashDeposits;
   }
 
-  public generatePosDeposits(): POSDepositMock[] {
-    return this.paymentsMock.flatMap(
+  public generatePosDeposits(payments: PaymentEntity[]): POSDepositMock[] {
+    return payments.flatMap(
       (payment: PaymentMock) =>
         new POSDepositMock(
           this.location,
@@ -69,6 +69,7 @@ export class MockData {
         )
     );
   }
+
   public generatePayments(
     classification: PaymentMethodClassification,
     transaction: TransactionMock,
