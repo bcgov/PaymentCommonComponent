@@ -3,9 +3,9 @@ import { NestFactory } from '@nestjs/core';
 import { format, parse, subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
+import { NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
-import { LocationMethod } from '../location/const';
 import { LocationService } from '../location/location.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
@@ -37,37 +37,21 @@ export const handler = async (event: ReconciliationConfigInput) => {
     end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
   };
 
+  const allLocations: NormalizedLocation[] =
+    await locationService.getLocationsBySource(event.program);
+
   const locations =
     event.location_ids.length === 0
-      ? await locationService.getLocationsBySource(event.program)
-      : await locationService.getLocationsByID(
-          event.program,
-          event.location_ids,
-          LocationMethod.Bank
+      ? allLocations
+      : allLocations.filter((location) =>
+          event.location_ids.find(
+            (event_location_id) => event_location_id === location.location_id
+          )
         );
 
-  const masterLocations = await locationService.getLocationsByID(
-    event.program,
-    locations.map((location) => location.location_id),
-    LocationMethod.POS
-  );
-
-  const merchantIds: { [key: string]: number[] } = masterLocations.reduce(
-    (acc: { [key: string]: number[] }, location) => {
-      if (acc[location.location_id]) {
-        acc[location.location_id].push(location.merchant_id);
-      } else {
-        acc[location.location_id] = [location.merchant_id];
-      }
-      return acc;
-    },
-    {}
-  );
-
-  // Get all pending pos payments whether its one day or many months
   const allPosPaymentsInDates = await paymentService.findPosPayments(
     dateRange,
-    locations,
+    locations.map((itm) => itm.location_id),
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
@@ -75,7 +59,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const allPosDepositsInDates = await posDepositService.findPosDeposits(
     dateRange,
     event.program,
-    locations.map((location) => location.location_id),
+    locations.flatMap((location) => location.location_id),
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
@@ -84,8 +68,9 @@ export const handler = async (event: ReconciliationConfigInput) => {
       (posPayment) =>
         posPayment.transaction.location_id === location.location_id
     );
+
     const locationDeposits = allPosDepositsInDates.filter((posDeposit) =>
-      merchantIds[location.location_id].includes(posDeposit.merchant_id)
+      location.merchant_ids.includes(posDeposit.merchant_id)
     );
 
     appLogger.log(
@@ -118,7 +103,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
         maxDate: format(reconciliationDates.end, 'yyyy-MM-dd'),
         minDate: format(reconciliationDates.start, 'yyyy-MM-dd'),
       },
-      location
+      location.pt_location_id
     );
     for (const [index, date] of cashDates.entries()) {
       const previousCashDepositDate =

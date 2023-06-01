@@ -7,7 +7,6 @@ import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
 import { LocationMethod } from '../location/const';
-import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentMethodEntity } from '../transaction/entities/payment-method.entity';
@@ -25,17 +24,11 @@ export class PosDepositService {
   async findPosDeposits(
     dateRange: DateRange,
     program: Ministries,
-    location_ids: number[],
+    merchant_ids: number[],
     statuses?: MatchStatus[]
   ): Promise<POSDepositEntity[]> {
     const depositStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
-    const locations: LocationEntity[] =
-      await this.locationService.getLocationsByID(
-        program,
-        location_ids,
-        LocationMethod.POS
-      );
 
     return await this.posDepositRepo.find({
       where: {
@@ -47,7 +40,7 @@ export class PosDepositService {
           program: program,
         },
         status: In(depositStatuses),
-        merchant_id: In(locations.map((itm) => itm.merchant_id)),
+        merchant_id: In(merchant_ids),
       },
       relations: {
         payment_method: true,

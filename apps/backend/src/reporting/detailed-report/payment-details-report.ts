@@ -1,13 +1,12 @@
 import { DetailsReport } from './details-report';
-import { DateRange } from '../../constants';
-import { LocationEntity } from '../../location/entities/master-location-data.entity';
+import { DateRange, NormalizedLocation } from '../../constants';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
 export class PaymentDetailsReport extends DetailsReport {
   /*eslint-disable */
 
   constructor(
-    location: LocationEntity,
+    location: NormalizedLocation,
     payment: PaymentEntity,
     dates?: DateRange
   ) {

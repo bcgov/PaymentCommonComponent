@@ -7,14 +7,18 @@ import { generateMetadataMock } from './const/file_metadata_mock';
 import { generateLocation } from './const/location_mock';
 import { aggregatePayments } from '../unit/reconciliation/helpers';
 import { MatchStatus } from '../../src/common/const';
-import { DateRange, FileTypes, Ministries } from '../../src/constants';
+import {
+  DateRange,
+  FileTypes,
+  Ministries,
+  NormalizedLocation,
+} from '../../src/constants';
 import { PaymentMethodClassification } from '../../src/constants';
-import { LocationEntity } from '../../src/location/entities/master-location-data.entity';
 import { AggregatedPayment } from '../../src/reconciliation/types';
 import { PaymentEntity } from '../../src/transaction/entities';
 
 export class MockData {
-  public location: LocationEntity;
+  public location: NormalizedLocation;
   public dateRange: DateRange;
   public program: Ministries;
   public paymentsMock: PaymentMock[];

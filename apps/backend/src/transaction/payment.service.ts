@@ -5,7 +5,6 @@ import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedPayment } from '../reconciliation/types/interface';
 
@@ -19,7 +18,7 @@ export class PaymentService {
 
   async findPosPayments(
     dateRange: DateRange,
-    locations: LocationEntity[],
+    location_ids: number[],
     statuses?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const paymentStatuses = statuses ? statuses : MatchStatusAll;
@@ -32,7 +31,7 @@ export class PaymentService {
             (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
             { minDate, maxDate }
           ),
-          location_id: In(locations.map((location) => location.location_id)),
+          location_id: In(location_ids),
         },
         status: In(paymentStatuses),
         payment_method: { classification: PaymentMethodClassification.POS },
@@ -57,13 +56,13 @@ export class PaymentService {
    */
   public async findPosPaymentExceptions(
     maxDate: string,
-    location: LocationEntity
+    location_id: number
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       where: {
         transaction: {
           transaction_date: LessThan(maxDate),
-          location_id: location.location_id,
+          location_id,
         },
         status: MatchStatus.IN_PROGRESS,
         payment_method: { classification: PaymentMethodClassification.POS },
@@ -108,7 +107,7 @@ export class PaymentService {
   }
 
   public async findPaymentsForDailySummary(
-    location: LocationEntity,
+    location_id: number,
     date: string
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
@@ -125,7 +124,7 @@ export class PaymentService {
       },
       where: {
         transaction: {
-          location_id: location.location_id,
+          location_id,
           transaction_date: date,
         },
       },
@@ -140,7 +139,7 @@ export class PaymentService {
    */
   public async findCashPayments(
     dateRange: DateRange,
-    location: LocationEntity,
+    location_id: number,
     statuses?: MatchStatus[]
   ): Promise<PaymentEntity[]> {
     const paymentStatuses = statuses ? statuses : MatchStatusAll;
@@ -150,7 +149,7 @@ export class PaymentService {
         payment_method: { classification: PaymentMethodClassification.CASH },
         status: In(paymentStatuses),
         transaction: {
-          location_id: location.location_id,
+          location_id,
           fiscal_close_date: Raw(
             (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
             {
@@ -172,17 +171,17 @@ export class PaymentService {
 
   async getAggregatedPaymentsByCashDepositDates(
     dateRange: DateRange,
-    location: LocationEntity
+    location_id: number
   ): Promise<AggregatedPayment[]> {
     const status = [MatchStatus.PENDING, MatchStatus.IN_PROGRESS];
 
     return this.aggregatePayments(
-      await this.findCashPayments(dateRange, location, status)
+      await this.findCashPayments(dateRange, location_id, status)
     );
   }
 
   public async findPaymentsExceptions(
-    location: LocationEntity,
+    location_id: number,
     pastDueDepositDate: string
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
@@ -190,7 +189,7 @@ export class PaymentService {
         payment_method: { classification: PaymentMethodClassification.CASH },
         status: MatchStatus.IN_PROGRESS,
         transaction: {
-          location_id: location.location_id,
+          location_id: location_id,
           fiscal_close_date: LessThanOrEqual(pastDueDepositDate),
         },
       },

@@ -1,9 +1,9 @@
 import { DetailsReport } from './details-report';
+import { NormalizedLocation } from '../../constants';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
-import { LocationEntity } from '../../location/entities/master-location-data.entity';
 
 export class POSDepositDetailsReport extends DetailsReport {
-  constructor(location: LocationEntity, deposit: POSDepositEntity) {
+  constructor(location: NormalizedLocation, deposit: POSDepositEntity) {
     super(location);
     this.source_file = 'POS (TDI 34)';
     this.reconciliation_status = deposit.status;

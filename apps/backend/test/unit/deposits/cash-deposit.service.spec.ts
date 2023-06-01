@@ -98,7 +98,7 @@ describe('CashDepositService', () => {
       await service.findCashDepositsByDate(
         program,
         depositDate.maxDate,
-        location,
+        location.pt_location_id,
         status
       );
 
@@ -132,7 +132,7 @@ describe('CashDepositService', () => {
       await service.findCashDepositsByDate(
         functionParams.program,
         functionParams.depositDate,
-        functionParams.location
+        functionParams.location.pt_location_id
       );
 
       expect(repository.find).toHaveBeenCalledTimes(1);

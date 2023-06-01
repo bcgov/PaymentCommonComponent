@@ -15,10 +15,10 @@ import {
   AggregatedDeposit,
   AggregatedPosPayment,
   Ministries,
+  NormalizedLocation,
 } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
-import { LocationEntity } from '../location/entities/master-location-data.entity';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
@@ -50,7 +50,7 @@ export class PosReconciliationService {
    */
 
   public async reconcile(
-    location: LocationEntity,
+    location: NormalizedLocation,
     pendingPayments: PaymentEntity[],
     pendingDeposits: POSDepositEntity[]
   ): Promise<unknown> {
@@ -423,6 +423,7 @@ export class PosReconciliationService {
       );
     } else return false;
   }
+
   /**
    * Check the required fields for a round four match
    * @param payment
@@ -448,7 +449,7 @@ export class PosReconciliationService {
    * @returns
    */
   public async setExceptions(
-    location: LocationEntity,
+    location: NormalizedLocation,
     program: Ministries,
     date: string
   ): Promise<unknown> {
@@ -458,7 +459,10 @@ export class PosReconciliationService {
     );
 
     const inProgressPayments =
-      await this.paymentService.findPosPaymentExceptions(date, location);
+      await this.paymentService.findPosPaymentExceptions(
+        date,
+        location.location_id
+      );
 
     const inProgressDeposits =
       await this.posDepositService.findPOSDepositsExceptions(

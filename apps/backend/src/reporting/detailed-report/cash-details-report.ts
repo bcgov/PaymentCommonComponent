@@ -1,11 +1,10 @@
 import { DetailsReport } from './details-report';
-import { DateRange } from '../../constants';
+import { DateRange, NormalizedLocation } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
-import { LocationEntity } from '../../location/entities/master-location-data.entity';
 
 export class CashDepositDetailsReport extends DetailsReport {
   constructor(
-    location: LocationEntity,
+    location: NormalizedLocation,
     deposit: CashDepositEntity,
     dates?: DateRange
   ) {
