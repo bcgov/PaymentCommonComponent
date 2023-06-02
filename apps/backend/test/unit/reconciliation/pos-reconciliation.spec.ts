@@ -420,8 +420,6 @@ describe('PosReconciliationService', () => {
       deposits = data.depositsMock as POSDepositEntity[];
       /*eslint-disable */
 
-      spy = jest.spyOn(service, 'matchPosPaymentToPosDepositsRoundFour');
-
       const aggregatedPayments = service.aggregatePayments(
         payments.filter((payment) =>
           [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
