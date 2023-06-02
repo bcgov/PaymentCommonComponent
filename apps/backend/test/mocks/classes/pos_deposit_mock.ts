@@ -1,5 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { PaymentMock } from './payment_mock';
+import { locations } from '../const/locations';
 import { FileMetadata } from './../../../src/common/columns/metadata';
 import { MatchStatus, MatchStatusAll } from '../../../src/common/const';
 import { NormalizedLocation } from '../../../src/constants';
@@ -16,7 +17,9 @@ export class POSDepositMock extends POSDepositEntity {
     super();
     this.id = faker.datatype.uuid();
     this.metadata = metadata;
-    this.merchant_id = location.merchant_ids[0];
+    this.merchant_id = locations.find(
+      (l) => l.location_id === location.location_id
+    )?.merchant_id!;
     this.transaction_date = payment.transaction.transaction_date;
     this.transaction_time = payment.transaction.transaction_time;
     this.transaction_amt = payment.amount;

@@ -17,6 +17,7 @@ import { TDI34Details } from '../../../src/flat-files';
 import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
 import { LocationService } from '../../../src/location/location.service';
 import { generateLocation } from '../../mocks/const/location_mock';
+import { normalizedLocations } from '../../mocks/const/locations';
 import { MockData } from '../../mocks/mocks';
 
 describe('POSDepositService', () => {
@@ -97,7 +98,9 @@ describe('POSDepositService', () => {
           maxDate: format(new Date(), 'yyyy-MM-dd'),
         },
         Ministries.SBC,
-        [location.location_id]
+        normalizedLocations.find(
+          (itm) => itm.location_id === location.location_id
+        )?.merchant_ids
       );
       expect(spy).toBeCalledTimes(1);
       expect(repository.find).toBeCalledTimes(1);
