@@ -1,4 +1,4 @@
-import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { format } from 'date-fns';
@@ -15,16 +15,13 @@ import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.ent
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { TDI34Details } from '../../../src/flat-files';
 import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
-import { LocationService } from '../../../src/location/location.service';
 import { generateLocation } from '../../mocks/const/location_mock';
-import { normalizedLocations } from '../../mocks/const/locations';
 import { MockData } from '../../mocks/mocks';
 
 describe('POSDepositService', () => {
   let service: PosDepositService;
   let repository: Repository<POSDepositEntity>;
   let posDepositMock: jest.Mocked<POSDepositEntity>;
-  let locationService: DeepMocked<LocationService>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -40,7 +37,6 @@ describe('POSDepositService', () => {
       .compile();
 
     service = module.get<PosDepositService>(PosDepositService);
-    locationService = module.get(LocationService);
     repository = module.get(getRepositoryToken(POSDepositEntity));
   });
   afterEach(() => {
@@ -98,13 +94,10 @@ describe('POSDepositService', () => {
           maxDate: format(new Date(), 'yyyy-MM-dd'),
         },
         Ministries.SBC,
-        normalizedLocations.find(
-          (itm) => itm.location_id === location.location_id
-        )?.merchant_ids
+        location.merchant_ids
       );
       expect(spy).toBeCalledTimes(1);
       expect(repository.find).toBeCalledTimes(1);
-      expect(locationService.getLocationsByID).toBeCalledTimes(1);
     });
   });
   describe('update', () => {

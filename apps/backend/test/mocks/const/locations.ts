@@ -5947,7 +5947,8 @@ export const newLocationList = locations
         )?.pt_location_id,
       };
     }
-    acc[key].merchant_ids.push(itm.merchant_id);
+    itm.merchant_id !== 999999999 &&
+      acc[key].merchant_ids.push(itm.merchant_id);
 
     return acc;
   });

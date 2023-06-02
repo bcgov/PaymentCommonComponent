@@ -188,7 +188,7 @@ export class ReportingService {
 
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSBySettlementDate(
-        location.location_id,
+        location.merchant_ids,
         config.program,
         dateRange
       );

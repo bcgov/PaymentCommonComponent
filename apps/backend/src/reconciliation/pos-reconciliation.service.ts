@@ -467,7 +467,7 @@ export class PosReconciliationService {
     const inProgressDeposits =
       await this.posDepositService.findPOSDepositsExceptions(
         date,
-        location.location_id,
+        location.merchant_ids,
         program
       );
 

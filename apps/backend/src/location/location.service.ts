@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository, Not } from 'typeorm';
-import { LocationMethod } from './const';
+import { In, Repository } from 'typeorm';
 import { LocationEntity } from './entities/master-location-data.entity';
 import { Ministries, NormalizedLocation } from '../constants';
 
@@ -14,23 +13,18 @@ export class LocationService {
 
   public async getLocationsByID(
     program: Ministries,
-    location_ids: number[],
-    method: LocationMethod
-  ): Promise<LocationEntity[]> {
-    const locationMethod =
-      method === LocationMethod.Bank
-        ? LocationMethod.Bank
-        : Not(LocationMethod.Bank);
-    return await this.locationRepo.find({
+    location_ids: number[]
+  ): Promise<NormalizedLocation[]> {
+    const locations = await this.locationRepo.find({
       where: {
         source_id: program,
-        method: locationMethod,
         location_id: In(location_ids),
       },
       order: {
         location_id: 'ASC',
       },
     });
+    return this.normalizeLocations(locations);
   }
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   public normalizeLocations(locations: LocationEntity[]): NormalizedLocation[] {
@@ -61,8 +55,8 @@ export class LocationService {
             )?.pt_location_id,
           };
         }
-
-        acc[key].merchant_ids.push(itm.merchant_id);
+        itm.merchant_id !== 999999999 &&
+          acc[key].merchant_ids.push(itm.merchant_id);
         return acc;
       }
     );
