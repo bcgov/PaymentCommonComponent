@@ -212,8 +212,7 @@ const posReportData = async (
     ...matchedDepositsFromAnotherDay,
     ...depositExceptions,
   ];
-  console.log(posPaymentsForReport.length);
-  console.log(posDepositsFroReport.length);
+
   return {
     posPayments: posPaymentsForReport,
     posDeposits: posDepositsFroReport,
@@ -245,7 +244,7 @@ const casReportData = async (
 
   const posDeposits: POSDepositEntity[] =
     await posDepositService.findPOSBySettlementDate(
-      locations.flatMap((itm) => itm.merchant_ids),
+      locations,
       event.program,
       dateRange
     );

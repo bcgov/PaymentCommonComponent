@@ -236,11 +236,7 @@ export class ReportingService {
     );
 
     // query for the CAS report data
-    const details: CasReport[] = this.getCasReportData(
-      locations,
-
-      casDeposits
-    );
+    const details: CasReport[] = this.getCasReportData(locations, casDeposits);
 
     const startIndex = 2;
     const rowStartIndex = 3;
@@ -254,7 +250,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addTitleRow(
       Report.CAS_REPORT,
-      `${casDates}-${casDates.maxDate}`,
+      `${casDates.minDate}-${casDates.maxDate}`,
       titleStyle,
       placement('A1:J1')
     );
@@ -388,7 +384,6 @@ export class ReportingService {
    */
   public getCasReportData(
     locations: NormalizedLocation[],
-
     casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] }
   ): CasReport[] {
     const cashDepositsResults: CashDepositEntity[] = casDeposits.cash;
@@ -405,33 +400,34 @@ export class ReportingService {
         )
         .forEach((itm) =>
           report.push(
-            new CasReport({
-              location,
-              payment_method: 'CASH DEPOSIT',
-              settlement_date: itm.deposit_date,
-              amount: itm.deposit_amt_cdn,
-            })
+            new CasReport(
+              'CASH DEPOSIT',
+              itm.deposit_date,
+              itm.deposit_amt_cdn,
+              location
+            )
           )
         );
-
+    });
+    locations.forEach((location) => {
       posDeposits
         .filter(
           (itm) =>
             itm.transaction_amt.toString() !== '0.00' &&
-            location.merchant_ids.includes(itm.merchant_id)
+            // in this instance merchant_id is the same as location_id
+            location.location_id === itm.merchant_id
         )
         .forEach(({ payment_method, settlement_date, transaction_amt }) =>
           report.push(
-            new CasReport({
-              location,
+            new CasReport(
               payment_method,
               settlement_date,
-              amount: parseFloat(transaction_amt.toString()),
-            })
+              parseFloat(transaction_amt.toString()),
+              location
+            )
           )
         );
     });
-
     return report;
   }
   /**
