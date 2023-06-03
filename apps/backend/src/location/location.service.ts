@@ -26,10 +26,9 @@ export class LocationService {
     });
     return this.normalizeLocations(locations);
   }
-  /*eslint-disable @typescript-eslint/no-explicit-any*/
   public normalizeLocations(locations: LocationEntity[]): NormalizedLocation[] {
     const normalizedLocationList = locations.reduce(
-      (acc: any, itm: LocationEntity) => {
+      (acc: { [key: string]: NormalizedLocation }, itm: LocationEntity) => {
         const key = itm.location_id;
         if (!acc[key]) {
           acc[key] = {
@@ -42,7 +41,7 @@ export class LocationService {
             stob_code: itm.stob_code,
             project_code: itm.project_code,
             merchant_ids: [],
-            pt_location_id: null,
+            pt_location_id: 0,
             description: '',
           };
         }
