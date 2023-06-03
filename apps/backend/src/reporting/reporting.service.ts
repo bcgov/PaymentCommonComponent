@@ -1,13 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  format,
-  getMonth,
-  getYear,
-  isSaturday,
-  isSunday,
-  parse,
-} from 'date-fns';
 import Decimal from 'decimal.js';
 import { Repository } from 'typeorm';
 import { CasReport } from './cas-report/cas-report';
@@ -17,13 +9,17 @@ import {
   Report,
   casReportColumns,
 } from './const';
-import { DetailedReportService } from './details-report.service';
+import {
+  CashDepositDetailsReport,
+  DetailsReport,
+  PaymentDetailsReport,
+  POSDepositDetailsReport,
+} from './detailed-report';
 import { DailySummary, ReportConfig } from './interfaces';
 import { columnStyle, rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
 import {
   DateRange,
-  Ministries,
   NormalizedLocation,
   PaymentMethodClassification,
 } from '../constants';
@@ -32,22 +28,14 @@ import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { ExcelExportService } from '../excelexport/excelexport.service';
-import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
-import { PaymentService } from '../transaction/payment.service';
 
 export class ReportingService {
   constructor(
     @Inject(Logger) private appLogger: AppLogger,
     @InjectRepository(POSDepositEntity)
     private posDepositRepo: Repository<POSDepositEntity>,
-    @Inject(LocationService)
-    private locationService: LocationService,
-    @Inject(PaymentService)
-    private paymentService: PaymentService,
-    @Inject(DetailedReportService)
-    private detailedReportService: DetailedReportService,
     @Inject(CashDepositService)
     private cashDepositService: CashDepositService,
     @Inject(PosDepositService)
@@ -58,69 +46,201 @@ export class ReportingService {
     private excelWorkbook: ExcelExportService
   ) {}
   /**
+   * Generates a three page daily report
    * @param config
    */
-  async generateReport(config: ReportConfig): Promise<void> {
-    const locations = await this.locationService.getLocationsBySource(
-      config.program
-    );
-
-    this.appLogger.log(
-      `Generating Reconciliation Report For ${locations.length} locations`,
-      ReportingService.name
-    );
-
-    if (
-      isSaturday(parse(config.period.to, 'yyyy-MM-dd', new Date())) ||
-      isSunday(parse(config.period.to, 'yyyy-MM-dd', new Date()))
-    ) {
-      this.appLogger.log(
-        `Skipping Reconciliation Report generation for ${config.period.to} as it is a weekend`,
-        ReportingService.name
-      );
-      return;
-    }
-
+  async generateReport(
+    config: ReportConfig,
+    locations: NormalizedLocation[],
+    posDeposits: POSDepositEntity[],
+    posPayments: PaymentEntity[],
+    cashDeposits: CashDepositEntity[],
+    cashPayments: PaymentEntity[],
+    casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
+    casDates: DateRange
+  ): Promise<void> {
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
-    await this.generateDailySummary(config, locations);
-    await this.generateDetailsWorksheet(config, locations);
-    await this.generateCasReportWorksheet(config, locations);
+
+    //page 1 - summary page
+    this.generateDailySummary(
+      config,
+      posPayments.filter(
+        (itm) => itm.transaction.transaction_date === config.period.to
+      ),
+      cashPayments.filter(
+        (itm) => itm.transaction.fiscal_close_date === config.period.to
+      ),
+      locations
+    );
+
+    //page 2 - details page
+    this.generateDetailsWorksheet(
+      config,
+      posDeposits,
+      posPayments,
+      cashDeposits,
+      cashPayments,
+      locations
+    );
+
+    // page 3 - cas report (includes deposit data from the start of the month up to the current date)
+    this.generateCasReportWorksheet(config, locations, casDeposits, casDates);
+
     await this.excelWorkbook.saveS3('reconciliation_report', config.period.to);
     if (process.env.RUNTIME_ENV !== 'production') {
       await this.excelWorkbook.saveLocal();
     }
   }
+
   /**
    *
    * @param config
    * @param locations
    */
-  async generateCasReportWorksheet(
+  async generateDailySummary(
     config: ReportConfig,
+    posPayments: PaymentEntity[],
+    cashPayments: PaymentEntity[],
     locations: NormalizedLocation[]
   ): Promise<void> {
-    const details: CasReport[] = [];
-
-    const maxDate = parse(config.period.to, 'yyyy-MM-dd', new Date());
-    /* extract the month from the "to-date"*/
-    const minDate = new Date(getYear(maxDate), getMonth(maxDate), 1);
-
-    const dateRange = {
-      minDate: format(minDate, 'yyyy-MM-dd'),
-      maxDate: format(maxDate, 'yyyy-MM-dd'),
-    };
+    this.appLogger.log(config);
     this.appLogger.log(
-      `Generating cas report for: ${format(minDate, 'yyyy-MM-dd')}-${format(
-        maxDate,
-        'yyyy-MM-dd'
-      )}`,
+      'Generating Daily Summary WorkSheet',
       ReportingService.name
     );
-    await Promise.all(
-      locations.map(async (itm) => {
-        const values = await this.findDataForCasReport(config, itm, dateRange);
-        details.push(...values);
-      })
+
+    const summaryData: DailySummary[] = this.getSummaryData(
+      config,
+      locations,
+      posPayments,
+      cashPayments
+    );
+
+    const startIndex = 2;
+
+    this.excelWorkbook.addSheet(Report.DAILY_SUMMARY);
+
+    this.excelWorkbook.addColumns(Report.DAILY_SUMMARY, dailySummaryColumns);
+
+    this.excelWorkbook.addRows(Report.DAILY_SUMMARY, summaryData, startIndex);
+    this.excelWorkbook.addTitleRow(
+      Report.DAILY_SUMMARY,
+      config.period.to,
+      titleStyle,
+      placement('A1:H1')
+    );
+    /* set column-headers style */
+    this.excelWorkbook.addRowStyle(
+      Report.DAILY_SUMMARY,
+      startIndex,
+      columnStyle
+    );
+    const filterOptions = {
+      from: {
+        column: 1,
+        row: 2,
+      },
+      to: {
+        column: dailySummaryColumns.length,
+        row: summaryData.length,
+      },
+    };
+
+    this.excelWorkbook.addFilterOptions(Report.DAILY_SUMMARY, filterOptions);
+  }
+
+  /**
+   * Daily Report for all Matched/Exceptions payments and deposits for a date or date range
+   * Includes all pending or in progress within the config period
+   * @param config
+   * @param locations
+   */
+  async generateDetailsWorksheet(
+    config: ReportConfig,
+    posDeposits: POSDepositEntity[],
+    posPayments: PaymentEntity[],
+    cashDeposits: CashDepositEntity[],
+    cashPayments: PaymentEntity[],
+    locations: NormalizedLocation[]
+  ): Promise<void> {
+    this.appLogger.log(config);
+    this.appLogger.log(
+      'Generating Reconciliation Details Worksheet',
+      ReportingService.name
+    );
+
+    // format cash and pos payments and deposits according to the details report interface
+    const detailsData: DetailsReport[] = this.getDetailsReportData(
+      posDeposits,
+      cashDeposits,
+      posPayments,
+      cashPayments,
+      locations
+    );
+
+    const startIndex = 2;
+
+    this.excelWorkbook.addSheet(Report.DETAILED_REPORT);
+
+    this.excelWorkbook.addColumns(
+      Report.DETAILED_REPORT,
+      detailedReportColumns
+    );
+
+    this.excelWorkbook.addRows(
+      Report.DETAILED_REPORT,
+      detailsData.map((itm) => ({ values: itm, style: rowStyle() })),
+      startIndex
+    );
+
+    this.excelWorkbook.addTitleRow(
+      Report.DETAILED_REPORT,
+      config.period.to,
+      titleStyle,
+      placement('A1:AC1')
+    );
+
+    /* set column-headers style */
+    this.excelWorkbook.addRowStyle(
+      Report.DETAILED_REPORT,
+      startIndex,
+      columnStyle
+    );
+
+    const filterOptions = {
+      from: {
+        column: 1,
+        row: 2,
+      },
+      to: {
+        column: detailedReportColumns.length,
+        row: detailsData.length + 1,
+      },
+    };
+
+    this.excelWorkbook.addFilterOptions(Report.DETAILED_REPORT, filterOptions);
+  }
+  /**
+   * Deposit report for all deposits from the start of the month up to the current date
+   * @param config
+   * @param locations
+   */
+  async generateCasReportWorksheet(
+    config: ReportConfig,
+    locations: NormalizedLocation[],
+    casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
+    casDates: DateRange
+  ): Promise<void> {
+    this.appLogger.log(
+      `Generating cas report for: ${casDates.minDate}-${casDates.maxDate}`,
+      ReportingService.name
+    );
+
+    // query for the CAS report data
+    const details: CasReport[] = this.getCasReportData(
+      locations,
+
+      casDeposits
     );
 
     const startIndex = 2;
@@ -135,7 +255,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addTitleRow(
       Report.CAS_REPORT,
-      `${dateRange.minDate}-${dateRange.maxDate}`,
+      `${casDates}-${casDates.maxDate}`,
       titleStyle,
       placement('A1:J1')
     );
@@ -163,239 +283,158 @@ export class ReportingService {
     ]);
   }
   /**
-   *
+   * Format the data for the daily summary report
    * @param config
-   * @param location
+   * @param locations
+   * @param posPayments
+   * @param cashPayments
    * @returns
    */
-  async findDataForCasReport(
+  public getSummaryData(
     config: ReportConfig,
-    location: NormalizedLocation,
-    dateRange: DateRange
-  ): Promise<CasReport[]> {
-    const cashDepositsResults: CashDepositEntity[] =
-      await this.cashDepositService.findCashDepositsForReport(
-        [location.pt_location_id],
-        config.program,
-        dateRange
+    locations: NormalizedLocation[],
+    posPayments: PaymentEntity[],
+    cashPayments: PaymentEntity[]
+  ): DailySummary[] {
+    const summaryData: DailySummary[] = [];
+    locations.forEach((location) => {
+      const paymentsByLocation = [...posPayments, ...cashPayments].filter(
+        (itm) => itm.transaction.location_id === location.location_id
       );
 
-    const cashDeposits = cashDepositsResults
-      .filter((itm) => itm.deposit_amt_cdn.toString() !== '0.00')
-      .map((itm) => ({
-        deposit_date: itm.deposit_date,
-        deposit_amt_cdn: itm.deposit_amt_cdn,
-      }));
-
-    const posDeposits: POSDepositEntity[] =
-      await this.posDepositService.findPOSBySettlementDate(
-        location.merchant_ids,
-        config.program,
-        dateRange
+      const exceptions = paymentsByLocation.filter(
+        (itm: PaymentEntity) => itm.status === MatchStatus.EXCEPTION
       );
 
-    const mappedPosDeposits = posDeposits
-      .filter((itm) => itm.transaction_amt.toString() !== '0.00')
-      .map(
-        ({ payment_method, settlement_date, transaction_amt }) =>
-          new CasReport({
-            location,
-            payment_method,
-            settlement_date,
-            amount: transaction_amt,
-          })
+      const total = paymentsByLocation.length;
+
+      const unmatchedPercentage =
+        total != 0
+          ? parseFloat(((exceptions.length / total) * 100).toFixed(2))
+          : 0;
+
+      /*eslint-disable */
+      const totalSum = paymentsByLocation.reduce(
+        (acc: number, itm: PaymentEntity) => (acc += itm.amount),
+        0
       );
 
-    const mappedCashDeposits = cashDeposits.map(
-      (itm) =>
-        new CasReport({
-          location,
-          payment_method: 'CASH DEPOSIT',
-          settlement_date: itm.deposit_date,
-          amount: itm.deposit_amt_cdn,
-        })
-    );
+      summaryData.push({
+        values: {
+          program: config.program,
+          date: config.period.to,
+          location_id: location.location_id,
+          location_name: location.description,
+          total_payments: total,
+          total_unmatched_payments: exceptions.length,
+          percent_unmatched: unmatchedPercentage,
+          total_sum: parseFloat(totalSum.toFixed(2)),
+        },
+        style: rowStyle(exceptions.length !== 0),
+      });
+    });
+    return summaryData;
+  }
+  /**
+   * Format the data for the detailed report
+   * @param posDeposits
+   * @param cashDeposits
+   * @param posPayments
+   * @param cashPayments
+   * @param locations
+   * @returns
+   */
+  public getDetailsReportData(
+    posDeposits: POSDepositEntity[],
+    cashDeposits: CashDepositEntity[],
+    posPayments: PaymentEntity[],
+    cashPayments: PaymentEntity[],
+    locations: NormalizedLocation[]
+  ): DetailsReport[] {
+    const detailedReport: DetailsReport[] = [];
+    locations.forEach((location: NormalizedLocation) => {
+      const filteredDeposits = posDeposits
+        .filter((deposit) =>
+          location.merchant_ids.includes(deposit.merchant_id)
+        )
+        .map((deposit) => new POSDepositDetailsReport(location, deposit));
 
-    const report: CasReport[] = [...mappedCashDeposits, ...mappedPosDeposits];
+      const filteredCashDeposits = cashDeposits
+        .filter((deposit) => location.pt_location_id === deposit.pt_location_id)
+        .map(
+          (deposit: CashDepositEntity) =>
+            new CashDepositDetailsReport(location, deposit)
+        );
+
+      const payments = [...posPayments, ...cashPayments]
+        .filter((itm) => itm.transaction.location_id === location.location_id)
+        .map(
+          (payment: PaymentEntity) =>
+            new PaymentDetailsReport(location, payment)
+        );
+      detailedReport.push(
+        ...filteredDeposits,
+        ...filteredCashDeposits,
+        ...payments
+      );
+    });
+    return detailedReport;
+  }
+  /**
+   * Query for CAS report data
+   * @param config
+   * @param locations
+   * @param dateRange
+   * @returns
+   */
+  public getCasReportData(
+    locations: NormalizedLocation[],
+
+    casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] }
+  ): CasReport[] {
+    const cashDepositsResults: CashDepositEntity[] = casDeposits.cash;
+    const posDeposits: POSDepositEntity[] = casDeposits.pos;
+
+    const report: CasReport[] = [];
+
+    locations.forEach((location) => {
+      cashDepositsResults
+        .filter(
+          (itm) =>
+            itm.deposit_amt_cdn.toString() !== '0.00' &&
+            itm.pt_location_id === location.pt_location_id
+        )
+        .forEach((itm) =>
+          report.push(
+            new CasReport({
+              location,
+              payment_method: 'CASH DEPOSIT',
+              settlement_date: itm.deposit_date,
+              amount: itm.deposit_amt_cdn,
+            })
+          )
+        );
+
+      posDeposits
+        .filter(
+          (itm) =>
+            itm.transaction_amt.toString() !== '0.00' &&
+            location.merchant_ids.includes(itm.merchant_id)
+        )
+        .forEach(({ payment_method, settlement_date, transaction_amt }) =>
+          report.push(
+            new CasReport({
+              location,
+              payment_method,
+              settlement_date,
+              amount: parseFloat(transaction_amt.toString()),
+            })
+          )
+        );
+    });
 
     return report;
   }
-
-  /**
-   * @param config
-   * @param locations
-   */
-  async generateDetailsWorksheet(
-    config: ReportConfig,
-    locations: NormalizedLocation[]
-  ): Promise<void> {
-    this.appLogger.log(config);
-    this.appLogger.log('Generating Reconciliation Details Worksheet');
-
-    const data: unknown[] = [];
-
-    for (const location of locations) {
-      const details =
-        await this.detailedReportService.findDataForDetailedReport(
-          config,
-          location
-        );
-      data.push(...details);
-    }
-
-    this.appLogger.log(
-      `Detailed Report line items: ${data.length}`,
-      ReportingService.name
-    );
-
-    const startIndex = 2;
-
-    this.excelWorkbook.addSheet(Report.DETAILED_REPORT);
-
-    this.excelWorkbook.addColumns(
-      Report.DETAILED_REPORT,
-      detailedReportColumns
-    );
-    this.excelWorkbook.addRows(
-      Report.DETAILED_REPORT,
-      data.map((itm) => ({ values: itm, style: rowStyle() })),
-      startIndex
-    );
-    this.excelWorkbook.addTitleRow(
-      Report.DETAILED_REPORT,
-      config.period.to,
-      titleStyle,
-      placement('A1:AC1')
-    );
-
-    /* set column-headers style */
-    this.excelWorkbook.addRowStyle(
-      Report.DETAILED_REPORT,
-      startIndex,
-      columnStyle
-    );
-
-    const filterOptions = {
-      from: {
-        column: 1,
-        row: 2,
-      },
-      to: {
-        column: detailedReportColumns.length,
-        row: data.length + 1,
-      },
-    };
-
-    this.excelWorkbook.addFilterOptions(Report.DETAILED_REPORT, filterOptions);
-  }
-  /**
-   *
-   * @param config
-   * @param locations
-   */
-  async generateDailySummary(
-    config: ReportConfig,
-    locations: NormalizedLocation[]
-  ): Promise<void> {
-    this.appLogger.log(config);
-    this.appLogger.log(
-      'Generating Daily Summary WorkSheet',
-      ReportingService.name
-    );
-
-    const dailySummaryReport = await Promise.all(
-      locations.map(
-        async (location: NormalizedLocation) =>
-          await this.findPaymentDataForDailySummary(
-            config.period.to,
-            location,
-            config.program
-          )
-      )
-    );
-
-    const startIndex = 2;
-
-    this.excelWorkbook.addSheet(Report.DAILY_SUMMARY);
-
-    this.excelWorkbook.addColumns(Report.DAILY_SUMMARY, dailySummaryColumns);
-
-    this.excelWorkbook.addRows(
-      Report.DAILY_SUMMARY,
-      dailySummaryReport,
-      startIndex
-    );
-    this.excelWorkbook.addTitleRow(
-      Report.DAILY_SUMMARY,
-      config.period.to,
-      titleStyle,
-      placement('A1:H1')
-    );
-    /* set column-headers style */
-    this.excelWorkbook.addRowStyle(
-      Report.DAILY_SUMMARY,
-      startIndex,
-      columnStyle
-    );
-    const filterOptions = {
-      from: {
-        column: 1,
-        row: 2,
-      },
-      to: {
-        column: dailySummaryColumns.length,
-        row: dailySummaryReport.length,
-      },
-    };
-
-    this.excelWorkbook.addFilterOptions(Report.DAILY_SUMMARY, filterOptions);
-  }
-  /**
-   *
-   * @param date
-   * @param location
-   * @param program
-   * @returns
-   */
-  async findPaymentDataForDailySummary(
-    date: string,
-    location: NormalizedLocation,
-    program: Ministries
-  ): Promise<DailySummary> {
-    const payments = await this.paymentService.findPaymentsForDailySummary(
-      location.location_id,
-      date
-    );
-    const exceptions = payments.filter(
-      (itm: PaymentEntity) => itm.status === MatchStatus.EXCEPTION
-    ).length;
-
-    const total = payments.length;
-
-    const unmatchedPercentage =
-      total != 0 ? parseFloat(((exceptions / total) * 100).toFixed(2)) : 0;
-
-    /*eslint-disable */
-    const totalSum = payments.reduce(
-      (acc: Decimal, itm: PaymentEntity) => acc.plus(itm.amount),
-      new Decimal(0)
-    );
-
-    return {
-      values: {
-        program,
-        date,
-        location_id: location.location_id,
-        location_name: location.description,
-        total_payments: total,
-        total_unmatched_payments: exceptions,
-        percent_unmatched: unmatchedPercentage,
-        total_sum: new Decimal(totalSum).toDecimalPlaces(2).toNumber(),
-      },
-      style: rowStyle(exceptions !== 0),
-    };
-  }
-
   /**
    *
    * @returns
