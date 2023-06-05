@@ -11,7 +11,7 @@ import {
 } from 'date-fns';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
-import { NormalizedLocation } from '../constants';
+import { DateRange, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -95,7 +95,10 @@ const cashReportData = async (
       [MatchStatus.MATCH, MatchStatus.EXCEPTION]
     );
 
-  const currentCashPayments: PaymentEntity[] = [];
+  const currentCashPayments: {
+    payments: PaymentEntity[];
+    dateRange: DateRange;
+  }[] = [];
   if (currentCashDeposits.length > 0) {
     for (const l of locations) {
       const cashDepositDatesForLocations =
@@ -119,13 +122,22 @@ const cashReportData = async (
             [l.location_id],
             [MatchStatus.MATCH, MatchStatus.EXCEPTION]
           );
-        currentCashPayments.push(...paymentsMatchedOrException);
+        currentCashPayments.push({
+          payments: paymentsMatchedOrException,
+          dateRange: cashDates,
+        });
       }
     }
   }
   return {
-    cashDeposits: [...pendingAndInProgressDeposits, ...currentCashDeposits],
-    cashPayments: [...pendingAndInProgressPayments, ...currentCashPayments],
+    cashDeposits: {
+      pending: pendingAndInProgressDeposits,
+      current: currentCashDeposits,
+    },
+    cashPayments: {
+      pending: pendingAndInProgressPayments,
+      current: currentCashPayments,
+    },
   };
 };
 
