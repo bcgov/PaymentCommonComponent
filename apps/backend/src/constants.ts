@@ -76,4 +76,4 @@ export interface NormalizedLocation {
   pt_location_id: number;
 }
 
-export const BankMercHantId = 999999999;
+export const BankMerchantId = 999999999;
