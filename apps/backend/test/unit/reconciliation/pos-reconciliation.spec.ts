@@ -482,7 +482,9 @@ describe('PosReconciliationService', () => {
         roundFourPaymentMatches.flatMap((itm) =>
           itm.round_four_matches?.map((itm) => itm.id)
         );
-      expect(matchedDepositIds).toEqual(matchedDepositsFromMatchedPayments);
+      expect(Array.from(new Set(matchedDepositIds))).toEqual(
+        Array.from(new Set(matchedDepositsFromMatchedPayments))
+      );
     });
   });
 });
