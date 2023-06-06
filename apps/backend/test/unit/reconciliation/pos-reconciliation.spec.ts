@@ -418,7 +418,6 @@ describe('PosReconciliationService', () => {
       const data = new MockData(PaymentMethodClassification.POS);
       payments = data.paymentsMock as PaymentEntity[];
       deposits = data.depositsMock as POSDepositEntity[];
-      /*eslint-disable */
 
       const aggregatedPayments = service.aggregatePayments(
         payments.filter((payment) =>
@@ -447,7 +446,6 @@ describe('PosReconciliationService', () => {
 
       const depositsDictionary =
         service.buildPosDepositsDictionary(aggregatedDeposits);
-      console.log(depositsDictionary);
 
       const dictKeys = Object.keys(depositsDictionary);
 
@@ -459,8 +457,6 @@ describe('PosReconciliationService', () => {
     });
 
     it('should match based on date, aggregated amount, method ', () => {
-      console.log(service.aggregatePayments(roundFourPaymentMatches));
-      console.log(service.aggregateDeposits(roundFourDepositMatches));
       const reaggregatedPayemnts = service.aggregatePayments(
         roundFourPaymentMatches
       );
@@ -486,9 +482,7 @@ describe('PosReconciliationService', () => {
         roundFourPaymentMatches.flatMap((itm) =>
           itm.round_four_matches?.map((itm) => itm.id)
         );
-      expect(matchedDepositIds).toEqual(
-        expect.arrayContaining(matchedDepositsFromMatchedPayments)
-      );
+      expect(matchedDepositIds).toEqual(matchedDepositsFromMatchedPayments);
     });
   });
 });
