@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
+import { LocationMethod } from './const';
 import { LocationEntity } from './entities/master-location-data.entity';
-import { Ministries, NormalizedLocation } from '../constants';
+import { Ministries, NormalizedLocation, BankMerchantId } from '../constants';
 
 @Injectable()
 export class LocationService {
@@ -26,6 +27,11 @@ export class LocationService {
     });
     return this.normalizeLocations(locations);
   }
+  /**
+   * Build a normalized location list from a list of locations in order to match the merchant ids to a single location id
+   * @param locations
+   * @returns
+   */
   public normalizeLocations(locations: LocationEntity[]): NormalizedLocation[] {
     const normalizedLocationList = locations.reduce(
       (acc: { [key: string]: NormalizedLocation }, itm: LocationEntity) => {
@@ -45,9 +51,9 @@ export class LocationService {
             description: '',
           };
         }
-        itm.merchant_id !== 999999999 &&
+        itm.merchant_id !== BankMerchantId &&
           acc[key].merchant_ids.push(itm.merchant_id);
-        if (itm.method === 'Bank') {
+        if (itm.method === LocationMethod.Bank) {
           acc[key].pt_location_id = itm.pt_location_id;
           acc[key].description = itm.description;
         }
