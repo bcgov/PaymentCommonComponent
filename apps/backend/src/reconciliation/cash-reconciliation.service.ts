@@ -60,10 +60,8 @@ export class CashReconciliationService {
     deposit: CashDepositEntity
   ) {
     return (
-      Math.abs(
-        new Decimal(deposit.deposit_amt_cdn).toNumber() -
-          new Decimal(payment.amount).toNumber()
-      ) < 0.001
+      new Decimal(deposit.deposit_amt_cdn).toNumber() ===
+      new Decimal(payment.amount).toNumber()
     );
   }
 

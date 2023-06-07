@@ -1,4 +1,3 @@
-import Decimal from 'decimal.js';
 import { NormalizedLocation } from '../../constants';
 
 export class CasLocationReport {
@@ -30,8 +29,7 @@ export class CasReport extends CasLocationReport {
     location: NormalizedLocation;
   }) {
     super(data.location);
-    this.settlement_date = data.settlement_date;
+    Object.assign(this, data);
     this.card_vendor = data?.payment_method as string;
-    this.amount = data.amount;
   }
 }
