@@ -59,10 +59,8 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   await reportingService.generateReport(
     event,
     locations,
-    posDeposits,
-    posPayments,
-    cashDeposits,
-    cashPayments,
+    { posDeposits, cashDeposits },
+    { posPayments, cashPayments },
     pageThreeDeposits,
     pageThreeDepositDates
   );

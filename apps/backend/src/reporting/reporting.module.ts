@@ -1,5 +1,4 @@
 import { Logger, Module } from '@nestjs/common';
-// import { DetailedReportService } from './details-report.service';
 import { ReportingService } from './reporting.service';
 import { DepositModule } from '../deposits/deposit.module';
 import { ExcelExportModule } from '../excelexport/excelexport.module';

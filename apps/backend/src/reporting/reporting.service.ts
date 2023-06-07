@@ -1,6 +1,5 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import Decimal from 'decimal.js';
 import { Repository } from 'typeorm';
 import { CasReport } from './cas-report/cas-report';
 import {
@@ -52,19 +51,25 @@ export class ReportingService {
   async generateReport(
     config: ReportConfig,
     locations: NormalizedLocation[],
-    posDeposits: POSDepositEntity[],
-    posPayments: PaymentEntity[],
-    cashDeposits: {
-      pending: CashDepositEntity[];
-      current: CashDepositEntity[];
+    deposits: {
+      posDeposits: POSDepositEntity[];
+      cashDeposits: {
+        pending: CashDepositEntity[];
+        current: CashDepositEntity[];
+      };
     },
-    cashPayments: {
-      pending: PaymentEntity[];
-      current: { payments: PaymentEntity[]; dateRange: DateRange }[];
+    payments: {
+      posPayments: PaymentEntity[];
+      cashPayments: {
+        pending: PaymentEntity[];
+        current: { payments: PaymentEntity[]; dateRange: DateRange }[];
+      };
     },
-    casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
-    casDates: DateRange
+    pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
+    pageThreeDepositDates: DateRange
   ): Promise<void> {
+    const { cashPayments, posPayments } = payments;
+    const { cashDeposits, posDeposits } = deposits;
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
 
     //page 1 - summary page
@@ -92,7 +97,12 @@ export class ReportingService {
     );
 
     // page 3 - cas report (includes deposit data from the start of the month up to the current date)
-    this.generateCasReportWorksheet(config, locations, casDeposits, casDates);
+    this.generateCasReportWorksheet(
+      config,
+      locations,
+      pageThreeDeposits,
+      pageThreeDepositDates
+    );
 
     await this.excelWorkbook.saveS3('reconciliation_report', config.period.to);
     if (process.env.RUNTIME_ENV !== 'production') {
@@ -242,16 +252,19 @@ export class ReportingService {
   generateCasReportWorksheet(
     config: ReportConfig,
     locations: NormalizedLocation[],
-    casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
-    casDates: DateRange
+    pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
+    pageThreeDepositDates: DateRange
   ) {
     this.appLogger.log(
-      `Generating cas report for: ${casDates.minDate}-${casDates.maxDate}`,
+      `Generating cas report for: ${pageThreeDepositDates.minDate}-${pageThreeDepositDates.maxDate}`,
       ReportingService.name
     );
 
     // query for the CAS report data
-    const details: CasReport[] = this.getCasReportData(locations, casDeposits);
+    const details: CasReport[] = this.getCasReportData(
+      locations,
+      pageThreeDeposits
+    );
 
     const startIndex = 2;
     const rowStartIndex = 3;
@@ -265,7 +278,7 @@ export class ReportingService {
     );
     this.excelWorkbook.addTitleRow(
       Report.CAS_REPORT,
-      `${casDates.minDate}-${casDates.maxDate}`,
+      `${pageThreeDepositDates.minDate}-${pageThreeDepositDates.maxDate}`,
       titleStyle,
       placement('A1:J1')
     );
@@ -419,10 +432,10 @@ export class ReportingService {
    */
   public getCasReportData(
     locations: NormalizedLocation[],
-    casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] }
+    pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] }
   ): CasReport[] {
-    const cashDepositsResults: CashDepositEntity[] = casDeposits.cash;
-    const posDeposits: POSDepositEntity[] = casDeposits.pos;
+    const cashDepositsResults: CashDepositEntity[] = pageThreeDeposits.cash;
+    const posDeposits: POSDepositEntity[] = pageThreeDeposits.pos;
 
     const report: CasReport[] = [];
 
