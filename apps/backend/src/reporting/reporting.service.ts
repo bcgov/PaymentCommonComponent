@@ -105,12 +105,12 @@ export class ReportingService {
    * @param config
    * @param locations
    */
-  async generateDailySummary(
+  generateDailySummary(
     config: ReportConfig,
     posPayments: PaymentEntity[],
     cashPayments: PaymentEntity[],
     locations: NormalizedLocation[]
-  ): Promise<void> {
+  ): void {
     this.appLogger.log(config);
     this.appLogger.log(
       'Generating Daily Summary WorkSheet',
@@ -163,7 +163,7 @@ export class ReportingService {
    * @param config
    * @param locations
    */
-  async generateDetailsWorksheet(
+  generateDetailsWorksheet(
     config: ReportConfig,
     posDeposits: POSDepositEntity[],
     posPayments: PaymentEntity[],
@@ -176,7 +176,7 @@ export class ReportingService {
       current: { payments: PaymentEntity[]; dateRange: DateRange }[];
     },
     locations: NormalizedLocation[]
-  ): Promise<void> {
+  ) {
     this.appLogger.log(config);
     this.appLogger.log(
       'Generating Reconciliation Details Worksheet',
@@ -239,12 +239,12 @@ export class ReportingService {
    * @param config
    * @param locations
    */
-  async generateCasReportWorksheet(
+  generateCasReportWorksheet(
     config: ReportConfig,
     locations: NormalizedLocation[],
     casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
     casDates: DateRange
-  ): Promise<void> {
+  ) {
     this.appLogger.log(
       `Generating cas report for: ${casDates.minDate}-${casDates.maxDate}`,
       ReportingService.name
