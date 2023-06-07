@@ -1,4 +1,4 @@
-name: PR - JIRA Check
+name: PR - Jira issue in title
 
 on:
   workflow_dispatch:
@@ -13,8 +13,9 @@ on:
 jobs:
   check-pr-title-jira-link:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     steps:
-      - name: Check for PR Title for Jira link
+      - name: Check PR title for Jira ticket number unless it is a CHORE/FIX/REFACTOR/DEVOPS PR
         uses: gsactions/commit-message-checker@8c8c0d18ba9b1fcfed6e7385fd2bf357dfc8dccb
         with:
           pattern: '(\W)+(CCFPCM)+-[0-9]+(\W)|(\W)(CHORE|FIX|REFACTOR|DEVOPS)(\W)'
