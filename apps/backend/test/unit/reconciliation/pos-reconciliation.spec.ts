@@ -27,6 +27,8 @@ describe('PosReconciliationService', () => {
   let matches: { payment: PaymentEntity; deposit: POSDepositEntity }[];
   let unmatchedPayments: PaymentEntity[];
   let unmatchedDeposits: POSDepositEntity[];
+  let roundFourPaymentMatches: PaymentEntity[];
+  let roundFourDepositMatches: POSDepositEntity[];
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -408,6 +410,83 @@ describe('PosReconciliationService', () => {
       expect(
         unmatchedPayments.every((itm) => itm.pos_deposit_match === undefined)
       ).toBe(true);
+    });
+  });
+  describe('heuristic round four', () => {
+    beforeAll(() => {
+      // create some data that will not match
+      const data = new MockData(PaymentMethodClassification.POS);
+      payments = data.paymentsMock as PaymentEntity[];
+      deposits = data.depositsMock as POSDepositEntity[];
+
+      const aggregatedPayments = service.aggregatePayments(
+        payments.filter((payment) =>
+          [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(
+            payment.status
+          )
+        )
+      );
+
+      const aggregatedDeposits = service.aggregateDeposits(
+        deposits
+      ) as unknown as POSDepositEntity[];
+      const matchedRoundFour = service.matchPosPaymentToPosDepositsRoundFour(
+        aggregatedPayments,
+        service.buildPosDepositsDictionary(aggregatedDeposits),
+        PosHeuristicRound.FOUR
+      );
+
+      roundFourPaymentMatches = matchedRoundFour.flatMap((itm) => itm.payments);
+      roundFourDepositMatches = matchedRoundFour.flatMap((itm) => itm.deposits);
+    });
+    it('should aggregate the deposits and build the deposit dictionary', () => {
+      const aggregatedDeposits = service.aggregateDeposits(
+        deposits
+      ) as unknown as POSDepositEntity[];
+
+      const depositsDictionary =
+        service.buildPosDepositsDictionary(aggregatedDeposits);
+
+      const dictKeys = Object.keys(depositsDictionary);
+
+      expect(dictKeys).toEqual(
+        expect.arrayContaining(
+          aggregatedDeposits.map((itm) => itm.transaction_amt.toString())
+        )
+      );
+    });
+
+    it('should match based on date, aggregated amount, method ', () => {
+      const reaggregatedPayemnts = service.aggregatePayments(
+        roundFourPaymentMatches
+      );
+      const reaggregatedDeposits = service.aggregateDeposits(
+        roundFourDepositMatches
+      );
+      expect(
+        reaggregatedPayemnts
+          .map(
+            (aggregatedPayment) =>
+              reaggregatedDeposits.find(
+                (aggregatedDeposit) =>
+                  aggregatedDeposit.transaction_amt ===
+                    aggregatedPayment.amount &&
+                  aggregatedDeposit.payment_method ===
+                    aggregatedPayment.payment_method
+              ) && true
+          )
+          .every((itm) => itm === true)
+      ).toBe(true);
+    });
+    it('should match many to many', () => {
+      const matchedDepositIds = roundFourDepositMatches.map((itm) => itm.id);
+      const matchedDepositsFromMatchedPayments =
+        roundFourPaymentMatches.flatMap((itm) =>
+          itm.round_four_matches?.map((itm) => itm.id)
+        );
+      expect(Array.from(new Set(matchedDepositIds))).toEqual(
+        Array.from(new Set(matchedDepositsFromMatchedPayments))
+      );
     });
   });
 });
