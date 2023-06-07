@@ -40,18 +40,19 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   const locationService = app.get(LocationService);
   const locations = await locationService.getLocationsBySource(event.program);
 
-  const { posDeposits, posPayments } = await posReportData(
+  const { posDeposits, posPayments } = await getPosReportData(
     app,
     event,
     locations
   );
-  const { cashDeposits, cashPayments } = await cashReportData(
+  const { cashDeposits, cashPayments } = await getCashReportData(
     app,
     event,
     locations
   );
 
-  const { casDeposits, casDates } = await casReportData(app, event, locations);
+  const { pageThreeDeposits, pageThreeDepositDates } =
+    await getPageThreeDeposits(app, event, locations);
 
   appLogger.log({ context });
   appLogger.log({ event });
@@ -62,16 +63,32 @@ export const handler = async (event: ReportConfig, context?: Context) => {
     posPayments,
     cashDeposits,
     cashPayments,
-    casDeposits,
-    casDates
+    pageThreeDeposits,
+    pageThreeDepositDates
   );
 };
-
-const cashReportData = async (
+/**
+ * Query for all matched/exceptiosn deposits and payments from report date, as well as the cash matching deposit window
+ * Query for all pending/in_progress deposits and payments from report date-range
+ * @param app
+ * @param event
+ * @param locations
+ * @returns
+ */
+const getCashReportData = async (
   app: INestApplicationContext,
   event: ReportConfig,
   locations: NormalizedLocation[]
-) => {
+): Promise<{
+  cashDeposits: {
+    pending: CashDepositEntity[];
+    current: CashDepositEntity[];
+  };
+  cashPayments: {
+    pending: PaymentEntity[];
+    current: { payments: PaymentEntity[]; dateRange: DateRange }[];
+  };
+}> => {
   const paymentService = app.get(PaymentService);
   const cashDepositService = app.get(CashDepositService);
   const pendingAndInProgressPayments = await paymentService.findCashPayments(
@@ -140,12 +157,22 @@ const cashReportData = async (
     },
   };
 };
-
-const posReportData = async (
+/**
+ * Query for all matched/exceptions deposits and payments from report date, as well deposits from a different date matched on round 3
+ * Query for all pending/in_progress deposits and payments from report date-range
+ * @param app
+ * @param event
+ * @param locations
+ * @returns
+ */
+const getPosReportData = async (
   app: INestApplicationContext,
   event: ReportConfig,
   locations: NormalizedLocation[]
-) => {
+): Promise<{
+  posPayments: PaymentEntity[];
+  posDeposits: POSDepositEntity[];
+}> => {
   const paymentService = app.get(PaymentService);
   const posDepositService = app.get(PosDepositService);
 
@@ -175,7 +202,7 @@ const posReportData = async (
     locations.flatMap((itm: NormalizedLocation) => itm.merchant_ids),
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
-  console.log(pendingAndInProgressDeposits, 'PENDING AND IN PROGRESS');
+
   const matchedDepositsAndExceptions = await posDepositService.findPosDeposits(
     { minDate: event.period.to, maxDate: event.period.to },
     event.program,
@@ -190,7 +217,6 @@ const posReportData = async (
   );
   const matchedDepositIdsFromPayments =
     matchedPayments.map((itm: PaymentEntity) => itm.pos_deposit_match) ?? [];
-  /*eslint-disable */
   const matchedDepositsFromAnotherDay: POSDepositEntity[] = [];
 
   matchedDepositIdsFromPayments.forEach((itm: POSDepositEntity | undefined) => {
@@ -230,12 +256,21 @@ const posReportData = async (
     posDeposits: posDepositsFroReport,
   };
 };
-
-const casReportData = async (
+/**
+ * Query for the cash and pos deposits for the current month, up to the report date of the current month
+ * @param app
+ * @param event
+ * @param locations
+ * @returns
+ */
+const getPageThreeDeposits = async (
   app: INestApplicationContext,
   event: ReportConfig,
   locations: NormalizedLocation[]
-) => {
+): Promise<{
+  pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] };
+  pageThreeDepositDates: DateRange;
+}> => {
   const cashDepositService = app.get(CashDepositService);
   const posDepositService = app.get(PosDepositService);
   const maxDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
@@ -246,6 +281,7 @@ const casReportData = async (
     minDate: format(minDate, 'yyyy-MM-dd'),
     maxDate: format(maxDate, 'yyyy-MM-dd'),
   };
+  console.log(dateRange, 'CAS DATE RANGE');
 
   const cashDepositsResults: CashDepositEntity[] =
     await cashDepositService.findCashDepositsForReport(
@@ -262,7 +298,7 @@ const casReportData = async (
     );
 
   return {
-    casDeposits: { cash: cashDepositsResults, pos: posDeposits },
-    casDates: dateRange,
+    pageThreeDeposits: { cash: cashDepositsResults, pos: posDeposits },
+    pageThreeDepositDates: dateRange,
   };
 };
