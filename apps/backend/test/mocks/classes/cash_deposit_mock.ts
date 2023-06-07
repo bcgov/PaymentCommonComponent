@@ -1,15 +1,15 @@
 import { faker } from '@faker-js/faker';
 import { FileMetadata } from 'src/common/columns';
 import { DateRange } from './../../../dist/src/constants.d';
-import { LocationEntity } from './../../../src/location/entities/master-location-data.entity';
 import { MatchStatus, MatchStatusAll } from '../../../src/common/const';
+import { NormalizedLocation } from '../../../src/constants';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
 /*eslint-disable */
 
 export class CashDepositMock extends CashDepositEntity {
   constructor(
     dateRange: DateRange,
-    location: LocationEntity,
+    location: NormalizedLocation,
     metadata: FileMetadata,
     amount: number,
     status?: MatchStatus

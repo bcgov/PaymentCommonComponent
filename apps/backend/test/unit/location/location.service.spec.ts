@@ -1,9 +1,8 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { In, Not, Repository } from 'typeorm';
-import { locations, normalizedLocations } from './../../mocks/const/locations';
+import { In, Repository } from 'typeorm';
+import { locations } from './../../mocks/const/locations';
 import { Ministries } from '../../../src/constants';
-import { LocationMethod } from '../../../src/location/const';
 import { LocationEntity } from '../../../src/location/entities';
 import { LocationService } from '../../../src/location/location.service';
 
@@ -36,29 +35,16 @@ describe('LocationService', () => {
   it('get merchant ids by location_id', async () => {
     const location_ids = [1];
 
-    const expectedResult = normalizedLocations.filter(
-      (location) => location.location_id === location_ids[0]
-    );
-
     const locationRepoSpy = jest
       .spyOn(locationRepo, 'find')
-      .mockResolvedValue(expectedResult);
+      .mockResolvedValue(locations.filter((itm) => itm.location_id === 1));
 
-    const method = LocationMethod.POS;
-
-    const result = await service.getLocationsByID(
-      Ministries.SBC,
-      location_ids,
-      method
-    );
-
-    expect(result).toEqual(expectedResult);
+    await service.getLocationsByID(Ministries.SBC, location_ids);
 
     expect(locationRepoSpy).toBeCalledWith({
       where: {
-        location_id: In(location_ids),
         source_id: Ministries.SBC,
-        method: Not(LocationMethod.Bank),
+        location_id: In(location_ids),
       },
       order: {
         location_id: 'ASC',
@@ -67,18 +53,19 @@ describe('LocationService', () => {
   });
   it('should get locations by source', async () => {
     const source = Ministries.SBC;
-    const expectedResult = locations.filter(
+    const expectedResultFromRepo = locations.filter(
       (location) => location.source_id === source
     );
+
     const locationRepoSpy = jest
       .spyOn(locationRepo, 'find')
-      .mockResolvedValue(expectedResult);
+      .mockResolvedValue(expectedResultFromRepo);
+
     const result = await service.getLocationsBySource(source);
-    expect(result).toEqual(expectedResult);
+    expect(result).toEqual(service.normalizeLocations(expectedResultFromRepo));
     expect(locationRepoSpy).toBeCalledWith({
       where: {
         source_id: source,
-        method: `${LocationMethod.Bank}`,
       },
       order: {
         location_id: 'ASC',

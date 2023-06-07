@@ -1,7 +1,6 @@
 import { format } from 'date-fns';
 import { MatchStatus } from '../../common/const';
-import { DateRange } from '../../constants';
-import { LocationEntity } from '../../location/entities';
+import { DateRange, NormalizedLocation } from '../../constants';
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 export class DetailsReport {
@@ -34,7 +33,7 @@ export class DetailsReport {
   dist_project_code: number | null;
   dist_location_code: number | null;
   dist_future_code: number | null;
-  constructor(location: LocationEntity, dateRange?: DateRange) {
+  constructor(location: NormalizedLocation, dateRange?: DateRange) {
     this.foreign_currency_amount = null;
     this.currency = 'CAD';
     this.transaction_id = '';

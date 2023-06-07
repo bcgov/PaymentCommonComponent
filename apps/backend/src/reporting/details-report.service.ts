@@ -9,12 +9,11 @@ import {
 import { DailySummary, ReportConfig } from './interfaces';
 import { rowStyle } from './styles';
 import { MatchStatus } from '../common/const';
-import { DateRange, Ministries } from '../constants';
+import { DateRange, Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
-import { LocationEntity } from '../location/entities';
 import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
 
@@ -36,11 +35,11 @@ export class DetailedReportService {
    */
   async findPaymentDataForDailySummary(
     date: string,
-    location: LocationEntity,
+    location: NormalizedLocation,
     program: Ministries
   ): Promise<DailySummary> {
     const payments = await this.paymentService.findPaymentsForDailySummary(
-      location,
+      location.location_id,
       date
     );
     const exceptions = payments.filter(
@@ -74,7 +73,7 @@ export class DetailedReportService {
   }
 
   async findCashPaymentsForDetailedReport(
-    location: LocationEntity,
+    location: NormalizedLocation,
     dateRange: DateRange,
     twoMostRecentDepositDates?: DateRange
   ): Promise<PaymentDetailsReport[]> {
@@ -82,16 +81,17 @@ export class DetailedReportService {
       twoMostRecentDepositDates
         ? await this.paymentService.findCashPayments(
             twoMostRecentDepositDates,
-            location,
+            [location.location_id],
             [MatchStatus.EXCEPTION, MatchStatus.MATCH]
           )
         : [];
 
     const allPendingAndInProgressCashPayments: PaymentEntity[] =
-      await this.paymentService.findCashPayments(dateRange, location, [
-        MatchStatus.PENDING,
-        MatchStatus.IN_PROGRESS,
-      ]);
+      await this.paymentService.findCashPayments(
+        dateRange,
+        [location.location_id],
+        [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+      );
 
     return [
       ...allPendingAndInProgressCashPayments.map(
@@ -105,7 +105,7 @@ export class DetailedReportService {
   }
 
   async findCashDataForDetailedReport(
-    location: LocationEntity,
+    location: NormalizedLocation,
     program: Ministries,
     dateRange: DateRange
   ): Promise<{
@@ -114,7 +114,7 @@ export class DetailedReportService {
   }> {
     const allCashDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsForReport(
-        location,
+        [location.pt_location_id],
         program,
         dateRange
       );
@@ -166,7 +166,7 @@ export class DetailedReportService {
   }
 
   async findPosDataForDetailedReport(
-    location: LocationEntity,
+    location: NormalizedLocation,
     program: Ministries,
     dateRange: DateRange
   ): Promise<{
@@ -188,7 +188,7 @@ export class DetailedReportService {
     const posPayments: PaymentEntity[] =
       await this.paymentService.findPosPayments(
         { minDate: dateRange.maxDate, maxDate: dateRange.maxDate },
-        [location],
+        [location.location_id],
         [MatchStatus.PENDING, MatchStatus.IN_PROGRESS, MatchStatus.EXCEPTION]
       );
 
@@ -196,7 +196,7 @@ export class DetailedReportService {
       await this.posDepositService.findPosDeposits(
         { minDate: dateRange.maxDate, maxDate: dateRange.maxDate },
         program,
-        [location.location_id]
+        location.merchant_ids
       );
 
     const matchedPosPayments = await this.paymentService.findMatchedPosPayments(
@@ -220,7 +220,7 @@ export class DetailedReportService {
    */
   async findDataForDetailedReport(
     config: ReportConfig,
-    location: LocationEntity
+    location: NormalizedLocation
   ): Promise<DetailsReport[]> {
     const dateRange: DateRange = {
       minDate: config.period.from,

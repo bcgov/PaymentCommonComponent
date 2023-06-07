@@ -61,3 +61,19 @@ export interface AggregatedPosPayment {
   payment_method: PaymentMethodEntity;
   payments: PaymentEntity[];
 }
+
+export interface NormalizedLocation {
+  location_id: number;
+  source_id: string;
+  program_code: number;
+  ministry_client: number;
+  resp_code: string;
+  service_line_code: number;
+  stob_code: number;
+  project_code: number;
+  description: string;
+  merchant_ids: number[];
+  pt_location_id: number;
+}
+
+export const BankMerchantId = 999999999;

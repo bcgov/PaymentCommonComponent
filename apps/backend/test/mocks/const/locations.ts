@@ -1,4 +1,5 @@
-import { LocationEntity } from './../../../src/location/entities/master-location-data.entity';
+import { NormalizedLocation } from '../../../src/constants';
+import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
 
 export const locations: LocationEntity[] = [
   {
@@ -5930,14 +5931,9 @@ export const newLocationList = locations
     const key = itm.location_id;
     if (!acc[key]) {
       acc[key] = {
+        ...itm,
         source_id: itm.source_id,
         location_id: itm.location_id,
-        program_code: itm.program_code,
-        ministry_client: itm.ministry_client,
-        resp_code: itm.resp_code,
-        service_line_code: itm.service_line_code,
-        stob_code: itm.stob_code,
-        project_code: itm.project_code,
         description:
           locations.find(
             (loc) =>
@@ -5946,15 +5942,17 @@ export const newLocationList = locations
               loc.description
           )?.description ?? '',
         merchant_ids: [],
-        pt_location_ids: [],
+        pt_location_id: locations.find(
+          (loc) => loc.location_id === itm.location_id && loc.method === 'Bank'
+        )?.pt_location_id,
       };
     }
+    itm.merchant_id !== 999999999 &&
+      acc[key].merchant_ids.push(itm.merchant_id);
 
-    acc[key].merchant_ids.push(itm.merchant_id);
-    acc[key].pt_location_ids.push(itm.pt_location_id);
     return acc;
   });
 
-export const normalizedLocations = Array.from(
+export const normalizedLocations: NormalizedLocation[] = Array.from(
   new Set(Object.values(newLocationList))
 );

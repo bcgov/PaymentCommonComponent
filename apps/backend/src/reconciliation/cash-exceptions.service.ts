@@ -1,9 +1,8 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { MatchStatus } from '../common/const';
-import { Ministries } from '../constants';
+import { Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
@@ -23,13 +22,13 @@ export class CashExceptionsService {
    */
 
   public async setExceptions(
-    location: LocationEntity,
+    location: NormalizedLocation,
     program: Ministries,
     exceptionsDate: string
   ): Promise<{ payments: number; deposits: number }> {
     const payments: PaymentEntity[] =
       await this.paymentService.findPaymentsExceptions(
-        location,
+        location.location_id,
         exceptionsDate
       );
 
@@ -37,7 +36,7 @@ export class CashExceptionsService {
       await this.cashDepositService.findCashDepositExceptions(
         exceptionsDate,
         program,
-        location
+        location.pt_location_id
       );
 
     const paymentExceptions: PaymentEntity[] =

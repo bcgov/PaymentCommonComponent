@@ -23,6 +23,7 @@ import { MatchStatus } from '../common/const';
 import {
   DateRange,
   Ministries,
+  NormalizedLocation,
   PaymentMethodClassification,
 } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
@@ -30,7 +31,6 @@ import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { ExcelExportService } from '../excelexport/excelexport.service';
-import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
@@ -96,7 +96,7 @@ export class ReportingService {
    */
   async generateCasReportWorksheet(
     config: ReportConfig,
-    locations: LocationEntity[]
+    locations: NormalizedLocation[]
   ): Promise<void> {
     const details: CasReport[] = [];
 
@@ -169,12 +169,12 @@ export class ReportingService {
    */
   async findDataForCasReport(
     config: ReportConfig,
-    location: LocationEntity,
+    location: NormalizedLocation,
     dateRange: DateRange
   ): Promise<CasReport[]> {
     const cashDepositsResults: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsForReport(
-        location,
+        [location.pt_location_id],
         config.program,
         dateRange
       );
@@ -188,7 +188,7 @@ export class ReportingService {
 
     const posDeposits: POSDepositEntity[] =
       await this.posDepositService.findPOSBySettlementDate(
-        location.location_id,
+        location.merchant_ids,
         config.program,
         dateRange
       );
@@ -226,7 +226,7 @@ export class ReportingService {
    */
   async generateDetailsWorksheet(
     config: ReportConfig,
-    locations: LocationEntity[]
+    locations: NormalizedLocation[]
   ): Promise<void> {
     this.appLogger.log(config);
     this.appLogger.log('Generating Reconciliation Details Worksheet');
@@ -294,7 +294,7 @@ export class ReportingService {
    */
   async generateDailySummary(
     config: ReportConfig,
-    locations: LocationEntity[]
+    locations: NormalizedLocation[]
   ): Promise<void> {
     this.appLogger.log(config);
     this.appLogger.log(
@@ -304,7 +304,7 @@ export class ReportingService {
 
     const dailySummaryReport = await Promise.all(
       locations.map(
-        async (location: LocationEntity) =>
+        async (location: NormalizedLocation) =>
           await this.findPaymentDataForDailySummary(
             config.period.to,
             location,
@@ -358,11 +358,11 @@ export class ReportingService {
    */
   async findPaymentDataForDailySummary(
     date: string,
-    location: LocationEntity,
+    location: NormalizedLocation,
     program: Ministries
   ): Promise<DailySummary> {
     const payments = await this.paymentService.findPaymentsForDailySummary(
-      location,
+      location.location_id,
       date
     );
     const exceptions = payments.filter(

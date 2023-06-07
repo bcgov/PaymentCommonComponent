@@ -6,7 +6,6 @@ import { MatchStatus } from '../common/const';
 import { MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
-import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
@@ -56,13 +55,13 @@ export class CashDepositService {
   async findCashDepositsByDate(
     program: Ministries,
     deposit_date: string,
-    location: LocationEntity,
+    pt_location_id: number,
     statuses?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
     const depositStatus = statuses ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id: location.pt_location_id,
+        pt_location_id,
         metadata: { program: program },
         deposit_date,
         status: In(depositStatus),
@@ -76,12 +75,12 @@ export class CashDepositService {
   async findCashDepositDatesByLocation(
     program: Ministries,
     dateRange: DateRange,
-    location: LocationEntity
+    pt_location_id: number
   ): Promise<string[]> {
     const { minDate, maxDate } = dateRange;
     const dates: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
-        pt_location_id: location.pt_location_id,
+        pt_location_id,
         metadata: { program },
         deposit_date: Raw(
           (alias) => `${alias} <= :maxDate and ${alias} >= :minDate`,
@@ -126,11 +125,11 @@ export class CashDepositService {
   async findCashDepositExceptions(
     date: string,
     program: Ministries,
-    location: LocationEntity
+    pt_location_id: number
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id: location.pt_location_id,
+        pt_location_id,
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: MatchStatus.IN_PROGRESS,
@@ -145,15 +144,17 @@ export class CashDepositService {
    * @returns
    */
   async findCashDepositsForReport(
-    location: LocationEntity,
+    pt_location_ids: number[],
     program: Ministries,
-    dateRange: DateRange
+    dateRange: DateRange,
+    statuses?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
     const { minDate, maxDate } = dateRange;
 
     return await this.cashDepositRepo.find({
       where: {
         metadata: { program },
+        status: In(statuses ?? MatchStatusAll),
         deposit_date: Raw(
           (alias) =>
             `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
@@ -162,7 +163,7 @@ export class CashDepositService {
             maxDate,
           }
         ),
-        pt_location_id: location.pt_location_id,
+        pt_location_id: In(pt_location_ids),
       },
       order: {
         deposit_date: 'ASC',
