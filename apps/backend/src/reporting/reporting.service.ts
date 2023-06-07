@@ -53,8 +53,14 @@ export class ReportingService {
     locations: NormalizedLocation[],
     posDeposits: POSDepositEntity[],
     posPayments: PaymentEntity[],
-    cashDeposits: CashDepositEntity[],
-    cashPayments: PaymentEntity[],
+    cashDeposits: {
+      pending: CashDepositEntity[];
+      current: CashDepositEntity[];
+    },
+    cashPayments: {
+      pending: PaymentEntity[];
+      current: { payments: PaymentEntity[]; dateRange: DateRange }[];
+    },
     casDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
     casDates: DateRange
   ): Promise<void> {
@@ -66,8 +72,10 @@ export class ReportingService {
       posPayments.filter(
         (itm) => itm.transaction.transaction_date === config.period.to
       ),
-      cashPayments.filter(
-        (itm) => itm.transaction.fiscal_close_date === config.period.to
+      cashPayments.current.flatMap((itm) =>
+        itm.payments.filter(
+          (itm) => itm.transaction.fiscal_close_date === config.period.to
+        )
       ),
       locations
     );
@@ -158,8 +166,14 @@ export class ReportingService {
     config: ReportConfig,
     posDeposits: POSDepositEntity[],
     posPayments: PaymentEntity[],
-    cashDeposits: CashDepositEntity[],
-    cashPayments: PaymentEntity[],
+    cashDeposits: {
+      pending: CashDepositEntity[];
+      current: CashDepositEntity[];
+    },
+    cashPayments: {
+      pending: PaymentEntity[];
+      current: { payments: PaymentEntity[]; dateRange: DateRange }[];
+    },
     locations: NormalizedLocation[]
   ): Promise<void> {
     this.appLogger.log(config);
@@ -171,8 +185,8 @@ export class ReportingService {
     // format cash and pos payments and deposits according to the details report interface
     const detailsData: DetailsReport[] = this.getDetailsReportData(
       posDeposits,
-      cashDeposits,
       posPayments,
+      cashDeposits,
       cashPayments,
       locations
     );
@@ -341,9 +355,15 @@ export class ReportingService {
    */
   public getDetailsReportData(
     posDeposits: POSDepositEntity[],
-    cashDeposits: CashDepositEntity[],
     posPayments: PaymentEntity[],
-    cashPayments: PaymentEntity[],
+    cashDeposits: {
+      pending: CashDepositEntity[];
+      current: CashDepositEntity[];
+    },
+    cashPayments: {
+      pending: PaymentEntity[];
+      current: { payments: PaymentEntity[]; dateRange: DateRange }[];
+    },
     locations: NormalizedLocation[]
   ): DetailsReport[] {
     const detailedReport: DetailsReport[] = [];
@@ -354,14 +374,27 @@ export class ReportingService {
         )
         .map((deposit) => new POSDepositDetailsReport(location, deposit));
 
-      const filteredCashDeposits = cashDeposits
+      const filteredCashDeposits = [
+        ...cashDeposits.pending,
+        ...cashDeposits.current,
+      ]
         .filter((deposit) => location.pt_location_id === deposit.pt_location_id)
         .map(
           (deposit: CashDepositEntity) =>
             new CashDepositDetailsReport(location, deposit)
         );
-
-      const payments = [...posPayments, ...cashPayments]
+      const cashPaymentsCurrentWithDateRange = cashPayments.current.flatMap(
+        (itm) =>
+          itm.payments
+            .filter(
+              (itm) => itm.transaction.location_id === location.location_id
+            )
+            .map(
+              (payment) =>
+                new PaymentDetailsReport(location, payment, itm.dateRange)
+            )
+      );
+      const payments = [...posPayments, ...cashPayments.pending]
         .filter((itm) => itm.transaction.location_id === location.location_id)
         .map(
           (payment: PaymentEntity) =>
@@ -370,7 +403,8 @@ export class ReportingService {
       detailedReport.push(
         ...filteredDeposits,
         ...filteredCashDeposits,
-        ...payments
+        ...payments,
+        ...cashPaymentsCurrentWithDateRange
       );
     });
     return detailedReport;

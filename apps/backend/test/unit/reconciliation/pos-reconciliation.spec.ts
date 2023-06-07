@@ -4,7 +4,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import {
   roundThreeTimeHeuristic,
   roundTwoTimeHeuristic,
-  setSomePaymentsToOneBusinessDayBehind,
+  setSomeDepositsToOneBusinessDayBehind,
   setSomePaymentsToTwentyMinutesLater,
   timeBetweenMatchedPaymentAndDeposit,
   unmatchedTestData,
@@ -159,7 +159,7 @@ describe('PosReconciliationService', () => {
       payments = data.paymentsMock as PaymentEntity[];
       deposits = data.depositsMock as POSDepositEntity[];
 
-      payments = setSomePaymentsToOneBusinessDayBehind(payments);
+      deposits = setSomeDepositsToOneBusinessDayBehind(deposits);
 
       matches = service.matchPosPaymentToPosDeposits(
         payments.filter((payment) =>
@@ -204,7 +204,7 @@ describe('PosReconciliationService', () => {
       payments = data.paymentsMock as PaymentEntity[];
       deposits = data.depositsMock as POSDepositEntity[];
       payments = setSomePaymentsToTwentyMinutesLater(payments);
-      payments = setSomePaymentsToOneBusinessDayBehind(payments);
+      deposits = setSomeDepositsToOneBusinessDayBehind(deposits);
 
       const depositsDictionary = service.buildPosDepositsDictionary(
         deposits.filter((deposit) =>
