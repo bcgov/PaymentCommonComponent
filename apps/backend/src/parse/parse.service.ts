@@ -20,6 +20,8 @@ import { Repository } from 'typeorm';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
 import { format } from 'date-fns';
 import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
+import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
+import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
 
 @Injectable()
 export class ParseService {
@@ -62,7 +64,6 @@ export class ParseService {
     const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
     const list = new GarmsTransactionList(garmsSalesDTO);
     try {
-      this.appLogger.log(list);
       await validateOrReject(list);
     } catch (e: any) {
       this.appLogger.error('ERROR');
@@ -91,6 +92,16 @@ export class ParseService {
     const cashDeposits = tdi17Details.map(
       (details) => new CashDepositEntity(details)
     );
+    const cashDepositsDto = cashDeposits.map((c) => new CashDepositDTO(c));
+    const list = new CashDepositsListDTO(cashDepositsDto);
+    try {
+      await validateOrReject(list);
+    } catch (e: any) {
+      this.appLogger.error('ERROR');
+      console.log(e[0]);
+      // We can use error.children.value
+      throw new Error('errrorr');
+    }
     return cashDeposits;
   }
 
@@ -112,19 +123,17 @@ export class ParseService {
     const posEntities = tdi34Details.map(
       (details) => new POSDepositEntity(details)
     );
+    const cashDepositsDto = posEntities.map((p) => new PosDepositDTO(p));
+    const list = new PosDepositListDTO(cashDepositsDto);
+    try {
+      await validateOrReject(list);
+    } catch (e: any) {
+      this.appLogger.error('ERROR');
+      console.log(e[0]);
+      // We can use error.children.value
+      throw new Error('errrorr');
+    }
     return posEntities;
-  }
-
-  async getFileUploadedForDate(date: Date): Promise<FileUploadedEntity | null> {
-    return null;
-    // return this.uploadedRepo.findOne({
-    //   where: {
-    //     dataDate: date,
-    //   },
-    // });
-    /*await this.uploadedRepo.createQueryBuilder('fileUploaded')
-      .andWhere('dataDate = :today', { today: format(date, 'yyyy-MM-dd') })
-      .getOne();*/
   }
 
   async saveFileUploaded(
@@ -171,7 +180,7 @@ export class ParseService {
       const daily = this.programDailyRepo.create(newDaily);
       return this.saveDaily(daily);
     } catch (e) {
-      console.log(e);
+      throw new Error('ERROR SAVING DAILY');
     }
   }
 

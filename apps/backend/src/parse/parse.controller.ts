@@ -18,6 +18,8 @@ import { FileUploadedEntity } from './entities/file-uploaded.entity';
 import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { DailyAlertRO } from './ro/daily-alert.ro';
 import { TransactionService } from '../transaction/transaction.service';
+import { CashDepositService } from '../deposits/cash-deposit.service';
+import { PosDepositService } from '../deposits/pos-deposit.service';
 
 @Controller('parse')
 @ApiTags('Parser API')
@@ -28,6 +30,10 @@ export class ParseController {
     private readonly parseService: ParseService,
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
+    @Inject(CashDepositService)
+    private readonly cashDepositService: CashDepositService,
+    @Inject(PosDepositService)
+    private readonly posDepositService: PosDepositService,
     @Inject(Logger) private readonly appLogger: AppLogger
   ) {}
 
@@ -110,6 +116,10 @@ export class ParseController {
     if (!rules) {
       // THROW ERROR
     }
+    let daily = await this.parseService.getDailyForRule(rules, new Date());
+    if (!daily) {
+      daily = await this.parseService.createNewDaily(rules, new Date());
+    }
 
     try {
       if (fileType === FileTypes.SBC_SALES) {
@@ -121,6 +131,7 @@ export class ParseController {
           source_file_type: fileType,
           source_file_name: fileName,
           source_file_length: file.buffer.length,
+          programFiles: daily,
         });
         this.appLogger.log(`txn count: ${garmsSales.length}`);
         await this.transactionService.saveTransactions(
@@ -139,8 +150,8 @@ export class ParseController {
           program,
           file.buffer
         );
-        // save
-        // await cashService.saveCashDepositEntities(cashDeposits);
+        this.appLogger.log(cashDeposits);
+        await this.cashDepositService.saveCashDepositEntities(cashDeposits);
       }
 
       if (fileType === FileTypes.TDI34) {
@@ -151,8 +162,7 @@ export class ParseController {
           program,
           file.buffer
         );
-        // save
-        // await posService.savePOSDepositEntities(posEntities);
+        await this.posDepositService.savePOSDepositEntities(posEntities);
       }
     } catch (err: any) {
       // Throw

@@ -1,5 +1,6 @@
 import { Logger, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { DepositModule } from '../deposits/deposit.module';
 import { TransactionModule } from '../transaction/transaction.module';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
@@ -9,6 +10,7 @@ import { ParseService } from './parse.service';
 
 @Module({
   imports: [
+    DepositModule,
     TransactionModule,
     TypeOrmModule.forFeature([
       FileUploadedEntity,
