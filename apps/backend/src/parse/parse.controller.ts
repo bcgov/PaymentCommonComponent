@@ -130,7 +130,7 @@ export class ParseController {
         const fileToSave = await this.parseService.saveFileUploaded({
           source_file_type: fileType,
           source_file_name: fileName,
-          source_file_length: file.buffer.length,
+          source_file_length: garmsSales.length,
           programFiles: daily,
         });
         this.appLogger.log(`txn count: ${garmsSales.length}`);
@@ -150,8 +150,18 @@ export class ParseController {
           program,
           file.buffer
         );
-        this.appLogger.log(cashDeposits);
-        await this.cashDepositService.saveCashDepositEntities(cashDeposits);
+        const fileToSave = await this.parseService.saveFileUploaded({
+          source_file_type: fileType,
+          source_file_name: fileName,
+          source_file_length: cashDeposits.length,
+          programFiles: daily,
+        });
+        await this.cashDepositService.saveCashDepositEntities(
+          cashDeposits.map((deposit) => ({
+            ...deposit,
+            fileUploadedEntity: fileToSave,
+          }))
+        );
       }
 
       if (fileType === FileTypes.TDI34) {
@@ -162,7 +172,19 @@ export class ParseController {
           program,
           file.buffer
         );
-        await this.posDepositService.savePOSDepositEntities(posEntities);
+        const fileToSave = await this.parseService.saveFileUploaded({
+          source_file_type: fileType,
+          source_file_name: fileName,
+          source_file_length: posEntities.length,
+          programFiles: daily,
+        });
+        await this.posDepositService.savePOSDepositEntities(
+          posEntities.map((deposit) => ({
+            ...deposit,
+            fileUploadedEntity: fileToSave,
+            timestamp: deposit.timestamp,
+          }))
+        );
       }
     } catch (err: any) {
       // Throw
