@@ -1,7 +1,6 @@
 import { Relation, OneToMany, Entity, Column, PrimaryColumn } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
-import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 
 @Entity('transaction')
 export class TransactionEntity {
@@ -21,7 +20,6 @@ export class TransactionEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer(),
   })
   total_transaction_amount: number;
 

@@ -1,5 +1,6 @@
 import { Inject } from '@nestjs/common';
 import { format, parse, subBusinessDays } from 'date-fns';
+import Decimal from 'decimal.js';
 import {
   CashDepositDetailsReport,
   POSDepositDetailsReport,
@@ -53,8 +54,8 @@ export class DetailedReportService {
 
     /*eslint-disable */
     const totalSum = payments.reduce(
-      (acc: number, itm: PaymentEntity) => (acc += itm.amount),
-      0
+      (acc: Decimal, itm: PaymentEntity) => acc.plus(itm.amount),
+      new Decimal(0)
     );
 
     return {
@@ -66,7 +67,7 @@ export class DetailedReportService {
         total_payments: total,
         total_unmatched_payments: exceptions,
         percent_unmatched: unmatchedPercentage,
-        total_sum: parseFloat(totalSum.toFixed(2)),
+        total_sum: parseFloat(`${totalSum}`),
       },
       style: rowStyle(exceptions !== 0),
     };

@@ -3,7 +3,7 @@
   "locations": [],
   "period": {
     "from": "2023-01-01",
-    "to": "2023-05-25"
+    "to": "2023-05-24"
   },
   "exceptions": {
     "send": false

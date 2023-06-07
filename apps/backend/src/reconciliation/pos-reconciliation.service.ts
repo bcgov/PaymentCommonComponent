@@ -1,5 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { differenceInBusinessDays, differenceInMinutes } from 'date-fns';
+import Decimal from 'decimal.js';
 import {
   PosDepositsAmountDictionary,
   PosDepositsDateDictionary,
@@ -205,7 +206,9 @@ export class PosReconciliationService {
     // Put deposits into a dictionary, first layer keys are amount, second layer keys are dates
     // This makes it more efficient to find than looping through all deposits
     return deposits.reduce((acc: PosDepositsAmountDictionary, posDeposit) => {
-      const amount = posDeposit.transaction_amt;
+      const amount = new Decimal(posDeposit.transaction_amt)
+        .toDecimalPlaces(2)
+        .toNumber();
       const date = posDeposit.transaction_date;
       const paymentMethod = posDeposit.payment_method.method;
       if (acc[amount]) {
@@ -232,7 +235,7 @@ export class PosReconciliationService {
     for (const [pindex, payment] of payments.entries()) {
       // find amount
       const depositsWithAmount: PosDepositsDateDictionary | null =
-        locationDeposits[payment.amount];
+        locationDeposits[new Decimal(payment.amount).toNumber()];
       const paymentMethod = payment.payment_method.method;
       if (depositsWithAmount) {
         // if amount found, find time
@@ -312,11 +315,10 @@ export class PosReconciliationService {
       payments: PaymentEntity[];
       deposits: POSDepositEntity[];
     }[] = [];
-
     for (const [pindex, payment] of aggregatedPayments.entries()) {
       // find amount
       const depositsWithAmount: PosDepositsDateDictionary | null =
-        aggregatedLocationDeposits[payment.amount];
+        aggregatedLocationDeposits[new Decimal(payment.amount).toNumber()];
       const paymentMethod = payment.payment_method.method;
       if (depositsWithAmount) {
         // if amount found, find time
@@ -506,7 +508,7 @@ export class PosReconciliationService {
             transaction: {
               transaction_date: itm.transaction.transaction_date,
             },
-            amount: 0,
+            amount: new Decimal(0),
             status: itm.status,
             payment_method: itm.payment_method,
             heuristic_match_round: undefined,
@@ -514,7 +516,7 @@ export class PosReconciliationService {
             payments: [],
           };
         }
-        acc[key].amount += itm.amount;
+        acc[key].amount = acc[key].amount.plus(itm.amount);
         acc[key].payments.push(itm);
 
         return acc;
@@ -525,9 +527,7 @@ export class PosReconciliationService {
     const aggregatedPayments: AggregatedPosPayment[] =
       Object.values(aggPayments);
 
-    return aggregatedPayments.sort(
-      (a: AggregatedPosPayment, b: AggregatedPosPayment) => a.amount - b.amount
-    );
+    return aggregatedPayments;
   }
   /**
    * Aggregate deposits by date and method for heuristic round four
@@ -540,7 +540,7 @@ export class PosReconciliationService {
         const key = `${itm.transaction_date}-${itm.payment_method.method}`;
         if (!acc[key]) {
           acc[key] = {
-            transaction_amt: 0,
+            transaction_amt: new Decimal(0),
             payment_method: itm.payment_method,
             status: itm.status,
             transaction_date: itm.transaction_date,
@@ -548,7 +548,9 @@ export class PosReconciliationService {
             deposits: [],
           };
         }
-        acc[key].transaction_amt += itm.transaction_amt;
+        acc[key].transaction_amt = acc[key].transaction_amt.plus(
+          itm.transaction_amt
+        );
         acc[key].deposits.push(itm);
         return acc;
       },
@@ -557,9 +559,6 @@ export class PosReconciliationService {
 
     const aggregatedDeposits: AggregatedDeposit[] = Object.values(aggDeposits);
 
-    return aggregatedDeposits.sort(
-      (a: AggregatedDeposit, b: AggregatedDeposit) =>
-        a.transaction_amt - b.transaction_amt
-    );
+    return aggregatedDeposits;
   }
 }
