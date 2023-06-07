@@ -467,12 +467,6 @@ describe('PosReconciliationService', () => {
       const reaggregatedDeposits = service.aggregateDeposits(
         roundFourDepositMatches
       );
-      console.log(
-        'PAYMENTS: ',
-        reaggregatedPayments,
-        'DEPOSITS: ',
-        reaggregatedDeposits
-      );
       expect(
         reaggregatedPayments.map((aggregatedPayment: AggregatedPosPayment) => ({
           amount: aggregatedPayment.amount,
