@@ -68,7 +68,7 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   );
 };
 /**
- * Query for all matched/exceptiosn deposits and payments from report date, as well as the cash matching deposit window
+ * Query for all matched/exceptions deposits and payments from report date, as well as the cash matching deposit window
  * Query for all pending/in_progress deposits and payments from report date-range
  * @param app
  * @param event
@@ -131,7 +131,7 @@ const getCashReportData = async (
             cashDepositDatesForLocations.indexOf(event.period.to) - 1
           ],
       };
-      console.log(cashDates);
+
       if (cashDates.minDate) {
         const paymentsMatchedOrException =
           await paymentService.findCashPayments(
@@ -188,7 +188,7 @@ const getPosReportData = async (
     [MatchStatus.MATCH, MatchStatus.EXCEPTION]
   );
 
-  const matchedPayments = matchedPaymentsAndExceptions.filter(
+  const matchedPaymentsOnReportDate = matchedPaymentsAndExceptions.filter(
     (itm: PaymentEntity) => itm.status === MatchStatus.MATCH
   );
 
@@ -215,45 +215,24 @@ const getPosReportData = async (
   const depositExceptions = matchedDepositsAndExceptions.filter(
     (itm: POSDepositEntity) => itm.status === MatchStatus.EXCEPTION
   );
-  const matchedDepositIdsFromPayments =
-    matchedPayments.map((itm: PaymentEntity) => itm.pos_deposit_match) ?? [];
-  const matchedDepositsFromAnotherDay: POSDepositEntity[] = [];
-
-  matchedDepositIdsFromPayments.forEach((itm: POSDepositEntity | undefined) => {
-    if (itm) {
-      if (
-        !matchedDeposits.find((deposit: POSDepositEntity) => deposit === itm)
-      ) {
-        matchedDepositsFromAnotherDay.push(itm);
-      }
-    }
-  });
-  const depositsWithoutMatchedPayment = matchedDeposits.filter(
-    (itm: POSDepositEntity) =>
-      matchedPayments.find(
-        (pymnt: PaymentEntity) => pymnt.pos_deposit_match === itm
-      )
-  );
   const matchedPaymentsFromAnotherDay =
-    await paymentService.findPaymentsByPosDeposits(
-      depositsWithoutMatchedPayment
-    );
-  const posPaymentsForReport = [
-    ...pendingAndInProgressPayments,
-    ...matchedPayments,
-    ...matchedPaymentsFromAnotherDay,
-    ...paymentExceptions,
-  ];
-  const posDepositsFroReport = [
-    ...pendingAndInProgressDeposits,
-    ...matchedDeposits,
-    ...matchedDepositsFromAnotherDay,
-    ...depositExceptions,
-  ];
+    await paymentService.findPaymentsByPosDeposits(matchedDeposits);
+
+  const matchedPayments = Array.from(
+    new Set([...matchedPaymentsOnReportDate, ...matchedPaymentsFromAnotherDay])
+  );
 
   return {
-    posPayments: posPaymentsForReport,
-    posDeposits: posDepositsFroReport,
+    posPayments: [
+      ...pendingAndInProgressPayments,
+      ...matchedPayments,
+      ...paymentExceptions,
+    ],
+    posDeposits: [
+      ...pendingAndInProgressDeposits,
+      ...matchedDeposits,
+      ...depositExceptions,
+    ],
   };
 };
 /**
@@ -281,8 +260,6 @@ const getPageThreeDeposits = async (
     minDate: format(minDate, 'yyyy-MM-dd'),
     maxDate: format(maxDate, 'yyyy-MM-dd'),
   };
-  console.log(dateRange, 'CAS DATE RANGE');
-
   const cashDepositsResults: CashDepositEntity[] =
     await cashDepositService.findCashDepositsForReport(
       locations.map((itm) => itm.pt_location_id),
