@@ -466,11 +466,13 @@ describe('PosReconciliationService', () => {
       expect(
         reaggregatedPayemnts
           .map(
-            (payment) =>
+            (aggregatedPayment) =>
               reaggregatedDeposits.find(
-                (deposit) =>
-                  deposit.transaction_amt === payment.amount &&
-                  deposit.payment_method === payment.payment_method
+                (aggregatedDeposit) =>
+                  aggregatedDeposit.transaction_amt ===
+                    aggregatedPayment.amount &&
+                  aggregatedDeposit.payment_method ===
+                    aggregatedPayment.payment_method
               ) && true
           )
           .every((itm) => itm === true)
