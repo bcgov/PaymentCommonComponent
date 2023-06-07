@@ -29,7 +29,7 @@ export class CasReport extends CasLocationReport {
     location: NormalizedLocation;
   }) {
     super(data.location);
-    Object.assign(this, data);
     this.card_vendor = data?.payment_method as string;
+    Object.assign(this, data);
   }
 }
