@@ -241,13 +241,16 @@ export class PosReconciliationService {
           depositsWithAmount[`${dateToFind}-${paymentMethod}`];
         if (!deposits?.length) {
           // For round three, a deposit can be one business day apart from the payment
+          // Could be the day before, or the day after, so we search those days for the amount
           if (posHeuristicRound === PosHeuristicRound.THREE) {
-            const dayBeforeDateToFind = subtractBusinessDaysNoTimezone(
-              dateToFind,
-              1
-            );
-            deposits =
-              depositsWithAmount[`${dayBeforeDateToFind}-${paymentMethod}`];
+            if (!deposits?.length) {
+              const dayBeforeDateToFind = subtractBusinessDaysNoTimezone(
+                dateToFind,
+                1
+              );
+              deposits =
+                depositsWithAmount[`${dayBeforeDateToFind}-${paymentMethod}`];
+            }
           }
         }
         if (deposits?.length) {
