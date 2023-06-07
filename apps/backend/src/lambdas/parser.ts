@@ -21,6 +21,8 @@ import { TransactionService } from '../transaction/transaction.service';
 import axios from 'axios';
 import FormData from 'form-data';
 import { Readable } from 'stream';
+import { ParseService } from '../parse/parse.service';
+import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
 
 export interface ParseEvent {
   eventType: string;
@@ -31,6 +33,7 @@ export interface ParseEvent {
 export const handler = async (event?: unknown, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
+  const parseService = app.get(ParseService);
   const transactionService = app.get(TransactionService);
   const paymentMethodService = app.get(PaymentMethodService);
   const s3 = app.get(S3ManagerService);
@@ -72,12 +75,42 @@ export const handler = async (event?: unknown, _context?: Context) => {
         (filename) => !filename?.includes('LABOUR')
       );
 
+      if (finalParseList.length) {
+        axios.request({
+          method: 'post',
+          maxBodyLength: 100000,
+          url: 'http://localhost:3000/api/v1/parse/daily-upload',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: {
+            date: new Date(),
+          },
+        });
+      }
+
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         appLogger.log(`Parsing ${filename}..`);
         const event = { eventType: 'all', filename: filename };
         await processEvent(event);
       }
+
+      if (finalParseList.length) {
+        axios.request({
+          method: 'post',
+          maxBodyLength: 100000,
+          url: 'http://localhost:3000/api/v1/parse/daily-upload/alert',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          data: {
+            date: new Date(),
+          },
+        });
+      }
+
+      // call controller for emailing
     } catch (err) {
       appLogger.error(err);
     }
@@ -106,23 +139,50 @@ export const handler = async (event?: unknown, _context?: Context) => {
         filename
       );
 
+      let currentRule: FileIngestionRulesEntity | null = null;
+
+      const rules = await parseService.getAllRules();
+      const ministry = (() => {
+        for (const rule of rules) {
+          if (filename.includes(rule.program)) {
+            currentRule = rule;
+            return rule.program;
+          }
+          throw new Error(
+            'File does not reference to any ministries: ' + filename
+          );
+        }
+      })();
+
+      if (!currentRule) {
+        throw new Error('No rule associated');
+      }
+
       const fileType = (() => {
-        if (filename.includes(FileNames.TDI17)) return FileTypes.TDI17;
-        if (filename.includes(FileNames.TDI34)) return FileTypes.TDI34;
-        if (filename.includes(FileNames.SBC_SALES)) return FileTypes.SBC_SALES;
+        if (
+          currentRule.cashChequesFilename &&
+          filename.includes(currentRule.cashChequesFilename)
+        ) {
+          return FileTypes.TDI17;
+        }
+        if (
+          currentRule.cardsFilename &&
+          filename.includes(currentRule.cardsFilename)
+        ) {
+          return FileTypes.TDI34;
+        }
+        if (
+          currentRule.transactionsFilename &&
+          filename.includes(currentRule.transactionsFilename)
+        ) {
+          return FileTypes.SBC_SALES;
+        }
         throw new Error('Unknown file type: ' + filename);
       })();
 
-      const ministry = (() => {
-        if (filename.includes(Ministries.LABOUR)) return Ministries.LABOUR;
-        if (filename.includes(Ministries.SBC)) return Ministries.SBC;
-        throw new Error(
-          'File does not reference to any ministries: ' + filename
-        );
-      })();
-
       appLogger.log('Call endpoint to upload file...', filename);
-      if (file) {
+      // if (fileType === FileTypes.SBC_SALES) {
+      if (0) {
         const formData = new FormData();
         formData.append('file', Readable.from(file), filename);
         formData.append('fileName', filename);

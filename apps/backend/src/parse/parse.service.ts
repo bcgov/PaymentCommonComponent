@@ -14,13 +14,25 @@ import { validate, validateOrReject } from 'class-validator';
 import { TDI17Details, TDI34Details } from '../flat-files';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { FileUploadedEntity } from './entities/file-uploaded.entity';
+import { Repository } from 'typeorm';
+import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
+import { format } from 'date-fns';
+import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 
 @Injectable()
 export class ParseService {
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(PaymentMethodService)
-    private readonly paymentMethodService: PaymentMethodService
+    private readonly paymentMethodService: PaymentMethodService,
+    @InjectRepository(FileUploadedEntity)
+    private uploadedRepo: Repository<FileUploadedEntity>,
+    @InjectRepository(FileIngestionRulesEntity)
+    private ingestionRulesRepo: Repository<FileIngestionRulesEntity>,
+    @InjectRepository(ProgramDailyUploadEntity)
+    private programDailyRepo: Repository<ProgramDailyUploadEntity>
   ) {}
 
   async readAndParseFile({
@@ -50,11 +62,12 @@ export class ParseService {
     const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
     const list = new GarmsTransactionList(garmsSalesDTO);
     try {
-      // BUG??
+      this.appLogger.log(list);
       await validateOrReject(list);
     } catch (e: any) {
       this.appLogger.error('ERROR');
       console.log(e[0]);
+      // We can use error.children.value
       throw new Error('errrorr');
     }
     return garmsSales;
@@ -100,5 +113,71 @@ export class ParseService {
       (details) => new POSDepositEntity(details)
     );
     return posEntities;
+  }
+
+  async getFileUploadedForDate(date: Date): Promise<FileUploadedEntity | null> {
+    return null;
+    // return this.uploadedRepo.findOne({
+    //   where: {
+    //     dataDate: date,
+    //   },
+    // });
+    /*await this.uploadedRepo.createQueryBuilder('fileUploaded')
+      .andWhere('dataDate = :today', { today: format(date, 'yyyy-MM-dd') })
+      .getOne();*/
+  }
+
+  async saveFileUploaded(
+    fileUploaded: Partial<FileUploadedEntity>
+  ): Promise<FileUploadedEntity> {
+    return this.uploadedRepo.save(fileUploaded);
+  }
+
+  async getAllRules(): Promise<FileIngestionRulesEntity[]> {
+    return this.ingestionRulesRepo.find();
+  }
+
+  async getRulesForProgram(program: string): Promise<FileIngestionRulesEntity> {
+    return this.ingestionRulesRepo.findOneOrFail({
+      where: {
+        program,
+      },
+    });
+  }
+
+  async getDailyForRule(
+    rules: FileIngestionRulesEntity,
+    date: Date
+  ): Promise<ProgramDailyUploadEntity | null> {
+    return this.programDailyRepo.findOne({
+      relations: ['rule', 'files'],
+      where: {
+        dataDate: date,
+        rule: {
+          id: rules.id,
+        },
+      },
+    });
+  }
+
+  async createNewDaily(rules: FileIngestionRulesEntity, date: Date) {
+    try {
+      const newDaily: Partial<ProgramDailyUploadEntity> = {
+        dataDate: date,
+        success: false,
+        retries: 0,
+        rule: rules,
+      };
+      const daily = this.programDailyRepo.create(newDaily);
+      return this.saveDaily(daily);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async saveDaily(
+    daily: ProgramDailyUploadEntity
+  ): Promise<ProgramDailyUploadEntity> {
+    return this.programDailyRepo.save(daily);
   }
 }

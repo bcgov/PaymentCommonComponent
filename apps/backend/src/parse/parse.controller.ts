@@ -14,6 +14,10 @@ import { ParseService } from './parse.service';
 import { FileTypes } from '../constants';
 import { AppLogger } from '../logger/logger.service';
 import { TransactionEntity } from '../transaction/entities';
+import { FileUploadedEntity } from './entities/file-uploaded.entity';
+import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
+import { DailyAlertRO } from './ro/daily-alert.ro';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Controller('parse')
 @ApiTags('Parser API')
@@ -22,6 +26,8 @@ export class ParseController {
   constructor(
     @Inject(ParseService)
     private readonly parseService: ParseService,
+    @Inject(TransactionService)
+    private readonly transactionService: TransactionService,
     @Inject(Logger) private readonly appLogger: AppLogger
   ) {}
 
@@ -98,40 +104,147 @@ export class ParseController {
     const { fileName, fileType, program } = body;
     this.appLogger.log(`PARSE PARSE PARSE ${fileName} - ${fileType}`);
     const contents = file.buffer.toString();
-    if (fileType === FileTypes.SBC_SALES) {
-      this.appLogger.log('Parse and store SBC Sales in DB...', fileName);
-      // Parse and validate rows from Garms
-      const garmsSales: TransactionEntity[] =
-        await this.parseService.parseGarmsFile(contents, fileName);
-      this.appLogger.log(`txn count: ${garmsSales.length}`);
-      // await this.transactionService.saveTransactions(garmsSales);
+
+    const rules = await this.parseService.getRulesForProgram(program);
+    console.log(rules);
+    if (!rules) {
+      // THROW ERROR
     }
 
-    if (fileType === FileTypes.TDI17) {
-      this.appLogger.log('Parse and store TDI17 in DB...', fileName);
-      const cashDeposits = await this.parseService.parseTDICashFile(
-        fileType,
-        fileName,
-        program,
-        file.buffer
-      );
-      // save
-      // await cashService.saveCashDepositEntities(cashDeposits);
-    }
+    try {
+      if (fileType === FileTypes.SBC_SALES) {
+        this.appLogger.log('Parse and store SBC Sales in DB...', fileName);
+        // Parse and validate rows from Garms
+        const garmsSales: TransactionEntity[] =
+          await this.parseService.parseGarmsFile(contents, fileName);
+        const fileToSave = await this.parseService.saveFileUploaded({
+          source_file_type: fileType,
+          source_file_name: fileName,
+          source_file_length: file.buffer.length,
+        });
+        this.appLogger.log(`txn count: ${garmsSales.length}`);
+        await this.transactionService.saveTransactions(
+          garmsSales.map((sale) => ({
+            ...sale,
+            fileUploadedEntity: fileToSave,
+          }))
+        );
+      }
 
-    if (fileType === FileTypes.TDI34) {
-      this.appLogger.log('Parse and store TDI34 in DB...', fileName);
-      const posEntities = await this.parseService.parseTDICardsFile(
-        fileType,
-        fileName,
-        program,
-        file.buffer
-      );
-      // save
-      // await posService.savePOSDepositEntities(posEntities);
+      if (fileType === FileTypes.TDI17) {
+        this.appLogger.log('Parse and store TDI17 in DB...', fileName);
+        const cashDeposits = await this.parseService.parseTDICashFile(
+          fileType,
+          fileName,
+          program,
+          file.buffer
+        );
+        // save
+        // await cashService.saveCashDepositEntities(cashDeposits);
+      }
+
+      if (fileType === FileTypes.TDI34) {
+        this.appLogger.log('Parse and store TDI34 in DB...', fileName);
+        const posEntities = await this.parseService.parseTDICardsFile(
+          fileType,
+          fileName,
+          program,
+          file.buffer
+        );
+        // save
+        // await posService.savePOSDepositEntities(posEntities);
+      }
+    } catch (err: any) {
+      // Throw
+      console.log('error', err);
     }
   }
-  catch(err: any) {
-    this.appLogger.error(err);
+
+  // Commence daily upload for each program area we have
+  @Post('daily-upload')
+  async commenceDailyUpload(@Body() body: { date: Date }): Promise<void> {
+    const rules = await this.parseService.getAllRules();
+    for (const rule of rules) {
+      const daily = await this.parseService.getDailyForRule(rule, body.date);
+      if (!daily) {
+        await this.parseService.createNewDaily(rule, body.date);
+      }
+    }
+    return;
+  }
+
+  @Post('daily-upload/alert')
+  async dailyUploadAlert(@Body() body: { date: Date }): Promise<DailyAlertRO> {
+    const rules = await this.parseService.getAllRules();
+    const dailyAlertPrograms = [];
+    for (const rule of rules) {
+      const daily = await this.parseService.getDailyForRule(rule, body.date);
+      if (!daily) {
+        // THROW
+        return { dailyAlertPrograms: [], date: body.date };
+      }
+      if (daily.success) {
+        // All good
+        dailyAlertPrograms.push({
+          program: rule.program,
+          success: true,
+          alerted: false,
+        });
+        continue;
+      }
+      const { cashChequesFilename, cardsFilename, transactionsFilename } = rule;
+      const files = daily.files;
+      // For each required file type, check if the file exists
+      let hasTdi17 = false,
+        hasTdi34 = false,
+        hasTransactionFile = false;
+      let success = true;
+      if (cashChequesFilename) {
+        hasTdi17 =
+          files?.some((file) => file.source_file_type === FileTypes.TDI17) ||
+          false;
+      }
+      if (cardsFilename) {
+        hasTdi34 =
+          files?.some((file) => file.source_file_type === FileTypes.TDI34) ||
+          false;
+      }
+      if (transactionsFilename) {
+        hasTransactionFile =
+          files?.some(
+            (file) => file.source_file_type === FileTypes.SBC_SALES
+          ) || false;
+      }
+      if (!hasTdi17 || !cardsFilename || !hasTransactionFile) {
+        success = false;
+      }
+      if (success === true) {
+        await this.parseService.saveDaily({
+          ...daily,
+          success: true,
+        });
+        dailyAlertPrograms.push({
+          program: rule.program,
+          success: true,
+          alerted: false,
+        });
+      } else {
+        let alerted = false;
+        if (daily.retries >= rule.retries) {
+          // Send alert
+          alerted = true;
+        }
+        await this.parseService.saveDaily({
+          ...daily,
+          retries: daily.retries + 1,
+        });
+        dailyAlertPrograms.push({
+          program: rule.program,
+          success: true,
+          alerted,
+        });
+      }
+    }
+    return { dailyAlertPrograms, date: body.date };
   }
 }

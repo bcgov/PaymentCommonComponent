@@ -1,4 +1,13 @@
-import { Relation, OneToMany, Entity, Column, PrimaryColumn } from 'typeorm';
+import {
+  Relation,
+  OneToMany,
+  ManyToOne,
+  JoinColumn,
+  Entity,
+  Column,
+  PrimaryColumn,
+} from 'typeorm';
+import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
 
@@ -46,6 +55,10 @@ export class TransactionEntity {
     cascade: true,
   })
   payments: Relation<PaymentEntity[]>;
+
+  @ManyToOne(() => FileUploadedEntity, { nullable: true })
+  @JoinColumn({ name: 'file_uploaded' })
+  fileUploadedEntity?: FileUploadedEntity;
 
   constructor(transaction?: Partial<TransactionEntity>) {
     Object.assign(this, transaction);
