@@ -14,7 +14,7 @@ import {
   NormalizedLocation,
 } from '../../src/constants';
 import { PaymentMethodClassification } from '../../src/constants';
-import { AggregatedPayment } from '../../src/reconciliation/types';
+import { AggregatedCashPayment } from '../../src/reconciliation/types';
 import { PaymentEntity } from '../../src/transaction/entities';
 
 export class MockData {
@@ -44,13 +44,13 @@ export class MockData {
   generateCashDeposits(payments: PaymentEntity[]): CashDepositMock[] {
     const aggregatedPayments = aggregatePayments(payments);
     const cashDeposits: CashDepositMock[] = [];
-    aggregatedPayments.forEach((payment: AggregatedPayment) => {
+    aggregatedPayments.forEach((payment: AggregatedCashPayment) => {
       cashDeposits.push(
         new CashDepositMock(
           this.dateRange,
           this.location,
           generateMetadataMock(FileTypes.TDI17),
-          payment.amount,
+          payment.amount.toNumber(),
           this.status
         )
       );

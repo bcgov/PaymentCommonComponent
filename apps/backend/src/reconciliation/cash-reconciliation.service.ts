@@ -1,5 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
-import { ReconciliationType, AggregatedPayment } from './types';
+import Decimal from 'decimal.js';
+import { ReconciliationType, AggregatedCashPayment } from './types';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
@@ -36,7 +37,7 @@ export class CashReconciliationService {
   }
 
   public checkStatus(
-    payment: AggregatedPayment,
+    payment: AggregatedCashPayment,
     deposit: CashDepositEntity
   ): boolean {
     if (
@@ -48,60 +49,65 @@ export class CashReconciliationService {
     return false;
   }
 
-  public checkPaymentCashMatch(payment: AggregatedPayment): boolean {
+  public checkPaymentCashMatch(payment: AggregatedCashPayment): boolean {
     return payment.payments.every(
-      ({ cash_deposit_match }) => cash_deposit_match === undefined
+      (p: PaymentEntity) => p.cash_deposit_match === undefined
     );
   }
 
-  public checkAggregatedPaymentAmountToCashDepositAmount(
-    payment: AggregatedPayment,
+  public checkAggregatedCashPaymentAmountToCashDepositAmount(
+    payment: AggregatedCashPayment,
     deposit: CashDepositEntity
   ) {
-    return Math.abs(deposit.deposit_amt_cdn - payment.amount) < 0.001;
+    return (
+      Math.abs(
+        new Decimal(deposit.deposit_amt_cdn).toNumber() -
+          new Decimal(payment.amount).toNumber()
+      ) < 0.001
+    );
   }
 
   public checkMatch(
-    payment: AggregatedPayment,
+    payment: AggregatedCashPayment,
     deposit: CashDepositEntity
   ): boolean {
     return (
       this.checkStatus(payment, deposit) &&
       this.checkPaymentCashMatch(payment) &&
-      this.checkAggregatedPaymentAmountToCashDepositAmount(payment, deposit)
+      this.checkAggregatedCashPaymentAmountToCashDepositAmount(payment, deposit)
     );
   }
 
   /**
    *
-   * @param aggregatedPayments
+   * @param aggregatedCashPayments
    * @param deposits
    * @returns
    */
 
   public matchPaymentsToDeposits(
-    aggregatedPayments: AggregatedPayment[],
+    aggregatedCashPayments: AggregatedCashPayment[],
     deposits: CashDepositEntity[]
   ): {
-    aggregatedPayment: AggregatedPayment;
+    aggregatedCashPayment: AggregatedCashPayment;
     deposit: CashDepositEntity;
   }[] {
     const matches: {
-      aggregatedPayment: AggregatedPayment;
+      aggregatedCashPayment: AggregatedCashPayment;
       deposit: CashDepositEntity;
     }[] = [];
 
     for (const [dindex, deposit] of deposits.entries()) {
-      for (const [pindex, payment] of aggregatedPayments.entries()) {
+      for (const [pindex, payment] of aggregatedCashPayments.entries()) {
         if (this.checkMatch(payment, deposit)) {
           this.appLogger.log(
             `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
             CashReconciliationService.name
           );
-          aggregatedPayments[pindex].status = MatchStatus.MATCH;
+          aggregatedCashPayments[pindex].status = MatchStatus.MATCH;
           deposits[dindex].status = MatchStatus.MATCH;
           matches.push({
-            aggregatedPayment: {
+            aggregatedCashPayment: {
               ...payment,
               status: MatchStatus.MATCH,
               payments: payment.payments.map((itm) => ({
@@ -139,12 +145,12 @@ export class CashReconciliationService {
         [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
       );
 
-    const aggregatedPayments: AggregatedPayment[] =
-      await this.paymentService.getAggregatedPaymentsByCashDepositDates(
+    const aggregatedCashPayments: AggregatedCashPayment[] =
+      await this.paymentService.getAggregatedCashPaymentsByCashDepositDates(
         dateRange,
         location.location_id
       );
-    if (pendingDeposits.length === 0 && aggregatedPayments.length === 0) {
+    if (pendingDeposits.length === 0 && aggregatedCashPayments.length === 0) {
       this.appLogger.log(
         'No pending payments / deposits found',
         CashReconciliationService.name
@@ -153,7 +159,7 @@ export class CashReconciliationService {
     }
 
     this.appLogger.log(
-      `${aggregatedPayments.length} aggregated payments pending reconciliation`,
+      `${aggregatedCashPayments.length} aggregated payments pending reconciliation`,
       CashReconciliationService.name
     );
     this.appLogger.log(
@@ -162,7 +168,7 @@ export class CashReconciliationService {
     );
 
     const matches = this.matchPaymentsToDeposits(
-      aggregatedPayments.filter((itm) =>
+      aggregatedCashPayments.filter((itm) =>
         [MatchStatus.PENDING, MatchStatus.IN_PROGRESS].includes(itm.status)
       ),
       pendingDeposits.filter((itm) =>
@@ -171,7 +177,7 @@ export class CashReconciliationService {
     );
 
     const matchedPayments: PaymentEntity[] = matches
-      .map((itm) => itm.aggregatedPayment)
+      .map((itm) => itm.aggregatedCashPayment)
       .flatMap((itm) => itm.payments);
 
     const matchedDeposits: CashDepositEntity[] = matches.map(
@@ -187,12 +193,12 @@ export class CashReconciliationService {
       CashReconciliationService.name
     );
 
-    const inProgressPayments: PaymentEntity[] = aggregatedPayments
+    const inProgressPayments: PaymentEntity[] = aggregatedCashPayments
       .filter(
-        (aggPayment: AggregatedPayment) =>
+        (aggPayment: AggregatedCashPayment) =>
           aggPayment.status !== MatchStatus.MATCH
       )
-      .flatMap((itm: AggregatedPayment) =>
+      .flatMap((itm: AggregatedCashPayment) =>
         itm.payments.map((itm: PaymentEntity) => ({
           ...itm,
           timestamp: itm.timestamp,
@@ -226,20 +232,20 @@ export class CashReconciliationService {
       ...matchedDeposits,
       ...inProgressDeposits,
     ]);
-    const updatedAggregatedPayments =
+    const updatedAggregatedCashPayments =
       this.paymentService.aggregatePayments(updatePayments);
 
     return {
       dateRange,
       type: ReconciliationType.CASH,
       location_id: location.location_id,
-      pendingPayments: aggregatedPayments.length,
+      pendingPayments: aggregatedCashPayments.length,
       pendingDeposits: pendingDeposits.length,
       paymentsMatched: matchedPayments.length,
       paymentsInProgress: inProgressPayments.length,
       depositsMatched: matchedDeposits.length,
       depositsInProgress: inProgressDeposits.length,
-      totalUpdatedPayments: updatedAggregatedPayments.length,
+      totalUpdatedPayments: updatedAggregatedCashPayments.length,
       totalUpdatedDeposits: updateDeposits.length,
     };
   }

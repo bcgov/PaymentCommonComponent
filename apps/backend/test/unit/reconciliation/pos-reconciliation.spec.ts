@@ -13,7 +13,11 @@ import { PosDepositService } from './../../../src/deposits/pos-deposit.service';
 import { PosReconciliationService } from './../../../src/reconciliation/pos-reconciliation.service';
 import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
 import { MatchStatus } from '../../../src/common/const';
-import { PaymentMethodClassification } from '../../../src/constants';
+import {
+  AggregatedDeposit,
+  AggregatedPosPayment,
+  PaymentMethodClassification,
+} from '../../../src/constants';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { PosHeuristicRound } from '../../../src/reconciliation/types';
 import { PaymentService } from '../../../src/transaction/payment.service';
@@ -457,26 +461,31 @@ describe('PosReconciliationService', () => {
     });
 
     it('should match based on date, aggregated amount, method ', () => {
-      const reaggregatedPayemnts = service.aggregatePayments(
+      const reaggregatedPayments = service.aggregatePayments(
         roundFourPaymentMatches
       );
       const reaggregatedDeposits = service.aggregateDeposits(
         roundFourDepositMatches
       );
+      console.log(
+        'PAYMENTS: ',
+        reaggregatedPayments,
+        'DEPOSITS: ',
+        reaggregatedDeposits
+      );
       expect(
-        reaggregatedPayemnts
-          .map(
-            (aggregatedPayment) =>
-              reaggregatedDeposits.find(
-                (aggregatedDeposit) =>
-                  aggregatedDeposit.transaction_amt ===
-                    aggregatedPayment.amount &&
-                  aggregatedDeposit.payment_method ===
-                    aggregatedPayment.payment_method
-              ) && true
-          )
-          .every((itm) => itm === true)
-      ).toBe(true);
+        reaggregatedPayments.map((aggregatedPayment: AggregatedPosPayment) => ({
+          amount: aggregatedPayment.amount,
+          payment_method: aggregatedPayment.payment_method,
+        }))
+      ).toEqual(
+        expect.arrayContaining(
+          reaggregatedDeposits.map((aggregatedDeposit: AggregatedDeposit) => ({
+            amount: aggregatedDeposit.transaction_amt,
+            payment_method: aggregatedDeposit.payment_method,
+          }))
+        )
+      );
     });
     it('should match many to many', () => {
       const matchedDepositIds = roundFourDepositMatches.map((itm) => itm.id);

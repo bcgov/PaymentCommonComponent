@@ -1,12 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Decimal from 'decimal.js';
 import { Raw, In, Repository, LessThanOrEqual, LessThan } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { AppLogger } from '../logger/logger.service';
-import { AggregatedPayment } from '../reconciliation/types/interface';
+import { AggregatedCashPayment } from '../reconciliation/types/interface';
 
 @Injectable()
 export class PaymentService {
@@ -86,30 +87,36 @@ export class PaymentService {
       },
     });
   }
-  public aggregatePayments(payments: PaymentEntity[]): AggregatedPayment[] {
+  
+  public aggregatePayments(payments: PaymentEntity[]): AggregatedCashPayment[] {
     const groupedPayments = payments.reduce(
-      /*eslint-disable */
-      (acc: any, payment: PaymentEntity) => {
+      (
+        acc: { [key: string]: AggregatedCashPayment },
+        payment: PaymentEntity
+      ) => {
         const key = `${payment.transaction.fiscal_close_date}${payment.status}`;
         if (!acc[key]) {
           acc[key] = {
             status: payment.status,
             classification: payment.payment_method.classification,
             fiscal_close_date: payment.transaction.fiscal_close_date,
-            amount: 0,
+            amount: new Decimal(0),
             payments: [],
+            location_id: payment.transaction.location_id,
+            cash_deposit_match: undefined,
           };
         }
-        //TODO  I think we need to set the db precision to 2 decimal places to avoid this extra formatting??
-        acc[key].amount += parseFloat(payment.amount.toFixed(2));
+
+        acc[key].amount = acc[key].amount.plus(payment.amount);
         acc[key].payments.push(payment);
         return acc;
       },
       {}
     );
-    const aggPayments: AggregatedPayment[] = Object.values(groupedPayments);
+    const aggPayments: AggregatedCashPayment[] = Object.values(groupedPayments);
     return aggPayments.sort(
-      (a: AggregatedPayment, b: AggregatedPayment) => a.amount - b.amount
+      (a: AggregatedCashPayment, b: AggregatedCashPayment) =>
+        a.amount.minus(b.amount).toNumber()
     );
   }
 
@@ -176,10 +183,10 @@ export class PaymentService {
     return payments;
   }
 
-  async getAggregatedPaymentsByCashDepositDates(
+  async getAggregatedCashPaymentsByCashDepositDates(
     dateRange: DateRange,
     location_id: number
-  ): Promise<AggregatedPayment[]> {
+  ): Promise<AggregatedCashPayment[]> {
     const status = [MatchStatus.PENDING, MatchStatus.IN_PROGRESS];
 
     return this.aggregatePayments(

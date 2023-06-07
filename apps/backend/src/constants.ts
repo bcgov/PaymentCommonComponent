@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { MatchStatus } from './common/const';
 import { POSDepositEntity } from './deposits/entities/pos-deposit.entity';
 import { PosHeuristicRound } from './reconciliation/types';
@@ -42,7 +43,7 @@ export enum PaymentMethodClassification {
 }
 
 export interface AggregatedDeposit {
-  transaction_amt: number;
+  transaction_amt: Decimal;
   transaction_date: string;
   status: MatchStatus;
   heuristic_match_round?: PosHeuristicRound;
@@ -54,7 +55,7 @@ export interface AggregatedPosPayment {
   transaction: {
     transaction_date: string;
   };
-  amount: number;
+  amount: Decimal;
   status: MatchStatus;
   heuristic_match_round?: PosHeuristicRound;
   round_four_matches: POSDepositEntity[];

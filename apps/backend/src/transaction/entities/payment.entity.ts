@@ -13,7 +13,6 @@ import {
 import { PaymentMethodEntity } from './payment-method.entity';
 import { TransactionEntity } from './transaction.entity';
 import { MatchStatus } from '../../common/const';
-import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 import { PosHeuristicRound } from '../../reconciliation/types';
@@ -31,7 +30,6 @@ export class PaymentEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer(),
   })
   amount: number;
 
@@ -51,7 +49,6 @@ export class PaymentEntity {
     precision: 16,
     scale: 4,
     nullable: true,
-    transformer: new ColumnNumericTransformer(),
   })
   exchange_rate?: number;
 

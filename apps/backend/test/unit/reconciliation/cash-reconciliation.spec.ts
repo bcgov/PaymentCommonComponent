@@ -10,14 +10,14 @@ import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
 import { AppLogger } from '../../../src/logger/logger.service';
 import { CashReconciliationService } from '../../../src/reconciliation/cash-reconciliation.service';
-import { AggregatedPayment } from '../../../src/reconciliation/types';
+import { AggregatedCashPayment } from '../../../src/reconciliation/types';
 import { PaymentEntity } from '../../../src/transaction/entities/payment.entity';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { MockData } from '../../mocks/mocks';
 
 describe('CashReconciliationService', () => {
   let service: CashReconciliationService;
-  let aggregatedPayments: AggregatedPayment[];
+  let aggregatedCashPayments: AggregatedCashPayment[];
   let deposits: CashDepositEntity[];
 
   beforeEach(async () => {
@@ -51,30 +51,30 @@ describe('CashReconciliationService', () => {
 
     service = module.get<CashReconciliationService>(CashReconciliationService);
     const data = new MockData(PaymentMethodClassification.CASH);
-    aggregatedPayments = aggregatePayments(data.paymentsMock);
+    aggregatedCashPayments = aggregatePayments(data.paymentsMock);
     deposits = data.depositsMock as CashDepositEntity[];
   });
 
   describe('initialization', () => {
     it('should create the service and its dependencies', () => {
       expect(service).toBeDefined();
-      expect(aggregatedPayments.length).toBeGreaterThan(0);
+      expect(aggregatedCashPayments.length).toBeGreaterThan(0);
       expect(deposits.length).toBeGreaterThan(0);
     });
   });
 
   describe('checkMatch', () => {
     it('calls matchPaymentsToDeposits', () => {
-      expect(aggregatedPayments.length).toEqual(deposits.length);
+      expect(aggregatedCashPayments.length).toEqual(deposits.length);
       expect(
-        aggregatedPayments.every((itm) =>
+        aggregatedCashPayments.every((itm) =>
           itm.payments.map(
             (p) => p.payment_method.method === PaymentMethodClassification.CASH
           )
         )
       ).toBe(true);
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
       expect(matches.length).toBeGreaterThan(0);
@@ -82,16 +82,16 @@ describe('CashReconciliationService', () => {
   });
   describe('matchPaymentsToDeposits', () => {
     it('calls matchPaymentsToDeposits', () => {
-      expect(aggregatedPayments.length).toEqual(deposits.length);
+      expect(aggregatedCashPayments.length).toEqual(deposits.length);
       expect(
-        aggregatedPayments.every((itm) =>
+        aggregatedCashPayments.every((itm) =>
           itm.payments.map(
             (p) => p.payment_method.method === PaymentMethodClassification.CASH
           )
         )
       ).toBe(true);
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
       expect(matches.length).toBeGreaterThan(0);
@@ -99,10 +99,10 @@ describe('CashReconciliationService', () => {
 
     it('should match payments to deposits', () => {
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
-      const paymentMatches = matches.map((itm) => itm.aggregatedPayment);
+      const paymentMatches = matches.map((itm) => itm.aggregatedCashPayment);
       const depositMatches = matches.map((itm) => itm.deposit);
       expect(
         paymentMatches.every((itm) => itm.status === MatchStatus.MATCH)
@@ -113,10 +113,10 @@ describe('CashReconciliationService', () => {
     });
     it('checks that there is one fiscal_close_date per cash_deposit date in the matches array', () => {
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
-      const paymentMatches = matches.map((itm) => itm.aggregatedPayment);
+      const paymentMatches = matches.map((itm) => itm.aggregatedCashPayment);
       const depositMatches = matches.map((itm) => itm.deposit);
       const matchedPaymentsDates = paymentMatches.flatMap((itm) =>
         itm.payments.map((p) => p.transaction.fiscal_close_date)
@@ -126,7 +126,7 @@ describe('CashReconciliationService', () => {
     });
     it('checks that all cash deposits marked match have a cash_deposit_match_id in the matches payments array', () => {
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
 
@@ -138,10 +138,10 @@ describe('CashReconciliationService', () => {
 
     it('checks that all cash_deposit_match is set to deposit id', async () => {
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
-      const paymentMatches = matches.map((itm) => itm.aggregatedPayment);
+      const paymentMatches = matches.map((itm) => itm.aggregatedCashPayment);
       const depositMatches = matches.map((itm) => itm.deposit);
       expect(
         paymentMatches
@@ -156,54 +156,57 @@ describe('CashReconciliationService', () => {
     });
     it('checks the amount matched', () => {
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
 
       expect(
         matches.every(
-          (itm) => itm.aggregatedPayment.amount === itm.deposit.deposit_amt_cdn
+          (itm) =>
+            itm.aggregatedCashPayment.amount.toNumber() ===
+            itm.deposit.deposit_amt_cdn
         )
       ).toBe(true);
     });
     it('checks the correct deposit id is set to each matched group of payments', () => {
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
       const depositMatches = matches.map((itm) => itm.deposit);
-      const aggregatedPaymentMatches = matches.map(
-        (itm) => itm.aggregatedPayment
+      const AggregatedCashPaymentMatches = matches.map(
+        (itm) => itm.aggregatedCashPayment
       );
 
       expect(
-        aggregatedPaymentMatches.flatMap((itm) =>
+        AggregatedCashPaymentMatches.flatMap((itm) =>
           itm.payments.map((p) => p.cash_deposit_match)
         )
       ).toEqual(expect.arrayContaining(depositMatches));
     });
     it('checks that deposits are matched only once', () => {
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
-      const aggregatedPaymentMatches = matches.map(
-        (itm) => itm.aggregatedPayment
+      const AggregatedCashPaymentMatches = matches.map(
+        (itm) => itm.aggregatedCashPayment
       );
       const depositMatches = matches.map((itm) => itm.deposit);
 
-      const depositMatchesFromPaymentArray = aggregatedPaymentMatches.flatMap(
-        (itm) => itm.payments.map((p) => p.cash_deposit_match)[0]
-      );
+      const depositMatchesFromPaymentArray =
+        AggregatedCashPaymentMatches.flatMap(
+          (itm) => itm.payments.map((p) => p.cash_deposit_match)[0]
+        );
 
       expect(depositMatchesFromPaymentArray).toEqual(
         expect.arrayContaining(depositMatches)
       );
     });
     it('should not have a cash_match_id set if it is not matched', () => {
-      service.matchPaymentsToDeposits(aggregatedPayments, deposits);
+      service.matchPaymentsToDeposits(aggregatedCashPayments, deposits);
 
-      const unmatchedPayments = aggregatedPayments
+      const unmatchedPayments = aggregatedCashPayments
         .filter((itm) => itm.status !== MatchStatus.MATCH)
         .flatMap((itm) => itm.payments.map((payment) => payment));
 
@@ -215,17 +218,17 @@ describe('CashReconciliationService', () => {
   describe('matchPaymentsToDeposits - verifies against false matches', () => {
     it('should not match any payments to deposits', () => {
       const data = new MockData(PaymentMethodClassification.CASH);
-      aggregatedPayments = aggregatePayments(data.paymentsMock);
+      aggregatedCashPayments = aggregatePayments(data.paymentsMock);
       const newData = new MockData(PaymentMethodClassification.CASH);
       deposits = newData.depositsMock as CashDepositEntity[];
 
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
       expect(matches.length).toBe(0);
 
-      const paymentMatches = matches.map((itm) => itm.aggregatedPayment);
+      const paymentMatches = matches.map((itm) => itm.aggregatedCashPayment);
       const depositMatches = matches.map((itm) => itm.deposit);
 
       expect(paymentMatches.length).toBe(0);
@@ -234,18 +237,18 @@ describe('CashReconciliationService', () => {
 
     it('should not change the status of unmatched items', () => {
       const data = new MockData(PaymentMethodClassification.CASH);
-      aggregatedPayments = aggregatePayments(data.paymentsMock);
+      aggregatedCashPayments = aggregatePayments(data.paymentsMock);
       const newData = new MockData(PaymentMethodClassification.CASH);
       deposits = newData.depositsMock as CashDepositEntity[];
 
       const matches = service.matchPaymentsToDeposits(
-        aggregatedPayments,
+        aggregatedCashPayments,
         deposits
       );
       expect(matches.length).toBe(0);
 
       expect(
-        aggregatedPayments
+        aggregatedCashPayments
           .flatMap((itm) => itm.payments)
           .forEach((itm) => itm.status === MatchStatus.PENDING)
       );

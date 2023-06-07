@@ -8,6 +8,7 @@ import {
   isSunday,
   parse,
 } from 'date-fns';
+import Decimal from 'decimal.js';
 import { Repository } from 'typeorm';
 import { CasReport } from './cas-report/cas-report';
 import {
@@ -201,7 +202,7 @@ export class ReportingService {
             location,
             payment_method,
             settlement_date,
-            amount: parseFloat(transaction_amt.toString()),
+            amount: transaction_amt,
           })
       );
 
@@ -376,8 +377,8 @@ export class ReportingService {
 
     /*eslint-disable */
     const totalSum = payments.reduce(
-      (acc: number, itm: PaymentEntity) => (acc += itm.amount),
-      0
+      (acc: Decimal, itm: PaymentEntity) => acc.plus(itm.amount),
+      new Decimal(0)
     );
 
     return {
@@ -389,7 +390,7 @@ export class ReportingService {
         total_payments: total,
         total_unmatched_payments: exceptions,
         percent_unmatched: unmatchedPercentage,
-        total_sum: parseFloat(totalSum.toFixed(2)),
+        total_sum: new Decimal(totalSum).toDecimalPlaces(2).toNumber(),
       },
       style: rowStyle(exceptions !== 0),
     };

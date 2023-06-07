@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { MatchStatus } from '../../common/const';
 import {
   DateRange,
@@ -39,13 +40,13 @@ export interface ReconciliationError {
   error: string;
 }
 
-export interface AggregatedPayment {
+export interface AggregatedCashPayment {
   status: MatchStatus;
   fiscal_close_date: string;
   location_id: number;
-  amount: number;
-  classification: PaymentMethodClassification.CASH;
-  cash_deposit_match: CashDepositEntity;
+  amount: Decimal;
+  classification: PaymentMethodClassification;
+  cash_deposit_match?: CashDepositEntity;
   payments: PaymentEntity[];
 }
 

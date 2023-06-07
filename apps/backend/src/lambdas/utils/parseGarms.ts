@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { parseFlatDateString } from '../../common/utils/format';
 import { Ministries } from '../../constants';
 import { TransactionEntity, PaymentEntity } from '../../transaction/entities';
@@ -112,10 +113,7 @@ const parseSBCGarmsPayments = (
       garmsPayment.currency !== 'CAD' ? garmsPayment.amount : undefined,
     amount:
       garmsPayment.currency !== 'CAD' && garmsPayment.exchange_rate
-        ? parseFloat(
-            (garmsPayment.amount * (garmsPayment.exchange_rate / 100)).toFixed(
-              2
-            )
-          )
-        : parseFloat(garmsPayment.amount?.toFixed(2)),
+        ? new Decimal(garmsPayment.amount).toNumber() *
+          (garmsPayment.exchange_rate / 100)
+        : garmsPayment.amount,
   });

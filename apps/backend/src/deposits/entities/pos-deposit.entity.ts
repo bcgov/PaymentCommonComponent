@@ -10,7 +10,6 @@ import {
 } from 'typeorm';
 import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
-import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
 import { PosHeuristicRound } from '../../reconciliation/types/const';
@@ -40,7 +39,6 @@ export class POSDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer(),
   })
   transaction_amt: number;
 

@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
 import { DateRange, NormalizedLocation } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
@@ -18,12 +19,13 @@ export class CashDepositDetailsReport extends DetailsReport {
     this.time = deposit.deposit_time ?? null;
     this.fiscal_date = deposit.deposit_date;
     this.payment_method = 'CASH/CHQ';
-    this.amount = deposit.deposit_amt_cdn;
+    this.amount = new Decimal(deposit.deposit_amt_cdn).toNumber();
     this.foreign_currency_amount =
       deposit.deposit_amt_curr !== deposit.deposit_amt_cdn
-        ? deposit.deposit_amt_curr
+        ? new Decimal(deposit.deposit_amt_curr).toNumber()
         : null;
     this.currency = deposit.currency ?? 'CAD';
-    this.exchange_rate = deposit.exchange_adj_amt ?? null;
+    this.exchange_rate =
+      new Decimal(deposit.exchange_adj_amt).toNumber() ?? null;
   }
 }

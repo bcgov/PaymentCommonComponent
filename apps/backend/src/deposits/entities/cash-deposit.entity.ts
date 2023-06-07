@@ -7,7 +7,6 @@ import {
 } from 'typeorm';
 import { FileMetadata } from '../../common/columns/metadata';
 import { MatchStatus } from '../../common/const';
-import { ColumnNumericTransformer } from '../../common/transformers/numericColumnTransformer';
 import { FileTypes } from '../../constants';
 import { TDI17Details } from '../../flat-files';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
@@ -45,7 +44,6 @@ export class CashDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer(),
   })
   deposit_amt_curr: number;
 
@@ -56,7 +54,6 @@ export class CashDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer(),
   })
   exchange_adj_amt: number;
 
@@ -64,7 +61,6 @@ export class CashDepositEntity {
     type: 'numeric',
     precision: 16,
     scale: 2,
-    transformer: new ColumnNumericTransformer(),
   })
   deposit_amt_cdn: number;
 
