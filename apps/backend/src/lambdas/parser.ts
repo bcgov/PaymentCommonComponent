@@ -192,8 +192,8 @@ export const handler = async (event?: unknown, _context?: Context) => {
           return FileTypes.TDI17;
         }
         if (
-          currentRule.cardsFilename &&
-          filename.includes(currentRule.cardsFilename)
+          currentRule.posFilename &&
+          filename.includes(currentRule.posFilename)
         ) {
           return FileTypes.TDI34;
         }

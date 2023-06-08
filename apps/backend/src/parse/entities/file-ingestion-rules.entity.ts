@@ -8,13 +8,13 @@ export class FileIngestionRulesEntity {
   @Column()
   program: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'cash_cheques_filename' })
   cashChequesFilename?: string; // TDI17
 
-  @Column({ nullable: true })
-  cardsFilename?: string; // TDI34
+  @Column({ nullable: true, name: 'pos_filename' })
+  posFilename?: string; // TDI34
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, name: 'transactions_filename' })
   transactionsFilename?: string;
 
   // Number of retries before we send an alert

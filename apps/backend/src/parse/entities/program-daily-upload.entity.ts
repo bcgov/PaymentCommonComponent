@@ -6,6 +6,7 @@ import {
   OneToMany,
   ManyToOne,
   JoinColumn,
+  Relation,
 } from 'typeorm';
 import { FileIngestionRulesEntity } from './file-ingestion-rules.entity';
 import { FileUploadedEntity } from './file-uploaded.entity';
@@ -18,8 +19,8 @@ export class ProgramDailyUploadEntity {
   @CreateDateColumn()
   created_at: Date;
 
-  @Column({ type: 'date' })
-  dataDate: string;
+  @Column({ type: 'date', name: 'daily_date' })
+  dailyDate: string;
 
   @Column()
   success: boolean;
@@ -30,11 +31,11 @@ export class ProgramDailyUploadEntity {
 
   @ManyToOne(() => FileIngestionRulesEntity)
   @JoinColumn()
-  rule: FileIngestionRulesEntity;
+  rule: Relation<FileIngestionRulesEntity>;
 
   @OneToMany(
     () => FileUploadedEntity,
-    (fileUploaded) => fileUploaded.programFiles
+    (fileUploaded) => fileUploaded.dailyUpload
   )
-  files: FileUploadedEntity[];
+  files: Relation<FileUploadedEntity[]>;
 }

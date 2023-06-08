@@ -21,6 +21,7 @@ import { AppLogger } from '../logger/logger.service';
 import { TransactionEntity } from '../transaction/entities';
 import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
+import { format } from 'date-fns';
 
 @Injectable()
 export class ParseService {
@@ -84,6 +85,7 @@ export class ParseService {
       fileName,
       paymentMethods
     );
+    // CLEAN UP HERE??
     const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
     const list = new GarmsTransactionList(garmsSalesDTO);
     try {
@@ -190,7 +192,7 @@ export class ParseService {
     return this.programDailyRepo.findOne({
       relations: ['rule', 'files'],
       where: {
-        dataDate: date,
+        dailyDate: format(date, 'yyyy-MM-dd'),
         rule: {
           id: rules.id,
         },
@@ -201,7 +203,7 @@ export class ParseService {
   async createNewDaily(rules: FileIngestionRulesEntity, date: Date) {
     try {
       const newDaily: Partial<ProgramDailyUploadEntity> = {
-        dataDate: date,
+        dailyDate: format(date, 'yyyy-MM-dd'),
         success: false,
         retries: 0,
         rule: rules,

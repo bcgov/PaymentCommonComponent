@@ -18,6 +18,10 @@ import { GarmsPaymentDTO } from './garms-payment.dto';
 import { TransactionEntity } from '../../transaction/entities/transaction.entity';
 import { Transaction } from '../../transaction/interface/transaction.interface';
 
+/**
+ * Original GARMS Transaction formatting
+ *
+ */
 export class GarmsTransactionDTO {
   @ApiProperty({
     description: 'Unique id representing the transaction in the source system',

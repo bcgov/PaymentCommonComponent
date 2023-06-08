@@ -130,10 +130,10 @@ export class ParseController {
         const garmsSales: TransactionEntity[] =
           await this.parseService.parseGarmsFile(contents, fileName);
         const fileToSave = await this.parseService.saveFileUploaded({
-          source_file_type: fileType,
-          source_file_name: fileName,
-          source_file_length: garmsSales.length,
-          programFiles: daily,
+          sourceFileType: fileType,
+          sourceFileName: fileName,
+          sourceFileLength: garmsSales.length,
+          dailyUpload: daily,
         });
         this.appLogger.log(`txn count: ${garmsSales.length}`);
         await this.transactionService.saveTransactions(
@@ -153,10 +153,10 @@ export class ParseController {
           file.buffer
         );
         const fileToSave = await this.parseService.saveFileUploaded({
-          source_file_type: fileType,
-          source_file_name: fileName,
-          source_file_length: cashDeposits.length,
-          programFiles: daily,
+          sourceFileType: fileType,
+          sourceFileName: fileName,
+          sourceFileLength: cashDeposits.length,
+          dailyUpload: daily,
         });
         await this.cashDepositService.saveCashDepositEntities(
           cashDeposits.map((deposit) => ({
@@ -175,10 +175,10 @@ export class ParseController {
           file.buffer
         );
         const fileToSave = await this.parseService.saveFileUploaded({
-          source_file_type: fileType,
-          source_file_name: fileName,
-          source_file_length: posEntities.length,
-          programFiles: daily,
+          sourceFileType: fileType,
+          sourceFileName: fileName,
+          sourceFileLength: posEntities.length,
+          dailyUpload: daily,
         });
         await this.posDepositService.savePOSDepositEntities(
           posEntities.map((deposit) => ({
@@ -228,7 +228,7 @@ export class ParseController {
         });
         continue;
       }
-      const { cashChequesFilename, cardsFilename, transactionsFilename } = rule;
+      const { cashChequesFilename, posFilename, transactionsFilename } = rule;
       const files = daily.files;
       // For each required file type, check if the file exists
       let hasTdi17 = false,
@@ -237,19 +237,18 @@ export class ParseController {
       let success = true;
       if (cashChequesFilename) {
         hasTdi17 =
-          files?.some((file) => file.source_file_type === FileTypes.TDI17) ||
+          files?.some((file) => file.sourceFileType === FileTypes.TDI17) ||
           false;
       }
-      if (cardsFilename) {
+      if (posFilename) {
         hasTdi34 =
-          files?.some((file) => file.source_file_type === FileTypes.TDI34) ||
+          files?.some((file) => file.sourceFileType === FileTypes.TDI34) ||
           false;
       }
       if (transactionsFilename) {
         hasTransactionFile =
-          files?.some(
-            (file) => file.source_file_type === FileTypes.SBC_SALES
-          ) || false;
+          files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES) ||
+          false;
       }
       if (!hasTdi17 || !hasTdi34 || !hasTransactionFile) {
         success = false;

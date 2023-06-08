@@ -5,6 +5,7 @@ import {
   Entity,
   ManyToOne,
   JoinColumn,
+  Relation,
 } from 'typeorm';
 import { ProgramDailyUploadEntity } from './program-daily-upload.entity';
 import { FileTypes } from '../../constants';
@@ -17,19 +18,23 @@ export class FileUploadedEntity {
   @CreateDateColumn()
   created_at: Date;
 
-  @Column({ enum: FileTypes, default: FileTypes.TDI17 })
-  source_file_type: FileTypes;
+  @Column({
+    enum: FileTypes,
+    default: FileTypes.TDI17,
+    name: 'source_file_type',
+  })
+  sourceFileType: FileTypes;
 
-  @Column()
-  source_file_name: string;
+  @Column({ name: 'source_file_name' })
+  sourceFileName: string;
 
-  @Column({ type: 'int4' })
-  source_file_length: number;
+  @Column({ type: 'int4', name: 'source_file_length' })
+  sourceFileLength: number;
 
   @ManyToOne(
     () => ProgramDailyUploadEntity,
     (programDailyUpload) => programDailyUpload.files
   )
-  @JoinColumn()
-  programFiles: ProgramDailyUploadEntity;
+  @JoinColumn({ name: 'daily_upload_id' })
+  dailyUpload: Relation<ProgramDailyUploadEntity>;
 }
