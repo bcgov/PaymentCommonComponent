@@ -253,7 +253,7 @@ export class ParseController {
             (file) => file.source_file_type === FileTypes.SBC_SALES
           ) || false;
       }
-      if (!hasTdi17 || !cardsFilename || !hasTransactionFile) {
+      if (!hasTdi17 || !hasTdi34 || !hasTransactionFile) {
         success = false;
       }
       if (success === true) {
