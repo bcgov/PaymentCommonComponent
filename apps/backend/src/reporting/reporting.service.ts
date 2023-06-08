@@ -1,5 +1,6 @@
 import { Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import Decimal from 'decimal.js';
 import { Repository } from 'typeorm';
 import { CasReport } from './cas-report/cas-report';
 import {
@@ -333,13 +334,17 @@ export class ReportingService {
 
       const unmatchedPercentage =
         total != 0
-          ? parseFloat(((exceptions.length / total) * 100).toFixed(2))
+          ? (new Decimal(exceptions.length).toNumber() /
+              new Decimal(total).toNumber()) *
+            100
           : 0;
 
       /*eslint-disable */
       const totalSum = paymentsByLocation.reduce(
-        (acc: number, itm: PaymentEntity) => (acc += itm.amount),
-        0
+        (acc: Decimal, itm: PaymentEntity) => {
+          return acc.plus(itm.amount);
+        },
+        new Decimal(0)
       );
 
       summaryData.push({
@@ -350,8 +355,10 @@ export class ReportingService {
           location_name: location.description,
           total_payments: total,
           total_unmatched_payments: exceptions.length,
-          percent_unmatched: unmatchedPercentage,
-          total_sum: parseFloat(totalSum.toFixed(2)),
+          percent_unmatched: new Decimal(unmatchedPercentage)
+            .toDecimalPlaces(2)
+            .toNumber(),
+          total_sum: totalSum.toDecimalPlaces(2).toNumber(),
         },
         style: rowStyle(exceptions.length !== 0),
       });
