@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { NormalizedLocation } from '../../constants';
 
 export class CasReport {
@@ -20,7 +21,7 @@ export class CasReport {
   ) {
     this.card_vendor = payment_method as string;
     this.settlement_date = settlement_date;
-    this.amount = amount;
+    this.amount = new Decimal(amount).toDecimalPlaces(2).toNumber();
     this.location_id = location.location_id;
     this.loction_name = location.description;
     this.dist_client_code = location.ministry_client;
