@@ -5,9 +5,11 @@ import { In, LessThan, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
-import { DateRange, Ministries } from '../constants';
+import { DateRange, Ministries, NormalizedLocation } from '../constants';
+import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
+import { PaymentEntity } from '../transaction/entities';
 import { PaymentMethodEntity } from '../transaction/entities/payment-method.entity';
 
 @Injectable()
@@ -87,7 +89,7 @@ export class PosDepositService {
   }
 
   async findPOSBySettlementDate(
-    merchant_ids: number[],
+    locations: NormalizedLocation[],
     program: Ministries,
     dateRange: DateRange
   ) {
@@ -95,7 +97,6 @@ export class PosDepositService {
 
     const { minDate, maxDate } = dateRange;
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');
-
     qb.select(['settlement_date::date']);
     qb.addSelect('payment_method.description', 'payment_method');
     qb.addSelect(
@@ -106,9 +107,15 @@ export class PosDepositService {
       'payment_method',
       'payment_method.method = pos_deposit.payment_method'
     );
+    qb.addSelect('location_id');
+    qb.leftJoin(
+      LocationEntity,
+      'master_location_data',
+      'master_location_data.merchant_id = pos_deposit.merchant_id'
+    );
     qb.where({
       metadata: { program },
-      merchant_id: In(merchant_ids),
+      merchant_id: In(locations.flatMap((l) => l.merchant_ids)),
       settlement_date: Raw(
         (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
         { minDate, maxDate }
@@ -119,6 +126,8 @@ export class PosDepositService {
     qb.addGroupBy('terminal_no');
     qb.addGroupBy('payment_method');
     qb.addGroupBy('payment_method.method');
+    qb.addGroupBy('location_id');
+    qb.addGroupBy('master_location_data.location_id');
     qb.orderBy({
       settlement_date: 'ASC',
       transaction_amt: 'ASC',
@@ -128,6 +137,7 @@ export class PosDepositService {
     const deposits = await qb.getRawMany();
     return deposits.map((d) => ({
       ...d,
+      merchant_id: d.location_id,
       settlement_date: format(new Date(d.settlement_date), 'yyyy-MM-dd'),
     }));
   }
@@ -170,5 +180,13 @@ export class PosDepositService {
       );
     });
     return deposits;
+  }
+
+  async findPosDepositsByPaymentMatch(
+    payments: PaymentEntity[]
+  ): Promise<POSDepositEntity[]> {
+    return await this.posDepositRepo.find({
+      where: { id: In(payments.map((itm) => itm.pos_deposit_match?.id)) },
+    });
   }
 }

@@ -40,6 +40,7 @@ export class PaymentService {
       relations: {
         payment_method: true,
         transaction: true,
+        pos_deposit_match: true,
       },
       order: {
         transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
@@ -85,9 +86,14 @@ export class PaymentService {
       where: {
         pos_deposit_match: In(posDeposits.map((posDeposit) => posDeposit.id)),
       },
+      relations: {
+        transaction: true,
+        payment_method: true,
+        pos_deposit_match: true,
+      },
     });
   }
-  
+
   public aggregatePayments(payments: PaymentEntity[]): AggregatedCashPayment[] {
     const groupedPayments = payments.reduce(
       (
@@ -141,6 +147,11 @@ export class PaymentService {
           location_id,
           transaction_date: date,
         },
+      },
+      relations: {
+        transaction: true,
+        payment_method: true,
+        pos_deposit_match: true,
       },
     });
   }
@@ -223,6 +234,7 @@ export class PaymentService {
       relations: {
         transaction: true,
         payment_method: true,
+        pos_deposit_match: true,
       },
     });
   }

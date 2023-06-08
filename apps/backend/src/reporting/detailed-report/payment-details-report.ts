@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
 import { DateRange, NormalizedLocation } from '../../constants';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
@@ -20,7 +21,7 @@ export class PaymentDetailsReport extends DetailsReport {
     this.time = payment.transaction.transaction_time ?? '';
     this.fiscal_date = payment.transaction.fiscal_close_date;
     this.payment_method = payment.payment_method.description;
-    this.amount = payment.amount;
+    this.amount = new Decimal(payment.amount).toDecimalPlaces(2).toNumber();
     this.foreign_currency_amount = payment.foreign_currency_amount ?? null;
     this.currency = payment.currency ?? 'CAD';
     this.exchange_rate = payment?.exchange_rate ?? null;
