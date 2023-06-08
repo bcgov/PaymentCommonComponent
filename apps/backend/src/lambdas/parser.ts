@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import * as _ from 'underscore';
+import { isSaturday, isSunday, parse } from 'date-fns';
+
 import { getLambdaEventSource } from './utils/eventTypes';
 import { parseGarms } from './utils/parseGarms';
 import { parseTDI } from './utils/parseTDI';
@@ -36,6 +38,14 @@ const API_URL = 'http://localhost:3000/api';
 export const handler = async (event?: unknown, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
+
+  if (isSaturday(new Date()) || isSunday(new Date())) {
+    appLogger.log(
+      `Skipping Reconciliation Report generation for ${new Date()} as it is a weekend`
+    );
+    return;
+  }
+
   const parseService = app.get(ParseService);
   const transactionService = app.get(TransactionService);
   const paymentMethodService = app.get(PaymentMethodService);
