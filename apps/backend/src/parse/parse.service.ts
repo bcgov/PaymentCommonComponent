@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { AppLogger } from '../logger/logger.service';
 import { SBCGarmsJson } from '../transaction/interface';
-import { FileTypes, Ministries, ParseArgsTDI } from '../constants';
+import { FileTypes, ParseArgsTDI } from '../constants';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI } from '../lambdas/utils/parseTDI';
 import { PaymentMethodService } from '../transaction/payment-method.service';
@@ -18,7 +18,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
 import { Repository } from 'typeorm';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
-import { format } from 'date-fns';
 import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
@@ -36,6 +35,30 @@ export class ParseService {
     @InjectRepository(ProgramDailyUploadEntity)
     private programDailyRepo: Repository<ProgramDailyUploadEntity>
   ) {}
+
+  handleValidationError(
+    error: unknown,
+    fileName: string,
+    errantColumnName: string,
+    errantIdColumnName: string
+  ) {
+    let errorMessage = `Error parsing ${fileName}. Please ensure all rows are valid.`;
+    if (
+      Array.isArray(error) &&
+      error.every((err) => err instanceof ValidationError)
+    ) {
+      errorMessage = error[0].children?.length
+        ? error[0].children
+            .map(
+              (child: ValidationError) =>
+                `${errantColumnName} ${child.value?.[errantIdColumnName]}`
+            )
+            .join('; ')
+        : '';
+    }
+    this.appLogger.error(errorMessage);
+    throw new Error(errorMessage);
+  }
 
   async readAndParseFile({
     type,
@@ -65,23 +88,13 @@ export class ParseService {
     const list = new GarmsTransactionList(garmsSalesDTO);
     try {
       await validateOrReject(list);
-    } catch (e: any) {
-      let errorMessage = `Error parsing ${fileName}. Please ensure all rows are valid.`;
-      if (
-        Array.isArray(e) &&
-        e.every((err) => err instanceof ValidationError)
-      ) {
-        errorMessage = e[0].children?.length
-          ? e[0].children
-              .map(
-                (child: ValidationError) =>
-                  `Transaction Id ${child.value?.transaction_id}`
-              )
-              .join('; ')
-          : '';
-      }
-      this.appLogger.error(errorMessage);
-      throw new Error(errorMessage);
+    } catch (e: unknown) {
+      this.handleValidationError(
+        e,
+        fileName,
+        'Transaction Id',
+        'transaction_id'
+      );
     }
     return garmsSales;
   }
@@ -108,11 +121,13 @@ export class ParseService {
     const list = new CashDepositsListDTO(cashDepositsDto);
     try {
       await validateOrReject(list);
-    } catch (e: any) {
-      this.appLogger.error('ERROR');
-      console.log(e[0]);
-      // We can use error.children.value
-      throw new Error('errrorr');
+    } catch (e: unknown) {
+      this.handleValidationError(
+        e,
+        fileName,
+        'Source File Line',
+        'source_file_line'
+      );
     }
     return cashDeposits;
   }
@@ -139,11 +154,13 @@ export class ParseService {
     const list = new PosDepositListDTO(cashDepositsDto);
     try {
       await validateOrReject(list);
-    } catch (e: any) {
-      this.appLogger.error('ERROR');
-      console.log(e[0]);
-      // We can use error.children.value
-      throw new Error('errrorr');
+    } catch (e: unknown) {
+      this.handleValidationError(
+        e,
+        fileName,
+        'Source File Line',
+        'source_file_line'
+      );
     }
     return posEntities;
   }

@@ -48,12 +48,10 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
   const parseService = app.get(ParseService);
   const transactionService = app.get(TransactionService);
-  const paymentMethodService = app.get(PaymentMethodService);
   const s3 = app.get(S3ManagerService);
   const posService = app.get(PosDepositService);
   const cashService = app.get(CashDepositService);
 
-  const paymentMethods = await paymentMethodService.getPaymentMethods();
   const processAllFiles = async () => {
     appLogger.log('Processing all files...');
     try {
