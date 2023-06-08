@@ -1,5 +1,4 @@
 import { Column, PrimaryGeneratedColumn, Entity } from 'typeorm';
-import { Ministries } from '../../constants';
 
 @Entity('file_ingestion_rules')
 export class FileIngestionRulesEntity {
@@ -9,13 +8,13 @@ export class FileIngestionRulesEntity {
   @Column()
   program: string;
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   cashChequesFilename?: string; // TDI17
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   cardsFilename?: string; // TDI34
 
-  @Column({ nullable: false })
+  @Column({ nullable: true })
   transactionsFilename?: string;
 
   // Number of retries before we send an alert

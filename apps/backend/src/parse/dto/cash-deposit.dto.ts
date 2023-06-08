@@ -32,7 +32,7 @@ export class CashDepositDTO {
   @IsNotEmpty()
   deposit_time!: string;
 
-  @ApiProperty({ description: 'Seuence Number', example: '001' })
+  @ApiProperty({ description: 'Sequence Number', example: '001' })
   @IsNumberString()
   @IsNotEmpty()
   seq_no!: string;

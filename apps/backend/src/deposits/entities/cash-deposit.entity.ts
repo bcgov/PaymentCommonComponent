@@ -7,11 +7,11 @@ import {
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { FileMetadata } from '../../common/columns/metadata';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI17Details } from '../../flat-files';
+import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
 @Entity('cash_deposit')

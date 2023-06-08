@@ -1,26 +1,26 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { AppLogger } from '../logger/logger.service';
-import { SBCGarmsJson } from '../transaction/interface';
-import { FileTypes, ParseArgsTDI } from '../constants';
-import { parseGarms } from '../lambdas/utils/parseGarms';
-import { parseTDI } from '../lambdas/utils/parseTDI';
-import { PaymentMethodService } from '../transaction/payment-method.service';
-import { TransactionEntity } from '../transaction/entities';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { validateOrReject, ValidationError } from 'class-validator';
+import { FileUploadedEntity } from './entities/file-uploaded.entity';
+import { Repository } from 'typeorm';
+import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
+import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
 import {
   GarmsTransactionDTO,
   GarmsTransactionList,
 } from './dto/garms-transaction.dto';
-import { validateOrReject, ValidationError } from 'class-validator';
-import { TDI17Details, TDI34Details } from '../flat-files';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { InjectRepository } from '@nestjs/typeorm';
-import { FileUploadedEntity } from './entities/file-uploaded.entity';
-import { Repository } from 'typeorm';
-import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
-import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
-import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
+import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
+import { FileTypes, ParseArgsTDI } from '../constants';
+import { TDI17Details, TDI34Details } from '../flat-files';
+import { parseGarms } from '../lambdas/utils/parseGarms';
+import { parseTDI } from '../lambdas/utils/parseTDI';
+import { AppLogger } from '../logger/logger.service';
+import { TransactionEntity } from '../transaction/entities';
+import { SBCGarmsJson } from '../transaction/interface';
+import { PaymentMethodService } from '../transaction/payment-method.service';
 
 @Injectable()
 export class ParseService {

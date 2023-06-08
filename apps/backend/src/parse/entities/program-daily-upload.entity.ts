@@ -7,8 +7,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { FileUploadedEntity } from './file-uploaded.entity';
 import { FileIngestionRulesEntity } from './file-ingestion-rules.entity';
+import { FileUploadedEntity } from './file-uploaded.entity';
 
 @Entity('program_daily_upload')
 export class ProgramDailyUploadEntity {
@@ -19,7 +19,7 @@ export class ProgramDailyUploadEntity {
   created_at: Date;
 
   @Column({ type: 'date' })
-  dataDate: Date;
+  dataDate: string;
 
   @Column()
   success: boolean;

@@ -1,6 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsOptional,
   IsString,
   IsNotEmpty,
   IsDateString,
@@ -9,8 +8,8 @@ import {
   IsNumber,
   Length,
 } from 'class-validator';
-import { PaymentMethodEntity } from '../../transaction/entities';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
+import { PaymentMethodEntity } from '../../transaction/entities';
 
 export class PosDepositDTO {
   //source file type

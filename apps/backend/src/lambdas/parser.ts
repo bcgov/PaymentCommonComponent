@@ -1,47 +1,51 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import * as _ from 'underscore';
-import { isSaturday, isSunday, parse } from 'date-fns';
-
-import { getLambdaEventSource } from './utils/eventTypes';
-import { parseGarms } from './utils/parseGarms';
-import { parseTDI } from './utils/parseTDI';
-import { AppModule } from '../app.module';
-import { FileNames, FileTypes, ALL, Ministries } from '../constants';
-import { CashDepositService } from '../deposits/cash-deposit.service';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { PosDepositService } from '../deposits/pos-deposit.service';
-import { TDI34Details } from '../flat-files';
-import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
-import { AppLogger } from '../logger/logger.service';
-import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { TransactionEntity } from '../transaction/entities/transaction.entity';
-import { SBCGarmsJson } from '../transaction/interface';
-import { PaymentMethodService } from '../transaction/payment-method.service';
-import { TransactionService } from '../transaction/transaction.service';
-import axios, { AxiosError } from 'axios';
+import axios, { AxiosError, AxiosInstance } from 'axios';
+import { isSaturday, isSunday, format } from 'date-fns';
 import FormData from 'form-data';
+import * as _ from 'underscore';
+
 import { Readable } from 'stream';
-import { ParseService } from '../parse/parse.service';
+import { getLambdaEventSource } from './utils/eventTypes';
+import { AppModule } from '../app.module';
+import { FileTypes, ALL } from '../constants';
+import { CashDepositService } from '../deposits/cash-deposit.service';
+import { PosDepositService } from '../deposits/pos-deposit.service';
+import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
+import { ParseService } from '../parse/parse.service';
 import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
+import { S3ManagerService } from '../s3-manager/s3-manager.service';
+import { TransactionService } from '../transaction/transaction.service';
 
 export interface ParseEvent {
   eventType: string;
   filename: string;
 }
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = process.env.API_URL;
+let axiosInstance: AxiosInstance;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: unknown, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
 
+  if (!API_URL) {
+    appLogger.error(
+      'No API URL present, please check the environment variables'
+    );
+    return;
+  } else {
+    axiosInstance = axios.create({ baseURL: API_URL });
+  }
+
   if (isSaturday(new Date()) || isSunday(new Date())) {
-    appLogger.log(
-      `Skipping Reconciliation Report generation for ${new Date()} as it is a weekend`
+    appLogger.error(
+      `Skipping Parsing for ${format(
+        new Date(),
+        'yyyy-MM-dd'
+      )} as it is a weekend`
     );
     return;
   }
@@ -83,21 +87,21 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
       // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
       const finalParseList = parseList.filter(
-        (filename) => !filename?.includes('LABOUR')
+        (filename) => !filename?.includes('LABOUR2')
       );
       appLogger.log('Creating daily upload for today if needed');
 
-      axios.request({
-        method: 'post',
-        maxBodyLength: 100000,
-        url: `${API_URL}/v1/parse/daily-upload`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: {
+      await axiosInstance.post(
+        '/v1/parse/daily-upload',
+        {
           date: new Date(),
         },
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
@@ -106,17 +110,17 @@ export const handler = async (event?: unknown, _context?: Context) => {
         await processEvent(event);
       }
 
-      let alertsSentResponse = await axios.request({
-        method: 'post',
-        maxBodyLength: 100000,
-        url: `${API_URL}/v1/parse/daily-upload/alert`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: {
+      const alertsSentResponse = await axiosInstance.post(
+        '/v1/parse/daily-upload/alert',
+        {
           date: new Date(),
         },
-      });
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
       appLogger.log(alertsSentResponse.data.data);
       const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
       const programAlerts = alertsSent.dailyAlertPrograms;
@@ -209,14 +213,10 @@ export const handler = async (event?: unknown, _context?: Context) => {
         formData.append('fileName', filename);
         formData.append('fileType', fileType);
         formData.append('program', ministry);
-        await axios.request({
-          method: 'post',
-          maxBodyLength: 100000,
-          url: `${API_URL}/v1/parse/upload-file`,
+        await axiosInstance.post('/v1/parse/upload-file', formData, {
           headers: {
             ...formData.getHeaders(),
           },
-          data: formData,
         });
       } catch (err) {
         appLogger.log('\n\n=========Errors with File Upload: =========\n');

@@ -14,15 +14,13 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
-import { FileTypes } from '../constants';
-import { AppLogger } from '../logger/logger.service';
-import { TransactionEntity } from '../transaction/entities';
-import { FileUploadedEntity } from './entities/file-uploaded.entity';
-import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { DailyAlertRO } from './ro/daily-alert.ro';
-import { TransactionService } from '../transaction/transaction.service';
+import { FileTypes } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { AppLogger } from '../logger/logger.service';
+import { TransactionEntity } from '../transaction/entities';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Controller('parse')
 @ApiTags('Parser API')

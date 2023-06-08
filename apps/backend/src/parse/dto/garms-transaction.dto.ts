@@ -14,16 +14,14 @@ import {
   Min,
   ValidateNested,
 } from 'class-validator';
-import { Transaction } from '../../transaction/interface/transaction.interface';
-import { TransactionEntity } from '../../transaction/entities/transaction.entity';
-import { PaymentDTO } from '../../transaction/dto/payment.dto';
 import { GarmsPaymentDTO } from './garms-payment.dto';
-import { PaymentEntity } from '../../transaction/entities';
+import { TransactionEntity } from '../../transaction/entities/transaction.entity';
+import { Transaction } from '../../transaction/interface/transaction.interface';
 
 export class GarmsTransactionDTO {
   @ApiProperty({
     description: 'Unique id representing the transaction in the source system',
-    example: '264595a1-4775-4bfe-9b3a-358bbbb5c4f7',
+    example: '20230530-00001-1000001',
   })
   @IsString()
   @IsNotEmpty()
@@ -74,7 +72,7 @@ export class GarmsTransactionDTO {
   transactionJson: Transaction;
 
   @ApiProperty({ description: 'Migrated', example: false })
-  migrated: boolean = false;
+  migrated = false;
 
   @ApiProperty({
     description: 'Source File Name',

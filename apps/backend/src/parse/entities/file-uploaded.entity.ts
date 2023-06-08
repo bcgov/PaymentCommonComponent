@@ -6,8 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { FileTypes } from '../../constants';
 import { ProgramDailyUploadEntity } from './program-daily-upload.entity';
+import { FileTypes } from '../../constants';
 
 @Entity('file_uploaded')
 export class FileUploadedEntity {

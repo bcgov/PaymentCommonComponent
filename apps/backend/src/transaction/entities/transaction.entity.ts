@@ -7,9 +7,9 @@ import {
   Column,
   PrimaryColumn,
 } from 'typeorm';
-import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
+import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 
 @Entity('transaction')
 export class TransactionEntity {
