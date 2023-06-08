@@ -10,7 +10,7 @@ import {
   GarmsTransactionDTO,
   GarmsTransactionList,
 } from './dto/garms-transaction.dto';
-import { validate, validateOrReject } from 'class-validator';
+import { validateOrReject, ValidationError } from 'class-validator';
 import { TDI17Details, TDI34Details } from '../flat-files';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -66,10 +66,22 @@ export class ParseService {
     try {
       await validateOrReject(list);
     } catch (e: any) {
-      this.appLogger.error('ERROR');
-      console.log(e[0]);
-      // We can use error.children.value
-      throw new Error('errrorr');
+      let errorMessage = `Error parsing ${fileName}. Please ensure all rows are valid.`;
+      if (
+        Array.isArray(e) &&
+        e.every((err) => err instanceof ValidationError)
+      ) {
+        errorMessage = e[0].children?.length
+          ? e[0].children
+              .map(
+                (child: ValidationError) =>
+                  `Transaction Id ${child.value?.transaction_id}`
+              )
+              .join('; ')
+          : '';
+      }
+      this.appLogger.error(errorMessage);
+      throw new Error(errorMessage);
     }
     return garmsSales;
   }

@@ -7,6 +7,9 @@ import {
   ClassSerializerInterceptor,
   Inject,
   Logger,
+  HttpException,
+  HttpStatus,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -108,13 +111,15 @@ export class ParseController {
     @UploadedFile() file: Express.Multer.File
   ) {
     const { fileName, fileType, program } = body;
-    this.appLogger.log(`PARSE PARSE PARSE ${fileName} - ${fileType}`);
+    this.appLogger.log(`Parsing ${fileName} - ${fileType}`);
     const contents = file.buffer.toString();
 
     const rules = await this.parseService.getRulesForProgram(program);
-    console.log(rules);
     if (!rules) {
-      // THROW ERROR
+      throw new HttpException(
+        `No rules established for program ${program}`,
+        HttpStatus.FORBIDDEN
+      );
     }
     let daily = await this.parseService.getDailyForRule(rules, new Date());
     if (!daily) {
@@ -124,7 +129,6 @@ export class ParseController {
     try {
       if (fileType === FileTypes.SBC_SALES) {
         this.appLogger.log('Parse and store SBC Sales in DB...', fileName);
-        // Parse and validate rows from Garms
         const garmsSales: TransactionEntity[] =
           await this.parseService.parseGarmsFile(contents, fileName);
         const fileToSave = await this.parseService.saveFileUploaded({
@@ -186,9 +190,13 @@ export class ParseController {
           }))
         );
       }
-    } catch (err: any) {
-      // Throw
-      console.log('error', err);
+    } catch (err: unknown) {
+      throw new BadRequestException({
+        message:
+          err instanceof Error
+            ? err.message
+            : `Error with processing ${fileName}`,
+      });
     }
   }
 
@@ -210,13 +218,11 @@ export class ParseController {
     const rules = await this.parseService.getAllRules();
     const dailyAlertPrograms = [];
     for (const rule of rules) {
-      const daily = await this.parseService.getDailyForRule(rule, body.date);
+      let daily = await this.parseService.getDailyForRule(rule, body.date);
       if (!daily) {
-        // THROW
-        return { dailyAlertPrograms: [], date: body.date };
+        daily = await this.parseService.createNewDaily(rule, body.date);
       }
       if (daily.success) {
-        // All good
         dailyAlertPrograms.push({
           program: rule.program,
           success: true,
@@ -263,7 +269,7 @@ export class ParseController {
       } else {
         let alerted = false;
         if (daily.retries >= rule.retries) {
-          // Send alert
+          // TODO CCFPCM-441
           alerted = true;
         }
         await this.parseService.saveDaily({

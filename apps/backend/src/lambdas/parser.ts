@@ -18,16 +18,19 @@ import { TransactionEntity } from '../transaction/entities/transaction.entity';
 import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
 import { TransactionService } from '../transaction/transaction.service';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import FormData from 'form-data';
 import { Readable } from 'stream';
 import { ParseService } from '../parse/parse.service';
 import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
+import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 export interface ParseEvent {
   eventType: string;
   filename: string;
 }
+
+const API_URL = 'http://localhost:3000/api';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: unknown, _context?: Context) => {
@@ -74,20 +77,19 @@ export const handler = async (event?: unknown, _context?: Context) => {
       const finalParseList = parseList.filter(
         (filename) => !filename?.includes('LABOUR')
       );
+      appLogger.log('Creating daily upload for today if needed');
 
-      if (finalParseList.length) {
-        axios.request({
-          method: 'post',
-          maxBodyLength: 100000,
-          url: 'http://localhost:3000/api/v1/parse/daily-upload',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          data: {
-            date: new Date(),
-          },
-        });
-      }
+      axios.request({
+        method: 'post',
+        maxBodyLength: 100000,
+        url: `${API_URL}/v1/parse/daily-upload`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          date: new Date(),
+        },
+      });
 
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
@@ -96,21 +98,33 @@ export const handler = async (event?: unknown, _context?: Context) => {
         await processEvent(event);
       }
 
-      if (finalParseList.length) {
-        axios.request({
-          method: 'post',
-          maxBodyLength: 100000,
-          url: 'http://localhost:3000/api/v1/parse/daily-upload/alert',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          data: {
-            date: new Date(),
-          },
-        });
+      let alertsSentResponse = await axios.request({
+        method: 'post',
+        maxBodyLength: 100000,
+        url: `${API_URL}/v1/parse/daily-upload/alert`,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        data: {
+          date: new Date(),
+        },
+      });
+      appLogger.log(alertsSentResponse.data.data);
+      const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
+      const programAlerts = alertsSent.dailyAlertPrograms;
+      for (const alert of programAlerts) {
+        if (!alert.success) {
+          appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
+        }
+        if (alert.alerted) {
+          appLogger.log(
+            '\n\n=========Alerts Sent for Daily Upload: =========\n'
+          );
+          appLogger.error(
+            `Sent an alert to prompt ${alert.program} to complete upload`
+          );
+        }
       }
-
-      // call controller for emailing
     } catch (err) {
       appLogger.error(err);
     }
@@ -149,7 +163,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
             return rule.program;
           }
           throw new Error(
-            'File does not reference to any ministries: ' + filename
+            'File does not reference to any programs: ' + filename
           );
         }
       })();
@@ -180,23 +194,30 @@ export const handler = async (event?: unknown, _context?: Context) => {
         throw new Error('Unknown file type: ' + filename);
       })();
 
-      appLogger.log('Call endpoint to upload file...', filename);
-      // if (fileType === FileTypes.SBC_SALES) {
-      if (0) {
+      try {
+        appLogger.log('Call endpoint to upload file...', filename);
         const formData = new FormData();
         formData.append('file', Readable.from(file), filename);
         formData.append('fileName', filename);
         formData.append('fileType', fileType);
         formData.append('program', ministry);
-        axios.request({
+        await axios.request({
           method: 'post',
           maxBodyLength: 100000,
-          url: 'http://localhost:3000/api/v1/parse/upload-file',
+          url: `${API_URL}/v1/parse/upload-file`,
           headers: {
             ...formData.getHeaders(),
           },
           data: formData,
         });
+      } catch (err) {
+        appLogger.log('\n\n=========Errors with File Upload: =========\n');
+        appLogger.error(`Error with uploading file ${filename}`);
+        appLogger.error(
+          err instanceof AxiosError
+            ? `Validation Errors: ${err.response?.data?.errorMessage}`
+            : `Validation Errors present in the file`
+        );
       }
     } catch (err) {
       appLogger.error(err);
