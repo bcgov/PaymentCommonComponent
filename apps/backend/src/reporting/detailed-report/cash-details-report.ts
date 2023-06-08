@@ -19,7 +19,9 @@ export class CashDepositDetailsReport extends DetailsReport {
     this.time = deposit.deposit_time ?? null;
     this.fiscal_date = deposit.deposit_date;
     this.payment_method = 'CASH/CHQ';
-    this.amount = new Decimal(deposit.deposit_amt_cdn).toNumber();
+    this.amount = new Decimal(deposit.deposit_amt_cdn)
+      .toDecimalPlaces(2)
+      .toNumber();
     this.foreign_currency_amount =
       deposit.deposit_amt_curr !== deposit.deposit_amt_cdn
         ? new Decimal(deposit.deposit_amt_curr).toNumber()

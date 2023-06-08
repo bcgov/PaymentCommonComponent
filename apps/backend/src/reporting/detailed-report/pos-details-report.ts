@@ -1,3 +1,4 @@
+import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
 import { NormalizedLocation } from '../../constants';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
@@ -11,7 +12,9 @@ export class POSDepositDetailsReport extends DetailsReport {
     this.time = deposit.transaction_time;
     this.fiscal_date = deposit.settlement_date;
     this.payment_method = deposit.payment_method.description;
-    this.amount = deposit.transaction_amt;
+    this.amount = new Decimal(deposit.transaction_amt)
+      .toDecimalPlaces(2)
+      .toNumber();
     this.currency = 'CAD';
     this.merchant_id = deposit.merchant_id;
     this.terminal_no = deposit.terminal_no;
