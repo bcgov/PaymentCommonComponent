@@ -207,17 +207,26 @@ const getPosReportData = async (
     locations.flatMap((itm: NormalizedLocation) => itm.merchant_ids),
     [MatchStatus.MATCH, MatchStatus.EXCEPTION]
   );
-  const matchedDeposits = matchedDepositsAndExceptions.filter(
+  const matchedDepositsFromToday = matchedDepositsAndExceptions.filter(
     (itm: POSDepositEntity) => itm.status === MatchStatus.MATCH
   );
   const depositExceptions = matchedDepositsAndExceptions.filter(
     (itm: POSDepositEntity) => itm.status === MatchStatus.EXCEPTION
   );
   const matchedPaymentsFromAnotherDay =
-    await paymentService.findPaymentsByPosDeposits(matchedDeposits);
+    await paymentService.findPaymentsByPosDeposits(matchedDepositsFromToday);
 
   const matchedPayments = Array.from(
     new Set([...matchedPaymentsOnReportDate, ...matchedPaymentsFromAnotherDay])
+  );
+
+  const matchedDepositsFromAnotherDay =
+    await posDepositService.findPosDepositsByPaymentMatch(
+      matchedPaymentsOnReportDate
+    );
+
+  const matchedDeposits = Array.from(
+    new Set([...matchedDepositsFromToday, ...matchedDepositsFromAnotherDay])
   );
 
   return {
