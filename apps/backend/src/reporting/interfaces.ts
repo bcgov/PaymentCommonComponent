@@ -23,8 +23,12 @@ export interface DailySummary {
     location_name: string;
     total_payments: number;
     total_unmatched_payments: number;
-    percent_unmatched: number;
-    total_sum: number;
+    percent_unmatched_payments: number;
+    total_payment_sum: number;
+    total_deposits: number;
+    total_unmatched_deposits: number;
+    percent_unmatched_deposits: number;
+    total_deposit_sum: number;
   };
   style: Partial<Excel.Style>;
 }

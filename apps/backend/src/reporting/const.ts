@@ -4,9 +4,13 @@ export const dailySummaryColumns = [
   { header: 'Location ID', key: 'location_id' },
   { header: 'Location', key: 'location_name' },
   { header: 'Total Payments', key: 'total_payments' },
-  { header: 'Total Unmatched', key: 'total_unmatched_payments' },
-  { header: '% Unmatched', key: 'percent_unmatched' },
-  { header: 'Sum Of Payments', key: 'total_sum' },
+  { header: 'Total Unmatched Payments', key: 'total_unmatched_payments' },
+  { header: '% Unmatched Payments', key: 'percent_unmatched_payments' },
+  { header: 'Sum Of Payments', key: 'total_payment_sum' },
+  { header: 'Total Deposits', key: 'total_deposits' },
+  { header: 'Total Unmatched Deposits', key: 'total_unmatched_deposits' },
+  { header: '% Unmatched Deposits', key: 'percent_unmatched_deposits' },
+  { header: 'Sum Of Deposits', key: 'total_deposit_sum' },
 ];
 
 export const detailedReportColumns = [

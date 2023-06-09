@@ -84,6 +84,8 @@ export class ReportingService {
           (itm) => itm.transaction.fiscal_close_date === config.period.to
         )
       ),
+      posDeposits.filter((itm) => itm.transaction_date === config.period.to),
+      cashDeposits.current,
       locations
     );
 
@@ -120,6 +122,8 @@ export class ReportingService {
     config: ReportConfig,
     posPayments: PaymentEntity[],
     cashPayments: PaymentEntity[],
+    posDeposits: POSDepositEntity[],
+    cashDeposits: CashDepositEntity[],
     locations: NormalizedLocation[]
   ): void {
     this.appLogger.log(config);
@@ -132,7 +136,9 @@ export class ReportingService {
       config,
       locations,
       posPayments,
-      cashPayments
+      cashPayments,
+      posDeposits,
+      cashDeposits
     );
 
     const startIndex = 2;
@@ -146,7 +152,7 @@ export class ReportingService {
       Report.DAILY_SUMMARY,
       config.period.to,
       titleStyle,
-      placement('A1:H1')
+      placement('A1:L1')
     );
     /* set column-headers style */
     this.excelWorkbook.addRowStyle(
@@ -318,31 +324,73 @@ export class ReportingService {
     config: ReportConfig,
     locations: NormalizedLocation[],
     posPayments: PaymentEntity[],
-    cashPayments: PaymentEntity[]
+    cashPayments: PaymentEntity[],
+    posDeposits: POSDepositEntity[],
+    cashDeposits: CashDepositEntity[]
   ): DailySummary[] {
     const summaryData: DailySummary[] = [];
     locations.forEach((location) => {
       const paymentsByLocation = [...posPayments, ...cashPayments].filter(
         (itm) => itm.transaction.location_id === location.location_id
       );
-
-      const exceptions = paymentsByLocation.filter(
+      const cashDepositsByLocation = cashDeposits.filter(
+        (itm) => itm.pt_location_id === location.location_id
+      );
+      const posDepositsByLocation = posDeposits.filter((itm) =>
+        location.merchant_ids.includes(itm.merchant_id)
+      );
+      const depositsByLocation = [
+        ...cashDepositsByLocation,
+        ...posDepositsByLocation,
+      ];
+      const depositExceptions = [
+        ...cashDepositsByLocation,
+        ...posDepositsByLocation,
+      ].filter((itm) => itm.status === MatchStatus.EXCEPTION);
+      const paymentExceptions = paymentsByLocation.filter(
         (itm: PaymentEntity) => itm.status === MatchStatus.EXCEPTION
       );
 
-      const total = paymentsByLocation.length;
+      const totalPayments = paymentsByLocation.length;
+      const totalDeposits = depositsByLocation.length;
 
-      const unmatchedPercentage =
-        total != 0
-          ? (new Decimal(exceptions.length).toNumber() /
-              new Decimal(total).toNumber()) *
-            100
+      const unmatchedPercentagePayments =
+        totalPayments != 0
+          ? new Decimal(paymentExceptions.length)
+              .dividedBy(new Decimal(totalPayments))
+              .times(100)
+              .toDecimalPlaces(2)
+              .toNumber()
           : 0;
 
       /*eslint-disable */
-      const totalSum = paymentsByLocation.reduce(
+      const totalSumPayments = paymentsByLocation.reduce(
         (acc: Decimal, itm: PaymentEntity) => {
           return acc.plus(itm.amount);
+        },
+        new Decimal(0)
+      );
+
+      const unmatchedPercentageDeposits =
+        totalDeposits != 0
+          ? new Decimal(depositExceptions.length)
+              .dividedBy(new Decimal(totalDeposits))
+              .times(100)
+              .toDecimalPlaces(2)
+              .toNumber()
+          : 0;
+
+      /*eslint-disable */
+      const totalSumCashDeposits = cashDepositsByLocation.reduce(
+        (acc: Decimal, itm: CashDepositEntity) => {
+          return acc.plus(itm.deposit_amt_cdn);
+        },
+        new Decimal(0)
+      );
+
+      const totalSumPosDeposits = posDepositsByLocation.reduce(
+        (acc: Decimal, itm: POSDepositEntity) => {
+          return acc.plus(itm.transaction_amt);
         },
         new Decimal(0)
       );
@@ -353,14 +401,21 @@ export class ReportingService {
           date: config.period.to,
           location_id: location.location_id,
           location_name: location.description,
-          total_payments: total,
-          total_unmatched_payments: exceptions.length,
-          percent_unmatched: new Decimal(unmatchedPercentage)
+          total_payments: totalPayments,
+          total_unmatched_payments: paymentExceptions.length,
+          percent_unmatched_payments: unmatchedPercentagePayments,
+          total_payment_sum: totalSumPayments.toDecimalPlaces(2).toNumber(),
+          total_deposits: totalDeposits,
+          total_unmatched_deposits: depositExceptions.length,
+          percent_unmatched_deposits: unmatchedPercentageDeposits,
+          total_deposit_sum: totalSumCashDeposits
+            .plus(totalSumPosDeposits)
             .toDecimalPlaces(2)
             .toNumber(),
-          total_sum: totalSum.toDecimalPlaces(2).toNumber(),
         },
-        style: rowStyle(exceptions.length !== 0),
+        style: rowStyle(
+          paymentExceptions.length !== 0 || depositExceptions.length !== 0
+        ),
       });
     });
     return summaryData;
