@@ -38,8 +38,42 @@ export class ParseService {
   ) {}
 
   /**
+   * Determines if a daily status is successful or not based on the incoming rules
+   * @param rule
+   * @param files Files uploaded on the day
+   * @returns Success or no
+   */
+  determineDailySuccess(
+    rule: FileIngestionRulesEntity,
+    files: FileUploadedEntity[]
+  ): boolean {
+    const { cashChequesFilename, posFilename, transactionsFilename } = rule;
+    let hasTdi17 = false,
+      hasTdi34 = false,
+      hasTransactionFile = false;
+    let success = true;
+    if (cashChequesFilename) {
+      hasTdi17 =
+        files?.some((file) => file.sourceFileType === FileTypes.TDI17) || false;
+    }
+    if (posFilename) {
+      hasTdi34 =
+        files?.some((file) => file.sourceFileType === FileTypes.TDI34) || false;
+    }
+    if (transactionsFilename) {
+      hasTransactionFile =
+        files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES) ||
+        false;
+    }
+    if (!hasTdi17 || !hasTdi34 || !hasTransactionFile) {
+      success = false;
+    }
+    return success;
+  }
+
+  /**
    * Handles validation errors from validateOrReject, identifying which property is failing validation
-   * Logs into applogger and handles throwing with the error message as well
+   * Returns the error message generated
    * @param error Error, in this case an array of ValidationErrors (coming from validateOrReject)
    * @param fileName Filename for logging
    * @param errantColumnName The plain name of the column for identifying the row with the issue
@@ -50,7 +84,7 @@ export class ParseService {
     fileName: string,
     errantColumnName: string,
     errantIdColumnName: string
-  ) {
+  ): string {
     let errorMessage = `Error parsing ${fileName}. Please ensure all rows are valid.`;
     if (
       Array.isArray(error) &&
@@ -68,8 +102,7 @@ export class ParseService {
             .join('; ')
         : '';
     }
-    this.appLogger.error(errorMessage);
-    throw new Error(errorMessage);
+    return errorMessage;
   }
 
   /**
@@ -113,12 +146,14 @@ export class ParseService {
     try {
       await validateOrReject(list);
     } catch (e: unknown) {
-      this.handleValidationError(
+      const errorMessage = this.handleValidationError(
         e,
         fileName,
         'Transaction Id',
         'transaction_id'
       );
+      this.appLogger.error(errorMessage);
+      throw new Error(errorMessage);
     }
     return garmsSales;
   }
@@ -152,12 +187,14 @@ export class ParseService {
     try {
       await validateOrReject(list);
     } catch (e: unknown) {
-      this.handleValidationError(
+      const errorMessage = this.handleValidationError(
         e,
         fileName,
         'Source File Line',
         'source_file_line'
       );
+      this.appLogger.error(errorMessage);
+      throw new Error(errorMessage);
     }
     return cashDeposits;
   }
@@ -191,12 +228,14 @@ export class ParseService {
     try {
       await validateOrReject(list);
     } catch (e: unknown) {
-      this.handleValidationError(
+      const errorMessage = this.handleValidationError(
         e,
         fileName,
         'Source File Line',
         'source_file_line'
       );
+      this.appLogger.error(errorMessage);
+      throw new Error(errorMessage);
     }
     return posEntities;
   }

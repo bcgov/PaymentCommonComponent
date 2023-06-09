@@ -215,7 +215,6 @@ export class ParseController {
         await this.parseService.createNewDaily(rule, body.date);
       }
     }
-    return;
   }
 
   /**
@@ -240,31 +239,10 @@ export class ParseController {
         });
         continue;
       }
-      const { cashChequesFilename, posFilename, transactionsFilename } = rule;
-      const files = daily.files;
-      // For each required file type, check if the file exists
-      let hasTdi17 = false,
-        hasTdi34 = false,
-        hasTransactionFile = false;
-      let success = true;
-      if (cashChequesFilename) {
-        hasTdi17 =
-          files?.some((file) => file.sourceFileType === FileTypes.TDI17) ||
-          false;
-      }
-      if (posFilename) {
-        hasTdi34 =
-          files?.some((file) => file.sourceFileType === FileTypes.TDI34) ||
-          false;
-      }
-      if (transactionsFilename) {
-        hasTransactionFile =
-          files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES) ||
-          false;
-      }
-      if (!hasTdi17 || !hasTdi34 || !hasTransactionFile) {
-        success = false;
-      }
+      const success = this.parseService.determineDailySuccess(
+        rule,
+        daily.files
+      );
       if (success === true) {
         await this.parseService.saveDaily({
           ...daily,
