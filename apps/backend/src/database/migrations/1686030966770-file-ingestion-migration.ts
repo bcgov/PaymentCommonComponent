@@ -14,15 +14,6 @@ export class migration1686030966770 implements MigrationInterface {
       `CREATE TABLE "file_uploaded" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "source_file_type" character varying NOT NULL DEFAULT 'TDI17', "source_file_name" character varying NOT NULL, "source_file_length" integer NOT NULL, "daily_upload_id" uuid, CONSTRAINT "PK_27908e2def3d89bd889a9cd65dd" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "payment_round_four_matches_pos_deposit" ("paymentId" uuid NOT NULL, "posDepositId" uuid NOT NULL, CONSTRAINT "PK_d099fc3b96ce39951bae36f4991" PRIMARY KEY ("paymentId", "posDepositId"))`
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_f06ddb89870cda098fcd4dcb82" ON "payment_round_four_matches_pos_deposit" ("paymentId") `
-    );
-    await queryRunner.query(
-      `CREATE INDEX "IDX_70d2cd6ca48dc18df656f23cb5" ON "payment_round_four_matches_pos_deposit" ("posDepositId") `
-    );
-    await queryRunner.query(
       `ALTER TABLE "transaction" ADD "file_uploaded" uuid`
     );
     await queryRunner.query(
@@ -46,21 +37,9 @@ export class migration1686030966770 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "cash_deposit" ADD CONSTRAINT "FK_6da8fc3556db7ef6fe1c9444fb8" FOREIGN KEY ("file_uploaded") REFERENCES "file_uploaded"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
-    await queryRunner.query(
-      `ALTER TABLE "payment_round_four_matches_pos_deposit" ADD CONSTRAINT "FK_f06ddb89870cda098fcd4dcb822" FOREIGN KEY ("paymentId") REFERENCES "payment"("id") ON DELETE CASCADE ON UPDATE CASCADE`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "payment_round_four_matches_pos_deposit" ADD CONSTRAINT "FK_70d2cd6ca48dc18df656f23cb56" FOREIGN KEY ("posDepositId") REFERENCES "pos_deposit"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "payment_round_four_matches_pos_deposit" DROP CONSTRAINT "FK_70d2cd6ca48dc18df656f23cb56"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "payment_round_four_matches_pos_deposit" DROP CONSTRAINT "FK_f06ddb89870cda098fcd4dcb822"`
-    );
     await queryRunner.query(
       `ALTER TABLE "cash_deposit" DROP CONSTRAINT "FK_6da8fc3556db7ef6fe1c9444fb8"`
     );
@@ -90,9 +69,6 @@ export class migration1686030966770 implements MigrationInterface {
     );
     await queryRunner.query(
       `DROP INDEX "public"."IDX_f06ddb89870cda098fcd4dcb82"`
-    );
-    await queryRunner.query(
-      `DROP TABLE "payment_round_four_matches_pos_deposit"`
     );
     await queryRunner.query(`DROP TABLE "file_uploaded"`);
     await queryRunner.query(`DROP TABLE "program_daily_upload"`);
