@@ -23,9 +23,9 @@ export class GarmsPaymentDTO {
   @IsOptional()
   exchange_rate?: number;
 
-  @ApiProperty({ description: 'Payment Method', type: PaymentMethodEntity })
+  @ApiProperty({ description: 'Payment Method', example: '02' })
   @IsNotEmpty()
-  payment_method!: PaymentMethodEntity;
+  payment_method!: string;
 
   constructor(payment?: Partial<PaymentEntity>) {
     Object.assign(this, payment);
