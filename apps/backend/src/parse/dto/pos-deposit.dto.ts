@@ -25,9 +25,9 @@ export class PosDepositDTO {
   card_id!: string;
 
   @ApiProperty({ description: 'Transaction Amount', example: '25.00' })
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
-  transaction_amt!: string;
+  transaction_amt!: number;
 
   @ApiProperty({ description: 'Transaction Date', example: '2023-01-01' })
   @IsDateString()

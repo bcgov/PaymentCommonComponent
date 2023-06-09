@@ -4,6 +4,7 @@ import {
   IsString,
   IsNotEmpty,
   IsDateString,
+  IsNumber,
   IsNumberString,
   ValidateNested,
 } from 'class-validator';
@@ -23,9 +24,9 @@ export class CashDepositDTO {
   deposit_date!: string;
 
   @ApiProperty({ description: 'Pt Location Id', example: '20094' })
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
-  pt_location_id!: string;
+  pt_location_id!: number;
 
   @ApiProperty({ description: 'Deposit time', example: '162600' })
   @IsNumberString()
@@ -46,19 +47,19 @@ export class CashDepositDTO {
   location_desc!: string;
 
   @ApiProperty({ description: 'Deposit amount curr', example: '100.00' })
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
-  deposit_amt_curr!: string;
+  deposit_amt_curr!: number;
 
   @ApiProperty({ description: 'Exchange Adjusted Amount', example: '0.00' })
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
-  exchange_adj_amt!: string;
+  exchange_adj_amt!: number;
 
   @ApiProperty({ description: 'Deposit amount Canadian', example: '100.00' })
-  @IsNumberString()
+  @IsNumber()
   @IsNotEmpty()
-  deposit_amt_cdn!: string;
+  deposit_amt_cdn!: number;
 
   @ApiProperty({ description: 'Destination Bank Number', example: '0010' })
   @IsNumberString()
