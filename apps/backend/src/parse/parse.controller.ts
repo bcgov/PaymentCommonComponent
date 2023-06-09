@@ -21,6 +21,7 @@ import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
 import { TransactionEntity } from '../transaction/entities';
 import { TransactionService } from '../transaction/transaction.service';
+import { parseISO } from 'date-fns';
 
 @Controller('parse')
 @ApiTags('Parser API')
@@ -207,12 +208,15 @@ export class ParseController {
    * Called at the start of a parser lambda run
    */
   @Post('daily-upload')
-  async commenceDailyUpload(@Body() body: { date: Date }): Promise<void> {
+  async commenceDailyUpload(@Body() body: { date: string }): Promise<void> {
     const rules = await this.parseService.getAllRules();
     for (const rule of rules) {
-      const daily = await this.parseService.getDailyForRule(rule, body.date);
+      const daily = await this.parseService.getDailyForRule(
+        rule,
+        new Date(body.date)
+      );
       if (!daily) {
-        await this.parseService.createNewDaily(rule, body.date);
+        await this.parseService.createNewDaily(rule, new Date(body.date));
       }
     }
   }
@@ -227,9 +231,15 @@ export class ParseController {
     const rules = await this.parseService.getAllRules();
     const dailyAlertPrograms = [];
     for (const rule of rules) {
-      let daily = await this.parseService.getDailyForRule(rule, body.date);
+      let daily = await this.parseService.getDailyForRule(
+        rule,
+        new Date(body.date)
+      );
       if (!daily) {
-        daily = await this.parseService.createNewDaily(rule, body.date);
+        daily = await this.parseService.createNewDaily(
+          rule,
+          new Date(body.date)
+        );
       }
       if (daily.success) {
         dailyAlertPrograms.push({

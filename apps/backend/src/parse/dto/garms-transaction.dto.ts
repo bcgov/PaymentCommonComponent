@@ -18,7 +18,7 @@ import {
 import { GarmsPaymentDTO } from './garms-payment.dto';
 import { TransactionEntity } from '../../transaction/entities/transaction.entity';
 import { Transaction } from '../../transaction/interface/transaction.interface';
-import { ArePaymentMethodsValid } from 'src/transaction/decorators/arePaymentMethodsValid';
+import { ArePaymentMethodsValid } from '../../transaction/decorators/arePaymentMethodsValid';
 
 /**
  * Original GARMS Transaction formatting
