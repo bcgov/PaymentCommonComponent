@@ -52,7 +52,10 @@ export class ParseService {
         ? error[0].children
             .map(
               (child: ValidationError) =>
-                `${errantColumnName} ${child.value?.[errantIdColumnName]}`
+                `${errantColumnName} ${
+                  child.value?.[errantIdColumnName] ||
+                  child.value?.metadata?.[errantIdColumnName]
+                }`
             )
             .join('; ')
         : '';
@@ -85,7 +88,6 @@ export class ParseService {
       fileName,
       paymentMethods
     );
-    // CLEAN UP HERE??
     const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
     const list = new GarmsTransactionList(garmsSalesDTO);
     try {
@@ -122,8 +124,11 @@ export class ParseService {
     const cashDepositsDto = cashDeposits.map((c) => new CashDepositDTO(c));
     const list = new CashDepositsListDTO(cashDepositsDto);
     try {
+      console.log(typeof cashDeposits[0].deposit_amt_cdn);
+      console.log(typeof list.list[0].deposit_amt_cdn);
       await validateOrReject(list);
-    } catch (e: unknown) {
+    } catch (e: any) {
+      console.log(e[0].children[0].children);
       this.handleValidationError(
         e,
         fileName,

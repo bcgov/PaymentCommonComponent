@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // TODO [CCFPCM-397] Can we type more here?
+import Decimal from 'decimal.js';
 import { Resource, ResourceBase } from './Resource';
 import {
   ColumnMetadataKey,
@@ -65,9 +66,9 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
         if (options.format.type === DataType.Integer) {
           (target as any)[field] = parseInt(value);
         } else if (options.format.type === DataType.Float) {
-          (target as any)[field] = parseInt(value).toFixed(
-            options.format.precision || 2
-          );
+          (target as any)[field] = new Decimal(value)
+            .toDecimalPlaces(2)
+            .toNumber();
         } else if (options.format.type === DataType.Date) {
           (target as any)[field] = value ? parseFlatDateString(value) : null;
         } else if (options.format.type === DataType.Time) {
