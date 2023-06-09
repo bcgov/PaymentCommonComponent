@@ -35,6 +35,7 @@ services:
       - APP_PORT=3000
       - NODE_ENV=ci
       - RUNTIME_ENV=test
+      - API_URL={API_URL}
       - AWS_ACCESS_KEY_ID=pcc
       - AWS_SECRET_ACCESS_KEY=password
       - AWS_DEFAULT_REGION=${AWS_REGION}
