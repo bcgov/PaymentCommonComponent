@@ -275,7 +275,7 @@ export class ParseController {
         });
         dailyAlertPrograms.push({
           program: rule.program,
-          success: true,
+          success: false,
           alerted,
         });
       }

@@ -48,26 +48,19 @@ export class ParseService {
     files: FileUploadedEntity[]
   ): boolean {
     const { cashChequesFilename, posFilename, transactionsFilename } = rule;
-    let hasTdi17 = false,
-      hasTdi34 = false,
-      hasTransactionFile = false;
-    let success = true;
-    if (cashChequesFilename) {
-      hasTdi17 =
-        files?.some((file) => file.sourceFileType === FileTypes.TDI17) || false;
-    }
-    if (posFilename) {
-      hasTdi34 =
-        files?.some((file) => file.sourceFileType === FileTypes.TDI34) || false;
-    }
-    if (transactionsFilename) {
-      hasTransactionFile =
-        files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES) ||
-        false;
-    }
-    if (!hasTdi17 || !hasTdi34 || !hasTransactionFile) {
-      success = false;
-    }
+    const hasTdi17 =
+      (cashChequesFilename &&
+        !files?.some((file) => file.sourceFileType === FileTypes.TDI17)) ||
+      true;
+    const hasTdi34 =
+      (posFilename &&
+        !files?.some((file) => file.sourceFileType === FileTypes.TDI34)) ||
+      true;
+    const hasTransactionFile =
+      (transactionsFilename &&
+        !files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES)) ||
+      true;
+    let success = !hasTdi17 || !hasTdi34 || !hasTransactionFile;
     return success;
   }
 
