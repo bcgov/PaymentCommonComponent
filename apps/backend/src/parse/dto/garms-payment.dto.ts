@@ -20,8 +20,8 @@ export class GarmsPaymentDTO {
 
   @ApiProperty({ description: 'Exchange Rate', example: 1.345 })
   @IsNumber()
-  @IsNotEmpty()
-  exchange_rate!: number;
+  @IsOptional()
+  exchange_rate?: number;
 
   @ApiProperty({ description: 'Payment Method', type: PaymentMethodEntity })
   @IsNotEmpty()
