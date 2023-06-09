@@ -57,7 +57,6 @@ export class GarmsTransactionDTO {
   @ApiProperty({ description: 'Total Value of the Txn', example: 150.5 })
   @IsNumber()
   @IsNotEmpty()
-  @Min(0.01)
   total_transaction_amount!: number;
 
   @ApiProperty({ description: 'Transaction Cancelled', example: true })
@@ -96,12 +95,6 @@ export class GarmsTransactionDTO {
   @ArrayMinSize(1, {
     message: 'At least 1 Payment Method Required',
   })
-  @ArrayUnique(
-    (o: GarmsPaymentDTO) => {
-      return o.payment_method;
-    },
-    { message: 'Payment Method items must be unique' }
-  )
   @Validate(ArePaymentMethodsValid)
   payments!: GarmsPaymentDTO[];
 
