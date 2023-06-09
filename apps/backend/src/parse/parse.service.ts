@@ -151,7 +151,7 @@ export class ParseService {
 
     try {
       await validateOrReject(list);
-    } catch (e: any) {
+    } catch (e: unknown) {
       this.handleValidationError(
         e,
         fileName,
