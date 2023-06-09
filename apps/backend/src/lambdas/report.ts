@@ -18,6 +18,7 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
+import { PosHeuristicRound } from '../reconciliation/types';
 import { ReportConfig } from '../reporting/interfaces';
 import { ReportingService } from '../reporting/reporting.service';
 import { PaymentEntity } from '../transaction/entities';
@@ -186,7 +187,7 @@ const getPosReportData = async (
     [MatchStatus.MATCH, MatchStatus.EXCEPTION]
   );
 
-  const matchedPaymentsOnReportDate = matchedPaymentsAndExceptions.filter(
+  const matchedPayments = matchedPaymentsAndExceptions.filter(
     (itm: PaymentEntity) => itm.status === MatchStatus.MATCH
   );
 
@@ -201,43 +202,43 @@ const getPosReportData = async (
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
-  const matchedDepositsAndExceptions = await posDepositService.findPosDeposits(
+  const depositExceptionsAndMatches = await posDepositService.findPosDeposits(
     { minDate: event.period.to, maxDate: event.period.to },
     event.program,
     locations.flatMap((itm: NormalizedLocation) => itm.merchant_ids),
-    [MatchStatus.MATCH, MatchStatus.EXCEPTION]
+    [MatchStatus.EXCEPTION, MatchStatus.MATCH]
   );
-  const matchedDepositsFromToday = matchedDepositsAndExceptions.filter(
-    (itm: POSDepositEntity) => itm.status === MatchStatus.MATCH
-  );
-  const depositExceptions = matchedDepositsAndExceptions.filter(
-    (itm: POSDepositEntity) => itm.status === MatchStatus.EXCEPTION
-  );
-  const matchedPaymentsFromAnotherDay =
-    await paymentService.findPaymentsByPosDeposits(matchedDepositsFromToday);
-
-  const matchedPayments = Array.from(
-    new Set([...matchedPaymentsOnReportDate, ...matchedPaymentsFromAnotherDay])
+  const matchedDeposits = depositExceptionsAndMatches.filter(
+    (itm) => itm.status === MatchStatus.MATCH
   );
 
-  const matchedDepositsFromAnotherDay =
-    await posDepositService.findPosDepositsByPaymentMatch(
-      matchedPaymentsOnReportDate
+  const depositExceptions = depositExceptionsAndMatches.filter(
+    (itm) => itm.status === MatchStatus.EXCEPTION
+  );
+  const roundThreeMatchedPayments =
+    await paymentService.findPosPaymentsByMatchedDepositId(
+      matchedDeposits.filter(
+        (itm) => itm.heuristic_match_round === PosHeuristicRound.THREE
+      )
     );
-
-  const matchedDeposits = Array.from(
-    new Set([...matchedDepositsFromToday, ...matchedDepositsFromAnotherDay])
-  );
+  const roundThreeMatchedDeposits =
+    await posDepositService.findPosDepositsByPaymentMatch(
+      matchedPayments.filter(
+        (itm) => itm.heuristic_match_round === PosHeuristicRound.THREE
+      )
+    );
 
   return {
     posPayments: [
       ...pendingAndInProgressPayments,
       ...matchedPayments,
+      ...roundThreeMatchedPayments,
       ...paymentExceptions,
     ],
     posDeposits: [
       ...pendingAndInProgressDeposits,
       ...matchedDeposits,
+      ...roundThreeMatchedDeposits,
       ...depositExceptions,
     ],
   };

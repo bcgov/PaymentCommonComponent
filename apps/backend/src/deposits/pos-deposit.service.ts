@@ -187,6 +187,9 @@ export class PosDepositService {
   ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.find({
       where: { id: In(payments.map((itm) => itm.pos_deposit_match?.id)) },
+      relations: {
+        payment_method: true,
+      },
     });
   }
 }

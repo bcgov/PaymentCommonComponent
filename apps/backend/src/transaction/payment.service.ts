@@ -273,4 +273,17 @@ export class PaymentService {
     });
     return payments;
   }
+
+  async findPosPaymentsByMatchedDepositId(
+    posDeposits: POSDepositEntity[]
+  ): Promise<PaymentEntity[]> {
+    return await this.paymentRepo.find({
+      where: { pos_deposit_match: In(posDeposits.map((itm) => itm.id)) },
+      relations: {
+        transaction: true,
+        payment_method: true,
+        pos_deposit_match: true,
+      },
+    });
+  }
 }
