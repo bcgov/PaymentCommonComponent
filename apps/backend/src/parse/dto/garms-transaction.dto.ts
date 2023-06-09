@@ -12,11 +12,13 @@ import {
   IsOptional,
   IsString,
   Min,
+  Validate,
   ValidateNested,
 } from 'class-validator';
 import { GarmsPaymentDTO } from './garms-payment.dto';
 import { TransactionEntity } from '../../transaction/entities/transaction.entity';
 import { Transaction } from '../../transaction/interface/transaction.interface';
+import { ArePaymentMethodsValid } from 'src/transaction/decorators/arePaymentMethodsValid';
 
 /**
  * Original GARMS Transaction formatting
@@ -68,9 +70,9 @@ export class GarmsTransactionDTO {
   source_id!: string;
 
   @ApiProperty({ description: 'Location ID', example: '47' })
-  @IsString()
+  @IsNumber()
   @IsNotEmpty()
-  location_id!: string;
+  location_id!: number;
 
   @ApiProperty({ description: 'TransactionJSON', type: Transaction })
   transactionJson: Transaction;
@@ -100,6 +102,7 @@ export class GarmsTransactionDTO {
     },
     { message: 'Payment Method items must be unique' }
   )
+  @Validate(ArePaymentMethodsValid)
   payments!: GarmsPaymentDTO[];
 
   constructor(transaction?: Partial<TransactionEntity>) {
