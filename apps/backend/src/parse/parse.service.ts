@@ -37,6 +37,14 @@ export class ParseService {
     private programDailyRepo: Repository<ProgramDailyUploadEntity>
   ) {}
 
+  /**
+   * Handles validation errors from validateOrReject, identifying which property is failing validation
+   * Logs into applogger and handles throwing with the error message as well
+   * @param error Error, in this case an array of ValidationErrors (coming from validateOrReject)
+   * @param fileName Filename for logging
+   * @param errantColumnName The plain name of the column for identifying the row with the issue
+   * @param errantIdColumnName The property name of the column for identifying the row with the issue
+   */
   handleValidationError(
     error: unknown,
     fileName: string,
@@ -64,6 +72,9 @@ export class ParseService {
     throw new Error(errorMessage);
   }
 
+  /**
+   * Function used by `flat-file` endpoint to parse TDI
+   */
   async readAndParseFile({
     type,
     fileName,
@@ -78,16 +89,25 @@ export class ParseService {
     }
   }
 
+  /**
+   * Parses file coming from Garms, validating payments and transactions
+   * @param contents String contents from file buffer
+   * @param fileName Name of the file
+   * @returns Array of transaction entities ready to save to the database
+   */
   async parseGarmsFile(
     contents: string,
     fileName: string
   ): Promise<TransactionEntity[]> {
     const paymentMethods = await this.paymentMethodService.getPaymentMethods();
+    // Creates an array of Transaction Entities
     const garmsSales = await parseGarms(
       (await JSON.parse(contents || '{}')) as SBCGarmsJson[],
       fileName,
       paymentMethods
     );
+
+    // Converts to DTOs strictly for validation purposes
     const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
     const list = new GarmsTransactionList(garmsSalesDTO);
     try {
@@ -103,32 +123,35 @@ export class ParseService {
     return garmsSales;
   }
 
+  /**
+   * Parses TDI17 files, validates them, and translates to CashDepositEntity
+   * @param fileName Filename
+   * @param program SBC or Labour for now, based on filename
+   * @param fileContents Actual buffer from the file
+   * @returns An array of CashDepositEntities ready to be saved into the db
+   */
   async parseTDICashFile(
-    type: FileTypes,
     fileName: string,
     program: string,
     fileContents: Buffer
   ): Promise<CashDepositEntity[]> {
     const parsed = parseTDI({
-      type,
+      type: FileTypes.TDI17,
       fileName,
       program,
       fileContents: Buffer.from(fileContents.toString() || '').toString(),
     });
 
-    // validate
     const tdi17Details = parsed as TDI17Details[];
     const cashDeposits = tdi17Details.map(
       (details) => new CashDepositEntity(details)
     );
     const cashDepositsDto = cashDeposits.map((c) => new CashDepositDTO(c));
     const list = new CashDepositsListDTO(cashDepositsDto);
+
     try {
-      console.log(typeof cashDeposits[0].deposit_amt_cdn);
-      console.log(typeof list.list[0].deposit_amt_cdn);
       await validateOrReject(list);
     } catch (e: any) {
-      console.log(e[0].children[0].children);
       this.handleValidationError(
         e,
         fileName,
@@ -139,26 +162,32 @@ export class ParseService {
     return cashDeposits;
   }
 
+  /**
+   * Parses TDI34 files, validates them, and translates to PosDepositEntity
+   * @param fileName Filename
+   * @param program SBC or Labour for now, based on filename
+   * @param fileContents Actual buffer from the file
+   * @returns An array of PosDepositEntities ready to be saved into the db
+   */
   async parseTDICardsFile(
-    type: FileTypes,
     fileName: string,
     program: string,
     fileContents: Buffer
   ): Promise<POSDepositEntity[]> {
     const parsed = parseTDI({
-      type,
+      type: FileTypes.TDI34,
       fileName,
       program,
       fileContents: Buffer.from(fileContents.toString() || '').toString(),
     });
 
-    // validate
     const tdi34Details = parsed as TDI34Details[];
     const posEntities = tdi34Details.map(
       (details) => new POSDepositEntity(details)
     );
     const cashDepositsDto = posEntities.map((p) => new PosDepositDTO(p));
     const list = new PosDepositListDTO(cashDepositsDto);
+
     try {
       await validateOrReject(list);
     } catch (e: unknown) {
@@ -172,16 +201,31 @@ export class ParseService {
     return posEntities;
   }
 
+  /**
+   * Saves an entity into the Files Uploaded table.
+   * Called whenever a file is uploaded by API or parser lambda
+   * @param fileUploaded All the necessary information - sourceFileType, name, length, which daily upload to link to
+   * @returns Saved FileUploadedEntity
+   */
   async saveFileUploaded(
     fileUploaded: Partial<FileUploadedEntity>
   ): Promise<FileUploadedEntity> {
     return this.uploadedRepo.save(fileUploaded);
   }
 
+  /**
+   * Gets all existing rules for each program
+   * @returns List of Rules
+   */
   async getAllRules(): Promise<FileIngestionRulesEntity[]> {
     return this.ingestionRulesRepo.find();
   }
 
+  /**
+   * Gets a single rule for a specific program
+   * @param program SBC or LABOUR for now
+   * @returns A set of rules for a program, or failure
+   */
   async getRulesForProgram(program: string): Promise<FileIngestionRulesEntity> {
     return this.ingestionRulesRepo.findOneOrFail({
       where: {
@@ -190,8 +234,14 @@ export class ParseService {
     });
   }
 
+  /**
+   * Gets the daily status for a specified date for the specified rule
+   * @param rule
+   * @param date
+   * @returns A daily upload entity or nothing
+   */
   async getDailyForRule(
-    rules: FileIngestionRulesEntity,
+    rule: FileIngestionRulesEntity,
     date: Date
   ): Promise<ProgramDailyUploadEntity | null> {
     return this.programDailyRepo.findOne({
@@ -199,27 +249,41 @@ export class ParseService {
       where: {
         dailyDate: format(date, 'yyyy-MM-dd'),
         rule: {
-          id: rules.id,
+          id: rule.id,
         },
       },
     });
   }
 
-  async createNewDaily(rules: FileIngestionRulesEntity, date: Date) {
+  /**
+   * Creates a new daily entity for the specified rule for a specified date
+   * @param rule
+   * @param date
+   * @returns
+   */
+  async createNewDaily(
+    rule: FileIngestionRulesEntity,
+    date: Date
+  ): Promise<ProgramDailyUploadEntity> {
     try {
       const newDaily: Partial<ProgramDailyUploadEntity> = {
         dailyDate: format(date, 'yyyy-MM-dd'),
         success: false,
         retries: 0,
-        rule: rules,
+        rule,
       };
       const daily = this.programDailyRepo.create(newDaily);
       return this.saveDaily(daily);
     } catch (e) {
-      throw new Error('ERROR SAVING DAILY');
+      throw new Error('Error saving daily upload');
     }
   }
 
+  /**
+   * Saves an existing daily with presumably new information
+   * @param daily Daily with updated information
+   * @returns ProgramDailyUploadEntity
+   */
   async saveDaily(
     daily: ProgramDailyUploadEntity
   ): Promise<ProgramDailyUploadEntity> {

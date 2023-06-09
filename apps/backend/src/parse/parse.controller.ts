@@ -112,6 +112,7 @@ export class ParseController {
     this.appLogger.log(`Parsing ${fileName} - ${fileType}`);
     const contents = file.buffer.toString();
 
+    // Throws an error if no rules exist for the specified program
     const rules = await this.parseService.getRulesForProgram(program);
     if (!rules) {
       throw new HttpException(
@@ -119,23 +120,26 @@ export class ParseController {
         HttpStatus.FORBIDDEN
       );
     }
+
+    // Creates a new daily status for the rule, if none exist, so that files can be tracked
     let daily = await this.parseService.getDailyForRule(rules, new Date());
     if (!daily) {
       daily = await this.parseService.createNewDaily(rules, new Date());
     }
 
     try {
+      // FileType is based on the filename (from Parser) or from the endpoint body
       if (fileType === FileTypes.SBC_SALES) {
         this.appLogger.log('Parse and store SBC Sales in DB...', fileName);
         const garmsSales: TransactionEntity[] =
-          await this.parseService.parseGarmsFile(contents, fileName);
+          await this.parseService.parseGarmsFile(contents, fileName); // validating step
         const fileToSave = await this.parseService.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: garmsSales.length,
           dailyUpload: daily,
         });
-        this.appLogger.log(`txn count: ${garmsSales.length}`);
+        this.appLogger.log(`Transaction count: ${garmsSales.length}`);
         await this.transactionService.saveTransactions(
           garmsSales.map((sale) => ({
             ...sale,
@@ -147,17 +151,17 @@ export class ParseController {
       if (fileType === FileTypes.TDI17) {
         this.appLogger.log('Parse and store TDI17 in DB...', fileName);
         const cashDeposits = await this.parseService.parseTDICashFile(
-          fileType,
           fileName,
           program,
           file.buffer
-        );
+        ); // validating step
         const fileToSave = await this.parseService.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: cashDeposits.length,
           dailyUpload: daily,
         });
+        this.appLogger.log(`Cash Deposits count: ${cashDeposits.length}`);
         await this.cashDepositService.saveCashDepositEntities(
           cashDeposits.map((deposit) => ({
             ...deposit,
@@ -169,7 +173,6 @@ export class ParseController {
       if (fileType === FileTypes.TDI34) {
         this.appLogger.log('Parse and store TDI34 in DB...', fileName);
         const posEntities = await this.parseService.parseTDICardsFile(
-          fileType,
           fileName,
           program,
           file.buffer
@@ -180,6 +183,7 @@ export class ParseController {
           sourceFileLength: posEntities.length,
           dailyUpload: daily,
         });
+        this.appLogger.log(`POS Deposits count: ${posEntities.length}`);
         await this.posDepositService.savePOSDepositEntities(
           posEntities.map((deposit) => ({
             ...deposit,
@@ -198,7 +202,10 @@ export class ParseController {
     }
   }
 
-  // Commence daily upload for each program area we have
+  /**
+   * Commence daily upload for a specific date for each program area we have in the rules
+   * Called at the start of a parser lambda run
+   */
   @Post('daily-upload')
   async commenceDailyUpload(@Body() body: { date: Date }): Promise<void> {
     const rules = await this.parseService.getAllRules();
@@ -211,6 +218,11 @@ export class ParseController {
     return;
   }
 
+  /**
+   * Makes decisions on whether to send an alert (or error log) for our programs for a date
+   * Based on the daily program status, and which files are required by the rules
+   * @returns Array of DailyAlertROs to determine which programs are successful and which programs have been alerted
+   */
   @Post('daily-upload/alert')
   async dailyUploadAlert(@Body() body: { date: Date }): Promise<DailyAlertRO> {
     const rules = await this.parseService.getAllRules();
