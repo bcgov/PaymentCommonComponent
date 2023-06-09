@@ -4,8 +4,8 @@ import {
   ValidationArguments,
   isArray,
 } from 'class-validator';
+import { GarmsTransactionDTO } from '../../parse/dto/garms-transaction.dto';
 import { PaymentDTO } from '../dto/payment.dto';
-import { TransactionDTO } from '../dto/transaction.dto';
 
 @ValidatorConstraint()
 export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
@@ -18,7 +18,7 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
     paymentMethods: PaymentDTO[],
     args: ValidationArguments
   ) {
-    const sales = args.object as TransactionDTO;
+    const sales = args.object as GarmsTransactionDTO;
 
     if (!isArray(paymentMethods)) {
       this.errorMessage = `Distributions must be an array`;
