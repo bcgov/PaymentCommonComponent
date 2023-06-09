@@ -174,10 +174,8 @@ export const handler = async (event?: unknown, _context?: Context) => {
             currentRule = rule;
             return rule.program;
           }
-          throw new Error(
-            'File does not reference to any programs: ' + filename
-          );
         }
+        throw new Error(`File does not reference to any programs: ${filename}`);
       })();
 
       if (!currentRule) {
