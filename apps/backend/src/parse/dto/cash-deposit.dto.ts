@@ -30,8 +30,8 @@ export class CashDepositDTO {
 
   @ApiProperty({ description: 'Deposit time', example: '162600' })
   @IsNumberString()
-  @IsNotEmpty()
-  deposit_time!: string;
+  @IsOptional()
+  deposit_time?: string;
 
   @ApiProperty({ description: 'Sequence Number', example: '001' })
   @IsNumberString()
