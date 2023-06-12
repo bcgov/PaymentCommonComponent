@@ -19,6 +19,7 @@ import { SourceDTO } from './source.dto';
 /**
  * Potentially deprecated, but will likely still need some formatting
  * from here, such as what's the source and accounting objects
+ * [CCFCPM-460] - As work begins on API endpoints for adding transactions, we can work to combine the two dtos
  */
 export class TransactionDTO {
   @ApiProperty({
