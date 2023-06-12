@@ -1,39 +1,61 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
+import axios, { AxiosError, AxiosInstance } from 'axios';
+import { isSaturday, isSunday, format } from 'date-fns';
+import FormData from 'form-data';
 import * as _ from 'underscore';
+
+import { Readable } from 'stream';
 import { getLambdaEventSource } from './utils/eventTypes';
-import { parseGarms } from './utils/parseGarms';
-import { parseTDI } from './utils/parseTDI';
 import { AppModule } from '../app.module';
-import { FileNames, FileTypes, ALL, Ministries } from '../constants';
+import { FileTypes, ALL } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
-import { TDI34Details } from '../flat-files';
-import { TDI17Details } from '../flat-files/tdi17/TDI17Details';
 import { AppLogger } from '../logger/logger.service';
+import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
+import { ParseService } from '../parse/parse.service';
+import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { TransactionEntity } from '../transaction/entities/transaction.entity';
-import { SBCGarmsJson } from '../transaction/interface';
-import { PaymentMethodService } from '../transaction/payment-method.service';
 import { TransactionService } from '../transaction/transaction.service';
+
 export interface ParseEvent {
   eventType: string;
   filename: string;
 }
 
+const API_URL = process.env.API_URL;
+let axiosInstance: AxiosInstance;
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: unknown, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
+
+  if (!API_URL) {
+    appLogger.error(
+      'No API URL present, please check the environment variables'
+    );
+    return;
+  } else {
+    axiosInstance = axios.create({ baseURL: API_URL });
+  }
+
+  if (isSaturday(new Date()) || isSunday(new Date())) {
+    appLogger.error(
+      `Skipping Parsing for ${format(
+        new Date(),
+        'yyyy-MM-dd'
+      )} as it is a weekend`
+    );
+    return;
+  }
+
+  const parseService = app.get(ParseService);
   const transactionService = app.get(TransactionService);
-  const paymentMethodService = app.get(PaymentMethodService);
   const s3 = app.get(S3ManagerService);
   const posService = app.get(PosDepositService);
   const cashService = app.get(CashDepositService);
 
-  const paymentMethods = await paymentMethodService.getPaymentMethods();
   const processAllFiles = async () => {
     appLogger.log('Processing all files...');
     try {
@@ -67,12 +89,53 @@ export const handler = async (event?: unknown, _context?: Context) => {
       const finalParseList = parseList.filter(
         (filename) => !filename?.includes('LABOUR2')
       );
+      appLogger.log('Creating daily upload for today if needed');
+
+      await axiosInstance.post(
+        '/v1/parse/daily-upload',
+        {
+          date: new Date(),
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
 
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         appLogger.log(`Parsing ${filename}..`);
         const event = { eventType: 'all', filename: filename };
         await processEvent(event);
+      }
+
+      const alertsSentResponse = await axiosInstance.post(
+        '/v1/parse/daily-upload/alert',
+        {
+          date: new Date(),
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      appLogger.log(alertsSentResponse.data.data);
+      const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
+      const programAlerts = alertsSent.dailyAlertPrograms;
+      for (const alert of programAlerts) {
+        if (!alert.success) {
+          appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
+        }
+        if (alert.alerted) {
+          appLogger.log(
+            '\n\n=========Alerts Sent for Daily Upload: =========\n'
+          );
+          appLogger.error(
+            `Sent an alert to prompt ${alert.program} to complete upload`
+          );
+        }
       }
     } catch (err) {
       appLogger.error(err);
@@ -97,60 +160,70 @@ export const handler = async (event?: unknown, _context?: Context) => {
         process.exit(0);
       })();
 
-      const file = await s3.getObject(
+      const file = await s3.getObjectStream(
         `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
         filename
       );
 
+      let currentRule: FileIngestionRulesEntity | null = null;
+
+      const rules = await parseService.getAllRules();
+      const ministry = (() => {
+        for (const rule of rules) {
+          if (filename.includes(rule.program)) {
+            currentRule = rule;
+            return rule.program;
+          }
+        }
+        throw new Error(`File does not reference to any programs: ${filename}`);
+      })();
+
+      if (!currentRule) {
+        throw new Error('No rule associated');
+      }
+
       const fileType = (() => {
-        if (filename.includes(FileNames.TDI17)) return FileTypes.TDI17;
-        if (filename.includes(FileNames.TDI34)) return FileTypes.TDI34;
-        if (filename.includes(FileNames.SBC_SALES)) return FileTypes.SBC_SALES;
+        if (
+          currentRule.cashChequesFilename &&
+          filename.includes(currentRule.cashChequesFilename)
+        ) {
+          return FileTypes.TDI17;
+        }
+        if (
+          currentRule.posFilename &&
+          filename.includes(currentRule.posFilename)
+        ) {
+          return FileTypes.TDI34;
+        }
+        if (
+          currentRule.transactionsFilename &&
+          filename.includes(currentRule.transactionsFilename)
+        ) {
+          return FileTypes.SBC_SALES;
+        }
         throw new Error('Unknown file type: ' + filename);
       })();
 
-      const ministry = (() => {
-        if (filename.includes(Ministries.LABOUR)) return Ministries.LABOUR;
-        if (filename.includes(Ministries.SBC)) return Ministries.SBC;
-        throw new Error(
-          'File does not reference to any ministries: ' + filename
-        );
-      })();
-
-      if (fileType === FileTypes.SBC_SALES) {
-        appLogger.log('Parse and store SBC Sales in DB...', filename);
-        const garmsSales: TransactionEntity[] = await parseGarms(
-          (await JSON.parse(file.Body?.toString() || '{}')) as SBCGarmsJson[],
-          filename,
-          paymentMethods
-        );
-        appLogger.log(`txn count: ${garmsSales.length}`);
-        await transactionService.saveTransactions(garmsSales);
-      }
-
-      if (fileType === FileTypes.TDI17 || fileType === FileTypes.TDI34) {
-        const parsed = parseTDI({
-          type: fileType,
-          fileName: filename,
-          program: ministry,
-          fileContents: Buffer.from(file.Body?.toString() || '').toString(),
+      try {
+        appLogger.log('Call endpoint to upload file...', filename);
+        const formData = new FormData();
+        formData.append('file', Readable.from(file), filename);
+        formData.append('fileName', filename);
+        formData.append('fileType', fileType);
+        formData.append('program', ministry);
+        await axiosInstance.post('/v1/parse/upload-file', formData, {
+          headers: {
+            ...formData.getHeaders(),
+          },
         });
-
-        if (fileType === FileTypes.TDI34) {
-          const tdi34Details = parsed as TDI34Details[];
-          const posEntities = tdi34Details.map(
-            (item) => new POSDepositEntity(item)
-          );
-          await posService.savePOSDepositEntities(posEntities);
-        }
-
-        if (fileType === FileTypes.TDI17) {
-          const tdi17Details = parsed as TDI17Details[];
-          const cashDeposits = tdi17Details.map(
-            (details) => new CashDepositEntity(details)
-          );
-          await cashService.saveCashDepositEntities(cashDeposits);
-        }
+      } catch (err) {
+        appLogger.log('\n\n=========Errors with File Upload: =========\n');
+        appLogger.error(`Error with uploading file ${filename}`);
+        appLogger.error(
+          err instanceof AxiosError
+            ? `Validation Errors: ${err.response?.data?.errorMessage}`
+            : `Validation Errors present in the file`
+        );
       }
     } catch (err) {
       appLogger.error(err);

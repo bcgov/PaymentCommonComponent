@@ -22,6 +22,13 @@ export class S3ManagerService {
     return response;
   }
 
+  async getObjectStream(bucket: string, key: string) {
+    const response = await this.s3
+      .getObject({ Bucket: bucket, Key: key })
+      .createReadStream();
+    return response;
+  }
+
   async putObject(bucket: string, key: string, body: Buffer) {
     const response = await this.s3
       .putObject({ Bucket: bucket, Key: key, Body: body })

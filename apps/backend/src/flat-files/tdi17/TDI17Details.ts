@@ -90,7 +90,7 @@ export class TDI17Details
     this.resource.pt_location_id = data;
   }
 
-  @Column({ start: 15, width: 5 })
+  @Column({ start: 15, width: 5, format: { type: DataType.Integer } })
   public get pt_location_id(): number {
     return this.resource.pt_location_id;
   }
@@ -133,7 +133,7 @@ export class TDI17Details
     this.resource.negative_indicator_curr = data;
   }
 
-  @Column({ start: 67, width: 12, format: { type: DataType.Decimal } })
+  @Column({ start: 67, width: 12, format: { type: DataType.Float } })
   public get deposit_amt_curr() {
     return this.resource.deposit_amt_curr;
   }
@@ -165,7 +165,7 @@ export class TDI17Details
   @Column({
     start: 82,
     width: 12,
-    format: { type: DataType.Decimal },
+    format: { type: DataType.Float },
   })
   public get exchange_adj_amt() {
     return this.resource.exchange_adj_amt;
@@ -187,7 +187,7 @@ export class TDI17Details
     this.resource.negative_indicator_cdn = data;
   }
 
-  @Column({ start: 95, width: 12, format: { type: DataType.Decimal } })
+  @Column({ start: 95, width: 12, format: { type: DataType.Float } })
   public get deposit_amt_cdn() {
     return this.resource.deposit_amt_cdn;
   }

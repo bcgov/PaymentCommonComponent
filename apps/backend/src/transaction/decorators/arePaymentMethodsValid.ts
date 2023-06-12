@@ -4,8 +4,9 @@ import {
   ValidationArguments,
   isArray,
 } from 'class-validator';
+import Decimal from 'decimal.js';
 import { PaymentDTO } from '../dto/payment.dto';
-import { TransactionDTO } from '../dto/transaction.dto';
+import { GarmsTransactionDTO } from '../../parse/dto/garms-transaction.dto';
 
 @ValidatorConstraint()
 export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
@@ -18,7 +19,7 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
     paymentMethods: PaymentDTO[],
     args: ValidationArguments
   ) {
-    const sales = args.object as TransactionDTO;
+    const sales = args.object as GarmsTransactionDTO;
 
     if (!isArray(paymentMethods)) {
       this.errorMessage = `Distributions must be an array`;
@@ -26,8 +27,8 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
     }
 
     const paymentMethodSum = paymentMethods.reduce((sum, method) => {
-      return sum + method.amount;
-    }, 0);
+      return new Decimal(sum).plus(method.amount).toDecimalPlaces(2).toNumber();
+    }, new Decimal(0).toNumber());
 
     if (sales.total_transaction_amount !== paymentMethodSum) {
       this.errorMessage = `Sum Of Amounts by Payment Method does not equal Sale total.`;

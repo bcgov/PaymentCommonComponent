@@ -1,7 +1,9 @@
 import {
   Relation,
+  ManyToOne,
   OneToMany,
   Column,
+  JoinColumn,
   Entity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -9,6 +11,7 @@ import { FileMetadata } from '../../common/columns/metadata';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI17Details } from '../../flat-files';
+import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
 @Entity('cash_deposit')
@@ -83,6 +86,10 @@ export class CashDepositEntity {
     nullable: true,
   })
   payment_match?: Relation<PaymentEntity[]>;
+
+  @ManyToOne(() => FileUploadedEntity, { nullable: true })
+  @JoinColumn({ name: 'file_uploaded' })
+  fileUploadedEntity?: FileUploadedEntity;
 
   constructor(data?: TDI17Details) {
     Object.assign(this, data?.resource);

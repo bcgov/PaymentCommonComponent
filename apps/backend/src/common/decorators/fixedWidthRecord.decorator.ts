@@ -61,7 +61,7 @@ export enum DataType {
   Decimal = 'Decimal',
   Boolean = 'Boolean',
   Float = 'Float',
-  Integer = 'Integer ',
+  Integer = 'Integer',
   Date = 'Date',
   Time = 'Time',
   Card = 'Card',

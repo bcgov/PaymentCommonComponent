@@ -12,6 +12,7 @@ import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
+import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PosHeuristicRound } from '../../reconciliation/types/const';
 import { PaymentEntity, PaymentMethodEntity } from '../../transaction/entities';
 
@@ -71,6 +72,10 @@ export class POSDepositEntity {
     nullable: true,
   })
   round_four_matches?: Relation<PaymentEntity[]>;
+
+  @ManyToOne(() => FileUploadedEntity, { nullable: true })
+  @JoinColumn({ name: 'file_uploaded' })
+  fileUploadedEntity?: FileUploadedEntity;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);
