@@ -24,6 +24,8 @@ export class PaymentDetailsReport extends DetailsReport {
     this.amount = new Decimal(payment.amount).toDecimalPlaces(2).toNumber();
     this.foreign_currency_amount = payment.foreign_currency_amount ?? null;
     this.currency = payment.currency ?? 'CAD';
-    this.exchange_rate = payment?.exchange_rate ?? null;
+    this.exchange_rate = payment.exchange_rate
+      ? new Decimal(payment.exchange_rate).toDecimalPlaces(2).toNumber()
+      : null;
   }
 }
