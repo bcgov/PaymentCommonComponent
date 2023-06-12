@@ -27,7 +27,7 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
     }
 
     const paymentMethodSum = paymentMethods.reduce((sum, method) => {
-      return new Decimal(sum).plus(method.amount).toNumber();
+      return new Decimal(sum).plus(method.amount).toDecimalPlaces(2).toNumber();
     }, new Decimal(0).toNumber());
 
     if (sales.total_transaction_amount !== paymentMethodSum) {
