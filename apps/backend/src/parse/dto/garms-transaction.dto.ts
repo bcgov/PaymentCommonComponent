@@ -92,9 +92,6 @@ export class GarmsTransactionDTO {
   @ValidateNested({ each: true })
   @Type(() => GarmsPaymentDTO)
   @IsArray()
-  @ArrayMinSize(1, {
-    message: 'At least 1 Payment Method Required',
-  })
   @Validate(ArePaymentMethodsValid)
   payments!: GarmsPaymentDTO[];
 
