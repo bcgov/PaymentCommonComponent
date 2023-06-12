@@ -112,6 +112,14 @@ export class ParseController {
     this.appLogger.log(`Parsing ${fileName} - ${fileType}`);
     const contents = file.buffer.toString();
 
+    const allFiles = await this.parseService.getAllFiles();
+    const allFilenames = new Set(allFiles.map((f) => f.sourceFileName));
+    if (allFilenames.has(fileName)) {
+      throw new BadRequestException({
+        message: 'Invalid filename, this already exists',
+      });
+    }
+
     // Throws an error if no rules exist for the specified program
     const rules = await this.parseService.getRulesForProgram(program);
     if (!rules) {

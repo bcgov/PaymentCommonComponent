@@ -231,6 +231,14 @@ export class ParseService {
   }
 
   /**
+   * Gets all files
+   * @returns List of uploaded files
+   */
+  async getAllFiles(): Promise<FileUploadedEntity[]> {
+    return this.uploadedRepo.find();
+  }
+
+  /**
    * Saves an entity into the Files Uploaded table.
    * Called whenever a file is uploaded by API or parser lambda
    * @param fileUploaded All the necessary information - sourceFileType, name, length, which daily upload to link to
