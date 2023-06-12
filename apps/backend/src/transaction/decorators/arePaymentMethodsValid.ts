@@ -4,6 +4,7 @@ import {
   ValidationArguments,
   isArray,
 } from 'class-validator';
+import Decimal from 'decimal.js';
 import { PaymentDTO } from '../dto/payment.dto';
 import { GarmsTransactionDTO } from '../../parse/dto/garms-transaction.dto';
 
@@ -26,8 +27,8 @@ export class ArePaymentMethodsValid implements ValidatorConstraintInterface {
     }
 
     const paymentMethodSum = paymentMethods.reduce((sum, method) => {
-      return sum + method.amount;
-    }, 0);
+      return new Decimal(sum).plus(method.amount).toNumber();
+    }, new Decimal(0).toNumber());
 
     if (sales.total_transaction_amount !== paymentMethodSum) {
       this.errorMessage = `Sum Of Amounts by Payment Method does not equal Sale total.`;
