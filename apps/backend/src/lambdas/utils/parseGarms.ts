@@ -113,7 +113,9 @@ const parseSBCGarmsPayments = (
       garmsPayment.currency !== 'CAD' ? garmsPayment.amount : undefined,
     amount:
       garmsPayment.currency !== 'CAD' && garmsPayment.exchange_rate
-        ? new Decimal(garmsPayment.amount).toNumber() *
-          (garmsPayment.exchange_rate / 100)
+        ? new Decimal(garmsPayment.amount)
+            .times(garmsPayment.exchange_rate / 100)
+            .toDecimalPlaces(2)
+            .toNumber()
         : garmsPayment.amount,
   });
