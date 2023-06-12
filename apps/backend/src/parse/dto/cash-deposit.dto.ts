@@ -13,7 +13,7 @@ import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 export class CashDepositDTO {
   //source file type
 
-  @ApiProperty({ description: 'Program Code', example: '0070' })
+  @ApiProperty({ description: 'Program Code', example: '0090' })
   @IsString()
   @IsOptional()
   program_code?: string;
@@ -23,7 +23,7 @@ export class CashDepositDTO {
   @IsNotEmpty()
   deposit_date!: string;
 
-  @ApiProperty({ description: 'Pt Location Id', example: '20094' })
+  @ApiProperty({ description: 'Pt Location Id', example: '29999' })
   @IsNumber()
   @IsNotEmpty()
   pt_location_id!: number;
@@ -61,7 +61,7 @@ export class CashDepositDTO {
   @IsNotEmpty()
   deposit_amt_cdn!: number;
 
-  @ApiProperty({ description: 'Destination Bank Number', example: '0010' })
+  @ApiProperty({ description: 'Destination Bank Number', example: '0090' })
   @IsNumberString()
   @IsNotEmpty()
   destination_bank_no!: string;

@@ -14,11 +14,11 @@ import { PaymentMethodEntity } from '../../transaction/entities';
 export class PosDepositDTO {
   //source file type
 
-  @ApiProperty({ description: 'Merchant ID', example: '22044859' })
+  @ApiProperty({ description: 'Merchant ID', example: '22099999' })
   @IsNumber()
   merchant_id!: string;
 
-  @ApiProperty({ description: 'Card Id', example: '***************6194' })
+  @ApiProperty({ description: 'Card Id', example: '***************5368' })
   @IsString()
   @IsNotEmpty()
   @Length(19)
@@ -40,7 +40,7 @@ export class PosDepositDTO {
 
   @ApiProperty({
     description: 'Terminal Number',
-    example: 'GA2204318206',
+    example: 'GA2209999999',
   })
   @IsString()
   @IsNotEmpty()

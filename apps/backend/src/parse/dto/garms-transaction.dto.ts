@@ -66,7 +66,7 @@ export class GarmsTransactionDTO {
   @IsNotEmpty()
   source_id!: string;
 
-  @ApiProperty({ description: 'Location ID', example: '47' })
+  @ApiProperty({ description: 'Location ID', example: '99' })
   @IsNumber()
   @IsNotEmpty()
   location_id!: number;
