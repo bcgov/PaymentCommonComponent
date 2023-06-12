@@ -363,7 +363,6 @@ export class ReportingService {
               .toNumber()
           : 0;
 
-      /*eslint-disable */
       const totalSumPayments = paymentsByLocation.reduce(
         (acc: Decimal, itm: PaymentEntity) => {
           return acc.plus(itm.amount);
@@ -380,7 +379,6 @@ export class ReportingService {
               .toNumber()
           : 0;
 
-      /*eslint-disable */
       const totalSumCashDeposits = cashDepositsByLocation.reduce(
         (acc: Decimal, itm: CashDepositEntity) => {
           return acc.plus(itm.deposit_amt_cdn);
