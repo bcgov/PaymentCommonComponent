@@ -4,8 +4,8 @@ import {
   ValidationArguments,
   isArray,
 } from 'class-validator';
-import { GarmsTransactionDTO } from '../../parse/dto/garms-transaction.dto';
 import { PaymentDTO } from '../dto/payment.dto';
+import { GarmsTransactionDTO } from '../../parse/dto/garms-transaction.dto';
 
 @ValidatorConstraint()
 export class ArePaymentMethodsValid implements ValidatorConstraintInterface {

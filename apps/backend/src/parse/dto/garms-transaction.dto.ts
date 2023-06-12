@@ -2,7 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
   ArrayMinSize,
-  ArrayUnique,
   IsArray,
   IsBoolean,
   IsDateString,
@@ -11,14 +10,13 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Min,
   Validate,
   ValidateNested,
 } from 'class-validator';
 import { GarmsPaymentDTO } from './garms-payment.dto';
+import { ArePaymentMethodsValid } from '../../transaction/decorators/arePaymentMethodsValid';
 import { TransactionEntity } from '../../transaction/entities/transaction.entity';
 import { Transaction } from '../../transaction/interface/transaction.interface';
-import { ArePaymentMethodsValid } from '../../transaction/decorators/arePaymentMethodsValid';
 
 /**
  * Original GARMS Transaction formatting

@@ -21,7 +21,6 @@ import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
 import { TransactionEntity } from '../transaction/entities';
 import { TransactionService } from '../transaction/transaction.service';
-import { parseISO } from 'date-fns';
 
 @Controller('parse')
 @ApiTags('Parser API')
@@ -194,12 +193,12 @@ export class ParseController {
         );
       }
     } catch (err: unknown) {
-      throw new BadRequestException({
-        message:
-          err instanceof Error
-            ? err.message
-            : `Error with processing ${fileName}`,
-      });
+      const message =
+        err instanceof Error
+          ? err.message
+          : `Error with processing ${fileName}`;
+      this.appLogger.log(message);
+      throw new BadRequestException({ message });
     }
   }
 

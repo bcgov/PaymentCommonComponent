@@ -1,11 +1,8 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { validateOrReject, ValidationError } from 'class-validator';
-import { FileUploadedEntity } from './entities/file-uploaded.entity';
+import { format } from 'date-fns';
 import { Repository } from 'typeorm';
-import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
 import {
   GarmsTransactionDTO,
@@ -13,7 +10,11 @@ import {
 } from './dto/garms-transaction.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
+import { FileUploadedEntity } from './entities/file-uploaded.entity';
+import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { FileTypes, ParseArgsTDI } from '../constants';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { TDI17Details, TDI34Details } from '../flat-files';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI } from '../lambdas/utils/parseTDI';
@@ -21,7 +22,6 @@ import { AppLogger } from '../logger/logger.service';
 import { TransactionEntity } from '../transaction/entities';
 import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
-import { format } from 'date-fns';
 
 @Injectable()
 export class ParseService {
@@ -60,7 +60,7 @@ export class ParseService {
       (transactionsFilename &&
         !files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES)) ||
       true;
-    let success = !hasTdi17 || !hasTdi34 || !hasTransactionFile;
+    const success = !hasTdi17 || !hasTdi34 || !hasTransactionFile;
     return success;
   }
 
@@ -145,7 +145,6 @@ export class ParseService {
         'Transaction Id',
         'transaction_id'
       );
-      this.appLogger.error(errorMessage);
       throw new Error(errorMessage);
     }
     return garmsSales;
@@ -186,7 +185,6 @@ export class ParseService {
         'Source File Line',
         'source_file_line'
       );
-      this.appLogger.error(errorMessage);
       throw new Error(errorMessage);
     }
     return cashDeposits;
@@ -227,7 +225,6 @@ export class ParseService {
         'Source File Line',
         'source_file_line'
       );
-      this.appLogger.error(errorMessage);
       throw new Error(errorMessage);
     }
     return posEntities;
