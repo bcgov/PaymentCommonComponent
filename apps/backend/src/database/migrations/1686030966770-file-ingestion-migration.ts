@@ -11,7 +11,7 @@ export class migration1686030966770 implements MigrationInterface {
       `CREATE TABLE "program_daily_upload" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "daily_date" date NOT NULL, "success" boolean NOT NULL, "retries" integer NOT NULL, "ruleId" uuid, CONSTRAINT "PK_24196c3558e5e3bf7617a2b453d" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "file_uploaded" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "source_file_type" character varying NOT NULL DEFAULT 'TDI17', "source_file_name" character varying NOT NULL, "source_file_length" integer NOT NULL, "daily_upload_id" uuid, CONSTRAINT "PK_27908e2def3d89bd889a9cd65dd" PRIMARY KEY ("id"))`
+      `CREATE TABLE "file_uploaded" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "created_at" TIMESTAMP NOT NULL DEFAULT now(), "source_file_type" character varying NOT NULL, "source_file_name" character varying NOT NULL, "source_file_length" integer NOT NULL, "daily_upload_id" uuid, CONSTRAINT "PK_27908e2def3d89bd889a9cd65dd" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `ALTER TABLE "transaction" ADD "file_uploaded" uuid`
