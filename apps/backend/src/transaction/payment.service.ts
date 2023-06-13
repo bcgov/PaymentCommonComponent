@@ -5,6 +5,7 @@ import { Raw, In, Repository, LessThanOrEqual, LessThan } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { DateRange, PaymentMethodClassification } from '../constants';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedCashPayment } from '../reconciliation/types/interface';
@@ -167,7 +168,8 @@ export class PaymentService {
   public async findCashPayments(
     dateRange: DateRange,
     location_ids: number[],
-    statuses?: MatchStatus[]
+    statuses?: MatchStatus[],
+    cash_deposit_match?: boolean
   ): Promise<PaymentEntity[]> {
     const paymentStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
@@ -186,7 +188,11 @@ export class PaymentService {
           ),
         },
       },
-      relations: { transaction: true, payment_method: true },
+      relations: {
+        transaction: true,
+        payment_method: true,
+        cash_deposit_match: cash_deposit_match ?? false,
+      },
       order: {
         transaction: { fiscal_close_date: 'ASC' },
         amount: 'ASC',
@@ -289,6 +295,23 @@ export class PaymentService {
         transaction: true,
         payment_method: true,
         pos_deposit_match,
+      },
+    });
+  }
+
+  async findCashPaymentsByDepositMatch(cashDeposits: CashDepositEntity[]) {
+    return await this.paymentRepo.find({
+      where: {
+        id: In(
+          cashDeposits.flatMap((itm) =>
+            itm.payment_matches?.map((itm) => itm.id)
+          )
+        ),
+      },
+      relations: {
+        transaction: true,
+        payment_method: true,
+        cash_deposit_match: true,
       },
     });
   }

@@ -147,7 +147,8 @@ export class CashDepositService {
     pt_location_ids: number[],
     program: Ministries,
     dateRange: DateRange,
-    statuses?: MatchStatus[]
+    statuses?: MatchStatus[],
+    payment_matches?: boolean
   ): Promise<CashDepositEntity[]> {
     const { minDate, maxDate } = dateRange;
 
@@ -168,6 +169,9 @@ export class CashDepositService {
       order: {
         deposit_date: 'ASC',
         deposit_amt_cdn: 'ASC',
+      },
+      relations: {
+        payment_matches: payment_matches ?? false,
       },
     });
   }

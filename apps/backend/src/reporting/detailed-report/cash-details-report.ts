@@ -1,21 +1,17 @@
 import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
-import { DateRange, NormalizedLocation } from '../../constants';
+import { NormalizedLocation } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 
 export class CashDepositDetailsReport extends DetailsReport {
-  constructor(
-    location: NormalizedLocation,
-    deposit: CashDepositEntity,
-    dates?: DateRange
-  ) {
-    super(location, dates);
+  constructor(location: NormalizedLocation, deposit: CashDepositEntity) {
+    super(location);
     this.source_file = 'Cash/Chq (TDI 17)';
     this.reconciliation_status = deposit.status;
     this.transaction_id = deposit.jv_no ?? '';
     this.location_id = location.location_id;
     this.location = location.description;
-    this.date = deposit.deposit_date;
+    this.deposit_date = deposit.deposit_date;
     this.time = deposit.deposit_time ?? null;
     this.fiscal_date = deposit.deposit_date;
     this.payment_method = 'CASH/CHQ';
