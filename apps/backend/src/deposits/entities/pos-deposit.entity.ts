@@ -5,6 +5,7 @@ import {
   JoinColumn,
   ManyToMany,
   ManyToOne,
+  OneToOne,
   PrimaryGeneratedColumn,
   Relation,
 } from 'typeorm';
@@ -76,6 +77,13 @@ export class POSDepositEntity {
   @ManyToOne(() => FileUploadedEntity, { nullable: true })
   @JoinColumn({ name: 'file_uploaded' })
   fileUploadedEntity?: FileUploadedEntity;
+
+  @OneToOne(
+    () => PaymentEntity,
+    (payment: PaymentEntity) => payment.pos_deposit_match,
+    { nullable: true, eager: true }
+  )
+  payment_match?: Relation<PaymentEntity>;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

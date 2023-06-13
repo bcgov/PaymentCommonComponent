@@ -27,5 +27,8 @@ export class PaymentDetailsReport extends DetailsReport {
     this.exchange_rate = payment.exchange_rate
       ? new Decimal(payment.exchange_rate).toDecimalPlaces(2).toNumber()
       : null;
+    this.heuristic_match_round = payment.heuristic_match_round ?? null;
+    this.employee_id =
+      payment.transaction.transactionJson?.misc.employee_id ?? null;
   }
 }
