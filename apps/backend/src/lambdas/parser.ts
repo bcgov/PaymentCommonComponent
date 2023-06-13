@@ -20,7 +20,7 @@ export interface ParseEvent {
   filename: string;
 }
 
-const API_URL = 'https://5mj3l5zt6f.execute-api.ca-central-1.amazonaws.com/api';
+const API_URL = '5mj3l5zt6f.execute-api.ca-central-1.amazonaws.com/api';
 let axiosInstance: AxiosInstance;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
