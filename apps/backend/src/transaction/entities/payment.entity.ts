@@ -113,7 +113,6 @@ export class PaymentEntity {
     { nullable: true }
   )
   @JoinColumn({
-    referencedColumnName: 'id',
     name: 'pos_deposit_match',
   })
   pos_deposit_match?: Relation<POSDepositEntity>;
