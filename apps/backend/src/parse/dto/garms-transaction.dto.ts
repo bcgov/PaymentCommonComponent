@@ -90,7 +90,8 @@ export class GarmsTransactionDTO {
   @ValidateNested({ each: true })
   @Type(() => GarmsPaymentDTO)
   @IsArray()
-  @Validate(ArePaymentMethodsValid)
+  // TODO CCFPCM-534: Some files in existing dataset are invalid depending on how exchange rate is used
+  // @Validate(ArePaymentMethodsValid)
   payments!: GarmsPaymentDTO[];
 
   constructor(transaction?: Partial<TransactionEntity>) {

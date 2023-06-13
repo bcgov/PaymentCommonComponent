@@ -20,7 +20,6 @@ export class FileUploadedEntity {
 
   @Column({
     enum: FileTypes,
-    default: FileTypes.TDI17,
     name: 'source_file_type',
   })
   sourceFileType: FileTypes;

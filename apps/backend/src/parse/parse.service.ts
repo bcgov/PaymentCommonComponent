@@ -90,7 +90,11 @@ export class ParseService {
                 `${errantColumnName} ${
                   child.value?.[errantIdColumnName] ||
                   child.value?.metadata?.[errantIdColumnName]
-                } - Issue with ${child.children?.[0]?.property}`
+                } - Issue with ${
+                  child.children?.[0]?.property
+                }: ${Object.values(child.children?.[0]?.constraints || {}).join(
+                  ', '
+                )}`
             )
             .join('; ')
         : '';
