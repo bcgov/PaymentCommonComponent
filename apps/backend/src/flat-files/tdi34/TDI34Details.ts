@@ -183,7 +183,7 @@ export class TDI34Details
     ) {
       this.resource.transaction_amt = data * -1;
     } else {
-      this.resource.transaction_amt = data;
+      this.resource.transaction_amt = data * 1;
     }
   }
 
