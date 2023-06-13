@@ -47,7 +47,7 @@ export class CashDepositDTO {
   location_desc!: string;
 
   @ApiProperty({ description: 'Deposit amount curr', example: '100.00' })
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   deposit_amt_curr!: number;
 

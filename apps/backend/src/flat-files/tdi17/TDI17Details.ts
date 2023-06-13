@@ -133,7 +133,7 @@ export class TDI17Details
     this.resource.negative_indicator_curr = data;
   }
 
-  @Column({ start: 67, width: 12, format: { type: DataType.Float } })
+  @Column({ start: 67, width: 12, format: { type: DataType.Decimal } })
   public get deposit_amt_curr() {
     return this.resource.deposit_amt_curr;
   }
