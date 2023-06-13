@@ -142,7 +142,7 @@ export class TDI17Details
     if (this.resource.negative_indicator_curr) {
       this.resource.deposit_amt_curr = data * -1;
     } else {
-      this.resource.deposit_amt_curr = data;
+      this.resource.deposit_amt_curr = data * 1;
     }
   }
 
