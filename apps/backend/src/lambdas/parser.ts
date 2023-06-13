@@ -9,21 +9,18 @@ import { Readable } from 'stream';
 import { getLambdaEventSource } from './utils/eventTypes';
 import { AppModule } from '../app.module';
 import { FileTypes, ALL } from '../constants';
-import { CashDepositService } from '../deposits/cash-deposit.service';
-import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
 import { ParseService } from '../parse/parse.service';
 import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { TransactionService } from '../transaction/transaction.service';
 
 export interface ParseEvent {
   eventType: string;
   filename: string;
 }
 
-const API_URL = process.env.API_URL;
+const API_URL = 'http://localhost:3000/api';
 let axiosInstance: AxiosInstance;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -51,10 +48,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
   }
 
   const parseService = app.get(ParseService);
-  const transactionService = app.get(TransactionService);
   const s3 = app.get(S3ManagerService);
-  const posService = app.get(PosDepositService);
-  const cashService = app.get(CashDepositService);
 
   const processAllFiles = async () => {
     appLogger.log('Processing all files...');
@@ -64,24 +58,8 @@ export const handler = async (event?: unknown, _context?: Context) => {
           `pcc-integration-data-files-${process.env.RUNTIME_ENV}`
         )) || [];
 
-      const allUploadedFiles: string[] = [];
-      const uploadedPosFiles = await posService.findAllUploadedFiles();
-      const uploadedCashFiles = await cashService.findAllUploadedFiles();
-      const uploadedTransactionFiles =
-        await transactionService.findAllUploadedFiles();
-
-      // Filter out files that have already been parsed
-      uploadedPosFiles.map((file) => {
-        allUploadedFiles.push(file.pos_deposit_source_file_name);
-      });
-
-      uploadedCashFiles.map((file) => {
-        allUploadedFiles.push(file.cash_deposit_source_file_name);
-      });
-
-      uploadedTransactionFiles.map((file) => {
-        allUploadedFiles.push(file.transaction_source_file_name);
-      });
+      const allFiles = await parseService.getAllFiles();
+      const allUploadedFiles: string[] = allFiles.map((f) => f.sourceFileName);
 
       const parseList = _.difference(fileList, allUploadedFiles);
 
