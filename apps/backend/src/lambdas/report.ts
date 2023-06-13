@@ -85,6 +85,8 @@ const getCashReportData = async (
 }> => {
   const paymentService = app.get(PaymentService);
   const cashDepositService = app.get(CashDepositService);
+  const payment_matches = true;
+  const cash_deposit_matches = true;
   const pendingAndInProgressPayments = await paymentService.findCashPayments(
     { minDate: event.period.from, maxDate: event.period.to },
     locations.map((l) => l.location_id),
@@ -103,13 +105,15 @@ const getCashReportData = async (
       locations.map((l) => l.pt_location_id),
       event.program,
       { minDate: event.period.to, maxDate: event.period.to },
-      [MatchStatus.MATCH, MatchStatus.EXCEPTION]
+      [MatchStatus.MATCH, MatchStatus.EXCEPTION],
+      payment_matches
     );
 
   const matchedAndExceptionsPayments = await paymentService.findCashPayments(
     { minDate: event.period.to, maxDate: event.period.to },
     locations.map((l) => l.location_id),
-    [MatchStatus.MATCH, MatchStatus.EXCEPTION]
+    [MatchStatus.MATCH, MatchStatus.EXCEPTION],
+    cash_deposit_matches
   );
 
   const matchedCashDeposits = currentCashDeposits.filter(
@@ -197,7 +201,8 @@ const getPosReportData = async (
 }> => {
   const paymentService = app.get(PaymentService);
   const posDepositService = app.get(PosDepositService);
-
+  const payment_matches = true;
+  const pos_deposit_matches = true;
   const pendingAndInProgressPayments = await paymentService.findPosPayments(
     { minDate: event.period.from, maxDate: event.period.to },
     locations.map((itm) => itm.location_id),
@@ -207,7 +212,8 @@ const getPosReportData = async (
   const matchedPayments = await paymentService.findPosPayments(
     { minDate: event.period.to, maxDate: event.period.to },
     locations.map((itm) => itm.location_id),
-    [MatchStatus.MATCH]
+    [MatchStatus.MATCH],
+    pos_deposit_matches
   );
 
   const paymentExceptions = await paymentService.findPosPayments(
@@ -233,7 +239,8 @@ const getPosReportData = async (
     { minDate: event.period.to, maxDate: event.period.to },
     event.program,
     locations.flatMap((itm: NormalizedLocation) => itm.merchant_ids),
-    [MatchStatus.MATCH]
+    [MatchStatus.MATCH],
+    payment_matches
   );
 
   const depositExceptions = await posDepositService.findPosDeposits(
@@ -253,13 +260,16 @@ const getPosReportData = async (
     await paymentService.findPosPaymentsByMatchedDepositId(
       matchedDeposits.filter(
         (itm) => itm.heuristic_match_round === PosHeuristicRound.THREE
-      )
+      ),
+
+      pos_deposit_matches
     );
   const roundThreeMatchedDeposits =
     await posDepositService.findPosDepositsByPaymentMatch(
       matchedPayments.filter(
         (itm) => itm.heuristic_match_round === PosHeuristicRound.THREE
-      )
+      ),
+      payment_matches
     );
 
   return {

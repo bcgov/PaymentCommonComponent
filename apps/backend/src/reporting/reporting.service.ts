@@ -437,14 +437,17 @@ export class ReportingService {
           (deposit: CashDepositEntity) =>
             new CashDepositDetailsReport(location, deposit)
         );
-      const payments = cashPayments
+      const cashReportPayments = cashPayments
         .filter((itm) => itm.transaction.location_id === location.location_id)
         .map((payment) => new PaymentDetailsReport(location, payment));
-
+      const posReportPayments = posPayments
+        .filter((itm) => itm.transaction.location_id === location.location_id)
+        .map((payment) => new PaymentDetailsReport(location, payment));
       detailedReport.push(
         ...filteredDeposits,
         ...filteredCashDeposits,
-        ...payments
+        ...cashReportPayments,
+        ...posReportPayments
       );
     });
     return detailedReport;
