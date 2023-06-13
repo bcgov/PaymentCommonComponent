@@ -20,7 +20,7 @@ export interface ParseEvent {
   filename: string;
 }
 
-const API_URL = 'http://localhost:3000/api';
+const API_URL = process.env.API_URL;
 let axiosInstance: AxiosInstance;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
