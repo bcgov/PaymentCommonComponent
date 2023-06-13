@@ -26,7 +26,8 @@ export class PosDepositService {
     dateRange: DateRange,
     program: Ministries,
     merchant_ids: number[],
-    statuses?: MatchStatus[]
+    statuses?: MatchStatus[],
+    payment_match = false
   ): Promise<POSDepositEntity[]> {
     const depositStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
@@ -45,7 +46,7 @@ export class PosDepositService {
       },
       relations: {
         payment_method: true,
-        payment_match: true,
+        payment_match,
       },
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
@@ -184,13 +185,14 @@ export class PosDepositService {
   }
 
   async findPosDepositsByPaymentMatch(
-    payments: PaymentEntity[]
+    payments: PaymentEntity[],
+    payment_match = false
   ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.find({
       where: { id: In(payments.map((itm) => itm.pos_deposit_match?.id)) },
       relations: {
         payment_method: true,
-        payment_match: true,
+        payment_match,
       },
     });
   }

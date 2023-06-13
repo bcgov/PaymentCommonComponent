@@ -20,7 +20,8 @@ export class PaymentService {
   async findPosPayments(
     dateRange: DateRange,
     location_ids: number[],
-    statuses?: MatchStatus[]
+    statuses?: MatchStatus[],
+    pos_deposit_match = false
   ): Promise<PaymentEntity[]> {
     const paymentStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
@@ -40,7 +41,7 @@ export class PaymentService {
       relations: {
         payment_method: true,
         transaction: true,
-        pos_deposit_match: true,
+        pos_deposit_match,
       },
       order: {
         transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
@@ -128,7 +129,8 @@ export class PaymentService {
 
   public async findPaymentsForDailySummary(
     location_id: number,
-    date: string
+    date: string,
+    pos_deposit_match = false
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       select: {
@@ -151,7 +153,7 @@ export class PaymentService {
       relations: {
         transaction: true,
         payment_method: true,
-        pos_deposit_match: true,
+        pos_deposit_match,
       },
     });
   }
@@ -225,7 +227,10 @@ export class PaymentService {
     });
   }
 
-  async findMatchedPosPayments(posDeposits: POSDepositEntity[]) {
+  async findMatchedPosPayments(
+    posDeposits: POSDepositEntity[],
+    pos_deposit_match = false
+  ) {
     return await this.paymentRepo.find({
       where: {
         payment_method: { classification: PaymentMethodClassification.CASH },
@@ -234,7 +239,7 @@ export class PaymentService {
       relations: {
         transaction: true,
         payment_method: true,
-        pos_deposit_match: true,
+        pos_deposit_match,
       },
     });
   }
@@ -275,14 +280,15 @@ export class PaymentService {
   }
 
   async findPosPaymentsByMatchedDepositId(
-    posDeposits: POSDepositEntity[]
+    posDeposits: POSDepositEntity[],
+    pos_deposit_match = false
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
       where: { pos_deposit_match: In(posDeposits.map((itm) => itm.id)) },
       relations: {
         transaction: true,
         payment_method: true,
-        pos_deposit_match: true,
+        pos_deposit_match,
       },
     });
   }

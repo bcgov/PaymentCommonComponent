@@ -81,7 +81,7 @@ export class POSDepositEntity {
   @OneToOne(
     () => PaymentEntity,
     (payment: PaymentEntity) => payment.pos_deposit_match,
-    { nullable: true, eager: true }
+    { nullable: true }
   )
   payment_match?: Relation<PaymentEntity>;
 
