@@ -109,7 +109,7 @@ export class PaymentEntity {
 
   @OneToOne(
     () => POSDepositEntity,
-    (posDeposit: POSDepositEntity) => posDeposit.id,
+    (posDeposit: POSDepositEntity) => posDeposit.payment_match,
     { nullable: true }
   )
   @JoinColumn({

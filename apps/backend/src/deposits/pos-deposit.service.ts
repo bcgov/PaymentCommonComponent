@@ -45,6 +45,7 @@ export class PosDepositService {
       },
       relations: {
         payment_method: true,
+        payment_match: true,
       },
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
@@ -189,6 +190,7 @@ export class PosDepositService {
       where: { id: In(payments.map((itm) => itm.pos_deposit_match?.id)) },
       relations: {
         payment_method: true,
+        payment_match: true,
       },
     });
   }
