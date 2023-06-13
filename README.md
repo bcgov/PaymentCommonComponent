@@ -9,7 +9,7 @@
 Data Source 1:
 
 - Connecting to Provinical Treasury of the Province of British Columbia
-  - Obtain and parse TDI34 files - In person PoS Trnasactions
+  - Obtain and parse TDI34 files - In person PoS Transactions
   - Obtain and parse TDI17 files - Cash & Cheque deposits made to the banks
   - Obtain and parse TDI34 (DDF) files - Online card transactions (PayBC and ICE pay)
 
