@@ -113,7 +113,7 @@ const getCashReportData = async (
   );
 
   const matchedCashDeposits = currentCashDeposits.filter(
-    (d) => d.status === MatchStatus.MATCH && d.payment_match
+    (d) => d.status === MatchStatus.MATCH && d.payment_matches
   );
 
   const currentCashPaymentsMatched: PaymentEntity[] =
