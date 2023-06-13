@@ -20,7 +20,7 @@ export interface ParseEvent {
   filename: string;
 }
 
-const API_URL = process.env.API_URL;
+const API_URL = 'https://5mj3l5zt6f.execute-api.ca-central-1.amazonaws.com/api';
 let axiosInstance: AxiosInstance;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -34,6 +34,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
     );
     return;
   } else {
+    appLogger.log(`Generating axios for API URL ${API_URL}`);
     axiosInstance = axios.create({ baseURL: API_URL });
   }
 
@@ -81,40 +82,40 @@ export const handler = async (event?: unknown, _context?: Context) => {
         }
       );
 
-      // Parse & Save only files that have not been parsed before
-      for (const filename of finalParseList) {
-        appLogger.log(`Parsing ${filename}..`);
-        const event = { eventType: 'all', filename: filename };
-        await processEvent(event);
-      }
+      // // Parse & Save only files that have not been parsed before
+      // for (const filename of finalParseList) {
+      //   appLogger.log(`Parsing ${filename}..`);
+      //   const event = { eventType: 'all', filename: filename };
+      //   await processEvent(event);
+      // }
 
-      const alertsSentResponse = await axiosInstance.post(
-        '/v1/parse/daily-upload/alert',
-        {
-          date: new Date(),
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      appLogger.log(alertsSentResponse.data.data);
-      const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
-      const programAlerts = alertsSent.dailyAlertPrograms;
-      for (const alert of programAlerts) {
-        if (!alert.success) {
-          appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
-        }
-        if (alert.alerted) {
-          appLogger.log(
-            '\n\n=========Alerts Sent for Daily Upload: =========\n'
-          );
-          appLogger.error(
-            `Sent an alert to prompt ${alert.program} to complete upload`
-          );
-        }
-      }
+      // const alertsSentResponse = await axiosInstance.post(
+      //   '/v1/parse/daily-upload/alert',
+      //   {
+      //     date: new Date(),
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   }
+      // );
+      // appLogger.log(alertsSentResponse.data.data);
+      // const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
+      // const programAlerts = alertsSent.dailyAlertPrograms;
+      // for (const alert of programAlerts) {
+      //   if (!alert.success) {
+      //     appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
+      //   }
+      //   if (alert.alerted) {
+      //     appLogger.log(
+      //       '\n\n=========Alerts Sent for Daily Upload: =========\n'
+      //     );
+      //     appLogger.error(
+      //       `Sent an alert to prompt ${alert.program} to complete upload`
+      //     );
+      //   }
+      // }
     } catch (err) {
       appLogger.error(err);
     }
