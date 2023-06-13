@@ -70,8 +70,8 @@ export const handler = async (event?: unknown, _context?: Context) => {
       );
       appLogger.log('Creating daily upload for today if needed');
 
-      await axiosInstance.post(
-        '/v1/parse/daily-upload',
+      await axios.post(
+        `${API_URL}/v1/parse/daily-upload`,
         {
           date: new Date(),
         },
