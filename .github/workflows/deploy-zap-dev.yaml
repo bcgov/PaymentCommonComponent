@@ -1,4 +1,4 @@
-name: Deployment - DEV
+name: Deployment and ZAP scan - DEV
 on:
   workflow_dispatch:
   push:
@@ -53,3 +53,25 @@ jobs:
 
       - name: Deploy All
         run: make aws-deploy-all
+
+  zap_scan:
+    name: ZAP baseline scan
+    needs: deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: ZAP Scan
+        uses: zaproxy/action-baseline@v0.3.0
+        with:
+          allow_issue_writing: false
+          target: ${{ secrets.ZAP_API_URL }}
+          cmd_options: '-I'
+
+      - name: Upload ZAP Report as Artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: OWASP ZAP CCFP Backend Report
+          path: report_html.html

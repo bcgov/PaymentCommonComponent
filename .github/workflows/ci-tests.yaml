@@ -1,4 +1,4 @@
-name: PR - All Checks
+name: PR - Tests pipeline
 
 on:
   workflow_dispatch:
@@ -10,6 +10,7 @@ on:
 jobs:
   pr-checks:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
 
     steps:
       - uses: actions/checkout@v3
@@ -29,10 +30,7 @@ jobs:
       - name: Install Dependencies
         run: yarn
 
-      - name: Lint Check
-        run: yarn workspace @payment/backend lint
-
-      - name: Build Check
+      - name: Build
         run: yarn build:backend
 
       - name: Setup ENV file
@@ -41,7 +39,7 @@ jobs:
       - name: Run Docker containers
         run: make build
 
-      - name: Migrations Check
+      - name: Run migrations
         run: make migration-run
 
       - name: Build and Run Test Container
