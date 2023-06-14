@@ -214,6 +214,18 @@ export class ParseController {
    * Commence daily upload for a specific date for each program area we have in the rules
    * Called at the start of a parser lambda run
    */
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        date: {
+          type: 'string',
+          nullable: false,
+          example: '2023-01-01',
+        },
+      },
+    },
+  })
   @Post('daily-upload')
   async commenceDailyUpload(@Body() body: { date: string }): Promise<void> {
     const rules = await this.parseService.getAllRules();
