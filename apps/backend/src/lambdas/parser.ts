@@ -115,6 +115,12 @@ export const handler = async (event?: unknown, _context?: Context) => {
       for (const alert of programAlerts) {
         if (!alert.success) {
           appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
+          !alert.files.hasTdi17 &&
+            appLogger.log(`${alert.program} is missing a TDI17 file`);
+          !alert.files.hasTdi34 &&
+            appLogger.log(`${alert.program} is missing a TDI34 file`);
+          !alert.files.hasTransactionFile &&
+            appLogger.log(`${alert.program} is missing a Transactions file`);
         }
         if (alert.alerted) {
           appLogger.log(
@@ -250,11 +256,15 @@ export const handler = async (event?: unknown, _context?: Context) => {
           program: rule.program,
           success: true,
           alerted: false,
+          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
         });
         continue;
       }
-      const success = parseService.determineDailySuccess(rule, daily.files);
-      if (success === true) {
+      const successStatus = parseService.determineDailySuccess(
+        rule,
+        daily.files
+      );
+      if (successStatus.success === true) {
         await parseService.saveDaily({
           ...daily,
           success: true,
@@ -263,6 +273,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           program: rule.program,
           success: true,
           alerted: false,
+          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
         });
       } else {
         let alerted = false;
@@ -278,6 +289,11 @@ export const handler = async (event?: unknown, _context?: Context) => {
           program: rule.program,
           success: false,
           alerted,
+          files: {
+            hasTdi17: successStatus.hasTdi17,
+            hasTdi34: successStatus.hasTdi34,
+            hasTransactionFile: successStatus.hasTransactionFile,
+          },
         });
       }
     }

@@ -46,7 +46,12 @@ export class ParseService {
   determineDailySuccess(
     rule: FileIngestionRulesEntity,
     files: FileUploadedEntity[]
-  ): boolean {
+  ): {
+    success: boolean;
+    hasTdi17: boolean;
+    hasTdi34: boolean;
+    hasTransactionFile: boolean;
+  } {
     const { cashChequesFilename, posFilename, transactionsFilename } = rule;
     const hasTdi17 = !!cashChequesFilename
       ? files?.some((file) => file.sourceFileType === FileTypes.TDI17)
@@ -58,7 +63,12 @@ export class ParseService {
       ? files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES)
       : true;
     const success = hasTdi17 && hasTdi34 && hasTransactionFile;
-    return success;
+    return {
+      success,
+      hasTdi17,
+      hasTdi34,
+      hasTransactionFile,
+    };
   }
 
   /**

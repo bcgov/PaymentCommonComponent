@@ -277,14 +277,15 @@ export class ParseController {
           program: rule.program,
           success: true,
           alerted: false,
+          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
         });
         continue;
       }
-      const success = this.parseService.determineDailySuccess(
+      const successStatus = this.parseService.determineDailySuccess(
         rule,
         daily.files
       );
-      if (success === true) {
+      if (successStatus.success === true) {
         await this.parseService.saveDaily({
           ...daily,
           success: true,
@@ -293,6 +294,7 @@ export class ParseController {
           program: rule.program,
           success: true,
           alerted: false,
+          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
         });
       } else {
         let alerted = false;
@@ -308,6 +310,11 @@ export class ParseController {
           program: rule.program,
           success: false,
           alerted,
+          files: {
+            hasTdi17: successStatus.hasTdi17,
+            hasTdi34: successStatus.hasTdi34,
+            hasTransactionFile: successStatus.hasTransactionFile,
+          },
         });
       }
     }
