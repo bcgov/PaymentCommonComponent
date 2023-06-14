@@ -138,7 +138,7 @@ export class ParseService {
     const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
     const list = new GarmsTransactionList(garmsSalesDTO);
     try {
-      await validateOrReject(list);
+      // await validateOrReject(list);
     } catch (e: unknown) {
       const errorMessage = this.handleValidationError(
         e,
