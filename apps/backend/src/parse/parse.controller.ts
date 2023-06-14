@@ -245,6 +245,18 @@ export class ParseController {
    * Based on the daily program status, and which files are required by the rules
    * @returns Array of DailyAlertROs to determine which programs are successful and which programs have been alerted
    */
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        date: {
+          type: 'string',
+          nullable: false,
+          example: '2023-01-01',
+        },
+      },
+    },
+  })
   @Post('daily-upload/alert')
   async dailyUploadAlert(@Body() body: { date: Date }): Promise<DailyAlertRO> {
     const rules = await this.parseService.getAllRules();
