@@ -302,11 +302,7 @@ export class PaymentService {
   async findCashPaymentsByDepositMatch(cashDeposits: CashDepositEntity[]) {
     return await this.paymentRepo.find({
       where: {
-        id: In(
-          cashDeposits.flatMap((itm) =>
-            itm.payment_matches?.map((itm) => itm.id)
-          )
-        ),
+        cash_deposit_match: In(cashDeposits.map((itm) => itm.id)),
       },
       relations: {
         transaction: true,

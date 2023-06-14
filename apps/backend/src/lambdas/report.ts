@@ -85,8 +85,7 @@ const getCashReportData = async (
 }> => {
   const paymentService = app.get(PaymentService);
   const cashDepositService = app.get(CashDepositService);
-  const payment_matches = true;
-  const cash_deposit_matches = true;
+
   const pendingAndInProgressPayments = await paymentService.findCashPayments(
     { minDate: event.period.from, maxDate: event.period.to },
     locations.map((l) => l.location_id),
@@ -100,29 +99,18 @@ const getCashReportData = async (
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
     );
 
-  const currentCashDeposits =
+  const matchedCashDeposits =
     await cashDepositService.findCashDepositsForReport(
       locations.map((l) => l.pt_location_id),
       event.program,
       { minDate: event.period.to, maxDate: event.period.to },
-      [MatchStatus.MATCH, MatchStatus.EXCEPTION],
-      payment_matches
+      [MatchStatus.MATCH]
     );
 
-  const matchedAndExceptionsPayments = await paymentService.findCashPayments(
-    { minDate: event.period.to, maxDate: event.period.to },
-    locations.map((l) => l.location_id),
-    [MatchStatus.MATCH, MatchStatus.EXCEPTION],
-    cash_deposit_matches
-  );
-
-  const matchedCashDeposits = currentCashDeposits.filter(
-    (d) => d.status === MatchStatus.MATCH && d.payment_matches
-  );
-
-  const currentCashPaymentsMatched: PaymentEntity[] =
+  const matchedCashPayments =
     await paymentService.findCashPaymentsByDepositMatch(matchedCashDeposits);
 
+  console.log(matchedCashPayments, 'PYMNTS', matchedCashDeposits, 'DEPOSITS');
   const cashExceptions: {
     payments: PaymentEntity[];
     deposits: CashDepositEntity[];
@@ -144,14 +132,14 @@ const getCashReportData = async (
     if (currentCashDepositDate) {
       const previousCashDepositDate =
         (currentCashDepositDate &&
-          cashDates[cashDates.indexOf(event.period.to) - 2]) ??
+          cashDates[cashDates.indexOf(event.period.to) - 1]) ??
         event.period.from;
 
       const dateRange = {
         minDate: previousCashDepositDate,
         maxDate: currentCashDepositDate,
       };
-
+      console.log(dateRange, 'DATE RANGE');
       const paymentExceptions = await paymentService.findCashPayments(
         dateRange,
         [location.location_id],
@@ -172,13 +160,12 @@ const getCashReportData = async (
   return {
     cashDeposits: [
       ...pendingAndInProgressDeposits,
-      ...currentCashDeposits,
+      ...matchedCashDeposits,
       ...cashExceptions.deposits,
     ],
     cashPayments: [
       ...pendingAndInProgressPayments,
-      ...matchedAndExceptionsPayments,
-      ...currentCashPaymentsMatched,
+      ...matchedCashPayments,
       ...cashExceptions.payments,
     ],
   };
