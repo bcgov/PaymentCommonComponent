@@ -137,7 +137,7 @@ const getCashReportData = async (
         minDate: previousCashDepositDate,
         maxDate: currentCashDepositDate,
       };
-      console.log(dateRange, 'DATE RANGE');
+
       const paymentExceptions = await paymentService.findCashPayments(
         dateRange,
         [location.location_id],
