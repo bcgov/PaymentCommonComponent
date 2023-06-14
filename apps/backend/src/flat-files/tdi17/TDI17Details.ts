@@ -165,7 +165,7 @@ export class TDI17Details
   @Column({
     start: 82,
     width: 12,
-    format: { type: DataType.Float },
+    format: { type: DataType.Decimal },
   })
   public get exchange_adj_amt() {
     return this.resource.exchange_adj_amt;

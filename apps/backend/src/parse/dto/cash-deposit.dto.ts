@@ -47,12 +47,12 @@ export class CashDepositDTO {
   location_desc!: string;
 
   @ApiProperty({ description: 'Deposit amount curr', example: '100.00' })
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   deposit_amt_curr!: number;
 
   @ApiProperty({ description: 'Exchange Adjusted Amount', example: '0.00' })
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   exchange_adj_amt!: number;
 
