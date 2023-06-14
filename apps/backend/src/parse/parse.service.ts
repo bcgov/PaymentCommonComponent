@@ -135,8 +135,8 @@ export class ParseService {
     );
 
     // Converts to DTOs strictly for validation purposes
-    const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
-    const list = new GarmsTransactionList(garmsSalesDTO);
+    // const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
+    // const list = new GarmsTransactionList(garmsSalesDTO);
     try {
       // await validateOrReject(list);
     } catch (e: unknown) {
