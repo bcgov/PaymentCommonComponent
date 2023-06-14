@@ -30,6 +30,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const appLogger = app.get(Logger);
   // maxDate is the date we are reconciling until
   // We reconcile 1 business day behind, so the user should only be passing in "yesterday" as maxDate
+  // We should also ensure sync (automated - should have all data by 11am PST) and parse have run before this function is called
   const dateRange = { minDate: event.period.from, maxDate: event.period.to };
 
   const reconciliationDates = {
@@ -96,23 +97,28 @@ export const handler = async (event: ReconciliationConfigInput) => {
   }
 
   for (const location of locations) {
-    // get just dates of deposits in each location
-    const cashDates = await cashDepositService.findCashDepositDatesByLocation(
-      event.program,
-      {
-        maxDate: format(reconciliationDates.end, 'yyyy-MM-dd'),
-        minDate: format(reconciliationDates.start, 'yyyy-MM-dd'),
-      },
-      location.pt_location_id
+    const allDates =
+      await cashDepositService.findAllCashDepositDatesPerLocation(
+        event.program,
+        location.pt_location_id
+      );
+
+    const filtered = allDates.filter(
+      (date: string) =>
+        parse(date, 'yyyy-MM-dd', new Date()) >= reconciliationDates.start &&
+        parse(date, 'yyyy-MM-dd', new Date()) <= reconciliationDates.end
     );
-    for (const [index, date] of cashDates.entries()) {
+
+    //reverse the order - query cash dates is in descending order, we need ascending
+    for (const date of filtered.reverse()) {
+      const currentCashDepositDate = date;
       const previousCashDepositDate =
-        cashDates[index - 2] ??
-        format(new Date(event.period.from), 'yyyy-MM-dd');
+        filtered[filtered.indexOf(date) - 2] ??
+        format(reconciliationDates.start, 'yyyy-MM-dd');
 
       const dateRange = {
         minDate: previousCashDepositDate,
-        maxDate: date,
+        maxDate: currentCashDepositDate,
       };
 
       const result = await cashReconciliationService.reconcileCash(

@@ -16,25 +16,6 @@ export class CashReconciliationService {
     @Inject(CashDepositService) private cashDepositService: CashDepositService,
     @Inject(PaymentService) private paymentService: PaymentService
   ) {}
-  /**
-   *
-   * @param event
-   * @returns
-   * @description Find all deposit dates for a given location and program
-   */
-  public async findCashDepositDatesByLocation(
-    program: Ministries,
-    dateRange: DateRange,
-    location: NormalizedLocation
-  ): Promise<string[]> {
-    this.appLogger.log({ dateRange }, CashReconciliationService.name);
-
-    return await this.cashDepositService.findCashDepositDatesByLocation(
-      program,
-      dateRange,
-      location.pt_location_id
-    );
-  }
 
   public checkStatus(
     payment: AggregatedCashPayment,

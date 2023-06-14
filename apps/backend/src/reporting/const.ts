@@ -1,6 +1,6 @@
 export const dailySummaryColumns = [
   { header: 'Program', key: 'program' },
-  { header: 'Date', key: 'date' },
+  { header: 'Dates', key: 'dates' },
   { header: 'Location ID', key: 'location_id' },
   { header: 'Location', key: 'location_name' },
   { header: 'Total Payments', key: 'total_payments' },

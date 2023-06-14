@@ -2,8 +2,8 @@
   "program": "SBC",
   "locations": [],
   "period": {
-    "from": "2023-01-01",
-    "to": "2023-06-07"
+    "from": "2023-05-01",
+    "to": "2023-05-15"
   },
   "exceptions": {
     "send": false
