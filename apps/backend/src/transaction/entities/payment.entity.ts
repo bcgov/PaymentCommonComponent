@@ -96,15 +96,12 @@ export class PaymentEntity {
 
   @ManyToOne(
     () => CashDepositEntity,
-    (cashDeposit: CashDepositEntity) => cashDeposit.id,
+    (cashDeposit: CashDepositEntity) => cashDeposit.payment_matches,
     {
       nullable: true,
     }
   )
-  @JoinColumn({
-    name: 'cash_deposit_match',
-    referencedColumnName: 'id',
-  })
+  @JoinColumn({ name: 'cash_deposit_match', referencedColumnName: 'id' })
   cash_deposit_match?: Relation<CashDepositEntity>;
 
   @OneToOne(

@@ -1,6 +1,5 @@
-import { format } from 'date-fns';
 import { MatchStatus } from '../../common/const';
-import { DateRange, NormalizedLocation } from '../../constants';
+import { NormalizedLocation } from '../../constants';
 import { PosHeuristicRound } from '../../reconciliation/types';
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/
@@ -10,9 +9,9 @@ export class DetailsReport {
   transaction_id?: string | null;
   location_id: number;
   location: string;
-  date: string;
+  transaction_date?: string | null;
+  deposit_date?: string | null;
   time?: string;
-  deposit_date_range?: string;
   fiscal_date?: string;
   payment_method: string;
   amount: number | null;
@@ -36,16 +35,10 @@ export class DetailsReport {
   dist_project_code: number | null;
   dist_location_code: number | null;
   dist_future_code: number | null;
-  constructor(location: NormalizedLocation, dateRange?: DateRange) {
+  constructor(location: NormalizedLocation) {
     this.foreign_currency_amount = null;
     this.currency = 'CAD';
     this.transaction_id = '';
-    this.deposit_date_range = dateRange
-      ? `${format(new Date(dateRange.minDate), 'yyyy-MM-dd')}-${format(
-          new Date(dateRange.maxDate),
-          'yyyy-MM-dd'
-        )}`
-      : '';
     this.misc = '';
     this.merchant_id = null;
     this.terminal_no = '';

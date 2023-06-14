@@ -8,6 +8,7 @@ import {
   isSaturday,
   isSunday,
   parse,
+  subBusinessDays,
 } from 'date-fns';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
@@ -79,17 +80,12 @@ const getCashReportData = async (
   event: ReportConfig,
   locations: NormalizedLocation[]
 ): Promise<{
-  cashDeposits: {
-    pending: CashDepositEntity[];
-    current: CashDepositEntity[];
-  };
-  cashPayments: {
-    pending: PaymentEntity[];
-    current: { payments: PaymentEntity[]; dateRange: DateRange }[];
-  };
+  cashDeposits: CashDepositEntity[];
+  cashPayments: PaymentEntity[];
 }> => {
   const paymentService = app.get(PaymentService);
   const cashDepositService = app.get(CashDepositService);
+
   const pendingAndInProgressPayments = await paymentService.findCashPayments(
     { minDate: event.period.from, maxDate: event.period.to },
     locations.map((l) => l.location_id),
@@ -103,57 +99,72 @@ const getCashReportData = async (
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
     );
 
-  const currentCashDeposits =
+  const matchedCashDeposits =
     await cashDepositService.findCashDepositsForReport(
       locations.map((l) => l.pt_location_id),
       event.program,
       { minDate: event.period.to, maxDate: event.period.to },
-      [MatchStatus.MATCH, MatchStatus.EXCEPTION]
+      [MatchStatus.MATCH]
     );
 
-  const currentCashPayments: {
+  const matchedCashPayments =
+    await paymentService.findCashPaymentsByDepositMatch(matchedCashDeposits);
+
+  const cashExceptions: {
     payments: PaymentEntity[];
-    dateRange: DateRange;
-  }[] = [];
-  if (currentCashDeposits.length > 0) {
-    for (const l of locations) {
-      const cashDepositDatesForLocations =
-        await cashDepositService.findCashDepositDatesByLocation(
-          event.program,
-          { minDate: event.period.from, maxDate: event.period.to },
-          l.pt_location_id
-        );
-      const cashDates = {
+    deposits: CashDepositEntity[];
+  } = { payments: [], deposits: [] };
+  for (const location of locations) {
+    // get just dates of deposits in each location
+    const cashDates = await cashDepositService.findCashDepositDatesByLocation(
+      event.program,
+      {
         maxDate: event.period.to,
-        minDate:
-          cashDepositDatesForLocations[
-            cashDepositDatesForLocations.indexOf(event.period.to) - 1
-          ],
+        minDate: event.period.from,
+      },
+      location.pt_location_id
+    );
+
+    const currentCashDepositDate =
+      cashDates[cashDates.indexOf(event.period.to)];
+
+    if (currentCashDepositDate) {
+      const previousCashDepositDate =
+        cashDates[cashDates.indexOf(event.period.to) - 1] ?? event.period.from;
+
+      const dateRange = {
+        minDate: previousCashDepositDate,
+        maxDate: currentCashDepositDate,
       };
 
-      if (cashDates.minDate) {
-        const paymentsMatchedOrException =
-          await paymentService.findCashPayments(
-            cashDates,
-            [l.location_id],
-            [MatchStatus.MATCH, MatchStatus.EXCEPTION]
-          );
-        currentCashPayments.push({
-          payments: paymentsMatchedOrException,
-          dateRange: cashDates,
-        });
-      }
+      const paymentExceptions = await paymentService.findCashPayments(
+        dateRange,
+        [location.location_id],
+        [MatchStatus.EXCEPTION]
+      );
+      const depositExceptions =
+        await cashDepositService.findCashDepositsForReport(
+          [location.pt_location_id],
+          event.program,
+          dateRange,
+          [MatchStatus.EXCEPTION]
+        );
+      cashExceptions.payments.push(...paymentExceptions);
+      cashExceptions.deposits.push(...depositExceptions);
     }
   }
+
   return {
-    cashDeposits: {
-      pending: pendingAndInProgressDeposits,
-      current: currentCashDeposits,
-    },
-    cashPayments: {
-      pending: pendingAndInProgressPayments,
-      current: currentCashPayments,
-    },
+    cashDeposits: [
+      ...pendingAndInProgressDeposits,
+      ...matchedCashDeposits,
+      ...cashExceptions.deposits,
+    ],
+    cashPayments: [
+      ...pendingAndInProgressPayments,
+      ...matchedCashPayments,
+      ...cashExceptions.payments,
+    ],
   };
 };
 /**
@@ -174,25 +185,31 @@ const getPosReportData = async (
 }> => {
   const paymentService = app.get(PaymentService);
   const posDepositService = app.get(PosDepositService);
-
+  const payment_matches = true;
+  const pos_deposit_matches = true;
   const pendingAndInProgressPayments = await paymentService.findPosPayments(
     { minDate: event.period.from, maxDate: event.period.to },
     locations.map((itm) => itm.location_id),
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
-  const matchedPaymentsAndExceptions = await paymentService.findPosPayments(
+  const matchedPayments = await paymentService.findPosPayments(
     { minDate: event.period.to, maxDate: event.period.to },
     locations.map((itm) => itm.location_id),
-    [MatchStatus.MATCH, MatchStatus.EXCEPTION]
+    [MatchStatus.MATCH],
+    pos_deposit_matches
   );
 
-  const matchedPayments = matchedPaymentsAndExceptions.filter(
-    (itm: PaymentEntity) => itm.status === MatchStatus.MATCH
-  );
-
-  const paymentExceptions = matchedPaymentsAndExceptions.filter(
-    (itm: PaymentEntity) => itm.status === MatchStatus.EXCEPTION
+  const paymentExceptions = await paymentService.findPosPayments(
+    {
+      minDate: format(
+        subBusinessDays(parse(event.period.to, 'yyyy-MM-dd', new Date()), 1),
+        'yyyy-MM-dd'
+      ),
+      maxDate: event.period.to,
+    },
+    locations.map((itm) => itm.location_id),
+    [MatchStatus.EXCEPTION]
   );
 
   const pendingAndInProgressDeposits = await posDepositService.findPosDeposits(
@@ -202,30 +219,41 @@ const getPosReportData = async (
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
-  const depositExceptionsAndMatches = await posDepositService.findPosDeposits(
+  const matchedDeposits = await posDepositService.findPosDeposits(
     { minDate: event.period.to, maxDate: event.period.to },
     event.program,
     locations.flatMap((itm: NormalizedLocation) => itm.merchant_ids),
-    [MatchStatus.EXCEPTION, MatchStatus.MATCH]
-  );
-  const matchedDeposits = depositExceptionsAndMatches.filter(
-    (itm) => itm.status === MatchStatus.MATCH
+    [MatchStatus.MATCH],
+    payment_matches
   );
 
-  const depositExceptions = depositExceptionsAndMatches.filter(
-    (itm) => itm.status === MatchStatus.EXCEPTION
+  const depositExceptions = await posDepositService.findPosDeposits(
+    {
+      minDate: format(
+        subBusinessDays(parse(event.period.to, 'yyyy-MM-dd', new Date()), 1),
+        'yyyy-MM-dd'
+      ),
+      maxDate: event.period.to,
+    },
+    event.program,
+    locations.flatMap((itm: NormalizedLocation) => itm.merchant_ids),
+    [MatchStatus.EXCEPTION]
   );
+
   const roundThreeMatchedPayments =
     await paymentService.findPosPaymentsByMatchedDepositId(
       matchedDeposits.filter(
         (itm) => itm.heuristic_match_round === PosHeuristicRound.THREE
-      )
+      ),
+
+      pos_deposit_matches
     );
   const roundThreeMatchedDeposits =
     await posDepositService.findPosDepositsByPaymentMatch(
       matchedPayments.filter(
         (itm) => itm.heuristic_match_round === PosHeuristicRound.THREE
-      )
+      ),
+      payment_matches
     );
 
   return {

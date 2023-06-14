@@ -11,13 +11,14 @@ export class PaymentDetailsReport extends DetailsReport {
     payment: PaymentEntity,
     dates?: DateRange
   ) {
-    super(location, dates);
+    super(location);
     this.source_file = 'Transaction (LOB)';
     this.reconciliation_status = payment.status;
     this.transaction_id = payment.transaction.transaction_id;
     this.location_id = location.location_id;
     this.location = location.description;
-    this.date = payment.transaction.transaction_date;
+    this.transaction_date = payment.transaction.transaction_date;
+    this.deposit_date = payment.cash_deposit_match?.deposit_date ?? null;
     this.time = payment.transaction.transaction_time ?? '';
     this.fiscal_date = payment.transaction.fiscal_close_date;
     this.payment_method = payment.payment_method.description;

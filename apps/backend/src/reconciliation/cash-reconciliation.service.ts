@@ -148,7 +148,7 @@ export class CashReconciliationService {
         dateRange,
         location.location_id
       );
-    if (pendingDeposits.length === 0 && aggregatedCashPayments.length === 0) {
+    if (pendingDeposits.length === 0 || aggregatedCashPayments.length === 0) {
       this.appLogger.log(
         'No pending payments / deposits found',
         CashReconciliationService.name

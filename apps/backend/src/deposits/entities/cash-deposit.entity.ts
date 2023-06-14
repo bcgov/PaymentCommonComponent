@@ -85,7 +85,7 @@ export class CashDepositEntity {
   @OneToMany(() => PaymentEntity, (payment) => payment.cash_deposit_match, {
     nullable: true,
   })
-  payment_match?: Relation<PaymentEntity[]>;
+  payment_matches?: Relation<PaymentEntity[]>;
 
   @ManyToOne(() => FileUploadedEntity, { nullable: true })
   @JoinColumn({ name: 'file_uploaded' })
