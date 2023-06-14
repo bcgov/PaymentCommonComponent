@@ -1,19 +1,23 @@
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
 import { isSaturday, isSunday, format } from 'date-fns';
-import FormData from 'form-data';
+// import FormData from 'form-data';
 import * as _ from 'underscore';
 
-import { Readable } from 'stream';
+// import { Readable } from 'stream';
 import { getLambdaEventSource } from './utils/eventTypes';
 import { AppModule } from '../app.module';
 import { FileTypes, ALL } from '../constants';
+import { CashDepositService } from '../deposits/cash-deposit.service';
+import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
 import { ParseService } from '../parse/parse.service';
-import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
+import { TransactionService } from '../transaction/transaction.service';
+// import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 export interface ParseEvent {
   eventType: string;
@@ -21,7 +25,7 @@ export interface ParseEvent {
 }
 
 const API_URL = process.env.API_URL;
-let axiosInstance: AxiosInstance;
+// let axiosInstance: AxiosInstance;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: unknown, _context?: Context) => {
@@ -34,7 +38,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
     );
     return;
   } else {
-    axiosInstance = axios.create({ baseURL: API_URL });
+    // axiosInstance = axios.create({ baseURL: API_URL });
   }
 
   if (isSaturday(new Date()) || isSunday(new Date())) {
@@ -48,6 +52,9 @@ export const handler = async (event?: unknown, _context?: Context) => {
   }
 
   const parseService = app.get(ParseService);
+  const transactionService = app.get(TransactionService);
+  const posDepositService = app.get(PosDepositService);
+  const cashDepositService = app.get(CashDepositService);
   const s3 = app.get(S3ManagerService);
 
   const processAllFiles = async () => {
@@ -69,17 +76,18 @@ export const handler = async (event?: unknown, _context?: Context) => {
       );
       appLogger.log('Creating daily upload for today if needed');
 
-      await axiosInstance.post(
-        '/v1/parse/daily-upload',
-        {
-          date: new Date(),
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
+      await commenceDailyUpload(new Date());
+      // await axios.post(
+      //   `${API_URL}/v1/parse/daily-upload`,
+      //   {
+      //     date: new Date(),
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   }
+      // );
 
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
@@ -88,19 +96,21 @@ export const handler = async (event?: unknown, _context?: Context) => {
         await processEvent(event);
       }
 
-      const alertsSentResponse = await axiosInstance.post(
-        '/v1/parse/daily-upload/alert',
-        {
-          date: new Date(),
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        }
-      );
-      appLogger.log(alertsSentResponse.data.data);
-      const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
+      // const alertsSentResponse = await axiosInstance.post(
+      //   '/v1/parse/daily-upload/alert',
+      //   {
+      //     date: new Date(),
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   }
+      // );
+      // appLogger.log(alertsSentResponse.data.data);
+      // const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
+      const alertsSent = await dailyUploadAlert(new Date());
+
       const programAlerts = alertsSent.dailyAlertPrograms;
       for (const alert of programAlerts) {
         if (!alert.success) {
@@ -138,7 +148,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
         process.exit(0);
       })();
 
-      const file = await s3.getObjectStream(
+      const file = await s3.getObject(
         `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
         filename
       );
@@ -184,16 +194,20 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
       try {
         appLogger.log('Call endpoint to upload file...', filename);
-        const formData = new FormData();
-        formData.append('file', Readable.from(file), filename);
-        formData.append('fileName', filename);
-        formData.append('fileType', fileType);
-        formData.append('program', ministry);
-        await axiosInstance.post('/v1/parse/upload-file', formData, {
-          headers: {
-            ...formData.getHeaders(),
-          },
-        });
+        await uploadAndParseFile(
+          { fileName: filename, fileType, program: ministry },
+          Buffer.from(file.Body?.toString() || '')
+        );
+        // const formData = new FormData();
+        // formData.append('file', Readable.from(file), filename);
+        // formData.append('fileName', filename);
+        // formData.append('fileType', fileType);
+        // formData.append('program', ministry);
+        // await axiosInstance.post('/v1/parse/upload-file', formData, {
+        //   headers: {
+        //     ...formData.getHeaders(),
+        //   },
+        // });
       } catch (err) {
         appLogger.log('\n\n=========Errors with File Upload: =========\n');
         appLogger.error(`Error with uploading file ${filename}`);
@@ -205,6 +219,176 @@ export const handler = async (event?: unknown, _context?: Context) => {
       }
     } catch (err) {
       appLogger.error(err);
+    }
+  };
+
+  /**
+   * The below three functions are lifted straight from the parse controller
+   * This is to ensure its working within our lambda flows as the API Gateway
+   * is currently unable to take requests from the parsing lambda
+   */
+  const commenceDailyUpload = async (date: Date) => {
+    const rules = await parseService.getAllRules();
+    for (const rule of rules) {
+      const daily = await parseService.getDailyForRule(rule, new Date(date));
+      if (!daily) {
+        await parseService.createNewDaily(rule, new Date(date));
+      }
+    }
+  };
+
+  const dailyUploadAlert = async (date: Date) => {
+    const rules = await parseService.getAllRules();
+    const dailyAlertPrograms = [];
+    for (const rule of rules) {
+      let daily = await parseService.getDailyForRule(rule, new Date(date));
+      if (!daily) {
+        daily = await parseService.createNewDaily(rule, new Date(date));
+      }
+      if (daily.success) {
+        dailyAlertPrograms.push({
+          program: rule.program,
+          success: true,
+          alerted: false,
+        });
+        continue;
+      }
+      const success = parseService.determineDailySuccess(rule, daily.files);
+      if (success === true) {
+        await parseService.saveDaily({
+          ...daily,
+          success: true,
+        });
+        dailyAlertPrograms.push({
+          program: rule.program,
+          success: true,
+          alerted: false,
+        });
+      } else {
+        let alerted = false;
+        if (daily.retries >= rule.retries) {
+          // TODO CCFPCM-441
+          alerted = true;
+        }
+        await parseService.saveDaily({
+          ...daily,
+          retries: daily.retries + 1,
+        });
+        dailyAlertPrograms.push({
+          program: rule.program,
+          success: false,
+          alerted,
+        });
+      }
+    }
+    return { dailyAlertPrograms, date: date };
+  };
+
+  const uploadAndParseFile = async (
+    body: { fileName: string; fileType: FileTypes; program: string },
+    buffer: Buffer
+  ) => {
+    const { fileName, fileType, program } = body;
+    appLogger.log(`Parsing ${fileName} - ${fileType}`);
+    const contents = buffer.toString();
+
+    const allFiles = await parseService.getAllFiles();
+    const allFilenames = new Set(allFiles.map((f) => f.sourceFileName));
+    if (allFilenames.has(fileName)) {
+      throw new BadRequestException({
+        message: 'Invalid filename, this already exists',
+      });
+    }
+
+    // Throws an error if no rules exist for the specified program
+    const rules = await parseService.getRulesForProgram(program);
+    if (!rules) {
+      throw new HttpException(
+        `No rules established for program ${program}`,
+        HttpStatus.FORBIDDEN
+      );
+    }
+
+    // Creates a new daily status for the rule, if none exist, so that files can be tracked
+    let daily = await parseService.getDailyForRule(rules, new Date());
+    if (!daily) {
+      daily = await parseService.createNewDaily(rules, new Date());
+    }
+
+    try {
+      // FileType is based on the filename (from Parser) or from the endpoint body
+      if (fileType === FileTypes.SBC_SALES) {
+        appLogger.log('Parse and store SBC Sales in DB...', fileName);
+        const garmsSales = await parseService.parseGarmsFile(
+          contents,
+          fileName
+        ); // validating step
+        const fileToSave = await parseService.saveFileUploaded({
+          sourceFileType: fileType,
+          sourceFileName: fileName,
+          sourceFileLength: garmsSales.length,
+          dailyUpload: daily,
+        });
+        appLogger.log(`Transaction count: ${garmsSales.length}`);
+        await transactionService.saveTransactions(
+          garmsSales.map((sale) => ({
+            ...sale,
+            fileUploadedEntity: fileToSave,
+          }))
+        );
+      }
+
+      if (fileType === FileTypes.TDI17) {
+        appLogger.log('Parse and store TDI17 in DB...', fileName);
+        const cashDeposits = await parseService.parseTDICashFile(
+          fileName,
+          program,
+          buffer
+        ); // validating step
+        const fileToSave = await parseService.saveFileUploaded({
+          sourceFileType: fileType,
+          sourceFileName: fileName,
+          sourceFileLength: cashDeposits.length,
+          dailyUpload: daily,
+        });
+        appLogger.log(`Cash Deposits count: ${cashDeposits.length}`);
+        await cashDepositService.saveCashDepositEntities(
+          cashDeposits.map((deposit) => ({
+            ...deposit,
+            fileUploadedEntity: fileToSave,
+          }))
+        );
+      }
+
+      if (fileType === FileTypes.TDI34) {
+        appLogger.log('Parse and store TDI34 in DB...', fileName);
+        const posEntities = await parseService.parseTDICardsFile(
+          fileName,
+          program,
+          buffer
+        );
+        const fileToSave = await parseService.saveFileUploaded({
+          sourceFileType: fileType,
+          sourceFileName: fileName,
+          sourceFileLength: posEntities.length,
+          dailyUpload: daily,
+        });
+        appLogger.log(`POS Deposits count: ${posEntities.length}`);
+        await posDepositService.savePOSDepositEntities(
+          posEntities.map((deposit) => ({
+            ...deposit,
+            fileUploadedEntity: fileToSave,
+            timestamp: deposit.timestamp,
+          }))
+        );
+      }
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : `Error with processing ${fileName}`;
+      appLogger.log(message);
+      throw new BadRequestException({ message });
     }
   };
 
