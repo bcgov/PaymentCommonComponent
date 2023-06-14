@@ -175,7 +175,7 @@ export class TDI17Details
     if (this.resource.negative_indicator_exchanged) {
       this.resource.exchange_adj_amt = data * -1;
     } else {
-      this.resource.exchange_adj_amt = data;
+      this.resource.exchange_adj_amt = data * 1;
     }
   }
   @Column({ start: 107, width: 1, format: { type: DataType.Boolean } })
