@@ -57,7 +57,7 @@ export class CashDepositDTO {
   exchange_adj_amt!: number;
 
   @ApiProperty({ description: 'Deposit amount Canadian', example: '100.00' })
-  @IsNumber()
+  @IsNumberString()
   @IsNotEmpty()
   deposit_amt_cdn!: number;
 

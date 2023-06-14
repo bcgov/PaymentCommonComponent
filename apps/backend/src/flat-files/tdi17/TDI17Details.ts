@@ -187,7 +187,7 @@ export class TDI17Details
     this.resource.negative_indicator_cdn = data;
   }
 
-  @Column({ start: 95, width: 12, format: { type: DataType.Float } })
+  @Column({ start: 95, width: 12, format: { type: DataType.Decimal } })
   public get deposit_amt_cdn() {
     return this.resource.deposit_amt_cdn;
   }
@@ -196,7 +196,7 @@ export class TDI17Details
     if (this.resource.negative_indicator_cdn) {
       this.resource.deposit_amt_cdn = data * -1;
     } else {
-      this.resource.deposit_amt_cdn = data;
+      this.resource.deposit_amt_cdn = data * 1;
     }
   }
 
