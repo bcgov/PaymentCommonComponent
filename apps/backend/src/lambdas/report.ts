@@ -110,7 +110,6 @@ const getCashReportData = async (
   const matchedCashPayments =
     await paymentService.findCashPaymentsByDepositMatch(matchedCashDeposits);
 
-  console.log(matchedCashPayments, 'PYMNTS', matchedCashDeposits, 'DEPOSITS');
   const cashExceptions: {
     payments: PaymentEntity[];
     deposits: CashDepositEntity[];
