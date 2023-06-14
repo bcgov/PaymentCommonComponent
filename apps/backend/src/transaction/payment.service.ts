@@ -247,6 +247,10 @@ export class PaymentService {
     return await this.paymentRepo.save(payments);
   }
 
+  async insertPayments(payments: PaymentEntity[]): Promise<void> {
+    await this.paymentRepo.insert(payments);
+  }
+
   /**
    * updatePaymentStatus
    * This will update all payments.

@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { TransactionEntity } from './entities';
+import { PaymentEntity, TransactionEntity } from './entities';
 import { PaymentService } from './payment.service';
 import { mapLimit } from '../common/promises';
 import { AppLogger } from '../logger/logger.service';
@@ -18,9 +18,29 @@ export class TransactionService {
   async saveTransactions(
     data: TransactionEntity[]
   ): Promise<TransactionEntity[]> {
+    const insertSingleTransaction = async (
+      entity: TransactionEntity
+    ): Promise<TransactionEntity> => {
+      const savedTransaction = await this.transactionRepo.insert(entity);
+      const transaction_id = savedTransaction.identifiers[0].transaction_id;
+      const payments = entity.payments.map((p) => {
+        const payment = new PaymentEntity(p);
+        payment.transaction = {
+          ...entity,
+          transaction_id,
+        };
+        return payment;
+      });
+      await this.paymentService.insertPayments(payments);
+      return {
+        ...entity,
+        transaction_id,
+      };
+    };
+
     try {
-      const entities = data.map((d) => this.transactionRepo.create(d));
-      return mapLimit(entities, (entity) => this.transactionRepo.save(entity));
+      const entities = data.map((d) => new TransactionEntity(d));
+      return mapLimit(entities, (entity) => insertSingleTransaction(entity));
     } catch (e) {
       this.appLogger.error(e);
       throw e;
