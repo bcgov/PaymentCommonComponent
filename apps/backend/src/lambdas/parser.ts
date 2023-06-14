@@ -1,23 +1,23 @@
+import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import axios, { AxiosError, AxiosInstance } from 'axios';
+import { AxiosError } from 'axios';
 import { isSaturday, isSunday, format } from 'date-fns';
-import FormData from 'form-data';
+// import FormData from 'form-data';
 import * as _ from 'underscore';
 
-import { Readable } from 'stream';
+// import { Readable } from 'stream';
 import { getLambdaEventSource } from './utils/eventTypes';
 import { AppModule } from '../app.module';
 import { FileTypes, ALL } from '../constants';
+import { CashDepositService } from '../deposits/cash-deposit.service';
+import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
 import { ParseService } from '../parse/parse.service';
-import { TransactionService } from '../transaction/transaction.service';
-import { PosDepositService } from '../deposits/pos-deposit.service';
-import { CashDepositService } from '../deposits/cash-deposit.service';
-import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { BadRequestException, HttpException, HttpStatus } from '@nestjs/common';
+import { TransactionService } from '../transaction/transaction.service';
+// import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 export interface ParseEvent {
   eventType: string;
@@ -25,7 +25,7 @@ export interface ParseEvent {
 }
 
 const API_URL = process.env.API_URL;
-let axiosInstance: AxiosInstance;
+// let axiosInstance: AxiosInstance;
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event?: unknown, _context?: Context) => {
@@ -38,7 +38,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
     );
     return;
   } else {
-    axiosInstance = axios.create({ baseURL: API_URL });
+    // axiosInstance = axios.create({ baseURL: API_URL });
   }
 
   if (isSaturday(new Date()) || isSunday(new Date())) {
