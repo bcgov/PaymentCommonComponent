@@ -131,9 +131,7 @@ const getCashReportData = async (
 
     if (currentCashDepositDate) {
       const previousCashDepositDate =
-        (currentCashDepositDate &&
-          cashDates[cashDates.indexOf(event.period.to) - 1]) ??
-        event.period.from;
+        cashDates[cashDates.indexOf(event.period.to) - 1] ?? event.period.from;
 
       const dateRange = {
         minDate: previousCashDepositDate,
