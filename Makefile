@@ -199,8 +199,10 @@ aws-deploy-migrator:
 # AWS Interactions
 # ======================================================================
 
-aws-sync-data-from-prod: 
+aws-sync-data-from-prod-to-dev:
 	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev --acl bucket-owner-full-control
+
+aws-sync-data-from-prod-to-test:
 	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test --acl bucket-owner-full-control
 
 aws-run-migrator: 

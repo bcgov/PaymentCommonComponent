@@ -32,5 +32,5 @@ jobs:
       - name: Setup ENV file
         run: cp ./.config/.env.example ./.env
         
-      - name: Sync data from prod to other env
-        run: make aws-sync-data-from-prod
+      - name: Sync data from prod to test
+        run: make aws-sync-data-from-prod-to-test
