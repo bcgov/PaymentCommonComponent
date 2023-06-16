@@ -2,6 +2,7 @@ import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import {
+  differenceInDays,
   format,
   getMonth,
   getYear,
@@ -34,6 +35,18 @@ import { PaymentService } from '../transaction/payment.service';
 export const handler = async (event: ReportConfig, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
+  if (
+    differenceInDays(
+      parse(event.period.to, 'yyyy-MM-dd', new Date()),
+      parse(event.period.from, 'yyyy-MM-dd', new Date())
+    ) > 15
+  ) {
+    appLogger.log(
+      'Date range input exceeds maximum range (15 days)',
+      ReportingService.name
+    );
+    return;
+  }
   if (
     isSaturday(parse(event.period.to, 'yyyy-MM-dd', new Date())) ||
     isSunday(parse(event.period.to, 'yyyy-MM-dd', new Date()))
