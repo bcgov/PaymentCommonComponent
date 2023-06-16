@@ -72,7 +72,7 @@ export class CashDepositService {
     });
   }
   /**
-   * Find all cash deposits for a particular location
+   * Find all cash deposit dates for a particular location
    * @param program
    * @param pt_location_id
    * @returns
