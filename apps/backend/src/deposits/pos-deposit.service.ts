@@ -154,11 +154,22 @@ export class PosDepositService {
       throw e;
     }
   }
-
+  /**
+   * Update deposits matched on round four heuristics - calling "save" as "update" will not trigger the cascade for the many to many relations
+   * @param deposits
+   * @returns
+   */
   async updateDeposits(
     deposits: POSDepositEntity[]
   ): Promise<POSDepositEntity[]> {
-    return await this.posDepositRepo.save(deposits);
+    await this.posDepositRepo.manager.transaction(
+      async (manager) =>
+        await Promise.all(
+          deposits.map((d) => manager.save(POSDepositEntity, d))
+        )
+    );
+
+    return deposits;
   }
 
   /**

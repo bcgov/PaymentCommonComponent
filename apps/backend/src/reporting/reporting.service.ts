@@ -76,7 +76,6 @@ export class ReportingService {
       cashDeposits,
       locations
     );
-
     //page 2 - details page
     this.generateDetailsWorksheet(
       config,
@@ -138,7 +137,7 @@ export class ReportingService {
     this.excelWorkbook.addRows(Report.DAILY_SUMMARY, summaryData, startIndex);
     this.excelWorkbook.addTitleRow(
       Report.DAILY_SUMMARY,
-      config.period.to,
+      `${config.period.from} - ${config.period.to}`,
       titleStyle,
       placement('A1:L1')
     );
@@ -208,7 +207,7 @@ export class ReportingService {
 
     this.excelWorkbook.addTitleRow(
       Report.DETAILED_REPORT,
-      config.period.to,
+      `${config.period.from} - ${config.period.to}`,
       titleStyle,
       placement('A1:AC1')
     );
@@ -385,7 +384,7 @@ export class ReportingService {
       summaryData.push({
         values: {
           program: config.program,
-          date: config.period.to,
+          dates: `${config.period.from} - ${config.period.to}`,
           location_id: location.location_id,
           location_name: location.description,
           total_payments: totalPayments,
@@ -466,46 +465,35 @@ export class ReportingService {
     const cashDepositsResults: CashDepositEntity[] = pageThreeDeposits.cash;
     const posDeposits: POSDepositEntity[] = pageThreeDeposits.pos;
 
-    const report: CasReport[] = [];
-
-    locations.forEach((location) => {
-      cashDepositsResults
-        .filter(
-          (itm) =>
-            itm.deposit_amt_cdn.toString() !== '0.00' &&
-            itm.pt_location_id === location.pt_location_id
-        )
-        .forEach((itm) =>
-          report.push(
-            new CasReport(
-              'CASH DEPOSIT',
-              itm.deposit_date,
-              itm.deposit_amt_cdn,
-              location
-            )
+    const cashDeposits: CasReport[] = cashDepositsResults
+      .filter((itm) => itm.deposit_amt_cdn.toString() !== '0.00')
+      .sort((a, b) => a.pt_location_id - b.pt_location_id)
+      .map(
+        (itm) =>
+          new CasReport(
+            'CASH DEPOSIT',
+            itm.deposit_date,
+            itm.deposit_amt_cdn,
+            locations.find(
+              (loc) => loc.pt_location_id === itm.pt_location_id
+            ) as NormalizedLocation
           )
-        );
-    });
-    locations.forEach((location) => {
-      posDeposits
-        .filter(
-          (itm) =>
-            itm.transaction_amt.toString() !== '0.00' &&
-            // in this instance merchant_id is the same as location_id
-            location.location_id === itm.merchant_id
-        )
-        .forEach(({ payment_method, settlement_date, transaction_amt }) =>
-          report.push(
-            new CasReport(
-              payment_method,
-              settlement_date,
-              parseFloat(transaction_amt.toString()),
-              location
-            )
+      );
+    const posCasDeposits: CasReport[] = posDeposits
+      .filter((itm) => itm.transaction_amt.toString() !== '0.00')
+      .sort((a, b) => a.merchant_id - b.merchant_id)
+      .map(
+        (itm) =>
+          new CasReport(
+            itm.payment_method,
+            itm.settlement_date,
+            parseFloat(itm.transaction_amt.toString()),
+            locations.find(
+              (loc) => loc.location_id === itm.merchant_id
+            ) as NormalizedLocation
           )
-        );
-    });
-    return report;
+      );
+    return [...cashDeposits, ...posCasDeposits];
   }
   /**
    *

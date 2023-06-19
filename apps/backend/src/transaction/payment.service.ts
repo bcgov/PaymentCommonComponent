@@ -249,8 +249,19 @@ export class PaymentService {
       },
     });
   }
+  /**
+   * Update payments matched on round four heuristics - calling "save" as "update" will not trigger the cascade for the many to many relations
+   * @param payments
+   * @returns
+   */
   async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
-    return await this.paymentRepo.save(payments);
+    await this.paymentRepo.manager.transaction(
+      async (manager) =>
+        await Promise.all(
+          payments.map((itm) => manager.save(PaymentEntity, itm))
+        )
+    );
+    return payments;
   }
 
   /**

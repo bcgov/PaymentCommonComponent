@@ -2,6 +2,7 @@ import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import {
+  differenceInDays,
   format,
   getMonth,
   getYear,
@@ -24,10 +25,28 @@ import { ReportConfig } from '../reporting/interfaces';
 import { ReportingService } from '../reporting/reporting.service';
 import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
-
+/**
+ * Report lambda handler for reconciliation report
+ * Report input "to date" should be 3 business days prior to the report date and reconciliation should run the previous day
+ * @param event
+ * @param context
+ * @returns
+ */
 export const handler = async (event: ReportConfig, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
+  if (
+    differenceInDays(
+      parse(event.period.to, 'yyyy-MM-dd', new Date()),
+      parse(event.period.from, 'yyyy-MM-dd', new Date())
+    ) > 15
+  ) {
+    appLogger.log(
+      'Date range input exceeds maximum range (15 days)',
+      ReportingService.name
+    );
+    return;
+  }
   if (
     isSaturday(parse(event.period.to, 'yyyy-MM-dd', new Date())) ||
     isSunday(parse(event.period.to, 'yyyy-MM-dd', new Date()))
@@ -103,7 +122,7 @@ const getCashReportData = async (
     await cashDepositService.findCashDepositsForReport(
       locations.map((l) => l.pt_location_id),
       event.program,
-      { minDate: event.period.to, maxDate: event.period.to },
+      { minDate: event.period.from, maxDate: event.period.to },
       [MatchStatus.MATCH]
     );
 
@@ -114,44 +133,59 @@ const getCashReportData = async (
     payments: PaymentEntity[];
     deposits: CashDepositEntity[];
   } = { payments: [], deposits: [] };
+
+  //TO DO query all at once and create a dictionary of the dates per location
   for (const location of locations) {
-    // get just dates of deposits in each location
-    const cashDates = await cashDepositService.findCashDepositDatesByLocation(
-      event.program,
-      {
-        maxDate: event.period.to,
-        minDate: event.period.from,
-      },
-      location.pt_location_id
+    // Get all of the deposit dates for a location
+    const allDates =
+      await cashDepositService.findAllCashDepositDatesPerLocation(
+        event.program,
+        location.pt_location_id
+      );
+    // filter out dates that are not in the report period
+    const filtered = allDates.filter(
+      (date: string) =>
+        parse(date, 'yyyy-MM-dd', new Date()) >=
+          parse(event.period.from, 'yyyy-MM-dd', new Date()) &&
+        parse(date, 'yyyy-MM-dd', new Date()) <=
+          parse(event.period.to, 'yyyy-MM-dd', new Date())
     );
 
-    const currentCashDepositDate =
-      cashDates[cashDates.indexOf(event.period.to)];
+    // set variable for most recent deposit date
+    const current = filtered[0] ?? event.period.to;
 
-    if (currentCashDepositDate) {
-      const previousCashDepositDate =
-        cashDates[cashDates.indexOf(event.period.to) - 1] ?? event.period.from;
+    // set variable for first (earliest) deposit date in report period
+    const prev = filtered[filtered.length - 1] ?? event.period.from;
+    // use current deposit date as maxDate for payments
+    const paymentQueryMaxDate = current;
+    // use the deposit date BEFORE the earliest deposit date in the report period
+    const paymentQueryMinDate =
+      allDates[allDates.indexOf(prev) + 2] ??
+      allDates[allDates.indexOf(prev) + 1] ??
+      allDates[allDates.indexOf(prev)];
 
-      const dateRange = {
-        minDate: previousCashDepositDate,
-        maxDate: currentCashDepositDate,
-      };
+    // query for all payments between the earliest cash deposit BEFORE the report config min and the current deposit date
+    const paymentExceptions = await paymentService.findCashPayments(
+      {
+        minDate: paymentQueryMinDate,
+        maxDate: paymentQueryMaxDate,
+      },
+      [location.location_id],
+      [MatchStatus.EXCEPTION]
+    );
 
-      const paymentExceptions = await paymentService.findCashPayments(
-        dateRange,
-        [location.location_id],
+    const depositExceptions =
+      await cashDepositService.findCashDepositsForReport(
+        [location.pt_location_id],
+        event.program,
+        {
+          minDate: event.period.from,
+          maxDate: event.period.to,
+        },
         [MatchStatus.EXCEPTION]
       );
-      const depositExceptions =
-        await cashDepositService.findCashDepositsForReport(
-          [location.pt_location_id],
-          event.program,
-          dateRange,
-          [MatchStatus.EXCEPTION]
-        );
-      cashExceptions.payments.push(...paymentExceptions);
-      cashExceptions.deposits.push(...depositExceptions);
-    }
+    cashExceptions.payments.push(...paymentExceptions);
+    cashExceptions.deposits.push(...depositExceptions);
   }
 
   return {
@@ -194,7 +228,7 @@ const getPosReportData = async (
   );
 
   const matchedPayments = await paymentService.findPosPayments(
-    { minDate: event.period.to, maxDate: event.period.to },
+    { minDate: event.period.from, maxDate: event.period.to },
     locations.map((itm) => itm.location_id),
     [MatchStatus.MATCH],
     pos_deposit_matches
@@ -202,10 +236,22 @@ const getPosReportData = async (
 
   const paymentExceptions = await paymentService.findPosPayments(
     {
-      minDate: format(
-        subBusinessDays(parse(event.period.to, 'yyyy-MM-dd', new Date()), 1),
-        'yyyy-MM-dd'
-      ),
+      minDate:
+        event.period.from === event.period.to
+          ? format(
+              subBusinessDays(
+                parse(event.period.to, 'yyyy-MM-dd', new Date()),
+                1
+              ),
+              'yyyy-MM-dd'
+            )
+          : format(
+              subBusinessDays(
+                parse(event.period.from, 'yyyy-MM-dd', new Date()),
+                1
+              ),
+              'yyyy-MM-dd'
+            ),
       maxDate: event.period.to,
     },
     locations.map((itm) => itm.location_id),
@@ -220,7 +266,7 @@ const getPosReportData = async (
   );
 
   const matchedDeposits = await posDepositService.findPosDeposits(
-    { minDate: event.period.to, maxDate: event.period.to },
+    { minDate: event.period.from, maxDate: event.period.to },
     event.program,
     locations.flatMap((itm: NormalizedLocation) => itm.merchant_ids),
     [MatchStatus.MATCH],
@@ -229,10 +275,22 @@ const getPosReportData = async (
 
   const depositExceptions = await posDepositService.findPosDeposits(
     {
-      minDate: format(
-        subBusinessDays(parse(event.period.to, 'yyyy-MM-dd', new Date()), 1),
-        'yyyy-MM-dd'
-      ),
+      minDate:
+        event.period.from === event.period.to
+          ? format(
+              subBusinessDays(
+                parse(event.period.to, 'yyyy-MM-dd', new Date()),
+                1
+              ),
+              'yyyy-MM-dd'
+            )
+          : format(
+              subBusinessDays(
+                parse(event.period.from, 'yyyy-MM-dd', new Date()),
+                1
+              ),
+              'yyyy-MM-dd'
+            ),
       maxDate: event.period.to,
     },
     event.program,
@@ -289,8 +347,12 @@ const getPageThreeDeposits = async (
   const cashDepositService = app.get(CashDepositService);
   const posDepositService = app.get(PosDepositService);
   const maxDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
-  /* extract the month from the "to-date"*/
-  const minDate = new Date(getYear(maxDate), getMonth(maxDate), 1);
+  /* extract the month from the "from-date"*/
+  const minDate = new Date(
+    getYear(parse(event.period.from, 'yyyy-MM-dd', new Date())),
+    getMonth(parse(event.period.from, 'yyyy-MM-dd', new Date())),
+    1
+  );
 
   const dateRange = {
     minDate: format(minDate, 'yyyy-MM-dd'),

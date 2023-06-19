@@ -110,7 +110,7 @@ describe('CashDepositService', () => {
           deposit_date: depositDate.maxDate,
           status: In(status),
         },
-        order: { deposit_amt_cdn: 'ASC' },
+        order: { deposit_amt_cdn: 'DESC' },
       });
     });
 
@@ -143,7 +143,7 @@ describe('CashDepositService', () => {
           deposit_date: depositDate,
           status: innerFunctionExpectedStatusParams,
         },
-        order: { deposit_amt_cdn: 'ASC' },
+        order: { deposit_amt_cdn: 'DESC' },
       });
     });
   });

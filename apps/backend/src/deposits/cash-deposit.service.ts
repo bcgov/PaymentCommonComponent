@@ -67,32 +67,30 @@ export class CashDepositService {
         status: In(depositStatus),
       },
       order: {
-        deposit_amt_cdn: 'ASC',
+        deposit_amt_cdn: 'DESC',
       },
     });
   }
-
-  async findCashDepositDatesByLocation(
+  /**
+   * Find all cash deposit dates for a particular location
+   * @param program
+   * @param pt_location_id
+   * @returns
+   */
+  async findAllCashDepositDatesPerLocation(
     program: Ministries,
-    dateRange: DateRange,
     pt_location_id: number
   ): Promise<string[]> {
-    const { minDate, maxDate } = dateRange;
-    const dates: CashDepositEntity[] = await this.cashDepositRepo.find({
+    const deposits: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
         metadata: { program },
-        deposit_date: Raw(
-          (alias) => `${alias} <= :maxDate and ${alias} >= :minDate`,
-          { maxDate, minDate }
-        ),
+        pt_location_id,
       },
       order: {
-        deposit_date: 'ASC',
+        deposit_date: 'DESC',
       },
     });
-    const uniqueDates = dates.map((d) => d.deposit_date);
-    return Array.from(new Set(uniqueDates));
+    return Array.from(new Set(deposits.map((itm) => itm.deposit_date)));
   }
 
   /**

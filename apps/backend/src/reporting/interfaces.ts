@@ -18,7 +18,7 @@ export interface ReportConfig {
 export interface DailySummary {
   values: {
     program: string;
-    date: string;
+    dates: string;
     location_id: number;
     location_name: string;
     total_payments: number;
