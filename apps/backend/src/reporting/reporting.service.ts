@@ -94,7 +94,10 @@ export class ReportingService {
       pageThreeDepositDates
     );
 
-    await this.excelWorkbook.saveS3('reconciliation_report', config.period.to);
+    await this.excelWorkbook.saveS3(
+      'reconciliation_report',
+      `${config.period.from}-${config.period.to}`
+    );
   }
 
   /**
