@@ -287,7 +287,7 @@ clear-status:
 from = 2023-05-01
 to = 2023-05-31
 clear-status-date:
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.payment_round_four_matches_pos_deposit where posDepositId in (select id from pos_deposit pd where status = 'MATCH' and heuristic_match_round = 'FOUR' and transaction_date >= '$(from)' and transaction_date <= '$(to)')"
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from public.payment_round_four_matches_pos_deposit where posDepositId in (select id from pos_deposit pd where status = 'MATCH' and heuristic_match_round = 'FOUR' and transaction_date >= '$(from)' and transaction_date <= '$(to)')"
 # @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "delete from payment_round_four_matches_pos_deposit where "payment_round_four_matches_pos_deposit.payment.id" in (select id from payment p join transaction t on t.transaction_id=p.transaction where status = 'MATCH' and heuristic_match_round = 'FOUR' and transaction_date >= '$(from)' and transaction_date <= '$(to)')"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null where transaction in (select transaction_id from public.transaction where transaction_date >= '$(from)' AND transaction_date < '$(to)');"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null where transaction_date >= '$(from)' AND transaction_date < '$(to)';"
