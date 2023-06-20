@@ -39,10 +39,10 @@ export const handler = async (event: ReportConfig, context?: Context) => {
     differenceInDays(
       parse(event.period.to, 'yyyy-MM-dd', new Date()),
       parse(event.period.from, 'yyyy-MM-dd', new Date())
-    ) > 15
+    ) > 31
   ) {
     appLogger.log(
-      'Date range input exceeds maximum range (15 days)',
+      'Date range input exceeds maximum range (31 days)',
       ReportingService.name
     );
     return;

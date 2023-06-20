@@ -16,7 +16,7 @@ import {
   POSDepositDetailsReport,
 } from './detailed-report';
 import { DailySummary, ReportConfig } from './interfaces';
-import { columnStyle, rowStyle, titleStyle, placement } from './styles';
+import { rowStyle, titleStyle, placement } from './styles';
 import { MatchStatus } from '../common/const';
 import {
   DateRange,
@@ -94,10 +94,10 @@ export class ReportingService {
       pageThreeDepositDates
     );
 
-    await this.excelWorkbook.saveS3('reconciliation_report', config.period.to);
-    if (process.env.RUNTIME_ENV !== 'production') {
-      await this.excelWorkbook.saveLocal();
-    }
+    await this.excelWorkbook.saveS3(
+      'reconciliation_report',
+      `${config.period.from}-${config.period.to}`
+    );
   }
 
   /**
@@ -128,13 +128,8 @@ export class ReportingService {
       cashDeposits
     );
 
-    const startIndex = 2;
-
     this.excelWorkbook.addSheet(Report.DAILY_SUMMARY);
-
     this.excelWorkbook.addColumns(Report.DAILY_SUMMARY, dailySummaryColumns);
-
-    this.excelWorkbook.addRows(Report.DAILY_SUMMARY, summaryData, startIndex);
     this.excelWorkbook.addTitleRow(
       Report.DAILY_SUMMARY,
       `${config.period.from} - ${config.period.to}`,
@@ -142,11 +137,7 @@ export class ReportingService {
       placement('A1:L1')
     );
     /* set column-headers style */
-    this.excelWorkbook.addRowStyle(
-      Report.DAILY_SUMMARY,
-      startIndex,
-      columnStyle
-    );
+
     const filterOptions = {
       from: {
         column: 1,
@@ -157,8 +148,9 @@ export class ReportingService {
         row: summaryData.length,
       },
     };
-
     this.excelWorkbook.addFilterOptions(Report.DAILY_SUMMARY, filterOptions);
+    this.excelWorkbook.addRows(Report.DAILY_SUMMARY, summaryData);
+    this.excelWorkbook.commitWorksheet(Report.DAILY_SUMMARY);
   }
 
   /**
@@ -190,8 +182,6 @@ export class ReportingService {
       locations
     );
 
-    const startIndex = 2;
-
     this.excelWorkbook.addSheet(Report.DETAILED_REPORT);
 
     this.excelWorkbook.addColumns(
@@ -199,26 +189,12 @@ export class ReportingService {
       detailedReportColumns
     );
 
-    this.excelWorkbook.addRows(
-      Report.DETAILED_REPORT,
-      detailsData.map((itm) => ({ values: itm, style: rowStyle() })),
-      startIndex
-    );
-
     this.excelWorkbook.addTitleRow(
       Report.DETAILED_REPORT,
       `${config.period.from} - ${config.period.to}`,
       titleStyle,
-      placement('A1:AC1')
+      placement('A1:AE1')
     );
-
-    /* set column-headers style */
-    this.excelWorkbook.addRowStyle(
-      Report.DETAILED_REPORT,
-      startIndex,
-      columnStyle
-    );
-
     const filterOptions = {
       from: {
         column: 1,
@@ -229,8 +205,14 @@ export class ReportingService {
         row: detailsData.length + 1,
       },
     };
-
     this.excelWorkbook.addFilterOptions(Report.DETAILED_REPORT, filterOptions);
+
+    this.excelWorkbook.addRows(
+      Report.DETAILED_REPORT,
+      detailsData.map((itm) => ({ values: itm, style: rowStyle() }))
+    );
+
+    this.excelWorkbook.commitWorksheet(Report.DETAILED_REPORT);
   }
   /**
    * Deposit report for all deposits from the start of the month up to the current date
@@ -253,27 +235,14 @@ export class ReportingService {
       locations,
       pageThreeDeposits
     );
-
-    const startIndex = 2;
-    const rowStartIndex = 3;
     this.excelWorkbook.addSheet(Report.CAS_REPORT);
-
     this.excelWorkbook.addColumns(Report.CAS_REPORT, casReportColumns);
-    this.excelWorkbook.addRows(
-      Report.CAS_REPORT,
-      details.map((itm) => ({ values: itm, style: rowStyle() })),
-      startIndex
-    );
     this.excelWorkbook.addTitleRow(
       Report.CAS_REPORT,
       `${pageThreeDepositDates.minDate}-${pageThreeDepositDates.maxDate}`,
       titleStyle,
       placement('A1:J1')
     );
-
-    /* set column-headers style */
-    this.excelWorkbook.addRowStyle(Report.CAS_REPORT, startIndex, columnStyle);
-
     const filterOptions = {
       from: {
         column: 1,
@@ -286,12 +255,21 @@ export class ReportingService {
     };
 
     this.excelWorkbook.addFilterOptions(Report.CAS_REPORT, filterOptions);
-    this.excelWorkbook.addNumberFormatting(Report.CAS_REPORT, rowStartIndex, [
-      'F',
-      'H',
-      'I',
-      'J',
-    ]);
+    const options = {
+      casFormatKeys: [
+        'dist_client_code',
+        'dist_stob_code',
+        'dist_service_line_code',
+        'dist_project_code',
+      ],
+    };
+    this.excelWorkbook.addRows(
+      Report.CAS_REPORT,
+      details.map((itm) => ({ values: itm, style: rowStyle() })),
+      options
+    );
+
+    this.excelWorkbook.commitWorksheet(Report.CAS_REPORT);
   }
   /**
    * Format the data for the daily summary report
