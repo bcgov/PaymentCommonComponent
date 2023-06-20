@@ -126,7 +126,7 @@ export class ExcelExportService {
       uncommittedRow.eachCell((cell, _colNumber) => {
         const unformattedCell = sheet.getCell(cell.address);
         unformattedCell.style = row.style;
-        if (options && options.casFormatKeys.includes(unformattedCell.name)) {
+        if (options?.casFormatKeys.includes(unformattedCell.name)) {
           unformattedCell.value = Number(cell.value);
         }
       });
