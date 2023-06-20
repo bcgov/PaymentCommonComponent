@@ -3,35 +3,26 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { format, parse } from 'date-fns';
 import * as Excel from 'exceljs';
-import * as path from 'path';
 import { Stream } from 'stream';
+
 import { AppLogger } from '../logger/logger.service';
 import { Placement } from '../reporting/interfaces';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
 @Injectable()
 export class ExcelExportService {
-  private workbook: Excel.Workbook;
-
+  private workbook: Excel.stream.xlsx.WorkbookWriter;
+  private stream: Stream;
   constructor(
     @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(S3ManagerService) private readonly s3Manager: S3ManagerService
   ) {
-    this.workbook = new Excel.Workbook();
-  }
-
-  /**
-   * @description Save workbook to local file system
-   */
-
-  public async saveLocal(): Promise<void> {
-    try {
-      const file = path.resolve(__dirname, '../../report.xlsx');
-      const write = await this.workbook.xlsx.writeFile(file);
-      this.appLogger.log(write, ExcelExportService.name);
-    } catch (e) {
-      this.appLogger.error(`${e}`, ExcelExportService.name);
-    }
+    this.stream = new Stream.PassThrough();
+    this.workbook = new Excel.stream.xlsx.WorkbookWriter({
+      stream: this.stream,
+      useStyles: true,
+      useSharedStrings: true,
+    });
   }
   /**
    *
@@ -40,35 +31,23 @@ export class ExcelExportService {
    */
 
   public async saveS3(filename: string, date: string): Promise<void> {
+    this.appLogger.log('Saving to S3 Bucket', ExcelExportService.name);
+    this.workbook.commit();
     try {
-      const stream = new Stream.PassThrough();
-
-      this.workbook.xlsx
-        .write(stream)
-        .then(() => {
-          return this.s3Manager.s3
-            .upload({
-              Key: `${filename}_${date}.xlsx`,
-              Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
-              Body: stream,
-              ContentType:
-                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-            })
-            .promise();
+      await this.s3Manager.s3
+        .upload({
+          Key: `${filename}_${date}.xlsx`,
+          Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
+          Body: this.stream,
+          ContentType:
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         })
-        .then(() => {
-          this.appLogger.log(
-            `Uploaded ${filename} to S3 bucket`,
-            ExcelExportService.name
-          );
-        })
-        .catch((e) => {
-          this.appLogger.error(`${e}`, ExcelExportService.name);
-        });
-    } catch (e) {
-      this.appLogger.error(`${e}`, ExcelExportService.name);
+        .promise();
+    } catch (error) {
+      this.appLogger.error(`${error}`, ExcelExportService.name);
     }
   }
+
   /**
    *
    * @param title
@@ -86,7 +65,11 @@ export class ExcelExportService {
       ExcelExportService.name
     );
   }
+  public commitWorksheet(sheetName: string): void {
+    this.workbook.getWorksheet(sheetName).commit();
+  }
   /**
+   *
    *
    * @param name
    */
@@ -108,33 +91,25 @@ export class ExcelExportService {
     placement: Placement
   ): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-
-    /* Splice in order to insert a title/header - known bug in exceljs https://github.com/exceljs/exceljs/issues/1325 */
-    sheet.spliceRows(1, 0, new Array(3));
-
+    const rowOne = sheet.getRow(1);
+    /* Workaround as Header/Footer cannot be added in the way the docs describe - known bug in exceljs https://github.com/exceljs/exceljs/issues/1325 */
     sheet.mergeCells(placement.merge);
 
-    sheet.getCell(placement.column).value = `${sheetName}   ${date}`;
-    sheet.getCell(placement.column).style = style;
-  }
+    rowOne.height = 20;
 
-  /**
-   *
-   * @param sheetName
-   * @param rowNumber
-   * @param style
-   */
-  public addRowStyle(
-    sheetName: string,
-    rowNumber: number,
-    style: Partial<Excel.Style>
-  ): void {
-    const sheet = this.workbook.getWorksheet(sheetName);
+    rowOne.font = {
+      bold: true,
+      size: 16,
+    };
 
-    const row = sheet.getRow(rowNumber);
-    row.eachCell((cell, _colNumber) => {
-      sheet.getCell(cell.address).style = style;
-    });
+    rowOne.values = [`${sheetName} ${date}`];
+
+    rowOne.commit();
+
+    this.appLogger.log(
+      `Title added and formatted to sheet ${sheetName}`,
+      ExcelExportService.name
+    );
   }
   /**
    *
@@ -142,16 +117,25 @@ export class ExcelExportService {
    * @param rowData
    * @param startIndex
    */
-  public addRows(sheetName: string, rowData: any[], startIndex: number): void {
+  public addRows(sheetName: string, rowData: any[], options?: any): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-    rowData.forEach((row, index) => {
-      sheet.insertRow(index + startIndex, row.values);
-      sheet.getRow(index + startIndex).commit();
-      if (row.style) {
-        this.addRowStyle(sheetName, index + startIndex, row.style);
-      }
-    });
 
+    rowData.forEach((row, index) => {
+      const uncommittedRow = sheet.getRow(index + 3);
+      uncommittedRow.values = row.values;
+      uncommittedRow.eachCell((cell, _colNumber) => {
+        const unformattedCell = sheet.getCell(cell.address);
+        unformattedCell.style = row.style;
+        if (options && options.casFormatKeys.includes(unformattedCell.name)) {
+          unformattedCell.value = Number(cell.value);
+        }
+      });
+      uncommittedRow.alignment = {
+        horizontal: 'right',
+      };
+      //commit row - cannot edit after commit
+      uncommittedRow.commit();
+    });
     this.appLogger.log(
       `${rowData.length} rows added and formatted to sheet ${sheetName}`,
       ExcelExportService.name
@@ -166,8 +150,20 @@ export class ExcelExportService {
     const sheet = this.workbook.getWorksheet(sheetName);
     sheet.columns = columnData;
     sheet.columns.forEach((column) => (column.width = 20));
+    const row2 = sheet.getRow(2);
+    row2.values = columnData.map((itm) => itm.header);
+    row2.font = {
+      name: 'Calibri',
+      color: { argb: '1A000000' },
+      family: 2,
+      size: 12,
+      italic: false,
+      bold: false,
+    };
+
+    // do not commit this row as formatting will need to be added after - this row will be commited when the worksheet is commited
     this.appLogger.log(
-      `${sheet.columns.length} columns added and formatted to sheet ${sheetName}`,
+      `Columns added and formatted to sheet ${sheetName}`,
       ExcelExportService.name
     );
   }
@@ -186,19 +182,5 @@ export class ExcelExportService {
       `Filter options added to sheet ${sheetName}`,
       ExcelExportService.name
     );
-  }
-
-  public addNumberFormatting(
-    sheetName: string,
-    rowStart: number,
-    columns: any[]
-  ): void {
-    const sheet = this.workbook.getWorksheet(sheetName);
-    columns.forEach((column) => {
-      sheet.getRows(rowStart, sheet.rowCount)?.forEach((row) => {
-        const cell = row.getCell(column);
-        cell.value = Number(cell.value);
-      });
-    });
   }
 }
