@@ -24,25 +24,6 @@ export class ExcelExportService {
       useSharedStrings: true,
     });
   }
-
-  /**
-   * @description commit workbook
-   */
-
-  public async commitWorkbook(): Promise<void> {
-    try {
-      await this.workbook
-        .commit()
-        .then(() =>
-          this.appLogger.log('Workbook committed', ExcelExportService.name)
-        )
-        .catch((e) => {
-          this.appLogger.error(`${e}`, ExcelExportService.name);
-        });
-    } catch (e) {
-      this.appLogger.error(`${e}`, ExcelExportService.name);
-    }
-  }
   /**
    *
    * @param filename
