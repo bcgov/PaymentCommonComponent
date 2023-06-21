@@ -157,6 +157,44 @@ describe('ParseService', () => {
       ).rejects.toThrow();
     });
 
+    it('should parse tdi17 dat files and not pass validation if the footer is mismatched with the number of records', async () => {
+      const tdi17File = fs.readFileSync(
+        path.join(__dirname, '../../../sample-files/TDI17.TXT')
+      );
+      const originalTrailer = '70000180000008000005';
+      const wrongTotalTrailer = '70000180000008000010';
+      const wrongNumberTrailer = '70000190000008000005';
+      const fileContents = Buffer.from(tdi17File.toString() || '').toString();
+      let lines = fileContents.split('\n').filter((l: string) => l);
+      const footer = lines.splice(lines.length - 1, 1)[0];
+      const newFooterWrongTotal = footer.replace(
+        originalTrailer,
+        wrongTotalTrailer
+      );
+      lines.push(newFooterWrongTotal);
+      expect(
+        service.parseTDICashFile(
+          'filename.DAT',
+          'SBC',
+          Buffer.from(lines.join('\n'))
+        )
+      ).rejects.toThrow();
+
+      lines.splice(lines.length - 1, 1)[0];
+      const newFooterWrongNumber = footer.replace(
+        originalTrailer,
+        wrongNumberTrailer
+      );
+      lines.push(newFooterWrongNumber);
+      expect(
+        service.parseTDICashFile(
+          'filename.DAT',
+          'SBC',
+          Buffer.from(lines.join('\n'))
+        )
+      ).rejects.toThrow();
+    });
+
     it('should parse tdi34 dat files and pass validation if necessary fields are present', async () => {
       const tdi34File = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/TDI34.TXT')
@@ -173,6 +211,44 @@ describe('ParseService', () => {
       );
       expect(
         service.parseTDICardsFile('filename.DAT', 'SBC', tdi34File)
+      ).rejects.toThrow();
+    });
+
+    it('should parse tdi34 dat files and not pass validation if the footer is mismatched with the number of records', async () => {
+      const tdi34File = fs.readFileSync(
+        path.join(__dirname, '../../../sample-files/TDI34.TXT')
+      );
+      const originalTrailer = '7  0017     00129100';
+      const wrongTotalTrailer = '7  0017     00134100';
+      const wrongNumberTrailer = '7  0019     00129100';
+      const fileContents = Buffer.from(tdi34File.toString() || '').toString();
+      let lines = fileContents.split('\n').filter((l: string) => l);
+      const footer = lines.splice(lines.length - 1, 1)[0];
+      const newFooterWrongTotal = footer.replace(
+        originalTrailer,
+        wrongTotalTrailer
+      );
+      lines.push(newFooterWrongTotal);
+      expect(
+        service.parseTDICashFile(
+          'filename.DAT',
+          'SBC',
+          Buffer.from(lines.join('\n'))
+        )
+      ).rejects.toThrow();
+
+      lines.splice(lines.length - 1, 1)[0];
+      const newFooterWrongNumber = footer.replace(
+        originalTrailer,
+        wrongNumberTrailer
+      );
+      lines.push(newFooterWrongNumber);
+      expect(
+        service.parseTDICashFile(
+          'filename.DAT',
+          'SBC',
+          Buffer.from(lines.join('\n'))
+        )
       ).rejects.toThrow();
     });
   });
