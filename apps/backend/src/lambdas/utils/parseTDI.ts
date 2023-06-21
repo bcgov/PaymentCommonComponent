@@ -78,8 +78,6 @@ export const parseTDI = ({
       },
       new Decimal(0)
     );
-    console.log(footerLine.transaction_amt);
-    console.log(itemTotals);
     if (parseInt(footerLine.no_of_detail_rcd) !== detailsArr.length) {
       throw new Error(
         `TDI34 Validation failed for ${fileName}. Number of records does not match file footer.`
