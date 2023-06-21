@@ -74,7 +74,8 @@ export const parseTDI = ({
     footerLine.convertToJson(footer[0]);
     itemTotals = (detailsArr as TDI34Details[]).reduce(
       (acc: Decimal, item: TDI34Details) => {
-        return acc.plus(new Decimal(item.transaction_amt));
+        // The trailer in TDI34 does not seem to account for negative values
+        return acc.plus(new Decimal(Math.abs(item.transaction_amt)));
       },
       new Decimal(0)
     );
