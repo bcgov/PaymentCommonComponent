@@ -55,7 +55,7 @@ export const parseTDI = ({
     footerLine.convertToJson(footer[0]);
     itemTotals = (detailsArr as TDI17Details[]).reduce(
       (acc: Decimal, item: TDI17Details) => {
-        return acc.plus(new Decimal(Math.abs(item.deposit_amt_cdn)));
+        return acc.plus(new Decimal(item.deposit_amt_cdn));
       },
       new Decimal(0)
     );
