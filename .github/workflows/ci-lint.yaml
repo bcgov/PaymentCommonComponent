@@ -1,4 +1,4 @@
-name: PR - Linting
+name: Lint backend
 
 on:
   workflow_dispatch:
@@ -7,7 +7,7 @@ on:
       - apps/backend/**
 
 jobs:
-  pr-checks:
+  lint:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
