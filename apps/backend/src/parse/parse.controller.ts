@@ -163,19 +163,19 @@ export class ParseController {
           program,
           file.buffer
         ); // validating step
-        // const fileToSave = await this.parseService.saveFileUploaded({
-        //   sourceFileType: fileType,
-        //   sourceFileName: fileName,
-        //   sourceFileLength: cashDeposits.length,
-        //   dailyUpload: daily,
-        // });
+        const fileToSave = await this.parseService.saveFileUploaded({
+          sourceFileType: fileType,
+          sourceFileName: fileName,
+          sourceFileLength: cashDeposits.length,
+          dailyUpload: daily,
+        });
         this.appLogger.log(`Cash Deposits count: ${cashDeposits.length}`);
-        // await this.cashDepositService.saveCashDepositEntities(
-        //   cashDeposits.map((deposit) => ({
-        //     ...deposit,
-        //     fileUploadedEntity: fileToSave,
-        //   }))
-        // );
+        await this.cashDepositService.saveCashDepositEntities(
+          cashDeposits.map((deposit) => ({
+            ...deposit,
+            fileUploadedEntity: fileToSave,
+          }))
+        );
       }
 
       if (fileType === FileTypes.TDI34) {
