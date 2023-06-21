@@ -1,4 +1,4 @@
-name: PR - Tests pipeline
+name: Tests pipeline
 
 on:
   workflow_dispatch:
@@ -8,16 +8,16 @@ on:
       - yarn.lock
 
 jobs:
-  pr-checks:
+  run-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
     steps:
-      - uses: actions/checkout@v3
-        name: checkout
+      - name: checkout
+        uses: actions/checkout@v3
 
-      - uses: actions/cache@v3
-        name: Cache yarn
+      - name: Cache yarn
+        uses: actions/cache@v3
         with:
           path: ./.yarn/cache
           key: pcc-backend

@@ -1,4 +1,4 @@
-name: PR - Jira issue in title
+name: Jira issue in PR title
 
 on:
   workflow_dispatch:
