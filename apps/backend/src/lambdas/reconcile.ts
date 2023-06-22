@@ -9,6 +9,7 @@ import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
+import { ParseService } from '../parse/parse.service';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationConfigInput } from '../reconciliation/types';
 import { ReportingService } from '../reporting/reporting.service';
@@ -27,7 +28,21 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const posDepositService = app.get(PosDepositService);
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
+  const parseService = app.get(ParseService);
   const appLogger = app.get(Logger);
+
+  if (!event.bypass_parse_validity) {
+    // Prevent reconciler from running for a program if no valid files today
+    const rule = await parseService.getRulesForProgram(event.program);
+    if (!rule) {
+      throw new Error('No rule for this program');
+    }
+    const daily = await parseService.getDailyForRule(rule, new Date());
+    if (!daily?.success) {
+      throw new Error('There are still invalid files for thie date');
+    }
+  }
+
   // maxDate is the date we are reconciling until
   // We reconcile 1 business day behind, so the user should only be passing in "yesterday" as maxDate
   // We should also ensure sync (automated - should have all data by 11am PST) and parse have run before this function is called
