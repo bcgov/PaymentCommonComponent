@@ -31,7 +31,6 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const parseService = app.get(ParseService);
   const appLogger = app.get(Logger);
 
-  console.log(event.bypass_parse_validity);
   if (!event.bypass_parse_validity) {
     // Prevent reconciler from running for a program if no valid files today
     const rule = await parseService.getRulesForProgram(event.program);
