@@ -33,7 +33,7 @@ export class TDI34Trailer
     this.resource.rcd_type = data;
   }
 
-  @Column({ start: 1, width: 6 })
+  @Column({ start: 1, width: 6, format: { type: DataType.Integer } })
   public get no_of_detail_rcd() {
     return this.resource.no_of_detail_rcd;
   }
@@ -42,7 +42,7 @@ export class TDI34Trailer
     this.resource.no_of_detail_rcd = data;
   }
 
-  @Column({ start: 7, width: 13 })
+  @Column({ start: 7, width: 13, format: { type: DataType.Decimal } })
   public get transaction_amt() {
     return this.resource.transaction_amt;
   }
