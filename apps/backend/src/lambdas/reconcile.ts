@@ -1,6 +1,6 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { format, parse, subBusinessDays, differenceInDays } from 'date-fns';
+import { format, parse, subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
 import { NormalizedLocation } from '../constants';
@@ -31,12 +31,9 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const parseService = app.get(ParseService);
   const appLogger = app.get(Logger);
 
-  // Prevent reconciler from running for a program if no valid files today
-  // FOR NOW: if the to date range is yesterday and no files have been uploaded today only
-  // This is because we still need to be able to reconcile in the past for testing purposes
-  const reconciliationDate = new Date(event.period.to);
-  if (differenceInDays(reconciliationDate, new Date()) <= 1) {
-    // Reconciliation was yesterday, so continue with logic
+  console.log(event.bypass_parse_validity);
+  if (!event.bypass_parse_validity) {
+    // Prevent reconciler from running for a program if no valid files today
     const rule = await parseService.getRulesForProgram(event.program);
     if (!rule) {
       throw new Error('No rule for this program');
