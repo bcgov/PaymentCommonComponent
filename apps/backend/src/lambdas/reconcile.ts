@@ -39,7 +39,9 @@ export const handler = async (event: ReconciliationConfigInput) => {
     }
     const daily = await parseService.getDailyForRule(rule, new Date());
     if (!daily?.success) {
-      throw new Error('There are still invalid files for thie date');
+      throw new Error(
+        `Incomplete dataset for this date ${new Date()}. Please check the uploaded files.`
+      );
     }
   }
 
