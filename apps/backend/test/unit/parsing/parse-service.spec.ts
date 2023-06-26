@@ -71,12 +71,12 @@ describe('ParseService', () => {
         FileTypes.SBC_SALES,
         '2023-01-01-sbc_sales.dat'
       );
-      const successful = service.determineDailySuccess(rule, [
+      const dailySuccess = service.determineDailySuccess(rule, [
         tdi17,
         tdi34,
         sales,
       ]);
-      expect(successful).toBe(true);
+      expect(dailySuccess.success).toBe(true);
     });
 
     it('should be successful if all required files are present - not necessarily all 3', () => {
@@ -94,8 +94,8 @@ describe('ParseService', () => {
         FileTypes.TDI34,
         '2023-01-01-tdi34.dat'
       );
-      const successful = service.determineDailySuccess(rule, [tdi17, tdi34]);
-      expect(successful).toBe(true);
+      const dailySuccess = service.determineDailySuccess(rule, [tdi17, tdi34]);
+      expect(dailySuccess.success).toBe(true);
     });
 
     it('should fail if one or more of the required files are not present', () => {
@@ -109,8 +109,8 @@ describe('ParseService', () => {
         FileTypes.TDI17,
         '2023-01-01-tdi17.dat'
       );
-      const successful = service.determineDailySuccess(rule, [tdi17]);
-      expect(successful).toBe(false);
+      const dailySuccess = service.determineDailySuccess(rule, [tdi17]);
+      expect(dailySuccess.success).toBe(false);
     });
   });
 
