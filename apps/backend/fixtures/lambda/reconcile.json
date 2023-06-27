@@ -1,5 +1,5 @@
 {
-  "period": { "from": "2023-01-18", "to": "2023-06-02" },
+  "period": { "from": "2023-01-01", "to": "2023-06-02" },
   "program": "SBC",
   "location_ids": [],
   "bypass_parse_validity": true

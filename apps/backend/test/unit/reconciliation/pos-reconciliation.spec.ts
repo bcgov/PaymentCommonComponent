@@ -290,9 +290,9 @@ describe('PosReconciliationService', () => {
     it('should set the correct pos_deposit_match in the payment on all matched payments/deposits', () => {
       const matchedDeposits = matches.map((itm) => itm.deposit);
       const matchedDepositsFromMatchedPayments = matches.map(
-        (itm) => itm.payment.pos_deposit_match
+        (itm) => itm.payment.pos_deposit_match?.id
       );
-      expect(matchedDeposits).toEqual(
+      expect(matchedDeposits.map((itm) => itm.id)).toEqual(
         expect.arrayContaining(matchedDepositsFromMatchedPayments)
       );
     });
