@@ -435,7 +435,8 @@ export class ReportingService {
     const uniqueRows = Array.from(
       new Set(detailsReport.map((itm) => JSON.stringify(itm)))
     ).map((itm) => JSON.parse(itm));
-    const sorted = uniqueRows.sort(
+
+    const sorted = [...uniqueRows].sort(
       (a: DetailsReport, b: DetailsReport) => a.location_id - b.location_id
     );
 
