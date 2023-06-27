@@ -9,7 +9,7 @@ import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 
 export class POSDepositDetailsReport extends DetailsReport {
   constructor(location: NormalizedLocation, deposit: POSDepositEntity) {
-    super();
+    super(location);
     this.source_file = 'POS (TDI 34)';
     this.reconciled_date = deposit.reconciled_on
       ? format(deposit.reconciled_on, 'yyyy-MM-dd')
@@ -38,17 +38,5 @@ export class POSDepositDetailsReport extends DetailsReport {
     this.heuristic_match_round = deposit.heuristic_match_round ?? null;
     this.transaction_id =
       deposit.payment_match?.transaction.transaction_id ?? null;
-    this.misc = '';
-    this.invoice_no = '';
-    this.echo_data_field = '';
-
-    this.location = location.description;
-    this.location_id = location.location_id;
-    this.dist_resp_code = location.resp_code;
-    this.dist_service_line_code = location.service_line_code;
-    this.dist_stob_code = location.stob_code;
-    this.dist_project_code = location.project_code;
-    this.dist_location_code = location.location_id;
-    this.dist_client_code = null;
   }
 }
