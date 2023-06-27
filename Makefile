@@ -193,7 +193,7 @@ aws-deploy-all:
 	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 aws-deploy-migrator:
-	aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 # ======================================================================
 # AWS Interactions
@@ -204,6 +204,10 @@ aws-sync-data-from-prod-to-dev:
 
 aws-sync-data-from-prod-to-test:
 	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test --acl bucket-owner-full-control
+
+aws-empty-s3-bucket-dev:
+	@aws s3 rm s3://pcc-integration-data-files-dev/bcm --recursive
+	@aws s3 rm s3://pcc-integration-data-files-dev/sbc --recursive
 
 aws-run-migrator: 
 	@rm migration-results || true
