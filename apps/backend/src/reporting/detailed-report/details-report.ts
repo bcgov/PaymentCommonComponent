@@ -1,5 +1,9 @@
+import { format } from 'date-fns';
 import { MatchStatus } from '../../common/const';
-import { NormalizedLocation } from '../../constants';
+import {
+  NormalizedLocation,
+  PaymentMethodClassification,
+} from '../../constants';
 import { PosHeuristicRound } from '../../reconciliation/types';
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/
@@ -9,13 +13,16 @@ export class DetailsReport {
   transaction_id?: string | null;
   location_id: number;
   location: string;
-  transaction_date?: string | null;
-  deposit_date?: string | null;
+  txn_date?: string | null;
   time?: string;
-  fiscal_date?: string;
+  uploaded_date?: string | null;
+  close_date?: string | null;
+  in_progress_date?: string | null;
+  reconciled_date?: string | null;
+  heuristic_match_round?: PosHeuristicRound | null;
+  type: PaymentMethodClassification;
   payment_method: string;
   amount: number | null;
-  heuristic_match_round?: PosHeuristicRound | null;
   foreign_currency_amount: number | null;
   currency: string;
   exchange_rate: number | null;
@@ -35,10 +42,25 @@ export class DetailsReport {
   dist_project_code: number | null;
   dist_location_code: number | null;
   dist_future_code: number | null;
+
+  setInProgressDate(itm: any) {
+    if (itm.in_progress_on) {
+      return format(itm.in_progress_on, 'yyyy-MM-dd');
+    }
+    if (!itm.in_progress_on && itm.reconciled_on) {
+      return format(itm.reconciled_on, 'yyyy-MM-dd');
+    }
+    return null;
+  }
   constructor(location: NormalizedLocation) {
-    this.foreign_currency_amount = null;
-    this.currency = 'CAD';
-    this.transaction_id = '';
+    this.location = location.description;
+    this.location_id = location.location_id;
+    this.dist_resp_code = location.resp_code;
+    this.dist_service_line_code = location.service_line_code;
+    this.dist_stob_code = location.stob_code;
+    this.dist_project_code = location.project_code;
+    this.dist_location_code = location.location_id;
+    this.dist_client_code = null;
     this.misc = '';
     this.merchant_id = null;
     this.terminal_no = '';
@@ -47,14 +69,5 @@ export class DetailsReport {
     this.approval_code = '';
     this.invoice_no = '';
     this.echo_data_field = '';
-    this.dist_client_code = null;
-    this.location = location.description;
-    this.location_id = location.location_id;
-    this.dist_resp_code = location.resp_code;
-    this.dist_service_line_code = location.service_line_code;
-    this.dist_stob_code = location.stob_code;
-    this.dist_project_code = location.project_code;
-    this.dist_location_code = location.location_id;
-    this.dist_future_code = null;
   }
 }

@@ -158,7 +158,7 @@ export class ExcelExportService {
       family: 2,
       size: 12,
       italic: false,
-      bold: false,
+      bold: true,
     };
 
     // do not commit this row as formatting will need to be added after - this row will be commited when the worksheet is commited

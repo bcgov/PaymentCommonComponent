@@ -1,12 +1,22 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { parse } from 'date-fns';
 import Decimal from 'decimal.js';
-import { Raw, In, Repository, LessThanOrEqual, LessThan } from 'typeorm';
+import {
+  Raw,
+  In,
+  Repository,
+  LessThanOrEqual,
+  LessThan,
+  Between,
+} from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
-import { DateRange, PaymentMethodClassification } from '../constants';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import {
+  DateRange,
+  Ministries,
+  PaymentMethodClassification,
+} from '../constants';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedCashPayment } from '../reconciliation/types/interface';
 
@@ -40,8 +50,6 @@ export class PaymentService {
         payment_method: { classification: PaymentMethodClassification.POS },
       },
       relations: {
-        payment_method: true,
-        transaction: true,
         pos_deposit_match,
       },
       order: {
@@ -83,19 +91,6 @@ export class PaymentService {
     });
   }
 
-  public async findPaymentsByPosDeposits(posDeposits: POSDepositEntity[]) {
-    return await this.paymentRepo.find({
-      where: {
-        pos_deposit_match: In(posDeposits.map((posDeposit) => posDeposit.id)),
-      },
-      relations: {
-        transaction: true,
-        payment_method: true,
-        pos_deposit_match: true,
-      },
-    });
-  }
-
   public aggregatePayments(payments: PaymentEntity[]): AggregatedCashPayment[] {
     const groupedPayments = payments.reduce(
       (
@@ -128,36 +123,6 @@ export class PaymentService {
     );
   }
 
-  public async findPaymentsForDailySummary(
-    location_id: number,
-    date: string,
-    pos_deposit_match = false
-  ): Promise<PaymentEntity[]> {
-    return await this.paymentRepo.find({
-      select: {
-        amount: true,
-        payment_method: {
-          method: true,
-        },
-        status: true,
-        transaction: {
-          transaction_date: true,
-          location_id: true,
-        },
-      },
-      where: {
-        transaction: {
-          location_id,
-          transaction_date: date,
-        },
-      },
-      relations: {
-        transaction: true,
-        payment_method: true,
-        pos_deposit_match,
-      },
-    });
-  }
   /**
    *
    * @param dateRange - to: The most current cash deposit date, from: the fiscal_start_date (any previous payments older than two cash_deposit_dates prior will have already been reconciled)
@@ -201,7 +166,12 @@ export class PaymentService {
 
     return payments;
   }
-
+  /**
+   *
+   * @param dateRange
+   * @param location_id
+   * @returns
+   */
   async getAggregatedCashPaymentsByCashDepositDates(
     dateRange: DateRange,
     location_id: number
@@ -212,7 +182,12 @@ export class PaymentService {
       await this.findCashPayments(dateRange, [location_id], status)
     );
   }
-
+  /**
+   *
+   * @param location_id
+   * @param pastDueDepositDate
+   * @returns
+   */
   public async findPaymentsExceptions(
     location_id: number,
     pastDueDepositDate: string
@@ -229,23 +204,6 @@ export class PaymentService {
       relations: {
         transaction: true,
         payment_method: true,
-      },
-    });
-  }
-
-  async findMatchedPosPayments(
-    posDeposits: POSDepositEntity[],
-    pos_deposit_match = false
-  ) {
-    return await this.paymentRepo.find({
-      where: {
-        payment_method: { classification: PaymentMethodClassification.CASH },
-        pos_deposit_match: In(posDeposits.map((itm) => itm.id)),
-      },
-      relations: {
-        transaction: true,
-        payment_method: true,
-        pos_deposit_match,
       },
     });
   }
@@ -295,31 +253,66 @@ export class PaymentService {
     });
     return payments;
   }
-
-  async findPosPaymentsByMatchedDepositId(
-    posDeposits: POSDepositEntity[],
-    pos_deposit_match = false
+  /**
+   *
+   * @param program
+   * @param classification
+   * @returns
+   */
+  async findPaymentsForDetailsReport(
+    dateRange: DateRange,
+    classification: PaymentMethodClassification,
+    program: Ministries
   ): Promise<PaymentEntity[]> {
-    return await this.paymentRepo.find({
-      where: { pos_deposit_match: In(posDeposits.map((itm) => itm.id)) },
-      relations: {
-        transaction: true,
-        payment_method: true,
-        pos_deposit_match,
-      },
-    });
-  }
-
-  async findCashPaymentsByDepositMatch(cashDeposits: CashDepositEntity[]) {
-    return await this.paymentRepo.find({
+    const reconciled = await this.paymentRepo.find({
       where: {
-        cash_deposit_match: In(cashDeposits.map((itm) => itm.id)),
-      },
-      relations: {
-        transaction: true,
-        payment_method: true,
-        cash_deposit_match: true,
+        reconciled_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        status: In([MatchStatus.MATCH, MatchStatus.EXCEPTION]),
+        transaction: {
+          source_id: program,
+        },
+        payment_method: { classification },
       },
     });
+
+    const in_progress = await this.paymentRepo.find({
+      where: {
+        in_progress_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        status: MatchStatus.IN_PROGRESS,
+        transaction: {
+          source_id: program,
+        },
+        payment_method: { classification },
+      },
+
+      relations: {
+        cash_deposit_match: false,
+      },
+    });
+    const { minDate, maxDate } = dateRange;
+    const pending = await this.paymentRepo.find({
+      where: {
+        status: MatchStatus.PENDING,
+        transaction: {
+          transaction_date: Raw(
+            (alias) => `${alias} >= :minDate and ${alias} <= :maxDate`,
+            { minDate, maxDate }
+          ),
+          source_id: program,
+        },
+      },
+
+      relations: {
+        cash_deposit_match: false,
+      },
+    });
+
+    return [...reconciled, ...in_progress, ...pending];
   }
 }

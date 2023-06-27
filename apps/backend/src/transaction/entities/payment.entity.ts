@@ -22,6 +22,11 @@ export class PaymentEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column({ nullable: true, type: 'timestamp' })
+  reconciled_on?: Date;
+
+  @Column({ nullable: true, type: 'timestamp' })
+  in_progress_on?: Date;
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
   // https://typeorm.io/entities#column-options - For better numeric representation.
   // https://github.com/typeorm/typeorm/issues/873#issuecomment-424643086 - And make this column return proper number
@@ -107,7 +112,7 @@ export class PaymentEntity {
   @OneToOne(
     () => POSDepositEntity,
     (posDeposit: POSDepositEntity) => posDeposit.id,
-    { nullable: true }
+    { nullable: true, cascade: false }
   )
   @JoinColumn({
     name: 'pos_deposit_match',

@@ -1,6 +1,10 @@
+import { format } from 'date-fns';
 import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
-import { NormalizedLocation } from '../../constants';
+import {
+  NormalizedLocation,
+  PaymentMethodClassification,
+} from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 
 export class CashDepositDetailsReport extends DetailsReport {
@@ -8,12 +12,14 @@ export class CashDepositDetailsReport extends DetailsReport {
     super(location);
     this.source_file = 'Cash/Chq (TDI 17)';
     this.reconciliation_status = deposit.status;
+    this.reconciled_date =
+      deposit.reconciled_on && format(deposit.reconciled_on, 'yyyy-MM-dd');
+    this.in_progress_date = this.setInProgressDate(deposit);
     this.transaction_id = deposit.jv_no ?? '';
-    this.location_id = location.location_id;
-    this.location = location.description;
-    this.deposit_date = deposit.deposit_date;
+
+    this.close_date = deposit.deposit_date;
+    this.type = PaymentMethodClassification.CASH;
     this.time = deposit.deposit_time ?? null;
-    this.fiscal_date = deposit.deposit_date;
     this.payment_method = 'CASH/CHQ';
     this.amount = new Decimal(deposit.deposit_amt_cdn)
       .toDecimalPlaces(2)
