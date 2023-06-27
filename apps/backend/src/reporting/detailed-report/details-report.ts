@@ -1,6 +1,5 @@
 import { MatchStatus } from '../../common/const';
 import {
-  NormalizedLocation,
   PaymentMethodClassification,
 } from '../../constants';
 import { PosHeuristicRound } from '../../reconciliation/types';
@@ -18,7 +17,6 @@ export class DetailsReport {
   close_date?: string | null;
   in_progress_date?: string | null;
   reconciled_date?: string | null;
-
   heuristic_match_round?: PosHeuristicRound | null;
   type: PaymentMethodClassification;
   payment_method: string;
@@ -42,30 +40,4 @@ export class DetailsReport {
   dist_project_code: number | null;
   dist_location_code: number | null;
   dist_future_code: number | null;
-  constructor(location: NormalizedLocation) {
-    this.reconciled_date = null;
-    this.in_progress_date = null;
-    this.uploaded_date = null;
-    this.txn_date = null;
-    this.foreign_currency_amount = null;
-    this.currency = 'CAD';
-    this.transaction_id = '';
-    this.misc = '';
-    this.merchant_id = null;
-    this.terminal_no = '';
-    this.card_id = '';
-    this.transaction_code = null;
-    this.approval_code = '';
-    this.invoice_no = '';
-    this.echo_data_field = '';
-    this.dist_client_code = null;
-    this.location = location.description;
-    this.location_id = location.location_id;
-    this.dist_resp_code = location.resp_code;
-    this.dist_service_line_code = location.service_line_code;
-    this.dist_stob_code = location.stob_code;
-    this.dist_project_code = location.project_code;
-    this.dist_location_code = location.location_id;
-    this.dist_future_code = null;
-  }
 }

@@ -22,10 +22,10 @@ export class POSDepositEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true, type: 'timestamp without time zone' })
+  @Column({ nullable: true, type: 'timestamp' })
   reconciled_on?: Date;
 
-  @Column({ nullable: true, type: 'timestamp without time zone' })
+  @Column({ nullable: true, type: 'timestamp' })
   in_progress_on?: Date;
 
   @Column(() => FileMetadata, { prefix: false })

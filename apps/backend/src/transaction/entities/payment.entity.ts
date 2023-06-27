@@ -22,10 +22,10 @@ export class PaymentEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column({ nullable: true, type: 'timestamp without time zone' })
+  @Column({ nullable: true, type: 'timestamp' })
   reconciled_on?: Date;
 
-  @Column({ nullable: true, type: 'timestamp without time zone' })
+  @Column({ nullable: true, type: 'timestamp' })
   in_progress_on?: Date;
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number/MAX_SAFE_INTEGER
   // https://typeorm.io/entities#column-options - For better numeric representation.

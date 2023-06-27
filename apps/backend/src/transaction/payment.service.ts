@@ -12,7 +12,11 @@ import {
 } from 'typeorm';
 import { PaymentEntity } from './entities';
 import { MatchStatus, MatchStatusAll } from '../common/const';
-import { DateRange, PaymentMethodClassification } from '../constants';
+import {
+  DateRange,
+  Ministries,
+  PaymentMethodClassification,
+} from '../constants';
 import { AppLogger } from '../logger/logger.service';
 import { AggregatedCashPayment } from '../reconciliation/types/interface';
 
@@ -255,18 +259,60 @@ export class PaymentService {
    * @param classification
    * @returns
    */
-  async findAllByReconciledDate(
+  async findPaymentsForDetailsReport(
     dateRange: DateRange,
-    classification: PaymentMethodClassification
+    classification: PaymentMethodClassification,
+    program: Ministries
   ): Promise<PaymentEntity[]> {
-    return await this.paymentRepo.find({
+    const reconciled = await this.paymentRepo.find({
       where: {
         reconciled_on: Between(
           parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
           parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
         ),
+        status: In([MatchStatus.MATCH, MatchStatus.EXCEPTION]),
+        transaction: {
+          source_id: program,
+        },
         payment_method: { classification },
       },
     });
+
+    const in_progress = await this.paymentRepo.find({
+      where: {
+        in_progress_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        status: MatchStatus.IN_PROGRESS,
+        transaction: {
+          source_id: program,
+        },
+        payment_method: { classification },
+      },
+
+      relations: {
+        cash_deposit_match: false,
+      },
+    });
+    const { minDate, maxDate } = dateRange;
+    const pending = await this.paymentRepo.find({
+      where: {
+        status: MatchStatus.PENDING,
+        transaction: {
+          transaction_date: Raw(
+            (alias) => `${alias} >= :minDate and ${alias} <= :maxDate`,
+            { minDate, maxDate }
+          ),
+          source_id: program,
+        },
+      },
+
+      relations: {
+        cash_deposit_match: false,
+      },
+    });
+
+    return [...reconciled, ...in_progress, ...pending];
   }
 }

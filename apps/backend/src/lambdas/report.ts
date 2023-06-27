@@ -11,7 +11,6 @@ import {
   parse,
 } from 'date-fns';
 import { AppModule } from '../app.module';
-import { MatchStatus } from '../common/const';
 import {
   DateRange,
   NormalizedLocation,
@@ -57,17 +56,9 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   const locationService = app.get(LocationService);
   const locations = await locationService.getLocationsBySource(event.program);
 
-  const { posDeposits, posPayments } = await getPosReportData(
-    app,
-    event,
-    locations
-  );
-  console.log(posDeposits.map((itm) => itm.transaction_date));
-  const { cashDeposits, cashPayments } = await getCashReportData(
-    app,
-    event,
-    locations
-  );
+  const { posDeposits, posPayments } = await getPosReportData(app, event);
+
+  const { cashDeposits, cashPayments } = await getCashReportData(app, event);
 
   const { pageThreeDeposits, pageThreeDepositDates } =
     await getPageThreeDeposits(app, event, locations);
@@ -94,8 +85,7 @@ export const handler = async (event: ReportConfig, context?: Context) => {
  */
 const getCashReportData = async (
   app: INestApplicationContext,
-  event: ReportConfig,
-  locations: NormalizedLocation[]
+  event: ReportConfig
 ): Promise<{
   cashDeposits: CashDepositEntity[];
   cashPayments: PaymentEntity[];
@@ -103,32 +93,20 @@ const getCashReportData = async (
   const paymentService = app.get(PaymentService);
   const cashDepositService = app.get(CashDepositService);
 
-  const deposits = await cashDepositService.findAllByReconciledDate(
+  const cashDeposits = await cashDepositService.findAllByReconciledDate(
     { minDate: event.period.from, maxDate: event.period.to },
     event.program
   );
 
-  const pendingAndInProgressDeposits =
-    await cashDepositService.findAllByDepositDateAndStatus(
-      { minDate: event.period.from, maxDate: event.period.to },
-      event.program,
-      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
-    );
-
-  const cashPayments = await paymentService.findAllByReconciledDate(
+  const cashPayments = await paymentService.findPaymentsForDetailsReport(
     { minDate: event.period.from, maxDate: event.period.to },
-    PaymentMethodClassification.CASH
-  );
-
-  const pendingAndInProgressPayments = await paymentService.findCashPayments(
-    { minDate: event.period.from, maxDate: event.period.to },
-    locations.map((itm) => itm.location_id),
-    [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+    PaymentMethodClassification.CASH,
+    event.program
   );
 
   return {
-    cashDeposits: [...deposits, ...pendingAndInProgressDeposits],
-    cashPayments: [...cashPayments, ...pendingAndInProgressPayments],
+    cashDeposits,
+    cashPayments,
   };
 };
 
@@ -142,8 +120,7 @@ const getCashReportData = async (
  */
 const getPosReportData = async (
   app: INestApplicationContext,
-  event: ReportConfig,
-  locations: NormalizedLocation[]
+  event: ReportConfig
 ): Promise<{
   posPayments: PaymentEntity[];
   posDeposits: POSDepositEntity[];
@@ -151,32 +128,19 @@ const getPosReportData = async (
   const paymentService = app.get(PaymentService);
   const posDepositService = app.get(PosDepositService);
 
-  const deposits = await posDepositService.findAllByReconciledDate(
+  const posDeposits = await posDepositService.findAllByReconciledDate(
     { minDate: event.period.from, maxDate: event.period.to },
     event.program
   );
 
-  const pendingAndInProgressDeposits = await posDepositService.findPosDeposits(
+  const posPayments = await paymentService.findPaymentsForDetailsReport(
     { minDate: event.period.from, maxDate: event.period.to },
-    event.program,
-    locations.flatMap((itm) => itm.merchant_ids),
-    [MatchStatus.PENDING, MatchStatus.IN_PROGRESS],
-    false
-  );
-
-  const payments = await paymentService.findAllByReconciledDate(
-    { minDate: event.period.from, maxDate: event.period.to },
-    PaymentMethodClassification.POS
-  );
-
-  const pendingAndInProgressPayments = await paymentService.findPosPayments(
-    { minDate: event.period.from, maxDate: event.period.to },
-    locations.map((itm) => itm.location_id),
-    [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+    PaymentMethodClassification.POS,
+    event.program
   );
   return {
-    posDeposits: [...deposits, ...pendingAndInProgressDeposits],
-    posPayments: [...payments, ...pendingAndInProgressPayments],
+    posDeposits,
+    posPayments,
   };
 };
 /**

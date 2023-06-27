@@ -12,12 +12,10 @@ export class PaymentDetailsReport extends DetailsReport {
     payment: PaymentEntity,
     dates?: DateRange
   ) {
-    super(location);
+    super();
     this.source_file = 'Transaction (LOB)';
     this.reconciliation_status = payment.status;
     this.transaction_id = payment.transaction.transaction_id;
-    this.location_id = location.location_id;
-    this.location = location.description;
     this.reconciled_date = payment.reconciled_on
       ? format(payment.reconciled_on, 'yyyy-MM-dd')
       : null;
@@ -40,5 +38,22 @@ export class PaymentDetailsReport extends DetailsReport {
     this.heuristic_match_round = payment.heuristic_match_round ?? null;
     this.employee_id =
       payment.transaction.transactionJson?.misc.employee_id ?? null;
+    this.misc = '';
+    this.merchant_id = null;
+    this.terminal_no = '';
+    this.card_id = '';
+    this.transaction_code = null;
+    this.approval_code = '';
+    this.invoice_no = '';
+    this.echo_data_field = '';
+
+    this.location = location.description;
+    this.location_id = location.location_id;
+    this.dist_resp_code = location.resp_code;
+    this.dist_service_line_code = location.service_line_code;
+    this.dist_stob_code = location.stob_code;
+    this.dist_project_code = location.project_code;
+    this.dist_location_code = location.location_id;
+    this.dist_client_code = null;
   }
 }
