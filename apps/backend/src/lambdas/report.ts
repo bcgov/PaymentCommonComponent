@@ -93,10 +93,11 @@ const getCashReportData = async (
   const paymentService = app.get(PaymentService);
   const cashDepositService = app.get(CashDepositService);
 
-  const cashDeposits = await cashDepositService.findAllByReconciledDate(
-    { minDate: event.period.from, maxDate: event.period.to },
-    event.program
-  );
+  const cashDeposits =
+    await cashDepositService.findCashDepositsForDetailsReport(
+      { minDate: event.period.from, maxDate: event.period.to },
+      event.program
+    );
 
   const cashPayments = await paymentService.findPaymentsForDetailsReport(
     { minDate: event.period.from, maxDate: event.period.to },
@@ -173,7 +174,7 @@ const getPageThreeDeposits = async (
     maxDate: format(maxDate, 'yyyy-MM-dd'),
   };
   const cashDepositsResults: CashDepositEntity[] =
-    await cashDepositService.findCashDepositsForReport(
+    await cashDepositService.findCashDepositsForPageThreeReport(
       locations.map((itm) => itm.pt_location_id),
       event.program,
       dateRange

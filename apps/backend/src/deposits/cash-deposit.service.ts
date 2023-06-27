@@ -136,13 +136,13 @@ export class CashDepositService {
     });
   }
   /**
-   *
+   * CAS report specific query
    * @param location
    * @param program
    * @param dateRange
    * @returns
    */
-  async findCashDepositsForReport(
+  async findCashDepositsForPageThreeReport(
     pt_location_ids: number[],
     program: Ministries,
     dateRange: DateRange,
@@ -171,12 +171,12 @@ export class CashDepositService {
     });
   }
   /**
-   *
+   * Find all cash deposits for the details report - return any entities marked as matched or in progress on this day as well as any pending
    * @param dateRange
    * @param program
    * @returns
    */
-  async findAllByReconciledDate(
+  async findCashDepositsForDetailsReport(
     dateRange: DateRange,
     program: Ministries
   ): Promise<CashDepositEntity[]> {
@@ -233,25 +233,5 @@ export class CashDepositService {
       },
     });
     return [...reconciled, ...in_progress, ...pending];
-  }
-  /**
-   *
-   * @param dateRange
-   * @param program
-   * @param statuses
-   * @returns
-   */
-  async findAllByDepositDateAndStatus(
-    dateRange: DateRange,
-    program: Ministries,
-    statuses: MatchStatus[]
-  ): Promise<CashDepositEntity[]> {
-    return await this.cashDepositRepo.find({
-      where: {
-        deposit_date: Between(dateRange.minDate, dateRange.maxDate),
-        status: In(statuses),
-        metadata: { program },
-      },
-    });
   }
 }

@@ -276,6 +276,12 @@ export class PaymentService {
         },
         payment_method: { classification },
       },
+      order: {
+        transaction: { location_id: 'ASC' },
+        reconciled_on: 'ASC',
+        amount: 'ASC',
+        status: 'ASC',
+      },
     });
 
     const in_progress = await this.paymentRepo.find({
@@ -290,9 +296,10 @@ export class PaymentService {
         },
         payment_method: { classification },
       },
-
-      relations: {
-        cash_deposit_match: false,
+      order: {
+        transaction: { location_id: 'ASC' },
+        in_progress_on: 'ASC',
+        amount: 'ASC',
       },
     });
     const { minDate, maxDate } = dateRange;
@@ -307,9 +314,9 @@ export class PaymentService {
           source_id: program,
         },
       },
-
-      relations: {
-        cash_deposit_match: false,
+      order: {
+        transaction: { location_id: 'ASC', transaction_date: 'ASC' },
+        amount: 'ASC',
       },
     });
 
