@@ -4,7 +4,7 @@ import * as path from 'path';
 import { PaymentMethodEntity } from '../../transaction/entities';
 import { PaymentMethod } from '../../transaction/interface/transaction.interface';
 
-export class migration2524636800000 implements MigrationInterface {
+export class Migration2524636800000 implements MigrationInterface {
   name = 'migration2524636800000';
   public async up(queryRunner: QueryRunner): Promise<void> {
     const paymentMethodMasterFile = path.resolve(

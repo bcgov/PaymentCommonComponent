@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class migration1686207492088 implements MigrationInterface {
+export class Migration1686207492088 implements MigrationInterface {
   name = 'filenames-rules-migration1686207492088';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
