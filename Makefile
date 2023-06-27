@@ -286,6 +286,8 @@ clear-database:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM pos_deposit;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM cash_deposit;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_matches_pos_deposit;"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM program_daily_upload;"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM file_uploaded;"
 
 reset-status: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null;"
