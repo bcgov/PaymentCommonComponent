@@ -44,11 +44,13 @@ export class DetailsReport {
   dist_future_code: number | null;
 
   setInProgressDate(itm: any) {
-    return itm.in_progress_on
-      ? format(itm.in_progress_on, 'yyyy-MM-dd')
-      : itm.reconciled_on
-      ? format(itm.reconciled_on, 'yyyy-MM-dd')
-      : '';
+    if (itm.in_progress_on) {
+      return format(itm.in_progress_on, 'yyyy-MM-dd');
+    }
+    if (!itm.in_progress_on && itm.reconciled_on) {
+      return format(itm.reconciled_on, 'yyyy-MM-dd');
+    }
+    return null;
   }
   constructor(location: NormalizedLocation) {
     this.location = location.description;
