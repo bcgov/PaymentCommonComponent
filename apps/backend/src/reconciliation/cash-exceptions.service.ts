@@ -56,6 +56,7 @@ export class CashExceptionsService {
         deposits.map((itm) => ({
           ...itm,
           status: MatchStatus.EXCEPTION,
+          reconciled_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
         }))
       );
 
