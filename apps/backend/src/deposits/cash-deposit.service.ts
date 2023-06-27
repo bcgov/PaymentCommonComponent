@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, LessThanOrEqual, Raw, Repository } from 'typeorm';
+import { parse } from 'date-fns';
+import { Between, In, LessThanOrEqual, Raw, Repository } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { MatchStatusAll } from '../common/const';
@@ -166,6 +167,46 @@ export class CashDepositService {
       order: {
         deposit_date: 'ASC',
         deposit_amt_cdn: 'ASC',
+      },
+    });
+  }
+  /**
+   *
+   * @param dateRange
+   * @param program
+   * @returns
+   */
+  async findAllByReconciledDate(
+    dateRange: DateRange,
+    program: Ministries
+  ): Promise<CashDepositEntity[]> {
+    return await this.cashDepositRepo.find({
+      where: {
+        reconciled_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        metadata: { program },
+      },
+    });
+  }
+  /**
+   *
+   * @param dateRange
+   * @param program
+   * @param statuses
+   * @returns
+   */
+  async findAllByDepositDateAndStatus(
+    dateRange: DateRange,
+    program: Ministries,
+    statuses: MatchStatus[]
+  ): Promise<CashDepositEntity[]> {
+    return await this.cashDepositRepo.find({
+      where: {
+        deposit_date: Between(dateRange.minDate, dateRange.maxDate),
+        status: In(statuses),
+        metadata: { program },
       },
     });
   }

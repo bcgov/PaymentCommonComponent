@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format } from 'date-fns';
-import { In, LessThan, Raw, Repository } from 'typeorm';
+import { format, parse } from 'date-fns';
+import { Between, In, LessThan, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
@@ -204,6 +204,39 @@ export class PosDepositService {
       relations: {
         payment_method: true,
         payment_match,
+      },
+    });
+  }
+  /**
+   *
+   * @param program
+   * @returns
+   */
+  async findAllByProgram(program: Ministries): Promise<POSDepositEntity[]> {
+    return await this.posDepositRepo.find({
+      where: {
+        metadata: { program },
+      },
+      relations: {
+        payment_match: true,
+      },
+    });
+  }
+
+  async findAllByReconciledDate(
+    dateRange: DateRange,
+    program: Ministries
+  ): Promise<POSDepositEntity[]> {
+    return await this.posDepositRepo.find({
+      where: {
+        reconciled_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        metadata: { program },
+      },
+      relations: {
+        payment_match: { transaction: true },
       },
     });
   }

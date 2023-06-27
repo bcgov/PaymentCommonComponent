@@ -1,5 +1,8 @@
 import { MatchStatus } from '../../common/const';
-import { NormalizedLocation } from '../../constants';
+import {
+  NormalizedLocation,
+  PaymentMethodClassification,
+} from '../../constants';
 import { PosHeuristicRound } from '../../reconciliation/types';
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/
@@ -9,13 +12,17 @@ export class DetailsReport {
   transaction_id?: string | null;
   location_id: number;
   location: string;
-  transaction_date?: string | null;
-  deposit_date?: string | null;
+  txn_date?: string | null;
   time?: string;
-  fiscal_date?: string;
+  uploaded_date?: string | null;
+  close_date?: string | null;
+  in_progress_date?: string | null;
+  reconciled_date?: string | null;
+
+  heuristic_match_round?: PosHeuristicRound | null;
+  type: PaymentMethodClassification;
   payment_method: string;
   amount: number | null;
-  heuristic_match_round?: PosHeuristicRound | null;
   foreign_currency_amount: number | null;
   currency: string;
   exchange_rate: number | null;
@@ -36,6 +43,10 @@ export class DetailsReport {
   dist_location_code: number | null;
   dist_future_code: number | null;
   constructor(location: NormalizedLocation) {
+    this.reconciled_date = null;
+    this.in_progress_date = null;
+    this.uploaded_date = null;
+    this.txn_date = null;
     this.foreign_currency_amount = null;
     this.currency = 'CAD';
     this.transaction_id = '';

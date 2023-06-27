@@ -24,7 +24,8 @@ export class CashExceptionsService {
   public async setExceptions(
     location: NormalizedLocation,
     program: Ministries,
-    exceptionsDate: string
+    exceptionsDate: string,
+    currentDate: string
   ): Promise<{ payments: number; deposits: number }> {
     const payments: PaymentEntity[] =
       await this.paymentService.findPaymentsExceptions(
@@ -45,6 +46,7 @@ export class CashExceptionsService {
           ...itm,
           timestamp: itm.timestamp,
           status: MatchStatus.EXCEPTION,
+          reconciled_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
         }))
       );
 
