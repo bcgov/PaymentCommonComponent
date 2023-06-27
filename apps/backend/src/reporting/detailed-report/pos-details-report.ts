@@ -11,14 +11,10 @@ export class POSDepositDetailsReport extends DetailsReport {
   constructor(location: NormalizedLocation, deposit: POSDepositEntity) {
     super(location);
     this.source_file = 'POS (TDI 34)';
-    this.reconciled_date = deposit.reconciled_on
-      ? format(deposit.reconciled_on, 'yyyy-MM-dd')
-      : null;
-    this.in_progress_date = deposit.in_progress_on
-      ? format(deposit.in_progress_on, 'yyyy-MM-dd')
-      : deposit.reconciled_on
-      ? format(deposit.reconciled_on, 'yyyy-MM-dd')
-      : 'PENDING';
+    this.reconciled_date =
+      deposit.reconciled_on && format(deposit.reconciled_on, 'yyyy-MM-dd');
+
+    this.in_progress_date = this.setInProgressDate(deposit);
     this.reconciliation_status = deposit.status;
     this.txn_date = deposit.transaction_date;
     this.time = deposit.transaction_time;

@@ -12,14 +12,10 @@ export class PaymentDetailsReport extends DetailsReport {
     this.source_file = 'Transaction (LOB)';
     this.reconciliation_status = payment.status;
     this.transaction_id = payment.transaction.transaction_id;
-    this.reconciled_date = payment.reconciled_on
-      ? format(payment.reconciled_on, 'yyyy-MM-dd')
-      : null;
-    this.in_progress_date = payment.in_progress_on
-      ? format(payment.in_progress_on, 'yyyy-MM-dd')
-      : payment.reconciled_on
-      ? format(payment.reconciled_on, 'yyyy-MM-dd')
-      : 'PENDING';
+    this.reconciled_date =
+      payment.reconciled_on && format(payment.reconciled_on, 'yyyy-MM-dd');
+
+    this.in_progress_date = this.setInProgressDate(payment);
     this.txn_date = payment.transaction.transaction_date;
     this.type = payment.payment_method.classification;
     this.time = payment.transaction.transaction_time ?? '';
