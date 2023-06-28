@@ -37,11 +37,11 @@ export const handler = async (event: ReconciliationConfigInput) => {
     if (!rule) {
       throw new Error('No rule for this program');
     }
-    const today = parse(event.period.to, 'yyyy-MM-dd', new Date());
-    const daily = await parseService.getDailyForRule(rule, today);
+    const reconciliationDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
+    const daily = await parseService.getDailyForRule(rule, reconciliationDate);
     if (!daily?.success) {
       throw new Error(
-        `Incomplete dataset for this date ${today}. Please check the uploaded files.`
+        `Incomplete dataset for this date ${reconciliationDate}. Please check the uploaded files.`
       );
     }
   }
