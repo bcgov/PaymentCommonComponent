@@ -252,6 +252,7 @@ export class PosReconciliationService {
     posHeuristicRound: PosHeuristicRound,
     currentDate: Date
   ): { payment: PaymentEntity; deposit: POSDepositEntity }[] {
+    const isProduction = process.env.RUNTIME_ENV === 'production';
     const matches: { payment: PaymentEntity; deposit: POSDepositEntity }[] = [];
     for (const [pindex, payment] of payments.entries()) {
       // find amount
@@ -292,10 +293,9 @@ export class PosReconciliationService {
                 ...payment,
                 status: MatchStatus.MATCH,
                 timestamp: payment.timestamp,
-                reconciled_on:
-                  process.env.RUNTIME_ENV === 'production'
-                    ? currentDate
-                    : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on: isProduction
+                  ? currentDate
+                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
                 heuristic_match_round: posHeuristicRound,
                 pos_deposit_match: {
                   ...deposit,
@@ -306,10 +306,9 @@ export class PosReconciliationService {
               },
               deposit: {
                 ...deposit,
-                reconciled_on:
-                  process.env.RUNTIME_ENV === 'production'
-                    ? currentDate
-                    : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on: isProduction
+                  ? currentDate
+                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
                 heuristic_match_round: posHeuristicRound,
                 status: MatchStatus.MATCH,
                 timestamp: deposit.timestamp,
@@ -348,6 +347,7 @@ export class PosReconciliationService {
     posHeuristicRound: PosHeuristicRound,
     currentDate: Date
   ): { payments: PaymentEntity[]; deposits: POSDepositEntity[] }[] {
+    const isProduction = process.env.RUNTIME_ENV === 'production';
     const matches: {
       payments: PaymentEntity[];
       deposits: POSDepositEntity[];
@@ -393,20 +393,18 @@ export class PosReconciliationService {
                 timestamp: itm.timestamp,
                 heuristic_match_round: posHeuristicRound,
                 round_four_matches: deposit.deposits,
-                reconciled_on:
-                  process.env.RUNTIME_ENV === 'production'
-                    ? currentDate
-                    : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on: isProduction
+                  ? currentDate
+                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
               })),
               deposits: deposit.deposits.map((itm) => ({
                 ...itm,
                 status: MatchStatus.MATCH,
                 timestamp: itm.timestamp,
                 heuristic_match_round: posHeuristicRound,
-                reconciled_on:
-                  process.env.RUNTIME_ENV === 'production'
-                    ? currentDate
-                    : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on: isProduction
+                  ? currentDate
+                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
               })),
             });
 
