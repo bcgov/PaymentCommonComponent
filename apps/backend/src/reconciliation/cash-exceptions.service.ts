@@ -1,4 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { parse } from 'date-fns';
 import { MatchStatus } from '../common/const';
 import { Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
@@ -24,7 +25,8 @@ export class CashExceptionsService {
   public async setExceptions(
     location: NormalizedLocation,
     program: Ministries,
-    exceptionsDate: string
+    exceptionsDate: string,
+    currentDate: string
   ): Promise<{ payments: number; deposits: number }> {
     const payments: PaymentEntity[] =
       await this.paymentService.findPaymentsExceptions(
@@ -45,6 +47,7 @@ export class CashExceptionsService {
           ...itm,
           timestamp: itm.timestamp,
           status: MatchStatus.EXCEPTION,
+          reconciled_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
         }))
       );
 
@@ -53,6 +56,7 @@ export class CashExceptionsService {
         deposits.map((itm) => ({
           ...itm,
           status: MatchStatus.EXCEPTION,
+          reconciled_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
         }))
       );
 

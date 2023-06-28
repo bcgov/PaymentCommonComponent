@@ -1,16 +1,25 @@
+import { format } from 'date-fns';
 import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
-import { NormalizedLocation } from '../../constants';
+import {
+  NormalizedLocation,
+  PaymentMethodClassification,
+} from '../../constants';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
 
 export class POSDepositDetailsReport extends DetailsReport {
   constructor(location: NormalizedLocation, deposit: POSDepositEntity) {
     super(location);
     this.source_file = 'POS (TDI 34)';
+    this.reconciled_date =
+      deposit.reconciled_on && format(deposit.reconciled_on, 'yyyy-MM-dd');
+
+    this.in_progress_date = this.setInProgressDate(deposit);
     this.reconciliation_status = deposit.status;
-    this.transaction_date = deposit.transaction_date;
+    this.txn_date = deposit.transaction_date;
     this.time = deposit.transaction_time;
-    this.fiscal_date = deposit.settlement_date;
+    this.close_date = deposit.settlement_date;
+    this.type = PaymentMethodClassification.POS;
     this.payment_method = deposit.payment_method.description;
     this.amount = new Decimal(deposit.transaction_amt)
       .toDecimalPlaces(2)

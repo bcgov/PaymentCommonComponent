@@ -1,7 +1,7 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format } from 'date-fns';
-import { In, LessThan, Raw, Repository } from 'typeorm';
+import { format, parse } from 'date-fns';
+import { Between, In, LessThan, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
@@ -9,7 +9,6 @@ import { DateRange, Ministries, NormalizedLocation } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
-import { PaymentEntity } from '../transaction/entities';
 import { PaymentMethodEntity } from '../transaction/entities/payment-method.entity';
 
 @Injectable()
@@ -143,6 +142,7 @@ export class PosDepositService {
       settlement_date: format(new Date(d.settlement_date), 'yyyy-MM-dd'),
     }));
   }
+
   async savePOSDepositEntities(
     data: POSDepositEntity[]
   ): Promise<POSDepositEntity[]> {
@@ -195,16 +195,62 @@ export class PosDepositService {
     return deposits;
   }
 
-  async findPosDepositsByPaymentMatch(
-    payments: PaymentEntity[],
-    payment_match = false
+  /**
+   * Find all pos deposits for the details report - return any entities marked as matched or in progress on this day as well as any pending
+   * @param dateRange
+   * @param program
+   * @returns
+   */
+  async findAllByReconciledDate(
+    dateRange: DateRange,
+    program: Ministries
   ): Promise<POSDepositEntity[]> {
-    return await this.posDepositRepo.find({
-      where: { id: In(payments.map((itm) => itm.pos_deposit_match?.id)) },
-      relations: {
-        payment_method: true,
-        payment_match,
+    const reconciled = await this.posDepositRepo.find({
+      where: {
+        reconciled_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        metadata: { program },
+        status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
+      },
+      order: {
+        merchant_id: 'ASC',
+        reconciled_on: 'ASC',
+        transaction_amt: 'ASC',
+        status: 'ASC',
       },
     });
+    const in_progress = await this.posDepositRepo.find({
+      where: {
+        in_progress_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        metadata: { program },
+        status: MatchStatus.IN_PROGRESS,
+      },
+      order: {
+        merchant_id: 'ASC',
+        in_progress_on: 'ASC',
+        transaction_amt: 'ASC',
+      },
+    });
+    const { minDate, maxDate } = dateRange;
+    const pending = await this.posDepositRepo.find({
+      where: {
+        transaction_date: Raw(
+          (alias) => `${alias} >= :minDate and ${alias} <= :maxDate`,
+          { minDate, maxDate }
+        ),
+        metadata: { program },
+        status: MatchStatus.PENDING,
+      },
+      order: {
+        merchant_id: 'ASC',
+        transaction_amt: 'ASC',
+      },
+    });
+    return [...reconciled, ...in_progress, ...pending];
   }
 }

@@ -1,4 +1,5 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { parse } from 'date-fns';
 import Decimal from 'decimal.js';
 import { ReconciliationType, AggregatedCashPayment } from './types';
 import { MatchStatus } from '../common/const';
@@ -116,6 +117,7 @@ export class CashReconciliationService {
     program: Ministries,
     dateRange: DateRange
   ): Promise<unknown> {
+    const currentDate = dateRange.maxDate;
     const pendingDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDate(
         program,
@@ -157,11 +159,18 @@ export class CashReconciliationService {
 
     const matchedPayments: PaymentEntity[] = matches
       .map((itm) => itm.aggregatedCashPayment)
-      .flatMap((itm) => itm.payments);
+      .flatMap((itm) =>
+        itm.payments.map((pmnt) => ({
+          ...pmnt,
+          reconciled_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
+          timestamp: pmnt.timestamp,
+        }))
+      );
 
-    const matchedDeposits: CashDepositEntity[] = matches.map(
-      (itm) => itm.deposit
-    );
+    const matchedDeposits: CashDepositEntity[] = matches.map((itm) => ({
+      ...itm.deposit,
+      reconciled_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
+    }));
 
     this.appLogger.log(
       `${matchedPayments.length} PAYMENTS MARKED MATCHED`,
@@ -181,6 +190,7 @@ export class CashReconciliationService {
         itm.payments.map((itm: PaymentEntity) => ({
           ...itm,
           timestamp: itm.timestamp,
+          in_progress_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
           status: MatchStatus.IN_PROGRESS,
         }))
       );
@@ -190,6 +200,7 @@ export class CashReconciliationService {
       .map((itm: CashDepositEntity) => ({
         ...itm,
         status: MatchStatus.IN_PROGRESS,
+        in_progress_on: parse(currentDate, 'yyyy-MM-dd', new Date()),
       }));
 
     this.appLogger.log(

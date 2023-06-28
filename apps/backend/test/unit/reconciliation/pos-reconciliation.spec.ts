@@ -70,7 +70,9 @@ describe('PosReconciliationService', () => {
       const matches = service.matchPosPaymentToPosDeposits(
         payments,
         service.buildPosDepositsDictionary(deposits),
-        PosHeuristicRound.ONE
+        PosHeuristicRound.ONE,
+        new Date(),
+        false
       );
       expect(matches.length).toBeGreaterThan(0);
     });
@@ -94,7 +96,9 @@ describe('PosReconciliationService', () => {
             )
           )
         ),
-        PosHeuristicRound.ONE
+        PosHeuristicRound.ONE,
+        new Date(),
+        false
       );
       expect(payments.length).toBeGreaterThan(0);
       expect(deposits.length).toBeGreaterThan(0);
@@ -136,7 +140,9 @@ describe('PosReconciliationService', () => {
             )
           )
         ),
-        PosHeuristicRound.THREE
+        PosHeuristicRound.THREE,
+        new Date(),
+        false
       );
       expect(payments.length).toBeGreaterThan(0);
       expect(deposits.length).toBeGreaterThan(0);
@@ -180,7 +186,9 @@ describe('PosReconciliationService', () => {
             )
           )
         ),
-        PosHeuristicRound.THREE
+        PosHeuristicRound.THREE,
+        new Date(),
+        false
       );
 
       expect(payments.length).toBeGreaterThan(0);
@@ -227,7 +235,9 @@ describe('PosReconciliationService', () => {
           )
         ),
         depositsDictionary,
-        PosHeuristicRound.ONE
+        PosHeuristicRound.ONE,
+        new Date(),
+        false
       );
 
       const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
@@ -237,7 +247,9 @@ describe('PosReconciliationService', () => {
           )
         ),
         depositsDictionary,
-        PosHeuristicRound.TWO
+        PosHeuristicRound.TWO,
+        new Date(),
+        false
       );
 
       const matchedRoundThree = service.matchPosPaymentToPosDeposits(
@@ -247,7 +259,9 @@ describe('PosReconciliationService', () => {
           )
         ),
         depositsDictionary,
-        PosHeuristicRound.THREE
+        PosHeuristicRound.THREE,
+        new Date(),
+        false
       );
 
       matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
@@ -283,9 +297,9 @@ describe('PosReconciliationService', () => {
     it('should set the correct pos_deposit_match in the payment on all matched payments/deposits', () => {
       const matchedDeposits = matches.map((itm) => itm.deposit);
       const matchedDepositsFromMatchedPayments = matches.map(
-        (itm) => itm.payment.pos_deposit_match
+        (itm) => itm.payment.pos_deposit_match?.id
       );
-      expect(matchedDeposits).toEqual(
+      expect(matchedDeposits.map((itm) => itm.id)).toEqual(
         expect.arrayContaining(matchedDepositsFromMatchedPayments)
       );
     });
@@ -335,7 +349,9 @@ describe('PosReconciliationService', () => {
           )
         ),
         depositsDictionary,
-        PosHeuristicRound.ONE
+        PosHeuristicRound.ONE,
+        new Date(),
+        false
       );
 
       const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
@@ -345,7 +361,9 @@ describe('PosReconciliationService', () => {
           )
         ),
         depositsDictionary,
-        PosHeuristicRound.TWO
+        PosHeuristicRound.TWO,
+        new Date(),
+        false
       );
 
       const matchedRoundThree = service.matchPosPaymentToPosDeposits(
@@ -355,7 +373,9 @@ describe('PosReconciliationService', () => {
           )
         ),
         depositsDictionary,
-        PosHeuristicRound.THREE
+        PosHeuristicRound.THREE,
+        new Date(),
+        false
       );
 
       matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
@@ -437,7 +457,9 @@ describe('PosReconciliationService', () => {
       const matchedRoundFour = service.matchPosPaymentToPosDepositsRoundFour(
         aggregatedPayments,
         service.buildPosDepositsDictionary(aggregatedDeposits),
-        PosHeuristicRound.FOUR
+        PosHeuristicRound.FOUR,
+        new Date(),
+        false
       );
 
       roundFourPaymentMatches = matchedRoundFour.flatMap((itm) => itm.payments);

@@ -400,34 +400,47 @@ export class ReportingService {
     cashPayments: PaymentEntity[],
     locations: NormalizedLocation[]
   ): DetailsReport[] {
-    const detailedReport: DetailsReport[] = [];
-    locations.forEach((location: NormalizedLocation) => {
-      const filteredDeposits = posDeposits
-        .filter((deposit) =>
-          location.merchant_ids.includes(deposit.merchant_id)
+    const paymentsReport = [...posPayments, ...cashPayments].map(
+      (itm) =>
+        new PaymentDetailsReport(
+          locations.find(
+            (item) => item.location_id === itm.transaction.location_id
+          )!,
+          itm
         )
-        .map((deposit) => new POSDepositDetailsReport(location, deposit));
+    );
 
-      const filteredCashDeposits = cashDeposits
-        .filter((deposit) => location.pt_location_id === deposit.pt_location_id)
-        .map(
-          (deposit: CashDepositEntity) =>
-            new CashDepositDetailsReport(location, deposit)
-        );
-      const cashReportPayments = cashPayments
-        .filter((itm) => itm.transaction.location_id === location.location_id)
-        .map((payment) => new PaymentDetailsReport(location, payment));
-      const posReportPayments = posPayments
-        .filter((itm) => itm.transaction.location_id === location.location_id)
-        .map((payment) => new PaymentDetailsReport(location, payment));
-      detailedReport.push(
-        ...filteredDeposits,
-        ...filteredCashDeposits,
-        ...cashReportPayments,
-        ...posReportPayments
-      );
-    });
-    return detailedReport;
+    const cashDepositReport = cashDeposits.map(
+      (itm) =>
+        new CashDepositDetailsReport(
+          locations.find((item) => item.pt_location_id === itm.pt_location_id)!,
+          itm
+        )
+    );
+    const posDepositReport = posDeposits.map(
+      (itm) =>
+        new POSDepositDetailsReport(
+          locations.find((item) =>
+            item.merchant_ids.includes(itm.merchant_id)
+          )!,
+          itm
+        )
+    );
+    const detailsReport = [
+      ...paymentsReport,
+      ...cashDepositReport,
+      ...posDepositReport,
+    ] as DetailsReport[];
+
+    const uniqueRows = Array.from(
+      new Set(detailsReport.map((itm) => JSON.stringify(itm)))
+    ).map((itm) => JSON.parse(itm));
+
+    const sorted = [...uniqueRows].sort(
+      (a: DetailsReport, b: DetailsReport) => a.location_id - b.location_id
+    );
+
+    return sorted as DetailsReport[];
   }
   /**
    * Query for CAS report data

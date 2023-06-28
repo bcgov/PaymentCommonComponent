@@ -7,9 +7,9 @@ import { NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
+import { ParseService } from '../parse/parse.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
-import { ParseService } from '../parse/parse.service';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReconciliationConfigInput } from '../reconciliation/types';
 import { ReportingService } from '../reporting/reporting.service';
@@ -37,10 +37,11 @@ export const handler = async (event: ReconciliationConfigInput) => {
     if (!rule) {
       throw new Error('No rule for this program');
     }
-    const daily = await parseService.getDailyForRule(rule, new Date());
+    const reconciliationDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
+    const daily = await parseService.getDailyForRule(rule, reconciliationDate);
     if (!daily?.success) {
       throw new Error(
-        `Incomplete dataset for this date ${new Date()}. Please check the uploaded files.`
+        `Incomplete dataset for this date ${reconciliationDate}. Please check the uploaded files.`
       );
     }
   }
@@ -48,13 +49,18 @@ export const handler = async (event: ReconciliationConfigInput) => {
   // maxDate is the date we are reconciling until
   // We reconcile 1 business day behind, so the user should only be passing in "yesterday" as maxDate
   // We should also ensure sync (automated - should have all data by 11am PST) and parse have run before this function is called
-  const dateRange = { minDate: event.period.from, maxDate: event.period.to };
 
   const reconciliationDates = {
-    start: parse(event.period.from, 'yyyy-MM-dd', new Date()),
+    start: subBusinessDays(
+      parse(event.period.from, 'yyyy-MM-dd', new Date()),
+      1
+    ),
     end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
   };
-
+  const dateRange = {
+    minDate: format(reconciliationDates.start, 'yyyy-MM-dd'),
+    maxDate: format(reconciliationDates.end, 'yyyy-MM-dd'),
+  };
   const allLocations: NormalizedLocation[] =
     await locationService.getLocationsBySource(event.program);
 
@@ -98,7 +104,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const reconciled = await posReconciliationService.reconcile(
       location,
       locationPayments,
-      locationDeposits
+      locationDeposits,
+      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
     );
 
     appLogger.log({ reconciled }, PosReconciliationService.name);
@@ -107,7 +114,11 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const exceptions = await posReconciliationService.setExceptions(
       location,
       event.program,
-      format(subBusinessDays(new Date(dateRange.maxDate), 2), 'yyyy-MM-dd')
+      format(
+        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2),
+        'yyyy-MM-dd'
+      ),
+      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
     );
 
     appLogger.log({ exceptions }, PosReconciliationService.name);
@@ -148,7 +159,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
       const exceptions = await cashExceptionsService.setExceptions(
         location,
         event.program,
-        previousCashDepositDate
+        previousCashDepositDate,
+        currentCashDepositDate
       );
       appLogger.log({ exceptions }, CashReconciliationService.name);
     }

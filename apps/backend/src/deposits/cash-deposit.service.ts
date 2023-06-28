@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, LessThanOrEqual, Raw, Repository } from 'typeorm';
+import { parse } from 'date-fns';
+import { Between, In, LessThanOrEqual, Raw, Repository } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { MatchStatusAll } from '../common/const';
@@ -135,13 +136,13 @@ export class CashDepositService {
     });
   }
   /**
-   *
+   * CAS report specific query
    * @param location
    * @param program
    * @param dateRange
    * @returns
    */
-  async findCashDepositsForReport(
+  async findCashDepositsForPageThreeReport(
     pt_location_ids: number[],
     program: Ministries,
     dateRange: DateRange,
@@ -168,5 +169,69 @@ export class CashDepositService {
         deposit_amt_cdn: 'ASC',
       },
     });
+  }
+  /**
+   * Find all cash deposits for the details report - return any entities marked as matched or in progress on this day as well as any pending
+   * @param dateRange
+   * @param program
+   * @returns
+   */
+  async findCashDepositsForDetailsReport(
+    dateRange: DateRange,
+    program: Ministries
+  ): Promise<CashDepositEntity[]> {
+    const reconciled = await this.cashDepositRepo.find({
+      where: {
+        reconciled_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        metadata: { program },
+        status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
+      },
+      order: {
+        pt_location_id: 'ASC',
+        reconciled_on: 'ASC',
+        deposit_amt_cdn: 'ASC',
+        status: 'ASC',
+      },
+    });
+    const in_progress = await this.cashDepositRepo.find({
+      where: {
+        in_progress_on: Between(
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+        ),
+        metadata: { program },
+        status: MatchStatus.IN_PROGRESS,
+      },
+      order: {
+        pt_location_id: 'ASC',
+        in_progress_on: 'ASC',
+        deposit_amt_cdn: 'ASC',
+      },
+      relations: {
+        payment_matches: false,
+      },
+    });
+    const { minDate, maxDate } = dateRange;
+    const pending = await this.cashDepositRepo.find({
+      where: {
+        deposit_date: Raw(
+          (alias) => `${alias} >= :minDate and ${alias} <= :maxDate`,
+          { minDate, maxDate }
+        ),
+        metadata: { program },
+        status: MatchStatus.PENDING,
+      },
+      order: {
+        pt_location_id: 'ASC',
+        deposit_amt_cdn: 'ASC',
+      },
+      relations: {
+        payment_matches: false,
+      },
+    });
+    return [...reconciled, ...in_progress, ...pending];
   }
 }
