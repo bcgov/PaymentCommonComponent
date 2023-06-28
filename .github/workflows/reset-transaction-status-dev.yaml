@@ -1,0 +1,32 @@
+name: Reset transaction status - DEV
+on:
+  workflow_dispatch:
+env:
+  ENV_NAME: dev
+
+jobs:
+  clear-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: dev
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache yarn
+        uses: actions/cache@v3
+        with:
+          path: ./.yarn/cache
+          key: pcc-backend
+          restore-keys: pcc-backend
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Setup ENV file
+        run: cp ./.config/.env.example ./.env
+
+      - name: Reset transactions status in DB
+        run: make reset-status
