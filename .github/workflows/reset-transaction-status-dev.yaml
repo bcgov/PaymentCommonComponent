@@ -22,11 +22,25 @@ jobs:
           key: pcc-backend
           restore-keys: pcc-backend
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-skip-session-tagging: true
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_ID }}
+          aws-region: ca-central-1
+          role-to-assume: ${{ secrets.AWS_SA_ROLE_ARN }}
+          role-duration-seconds: 900
+          role-session-name: dev-data-clean
+
       - name: Install dependencies
         run: yarn
 
       - name: Setup ENV file
         run: cp ./.config/.env.example ./.env
+
+      - name: Open DB tunnel
+        run: make open-db-tunnel
 
       - name: Reset transactions status in DB
         run: make reset-status
