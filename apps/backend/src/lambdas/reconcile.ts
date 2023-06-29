@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { format, parse, subBusinessDays } from 'date-fns';
+import { FindOptionsOrderValue } from 'typeorm';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
 import { NormalizedLocation } from '../constants';
@@ -124,11 +125,14 @@ export const handler = async (event: ReconciliationConfigInput) => {
     appLogger.log({ exceptions }, PosReconciliationService.name);
   }
 
+  const order: FindOptionsOrderValue = 'ASC';
+
   for (const location of locations) {
     const allDates =
       await cashDepositService.findAllCashDepositDatesPerLocation(
         event.program,
-        location.pt_location_id
+        location.pt_location_id,
+        order
       );
 
     const filtered = allDates.filter(
@@ -137,8 +141,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
         parse(date, 'yyyy-MM-dd', new Date()) <= reconciliationDates.end
     );
 
-    //reverse the order - query cash dates is in descending order, we need ascending
-    for (const date of filtered.reverse()) {
+    for (const date of filtered) {
       const currentCashDepositDate = date;
       const previousCashDepositDate =
         filtered[filtered.indexOf(date) - 2] ??
