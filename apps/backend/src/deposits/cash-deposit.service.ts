@@ -1,7 +1,14 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
-import { Between, In, LessThanOrEqual, Raw, Repository } from 'typeorm';
+import { addBusinessDays, parse, subBusinessDays } from 'date-fns';
+import {
+  Between,
+  FindOptionsOrderValue,
+  In,
+  LessThanOrEqual,
+  Raw,
+  Repository,
+} from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatus } from '../common/const';
 import { MatchStatusAll } from '../common/const';
@@ -80,7 +87,8 @@ export class CashDepositService {
    */
   async findAllCashDepositDatesPerLocation(
     program: Ministries,
-    pt_location_id: number
+    pt_location_id: number,
+    order: FindOptionsOrderValue
   ): Promise<string[]> {
     const deposits: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
@@ -88,7 +96,7 @@ export class CashDepositService {
         pt_location_id,
       },
       order: {
-        deposit_date: 'DESC',
+        deposit_date: order,
       },
     });
     return Array.from(new Set(deposits.map((itm) => itm.deposit_date)));
@@ -183,8 +191,11 @@ export class CashDepositService {
     const reconciled = await this.cashDepositRepo.find({
       where: {
         reconciled_on: Between(
-          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
-          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+          subBusinessDays(
+            parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+            1
+          ),
+          addBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1)
         ),
         metadata: { program },
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),

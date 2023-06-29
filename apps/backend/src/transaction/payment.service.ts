@@ -254,7 +254,7 @@ export class PaymentService {
     return payments;
   }
   /**
-   *
+   * Find all payments for the details report - return any entities marked as matched or in progress on this day as well as any pending
    * @param program
    * @param classification
    * @returns
