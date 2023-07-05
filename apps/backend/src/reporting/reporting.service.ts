@@ -436,7 +436,7 @@ export class ReportingService {
       (a: DetailsReport, b: DetailsReport) => a.location_id - b.location_id
     );
 
-    return sorted as DetailsReport[];
+    return sorted;
   }
   /**
    * Query for CAS report data
