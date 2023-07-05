@@ -432,15 +432,11 @@ export class ReportingService {
       ...posDepositReport,
     ] as DetailsReport[];
 
-    const uniqueRows = Array.from(
-      new Set(detailsReport.map((itm) => JSON.stringify(itm)))
-    ).map((itm) => JSON.parse(itm));
-
-    const sorted = [...uniqueRows].sort(
+    const sorted = [...detailsReport].sort(
       (a: DetailsReport, b: DetailsReport) => a.location_id - b.location_id
     );
 
-    return sorted as DetailsReport[];
+    return sorted;
   }
   /**
    * Query for CAS report data
