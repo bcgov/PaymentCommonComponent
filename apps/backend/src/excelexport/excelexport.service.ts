@@ -121,12 +121,12 @@ export class ExcelExportService {
     const sheet = this.workbook.getWorksheet(sheetName);
 
     rowData.forEach((row, index) => {
-      const uncommittedRow = sheet.getRow(index + 3);
+      const uncommittedRow = sheet.getRow(index + 2);
       uncommittedRow.values = row.values;
       uncommittedRow.eachCell((cell, _colNumber) => {
         const unformattedCell = sheet.getCell(cell.address);
         unformattedCell.style = row.style;
-        if (options?.casFormatKeys.includes(unformattedCell.name)) {
+        if (options?.casFormatKeys?.includes(unformattedCell.name)) {
           unformattedCell.value = Number(cell.value);
         }
       });
@@ -149,18 +149,17 @@ export class ExcelExportService {
   public addColumns(sheetName: string, columnData: any[]): void {
     const sheet = this.workbook.getWorksheet(sheetName);
     sheet.columns = columnData;
-    sheet.columns.forEach((column) => (column.width = 20));
-    const row2 = sheet.getRow(2);
-    row2.values = columnData.map((itm) => itm.header);
-    row2.font = {
-      name: 'Calibri',
-      color: { argb: '1A000000' },
-      family: 2,
-      size: 12,
-      italic: false,
-      bold: true,
-    };
-
+    sheet.columns.forEach((column) => {
+      column.width = 20;
+      column.font = {
+        name: 'Calibri',
+        color: { argb: '1A000000' },
+        family: 2,
+        size: 12,
+        italic: false,
+        bold: true,
+      };
+    });
     // do not commit this row as formatting will need to be added after - this row will be commited when the worksheet is commited
     this.appLogger.log(
       `Columns added and formatted to sheet ${sheetName}`,

@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { MatchStatus } from '../../common/const';
 import {
   NormalizedLocation,
@@ -8,17 +7,19 @@ import { PosHeuristicRound } from '../../reconciliation/types';
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 export class DetailsReport {
+  uuid: string;
+  match_id?: string | null;
   source_file: string;
   reconciliation_status: MatchStatus;
   transaction_id?: string | null;
   location_id: number;
   location: string;
-  txn_date?: string | null;
+  txn_date?: Date | null;
   time?: string;
-  uploaded_date?: string | null;
-  close_date?: string | null;
-  in_progress_date?: string | null;
-  reconciled_date?: string | null;
+  uploaded_date?: Date | null;
+  close_date?: Date | null;
+  in_progress_date?: Date | null;
+  reconciled_date?: Date | null;
   heuristic_match_round?: PosHeuristicRound | null;
   type: PaymentMethodClassification;
   payment_method: string;
@@ -45,10 +46,10 @@ export class DetailsReport {
 
   setInProgressDate(itm: any) {
     if (itm.in_progress_on) {
-      return format(itm.in_progress_on, 'yyyy-MM-dd');
+      return itm.in_progress_on;
     }
     if (!itm.in_progress_on && itm.reconciled_on) {
-      return format(itm.reconciled_on, 'yyyy-MM-dd');
+      return itm.reconciled_on;
     }
     return null;
   }

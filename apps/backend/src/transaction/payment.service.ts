@@ -282,6 +282,10 @@ export class PaymentService {
         amount: 'ASC',
         status: 'ASC',
       },
+      relations: {
+        pos_deposit_match: true,
+        cash_deposit_match: true,
+      },
     });
 
     const in_progress = await this.paymentRepo.find({
@@ -306,6 +310,7 @@ export class PaymentService {
     const pending = await this.paymentRepo.find({
       where: {
         status: MatchStatus.PENDING,
+        payment_method: { classification },
         transaction: {
           transaction_date: Raw(
             (alias) => `${alias} >= :minDate and ${alias} <= :maxDate`,

@@ -32,6 +32,8 @@ export const detailedReportColumns = [
   { header: 'Foreign Currency Amount', key: 'foreign_currency_amount' },
   { header: 'Currency', key: 'currency' },
   { header: 'Exchange Rate', key: 'exchange_rate' },
+  { header: 'UUID', key: 'uuid', hidden: true },
+  { header: 'Match ID', key: 'match_id', hidden: true },
   { header: 'Misc', key: 'misc' },
   { header: 'Employee ID', key: 'employee_id' },
   { header: 'Merchant ID', key: 'merchant_id' },

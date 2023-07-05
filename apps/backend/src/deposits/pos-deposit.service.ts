@@ -1,6 +1,6 @@
 import { Injectable, Inject, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format, parse } from 'date-fns';
+import { format, parse, addBusinessDays, subBusinessDays } from 'date-fns';
 import { Between, In, LessThan, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
@@ -208,11 +208,17 @@ export class PosDepositService {
     const reconciled = await this.posDepositRepo.find({
       where: {
         reconciled_on: Between(
-          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
-          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+          subBusinessDays(
+            parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+            2
+          ),
+          addBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2)
         ),
         metadata: { program },
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
+      },
+      relations: {
+        payment_match: true,
       },
       order: {
         merchant_id: 'ASC',

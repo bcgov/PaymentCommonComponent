@@ -193,10 +193,11 @@ export class CashDepositService {
         reconciled_on: Between(
           subBusinessDays(
             parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
-            1
+            2
           ),
-          addBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1)
+          addBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2)
         ),
+
         metadata: { program },
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
       },
