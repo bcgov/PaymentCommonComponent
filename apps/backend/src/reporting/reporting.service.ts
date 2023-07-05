@@ -432,7 +432,7 @@ export class ReportingService {
       ...posDepositReport,
     ] as DetailsReport[];
 
-    const sorted = detailsReport.sort(
+    const sorted = [...detailsReport].sort(
       (a: DetailsReport, b: DetailsReport) => a.location_id - b.location_id
     );
 
