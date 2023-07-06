@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
+import { addBusinessDays, parse, subBusinessDays } from 'date-fns';
 import Decimal from 'decimal.js';
 import {
   Raw,
@@ -262,13 +262,20 @@ export class PaymentService {
   async findPaymentsForDetailsReport(
     dateRange: DateRange,
     classification: PaymentMethodClassification,
-    program: Ministries
+    program: Ministries,
+    busDays: number
   ): Promise<PaymentEntity[]> {
     const reconciled = await this.paymentRepo.find({
       where: {
         reconciled_on: Between(
-          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
-          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+          subBusinessDays(
+            parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+            busDays
+          ),
+          addBusinessDays(
+            parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()),
+            busDays
+          )
         ),
         status: In([MatchStatus.MATCH, MatchStatus.EXCEPTION]),
         transaction: {
@@ -281,6 +288,10 @@ export class PaymentService {
         reconciled_on: 'ASC',
         amount: 'ASC',
         status: 'ASC',
+      },
+      relations: {
+        pos_deposit_match: true,
+        cash_deposit_match: true,
       },
     });
 
@@ -306,6 +317,7 @@ export class PaymentService {
     const pending = await this.paymentRepo.find({
       where: {
         status: MatchStatus.PENDING,
+        payment_method: { classification },
         transaction: {
           transaction_date: Raw(
             (alias) => `${alias} >= :minDate and ${alias} <= :maxDate`,

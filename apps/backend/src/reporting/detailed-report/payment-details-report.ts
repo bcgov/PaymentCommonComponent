@@ -1,4 +1,4 @@
-import { format } from 'date-fns';
+import { parse } from 'date-fns';
 import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
 import { NormalizedLocation } from '../../constants';
@@ -12,14 +12,22 @@ export class PaymentDetailsReport extends DetailsReport {
     this.source_file = 'Transaction (LOB)';
     this.reconciliation_status = payment.status;
     this.transaction_id = payment.transaction.transaction_id;
-    this.reconciled_date =
-      payment.reconciled_on && format(payment.reconciled_on, 'yyyy-MM-dd');
+    this.reconciled_date = payment.reconciled_on ?? payment.reconciled_on;
 
     this.in_progress_date = this.setInProgressDate(payment);
-    this.txn_date = payment.transaction.transaction_date;
+    this.txn_date = parse(
+      payment.transaction.transaction_date,
+      'yyyy-MM-dd',
+      new Date()
+    );
     this.type = payment.payment_method.classification;
     this.time = payment.transaction.transaction_time ?? '';
-    this.close_date = payment.transaction.fiscal_close_date;
+    this.close_date = parse(
+      payment.transaction.fiscal_close_date,
+      'yyyy-MM-dd',
+      new Date()
+    );
+
     this.payment_method = payment.payment_method.description;
     this.amount = new Decimal(payment.amount).toDecimalPlaces(2).toNumber();
     this.foreign_currency_amount = payment.foreign_currency_amount ?? null;
@@ -30,5 +38,8 @@ export class PaymentDetailsReport extends DetailsReport {
     this.heuristic_match_round = payment.heuristic_match_round ?? null;
     this.employee_id =
       payment.transaction.transactionJson?.misc.employee_id ?? null;
+    this.uuid = payment.id;
+    this.match_id =
+      payment.pos_deposit_match?.id ?? payment.cash_deposit_match?.id ?? null;
   }
 }

@@ -16,7 +16,7 @@ import {
   POSDepositDetailsReport,
 } from './detailed-report';
 import { DailySummary, ReportConfig } from './interfaces';
-import { rowStyle, titleStyle, placement } from './styles';
+import { rowStyle } from './styles';
 import { MatchStatus } from '../common/const';
 import {
   DateRange,
@@ -130,18 +130,13 @@ export class ReportingService {
 
     this.excelWorkbook.addSheet(Report.DAILY_SUMMARY);
     this.excelWorkbook.addColumns(Report.DAILY_SUMMARY, dailySummaryColumns);
-    this.excelWorkbook.addTitleRow(
-      Report.DAILY_SUMMARY,
-      `${config.period.from} - ${config.period.to}`,
-      titleStyle,
-      placement('A1:L1')
-    );
+
     /* set column-headers style */
 
     const filterOptions = {
       from: {
         column: 1,
-        row: 2,
+        row: 1,
       },
       to: {
         column: dailySummaryColumns.length,
@@ -181,7 +176,6 @@ export class ReportingService {
       cashPayments,
       locations
     );
-
     this.excelWorkbook.addSheet(Report.DETAILED_REPORT);
 
     this.excelWorkbook.addColumns(
@@ -189,24 +183,17 @@ export class ReportingService {
       detailedReportColumns
     );
 
-    this.excelWorkbook.addTitleRow(
-      Report.DETAILED_REPORT,
-      `${config.period.from} - ${config.period.to}`,
-      titleStyle,
-      placement('A1:AE1')
-    );
     const filterOptions = {
       from: {
         column: 1,
-        row: 2,
+        row: 1,
       },
       to: {
         column: detailedReportColumns.length,
-        row: detailsData.length + 1,
+        row: detailsData.length,
       },
     };
     this.excelWorkbook.addFilterOptions(Report.DETAILED_REPORT, filterOptions);
-
     this.excelWorkbook.addRows(
       Report.DETAILED_REPORT,
       detailsData.map((itm) => ({ values: itm, style: rowStyle() }))
@@ -237,36 +224,22 @@ export class ReportingService {
     );
     this.excelWorkbook.addSheet(Report.CAS_REPORT);
     this.excelWorkbook.addColumns(Report.CAS_REPORT, casReportColumns);
-    this.excelWorkbook.addTitleRow(
-      Report.CAS_REPORT,
-      `${pageThreeDepositDates.minDate}-${pageThreeDepositDates.maxDate}`,
-      titleStyle,
-      placement('A1:J1')
-    );
+
     const filterOptions = {
       from: {
         column: 1,
-        row: 2,
+        row: 1,
       },
       to: {
         column: casReportColumns.length,
-        row: details.length + 1,
+        row: details.length,
       },
     };
 
     this.excelWorkbook.addFilterOptions(Report.CAS_REPORT, filterOptions);
-    const options = {
-      casFormatKeys: [
-        'dist_client_code',
-        'dist_stob_code',
-        'dist_service_line_code',
-        'dist_project_code',
-      ],
-    };
     this.excelWorkbook.addRows(
       Report.CAS_REPORT,
-      details.map((itm) => ({ values: itm, style: rowStyle() })),
-      options
+      details.map((itm) => ({ values: itm, style: rowStyle() }))
     );
 
     this.excelWorkbook.commitWorksheet(Report.CAS_REPORT);
