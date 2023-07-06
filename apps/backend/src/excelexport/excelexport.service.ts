@@ -119,20 +119,27 @@ export class ExcelExportService {
    */
   public addRows(sheetName: string, rowData: any[], options?: any): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-
+    [9, 10, 11, 12, 13, 14].forEach(
+      (dateCol) => (sheet.getColumn(dateCol).numFmt = 'dd/mm/yyyy')
+    );
     rowData.forEach((row, index) => {
       const uncommittedRow = sheet.getRow(index + 2);
+
       uncommittedRow.values = row.values;
+
       uncommittedRow.eachCell((cell, _colNumber) => {
         const unformattedCell = sheet.getCell(cell.address);
-        unformattedCell.style = row.style;
-        if (options?.casFormatKeys?.includes(unformattedCell.name)) {
-          unformattedCell.value = Number(cell.value);
+        if (cell.type === 4) {
+          unformattedCell.style = { ...row.style, numFmt: 'dd/mm/yyyy' };
+        } else {
+          unformattedCell.style = row.style;
         }
       });
+
       uncommittedRow.alignment = {
         horizontal: 'right',
       };
+
       //commit row - cannot edit after commit
       uncommittedRow.commit();
     });

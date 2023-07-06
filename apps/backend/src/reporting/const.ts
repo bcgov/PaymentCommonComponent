@@ -22,12 +22,27 @@ export const detailedReportColumns = [
   { header: 'Status', key: 'reconciliation_status' },
   { header: 'Amount', key: 'amount' },
   { header: 'Payment Method', key: 'payment_method' },
-  { header: 'Transaction: Paid On', key: 'txn_date' },
+  {
+    header: 'Transaction: Paid On',
+    key: 'txn_date',
+  },
   { header: 'Time', key: 'time' },
-  { header: 'Transaction: Deposited On/Closed On', key: 'close_date' },
-  { header: 'Status: Uploaded On', key: 'uploaded_date' },
-  { header: 'Status: In Progress On', key: 'in_progress_date' },
-  { header: 'Status: Reconciled On', key: 'reconciled_date' },
+  {
+    header: 'Transaction: Deposited On/Closed On',
+    key: 'close_date',
+  },
+  {
+    header: 'Status: Uploaded On',
+    key: 'uploaded_date',
+  },
+  {
+    header: 'Status: In Progress On',
+    key: 'in_progress_date',
+  },
+  {
+    header: 'Status: Reconciled On',
+    key: 'reconciled_date',
+  },
   { header: 'Heuristic Match Round', key: 'heuristic_match_round' },
   { header: 'Foreign Currency Amount', key: 'foreign_currency_amount' },
   { header: 'Currency', key: 'currency' },
