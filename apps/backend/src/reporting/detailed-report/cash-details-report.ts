@@ -12,7 +12,7 @@ export class CashDepositDetailsReport extends DetailsReport {
     super(location);
     this.source_file = 'Cash/Chq (TDI 17)';
     this.reconciliation_status = deposit.status;
-    this.reconciled_date = deposit.reconciled_on && deposit.reconciled_on;
+    this.reconciled_date = deposit.reconciled_on ?? deposit.reconciled_on;
 
     this.in_progress_date = this.setInProgressDate(deposit);
     this.transaction_id = deposit.jv_no ?? '';

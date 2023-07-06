@@ -12,7 +12,7 @@ export class PaymentDetailsReport extends DetailsReport {
     this.source_file = 'Transaction (LOB)';
     this.reconciliation_status = payment.status;
     this.transaction_id = payment.transaction.transaction_id;
-    this.reconciled_date = payment.reconciled_on && payment.reconciled_on;
+    this.reconciled_date = payment.reconciled_on ?? payment.reconciled_on;
 
     this.in_progress_date = this.setInProgressDate(payment);
     this.txn_date = parse(
