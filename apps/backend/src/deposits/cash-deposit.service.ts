@@ -186,16 +186,20 @@ export class CashDepositService {
    */
   async findCashDepositsForDetailsReport(
     dateRange: DateRange,
-    program: Ministries
+    program: Ministries,
+    busDays: number
   ): Promise<CashDepositEntity[]> {
     const reconciled = await this.cashDepositRepo.find({
       where: {
         reconciled_on: Between(
           subBusinessDays(
             parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
-            2
+            busDays
           ),
-          addBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2)
+          addBusinessDays(
+            parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()),
+            busDays
+          )
         ),
 
         metadata: { program },

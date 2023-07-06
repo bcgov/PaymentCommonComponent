@@ -203,16 +203,20 @@ export class PosDepositService {
    */
   async findAllByReconciledDate(
     dateRange: DateRange,
-    program: Ministries
+    program: Ministries,
+    busDays: number
   ): Promise<POSDepositEntity[]> {
     const reconciled = await this.posDepositRepo.find({
       where: {
         reconciled_on: Between(
           subBusinessDays(
             parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
-            2
+            busDays
           ),
-          addBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2)
+          addBusinessDays(
+            parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()),
+            busDays
+          )
         ),
         metadata: { program },
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),

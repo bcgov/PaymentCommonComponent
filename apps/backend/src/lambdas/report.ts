@@ -40,7 +40,7 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   const endDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
 
   const maxReportDays = 31;
-
+  const BUSINESS_DAY_LEEWAY = 1;
   if (differenceInDays(startDate, endDate) > maxReportDays) {
     appLogger.log(
       `Date range input exceeds maximum range (${maxReportDays} days)`,
@@ -59,9 +59,17 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   const locationService = app.get(LocationService);
   const locations = await locationService.getLocationsBySource(event.program);
 
-  const { posDeposits, posPayments } = await getPosReportData(app, event);
+  const { posDeposits, posPayments } = await getPosReportData(
+    app,
+    event,
+    BUSINESS_DAY_LEEWAY
+  );
 
-  const { cashDeposits, cashPayments } = await getCashReportData(app, event);
+  const { cashDeposits, cashPayments } = await getCashReportData(
+    app,
+    event,
+    BUSINESS_DAY_LEEWAY
+  );
 
   const { pageThreeDeposits, pageThreeDepositDates } =
     await getPageThreeDeposits(app, event, locations);
@@ -88,7 +96,8 @@ export const handler = async (event: ReportConfig, context?: Context) => {
  */
 const getCashReportData = async (
   app: INestApplicationContext,
-  event: ReportConfig
+  event: ReportConfig,
+  BUSINESS_DAY_LEEWAY: number
 ): Promise<{
   cashDeposits: CashDepositEntity[];
   cashPayments: PaymentEntity[];
@@ -99,13 +108,15 @@ const getCashReportData = async (
   const cashDeposits =
     await cashDepositService.findCashDepositsForDetailsReport(
       { minDate: event.period.from, maxDate: event.period.to },
-      event.program
+      event.program,
+      BUSINESS_DAY_LEEWAY
     );
 
   const cashPayments = await paymentService.findPaymentsForDetailsReport(
     { minDate: event.period.from, maxDate: event.period.to },
     PaymentMethodClassification.CASH,
-    event.program
+    event.program,
+    BUSINESS_DAY_LEEWAY
   );
 
   return {
@@ -124,7 +135,8 @@ const getCashReportData = async (
  */
 const getPosReportData = async (
   app: INestApplicationContext,
-  event: ReportConfig
+  event: ReportConfig,
+  BUSINESS_DAY_LEEWAY: number
 ): Promise<{
   posPayments: PaymentEntity[];
   posDeposits: POSDepositEntity[];
@@ -134,13 +146,15 @@ const getPosReportData = async (
 
   const posDeposits = await posDepositService.findAllByReconciledDate(
     { minDate: event.period.from, maxDate: event.period.to },
-    event.program
+    event.program,
+    BUSINESS_DAY_LEEWAY
   );
 
   const posPayments = await paymentService.findPaymentsForDetailsReport(
     { minDate: event.period.from, maxDate: event.period.to },
     PaymentMethodClassification.POS,
-    event.program
+    event.program,
+    BUSINESS_DAY_LEEWAY
   );
   return {
     posDeposits,

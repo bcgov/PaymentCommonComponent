@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { parse } from 'date-fns';
+import { addBusinessDays, parse, subBusinessDays } from 'date-fns';
 import Decimal from 'decimal.js';
 import {
   Raw,
@@ -262,13 +262,20 @@ export class PaymentService {
   async findPaymentsForDetailsReport(
     dateRange: DateRange,
     classification: PaymentMethodClassification,
-    program: Ministries
+    program: Ministries,
+    busDays: number
   ): Promise<PaymentEntity[]> {
     const reconciled = await this.paymentRepo.find({
       where: {
         reconciled_on: Between(
-          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
-          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+          subBusinessDays(
+            parse(dateRange.minDate, 'yyyy-MM-dd', new Date()),
+            busDays
+          ),
+          addBusinessDays(
+            parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()),
+            busDays
+          )
         ),
         status: In([MatchStatus.MATCH, MatchStatus.EXCEPTION]),
         transaction: {
