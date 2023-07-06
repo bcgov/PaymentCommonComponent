@@ -237,18 +237,9 @@ export class ReportingService {
     };
 
     this.excelWorkbook.addFilterOptions(Report.CAS_REPORT, filterOptions);
-    const options = {
-      casFormatKeys: [
-        'dist_client_code',
-        'dist_stob_code',
-        'dist_service_line_code',
-        'dist_project_code',
-      ],
-    };
     this.excelWorkbook.addRows(
       Report.CAS_REPORT,
-      details.map((itm) => ({ values: itm, style: rowStyle() })),
-      options
+      details.map((itm) => ({ values: itm, style: rowStyle() }))
     );
 
     this.excelWorkbook.commitWorksheet(Report.CAS_REPORT);

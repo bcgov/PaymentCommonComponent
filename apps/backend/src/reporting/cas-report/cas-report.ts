@@ -1,8 +1,8 @@
-import Decimal from 'decimal.js';
+import { parse } from 'date-fns';
 import { NormalizedLocation } from '../../constants';
 
 export class CasReport {
-  settlement_date: string;
+  settlement_date: Date;
   card_vendor: string;
   amount: number;
   location_id: number;
@@ -20,8 +20,8 @@ export class CasReport {
     location: NormalizedLocation
   ) {
     this.card_vendor = payment_method as string;
-    this.settlement_date = settlement_date;
-    this.amount = new Decimal(amount).toDecimalPlaces(2).toNumber();
+    this.settlement_date = parse(settlement_date, 'yyyy-MM-dd', new Date());
+    this.amount = amount;
     this.location_id = location.location_id;
     this.loction_name = location.description;
     this.dist_client_code = location.ministry_client.toString();

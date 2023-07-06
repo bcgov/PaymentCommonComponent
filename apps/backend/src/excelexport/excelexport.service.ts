@@ -119,9 +119,6 @@ export class ExcelExportService {
    */
   public addRows(sheetName: string, rowData: any[], options?: any): void {
     const sheet = this.workbook.getWorksheet(sheetName);
-    [9, 10, 11, 12, 13, 14].forEach(
-      (dateCol) => (sheet.getColumn(dateCol).numFmt = 'dd/mm/yyyy')
-    );
     rowData.forEach((row, index) => {
       const uncommittedRow = sheet.getRow(index + 2);
 
