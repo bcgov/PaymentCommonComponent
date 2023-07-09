@@ -1,9 +1,12 @@
 import { createNestApp } from './app.config';
-
+import { natsLocalConnect } from './nats';
 async function bootstrap() {
   const { app } = await createNestApp();
-  app.enableCors();
+  const isLocalDev = process.env.RUNTIME_ENV === 'local';
   await app.init();
-  await app.listen(process.env.APP_PORT || 3000);
+
+  if (isLocalDev) {
+    await natsLocalConnect(app);
+  }
 }
 bootstrap();

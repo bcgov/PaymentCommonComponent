@@ -2431,6 +2431,7 @@ __metadata:
     import-local: 3.1.0
     jest: 29.3.1
     lint-staged: 13.1.0
+    nats: 2.15.1
     nest-aws-sdk: 3.0.0
     nest-winston: 1.8.0
     node-nats-streaming: 0.3.2
@@ -9100,6 +9101,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nats@npm:2.15.1":
+  version: 2.15.1
+  resolution: "nats@npm:2.15.1"
+  dependencies:
+    nkeys.js: 1.0.5
+  checksum: 71172244dc45c0c20df2e69c92cb06860483335c870cf4fac03d5bc60cbaebfce4378fade4ae47c7087a6cd680c3c3e5b23e8310deae4cd725f3448ebd70ece8
+  languageName: node
+  linkType: hard
+
 "nats@npm:^1.4.9":
   version: 1.4.12
   resolution: "nats@npm:1.4.12"
@@ -9180,6 +9190,15 @@ __metadata:
   version: 1.0.5
   resolution: "nice-try@npm:1.0.5"
   checksum: 0b4af3b5bb5d86c289f7a026303d192a7eb4417231fe47245c460baeabae7277bcd8fd9c728fb6bd62c30b3e15cd6620373e2cf33353b095d8b403d3e8a15aff
+  languageName: node
+  linkType: hard
+
+"nkeys.js@npm:1.0.5":
+  version: 1.0.5
+  resolution: "nkeys.js@npm:1.0.5"
+  dependencies:
+    tweetnacl: 1.0.3
+  checksum: 37f6968532f3b534714cf8d095bfc90aa1c8e491cd782f88d431959ffeb9d8e00b931f3d4422e7d79e16e3d749ec74c3ebe0ecb38907938e1ddcf80d6ffb1189
   languageName: node
   linkType: hard
 
@@ -11887,7 +11906,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tweetnacl@npm:^1.0.3":
+"tweetnacl@npm:1.0.3, tweetnacl@npm:^1.0.3":
   version: 1.0.3
   resolution: "tweetnacl@npm:1.0.3"
   checksum: e4a57cac188f0c53f24c7a33279e223618a2bfb5fea426231991652a13247bea06b081fd745d71291fcae0f4428d29beba1b984b1f1ce6f66b06a6d1ab90645c

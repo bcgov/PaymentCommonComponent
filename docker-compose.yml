@@ -48,15 +48,19 @@ services:
       - AWS_DEFAULT_REGION=${AWS_REGION}
       - YARN_VERSION=3.2.3
       - AWS_ENDPOINT=http://minio:9000
+      - NATS_URL=nats://nats:4222 
     volumes:
       - ./apps/backend:/apps/backend
       - ./node_modules:/node_modules
       - compodoc:/apps/backend/src/docs
     depends_on:
       - db
+      - nats
     networks:
       - pcc
-
+      - nats
+    links:
+      - nats
   minio:
     image: minio/minio
     container_name: pcc-minio
@@ -68,13 +72,32 @@ services:
     environment:
       MINIO_ROOT_USER: pcc
       MINIO_ROOT_PASSWORD: password
-    command: server --console-address ":9001" /data
+      MINIO_NOTIFY_NATS_ENABLE_primary: on
+      MINIO_NOTIFY_NATS_ADDRESS_primary: nats:4222
+      MINIO_NOTIFY_NATS_SUBJECT_primary: bucketevents
+      MINIO_NOTIFY_NATS_USERNAME_primary: pcc
+      MINIO_NOTIFY_NATS_PASSWORD_primary: password
+    command: server --console-address ":9001" /data      
     networks:
       - pcc
+      - nats
+  nats:
+    ports:
+      - "8222:8222"
+      - "4222:4222"
+    hostname: localhost
+    image: nats:latest
+    container_name: pcc-nats
+    command:
+      - "--http_port=8222"
+    networks: 
+      - "nats"
 networks:
   pcc:
     driver: bridge
     name: pcc
+  nats:
+    name: nats  
 volumes:
   minio_storage: {}
   pg_data: {}

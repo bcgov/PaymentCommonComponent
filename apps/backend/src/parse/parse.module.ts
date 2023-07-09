@@ -6,12 +6,15 @@ import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity
 import { ParseController } from './parse.controller';
 import { ParseService } from './parse.service';
 import { DepositModule } from '../deposits/deposit.module';
+import { S3ManagerModule } from '../s3-manager/s3-manager.module';
 import { TransactionModule } from '../transaction/transaction.module';
 
 @Module({
   imports: [
     DepositModule,
     TransactionModule,
+    DepositModule,
+    S3ManagerModule,
     TypeOrmModule.forFeature([
       FileUploadedEntity,
       FileIngestionRulesEntity,

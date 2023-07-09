@@ -272,7 +272,8 @@ be-logs:
 # ===================================
 
 parse:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler($(PARSER_JSON))'
+	
+	@./bin/sync.sh
 
 reconcile:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts").handler($(RECONCILE_JSON))'
@@ -335,6 +336,7 @@ minio-init:
 	@mc alias set s3 http://localhost:9000 pcc password
 	@mc mb s3/pcc-recon-reports-local || true
 	@mc mb s3/pcc-integration-data-files-local || true
+	@mc event add s3/pcc-integration-data-files-local arn:minio:sqs::primary:nats --event put
 
 minio-ls: 
 	@mc ls s3/pcc-integration-data-files-local
