@@ -40,8 +40,9 @@ jobs:
 
       - name: Setup ENV file
         run: cp ./.config/.env.example ./.env
-        run: export DB_HOST=override1
-        run: export DB_HOST_DEV=override2
+        run: |
+          export DB_HOST=override1
+          export DB_HOST_DEV=override2
 
       - name: Open DB tunnel
         run: make open-db-tunnel
