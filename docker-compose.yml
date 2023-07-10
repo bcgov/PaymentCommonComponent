@@ -72,7 +72,7 @@ services:
     environment:
       MINIO_ROOT_USER: pcc
       MINIO_ROOT_PASSWORD: password
-      MINIO_NOTIFY_NATS_ENABLE_primary: on
+      MINIO_NOTIFY_NATS_ENABLE_primary: "on"
       MINIO_NOTIFY_NATS_ADDRESS_primary: nats:4222
       MINIO_NOTIFY_NATS_SUBJECT_primary: bucketevents
       MINIO_NOTIFY_NATS_USERNAME_primary: pcc
