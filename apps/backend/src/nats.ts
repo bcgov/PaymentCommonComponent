@@ -14,9 +14,12 @@ export const natsLocalConnect = async (app: NestExpressApplication) => {
   const logger = app.get(Logger);
   (async () => {
     for await (const msg of sub) {
-      console.log(`${sc.decode(msg.data)} on subject ${msg.subject}`);
-      const event = JSON.parse(sc.decode(msg.data));
+      const message = sc.decode(msg.data);
+      const subjest = msg.subject;
+      logger.log(`Received ${message} on subject ${subjest}`);
+
       try {
+        const event = await JSON.parse(message);
         await handler(event);
         // TODO after parse add filecheck/alert handler
         // TODO after filecheck/alert handler add reconcile handler

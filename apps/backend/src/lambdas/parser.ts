@@ -14,21 +14,18 @@ export const handler = async (event: ParseEvent, _context?: Context) => {
 
   appLogger.log('Parsing Lambda Handler', { event });
   appLogger.log('Parsing Lambda Handler', { _context });
-
-  const eventRouting = event as ParseEvent;
-  appLogger.log({ eventRouting });
-
-  if (eventRouting?.Records.length === 0) {
-    await parseService.processAllFiles();
-    return;
-  }
+  const splitKey = event.Key.split('/');
+  const bucket = splitKey[0];
+  const program = splitKey[1];
+  const filename = splitKey[2];
 
   try {
     await parseService.processEvent(
-      event.Records[0].s3.bucket.name,
-      event.Records[0].s3.object.key,
+      bucket,
+      `${program}/${filename}`,
       event.EventName
     );
+
     // await reconcile({
     //   period: {
     //     from: '2023-01-01',
