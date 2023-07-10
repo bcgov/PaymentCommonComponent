@@ -3,7 +3,8 @@ on:
   workflow_dispatch:
 env:
   ENV_NAME: dev
-  DB_HOST: ${{ secrets.DB_HOST_DEV }}
+  DB_HOST_DEV: dev host from yaml
+  DB_HOST: host from yaml
 
 jobs:
   clear-data:
