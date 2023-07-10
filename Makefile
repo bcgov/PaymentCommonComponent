@@ -362,7 +362,6 @@ get-bastion-id-for-env:
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
-	@export BASTION_INSTANCE_ID ?= $(shell ./bin/bastionid.sh $(ENV_NAME))
 	@echo "Host instance id: $(BASTION_INSTANCE_ID)\n"
 	@echo "DB host URL: $(DB_HOST)\n"
 	# Checking you have the SSM plugin for the AWS cli installed
