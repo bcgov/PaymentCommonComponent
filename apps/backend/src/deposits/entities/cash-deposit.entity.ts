@@ -97,6 +97,9 @@ export class CashDepositEntity {
   @JoinColumn({ name: 'file_uploaded' })
   fileUploadedEntity?: FileUploadedEntity;
 
+  @Column({ name: 'file_uploaded', nullable: true })
+  fileUploadedEntityId?: string;
+
   constructor(data?: TDI17Details) {
     Object.assign(this, data?.resource);
   }

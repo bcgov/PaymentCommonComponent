@@ -60,6 +60,9 @@ export class TransactionEntity {
   @JoinColumn({ name: 'file_uploaded' })
   fileUploadedEntity?: FileUploadedEntity;
 
+  @Column({ name: 'file_uploaded', nullable: true })
+  fileUploadedEntityId?: string;
+
   constructor(transaction?: Partial<TransactionEntity>) {
     Object.assign(this, transaction);
   }

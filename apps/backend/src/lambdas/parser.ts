@@ -349,7 +349,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
         await transactionService.saveTransactions(
           garmsSales.map((sale) => ({
             ...sale,
-            fileUploadedEntity: fileToSave,
+            fileUploadedEntityId: fileToSave.id,
           }))
         );
       }
@@ -371,7 +371,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
         await cashDepositService.saveCashDepositEntities(
           cashDeposits.map((deposit) => ({
             ...deposit,
-            fileUploadedEntity: fileToSave,
+            fileUploadedEntityId: fileToSave.id,
           }))
         );
       }
@@ -393,7 +393,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
         await posDepositService.savePOSDepositEntities(
           posEntities.map((deposit) => ({
             ...deposit,
-            fileUploadedEntity: fileToSave,
+            fileUploadedEntityId: fileToSave.id,
             timestamp: deposit.timestamp,
           }))
         );
