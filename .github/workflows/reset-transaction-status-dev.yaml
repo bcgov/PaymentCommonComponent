@@ -39,8 +39,8 @@ jobs:
         run: yarn
 
       - name: Setup ENV file
-        run: cp ./.config/.env.example ./.env
         run: |
+          cp ./.config/.env.example ./.env
           export DB_HOST=override1
           export DB_HOST_DEV=override2
 
