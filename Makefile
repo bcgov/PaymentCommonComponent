@@ -61,15 +61,18 @@ export TFVARS_DATA
 APP_SRC_BUCKET = $(LZ2_PROJECT)-$(ENV_NAME)-packages
 
 # Set Vars based on ENV 
-ifeq ($(ENV_NAME), dev) 
+ifeq ($(ENV_NAME), dev)
+BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_DEV)
 DB_HOST = $(DB_HOST_DEV)
 endif
 
-ifeq ($(ENV_NAME), test) 
+ifeq ($(ENV_NAME), test)
+BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_TEST)
 DB_HOST = $(DB_HOST_TEST)
 endif
 
 ifeq ($(ENV_NAME), prod)
+BASTION_INSTANCE_ID = $(BASTION_INSTANCE_ID_PROD)
 DB_HOST = $(DB_HOST_PROD)
 endif
 
@@ -351,14 +354,20 @@ sync:
 # AWS Database Connection
 # ===================================
 
+get-bastion-id-for-env:
+	# Needs exported credentials for a matching LZ2 space
+	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
+	@echo "Host instance id: $(shell ./bin/bastionid.sh $(ENV_NAME))\n"
+
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
-	@echo "Host instance id: $(shell ./bin/bastionid.sh $(ENV_NAME)) | $(DOMAIN)\n"
+	BASTION_INSTANCE_ID ?= $(shell ./bin/bastionid.sh $(ENV_NAME))
+	@echo "Host instance id: $(BASTION_INSTANCE_ID)\n"
 	@echo "DB host URL: $(DB_HOST)\n"
 	# Checking you have the SSM plugin for the AWS cli installed
 	session-manager-plugin
 	rm ssh-keypair ssh-keypair.pub || true
 	ssh-keygen -t rsa -f ssh-keypair -N ''
-	aws ec2-instance-connect send-ssh-public-key --instance-id $(shell ./bin/bastionid.sh $(ENV_NAME))  --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
-	ssh -i ssh-keypair ec2-user@$(shell ./bin/bastionid.sh $(ENV_NAME))  -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_INSTANCE_ID)  --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
+	ssh -i ssh-keypair ec2-user@$(BASTION_INSTANCE_ID)  -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
