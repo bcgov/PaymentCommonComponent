@@ -39,13 +39,13 @@ jobs:
         run: yarn
 
       - name: Setup ENV file
-        run: |
-          cp ./.config/.env.example ./.env
-          export DB_HOST=override1
-          export DB_HOST_DEV=override2
+        run: cp ./.config/.env.example ./.env
 
       - name: Open DB tunnel
-        run: make open-db-tunnel
+        run: |
+          export DB_HOST=override1
+          export DB_HOST_DEV=override2
+          make open-db-tunnel
 
       - name: Reset transactions status in DB
         run: make reset-status
