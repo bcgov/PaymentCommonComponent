@@ -15,7 +15,7 @@ export PROJECT := pcc
 export ENV_NAME ?= dev
 export PCC_SFTP :=  "$(PCC_SFTP)" 
 export BCM_SFTP :=  "$(BCM_SFTP)"
-export POSTGRES_USERNAME := $(AWS_POSTGRES_USERNAME)
+export TF_POSTGRES_USERNAME := $(AWS_POSTGRES_USERNAME)
 
 # AWS Config
 export AWS_DEFAULT_REGION := ca-central-1
@@ -51,7 +51,7 @@ define TFVARS_DATA
 target_env = "$(ENV_NAME)"
 project_code = "$(PROJECT)"
 lz2_code = "$(LZ2_PROJECT)"
-db_username = "$(POSTGRES_USERNAME)"
+db_username = "$(TF_POSTGRES_USERNAME)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
 endef
@@ -354,8 +354,8 @@ sync:
 open-db-tunnel:
 	# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
-	@echo "Host Instance Id: $(shell ./bin/bastionid.sh $(ENV_NAME)) | $(DOMAIN)\n"
-	@echo "DB HOST URL: $(DB_HOST)\n"
+	@echo "Host instance id: $(shell ./bin/bastionid.sh $(ENV_NAME)) | $(DOMAIN)\n"
+	@echo "DB host URL: $(DB_HOST)\n"
 	# Checking you have the SSM plugin for the AWS cli installed
 	session-manager-plugin
 	rm ssh-keypair ssh-keypair.pub || true
