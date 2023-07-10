@@ -281,30 +281,30 @@ report:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler($(REPORT_JSON))'
 
 clear-database:
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM transaction;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM pos_deposit;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM cash_deposit;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_matches_pos_deposit;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM program_daily_upload;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM file_uploaded;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM payment;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM transaction;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM pos_deposit;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM cash_deposit;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM payment_round_four_matches_pos_deposit;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM program_daily_upload;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM file_uploaded;"
 
 reset-status: 
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null,reconciled_on=null, in_progress_on=null;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null, reconciled_on=null, in_progress_on=null;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.cash_deposit set status='PENDING', reconciled_on=null, in_progress_on=null;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_matches_pos_deposit;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null,reconciled_on=null, in_progress_on=null;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null, reconciled_on=null, in_progress_on=null;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "update public.cash_deposit set status='PENDING', reconciled_on=null, in_progress_on=null;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DELETE FROM payment_round_four_matches_pos_deposit;"
 	
 from = 2023-04-01
 to = 2023-05-20
 reset-status-date:
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null where transaction in (select transaction_id from public.transaction where transaction_date >= '$(from)' AND transaction_date < '$(to)');"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null where transaction_date >= '$(from)' AND transaction_date < '$(to)';"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.cash_deposit set status='PENDING' where deposit_date >= '$(from)' AND deposit_date < '$(to)';"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null where transaction in (select transaction_id from public.transaction where transaction_date >= '$(from)' AND transaction_date < '$(to)');"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "update public.pos_deposit set status='PENDING', heuristic_match_round=null where transaction_date >= '$(from)' AND transaction_date < '$(to)';"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "update public.cash_deposit set status='PENDING' where deposit_date >= '$(from)' AND deposit_date < '$(to)';"
 
 drop:
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "DROP SCHEMA public CASCADE;"
+	@docker exec -it $(PROJECT)-db psql -U $(DB_USER) -d $(DB_NAME) -c "CREATE SCHEMA public;"
 
 dev-docs:
 	@docker exec -it $(PROJECT)-backend yarn run compodoc

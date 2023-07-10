@@ -3,7 +3,10 @@ on:
   workflow_dispatch:
 env:
   ENV_NAME: dev
+  BASTION_INSTANCE_ID_DEV: ${{ secrets.BASTION_INSTANCE_ID_DEV }}
   DB_HOST_DEV: ${{ secrets.DB_HOST_DEV }}
+  DB_USER: ${{ secrets.DB_USER }}
+  DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 
 jobs:
   clear-data:
@@ -37,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Create blank env file
+      - name: Create blank env file (all values come from workflow env)
         run: touch ./.env
 
       - name: Open DB tunnel
