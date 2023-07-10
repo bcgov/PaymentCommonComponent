@@ -3,8 +3,7 @@ on:
   workflow_dispatch:
 env:
   ENV_NAME: dev
-  DB_HOST_DEV: dev host from yaml
-  DB_HOST: host from yaml
+  DB_HOST_DEV: ${{ secrets.DB_HOST_DEV }}
 
 jobs:
   clear-data:
@@ -38,11 +37,8 @@ jobs:
       - name: Install dependencies
         run: yarn
 
-      - name: Setup ENV
-        run: |
-          touch ./.env
-          export DB_HOST=override1
-          export DB_HOST_DEV=override2
+      - name: Create blank env file
+        run: touch ./.env
 
       - name: Open DB tunnel
         run: make open-db-tunnel
