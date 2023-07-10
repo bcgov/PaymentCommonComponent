@@ -84,6 +84,9 @@ export class POSDepositEntity {
   @JoinColumn({ name: 'file_uploaded' })
   fileUploadedEntity?: FileUploadedEntity;
 
+  @Column({ name: 'file_uploaded', nullable: true })
+  fileUploadedEntityId?: string;
+
   @OneToOne(
     () => PaymentEntity,
     (payment: PaymentEntity) => payment.pos_deposit_match,
