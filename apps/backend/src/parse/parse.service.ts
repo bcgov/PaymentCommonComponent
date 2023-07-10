@@ -362,86 +362,98 @@ export class ParseService {
    * Gets the daily upload for today, or creates one if it doesn't exist
    */
   async processAllFiles() {
-        this.appLogger.log('Processing all files...');
-        try {
-          const fileList =
-            (await this.s3.listBucketContents(
-              `pcc-integration-data-files-${process.env.RUNTIME_ENV}`
-            )) || [];
+    this.appLogger.log('Processing all files...');
+    try {
+      const fileList =
+        (await this.s3.listBucketContents(
+          `pcc-integration-data-files-${process.env.RUNTIME_ENV}`
+        )) || [];
 
-          const allFiles = await this.getAllFiles();
-          const allUploadedFiles: string[] = allFiles.map(
-            (f) => f.sourceFileName
-          );
+      const allFiles = await this.getAllFiles();
+      const allUploadedFiles: string[] = allFiles.map((f) => f.sourceFileName);
 
-          const parseList = _.difference(fileList, allUploadedFiles);
+      const parseList = _.difference(fileList, allUploadedFiles);
 
-          // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
-          const finalParseList = parseList.filter(
-            (filename) => !filename?.includes('LABOUR2')
-          );
-          this.appLogger.log('Creating daily upload for today if needed');
+      // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
+      const finalParseList = parseList.filter(
+        (filename) => !filename?.includes('LABOUR2')
+      );
+      this.appLogger.log('Creating daily upload for today if needed');
 
-          await this.commenceDailyUpload(new Date());
-          // await axios.post(
-          //   `${API_URL}/v1/parse/daily-upload`,
-          //   {
-          //     date: new Date(),
-          //   },
-          //   {
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //     },
-          //   }
-          // );
+      await this.commenceDailyUpload(new Date());
+      // await axios.post(
+      //   `${API_URL}/v1/parse/daily-upload`,
+      //   {
+      //     date: new Date(),
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   }
+      // );
 
-          // Parse & Save only files that have not been parsed before
-          for (const filename of finalParseList) {
-            this.appLogger.log(`Parsing ${filename}..`);
-            const event = { eventType: 'all', filename: filename };
-            await this.processEvent(event);
-          }
+      // Parse & Save only files that have not been parsed before
+      for (const filename of finalParseList) {
+        this.appLogger.log(`Parsing ${filename}..`);
+        const event = { eventType: 'all', filename: filename };
 
-          // const alertsSentResponse = await axiosInstance.post(
-          //   '/v1/parse/daily-upload/alert',
-          //   {
-          //     date: new Date(),
-          //   },
-          //   {
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //     },
-          //   }
-          // );
-          // appLogger.log(alertsSentResponse.data.data);
-          // const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
-          const alertsSent = await this.dailyUploadAlert(new Date());
+        await this.processEvent(
+          event.filename ?? '',
+          `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
+          event.eventType
+        );
+      }
+      //   const instance = ()=> {
+      //   if (!API_URL) {
+      //     appLogger.error(
+      //       'No API URL present, please check the environment variables'
+      //     );
+      //     return;
+      //   } else {
+      //     return axios.create({ baseURL: API_URL });
+      //   }
+      // }
+      // const alertsSentResponse = await axiosInstance.post(
+      //   '/v1/parse/daily-upload/alert',
+      //   {
+      //     date: new Date(),
+      //   },
+      //   {
+      //     headers: {
+      //       'Content-Type': 'application/json',
+      //     },
+      //   }
+      // );
+      // appLogger.log(alertsSentResponse.data.data);
+      // const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
+      const alertsSent = await this.dailyUploadAlert(new Date());
 
-          const programAlerts = alertsSent.dailyAlertPrograms;
-          for (const alert of programAlerts) {
-            if (!alert.success) {
-              this.appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
-              !alert.files.hasTdi17 &&
-                this.appLogger.log(`${alert.program} is missing a TDI17 file`);
-              !alert.files.hasTdi34 &&
-                this.appLogger.log(`${alert.program} is missing a TDI34 file`);
-              !alert.files.hasTransactionFile &&
-                this.appLogger.log(
-                  `${alert.program} is missing a Transactions file`
-                );
-            }
-            if (alert.alerted) {
-              this.appLogger.log(
-                '\n\n=========Alerts Sent for Daily Upload: =========\n'
-              );
-              this.appLogger.error(
-                `Sent an alert to prompt ${alert.program} to complete upload`
-              );
-            }
-          }
-        } catch (err) {
-          this.appLogger.error(err);
+      const programAlerts = alertsSent.dailyAlertPrograms;
+      for (const alert of programAlerts) {
+        if (!alert.success) {
+          this.appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
+          !alert.files.hasTdi17 &&
+            this.appLogger.log(`${alert.program} is missing a TDI17 file`);
+          !alert.files.hasTdi34 &&
+            this.appLogger.log(`${alert.program} is missing a TDI34 file`);
+          !alert.files.hasTransactionFile &&
+            this.appLogger.log(
+              `${alert.program} is missing a Transactions file`
+            );
         }
+        if (alert.alerted) {
+          this.appLogger.log(
+            '\n\n=========Alerts Sent for Daily Upload: =========\n'
+          );
+          this.appLogger.error(
+            `Sent an alert to prompt ${alert.program} to complete upload`
+          );
+        }
+      }
+    } catch (err) {
+      this.appLogger.error(err);
+    }
   }
   /**
    * process file dropped in s3 bucket
