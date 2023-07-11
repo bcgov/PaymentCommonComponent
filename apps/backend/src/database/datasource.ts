@@ -3,14 +3,14 @@ import { dbLogger, logLevels } from './helpers';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
-import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
-import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
-import { ProgramDailyUploadEntity } from '../parse/entities/program-daily-upload.entity';
 import {
   TransactionEntity,
   PaymentEntity,
   PaymentMethodEntity,
 } from '../transaction/entities/index';
+import { FileIngestionRulesEntity } from '../uploads/entities/file-ingestion-rules.entity';
+import { FileUploadedEntity } from '../uploads/entities/file-uploaded.entity';
+import { ProgramDailyUploadEntity } from '../uploads/entities/program-daily-upload.entity';
 
 export default new DataSource({
   type: 'postgres',

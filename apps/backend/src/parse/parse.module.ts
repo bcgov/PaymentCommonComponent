@@ -1,13 +1,10 @@
 import { Logger, Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
-import { FileUploadedEntity } from './entities/file-uploaded.entity';
-import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
-import { ParseController } from './parse.controller';
 import { ParseService } from './parse.service';
+import { AlertsModule } from '../alerts/alerts.module';
 import { DepositModule } from '../deposits/deposit.module';
 import { S3ManagerModule } from '../s3-manager/s3-manager.module';
 import { TransactionModule } from '../transaction/transaction.module';
+import { UploadsModule } from '../uploads/uploads.module';
 
 @Module({
   imports: [
@@ -15,13 +12,10 @@ import { TransactionModule } from '../transaction/transaction.module';
     TransactionModule,
     DepositModule,
     S3ManagerModule,
-    TypeOrmModule.forFeature([
-      FileUploadedEntity,
-      FileIngestionRulesEntity,
-      ProgramDailyUploadEntity,
-    ]),
+    AlertsModule,
+    UploadsModule,
   ],
-  controllers: [ParseController],
   providers: [ParseService, Logger],
+  exports: [ParseService],
 })
 export class ParseModule {}

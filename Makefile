@@ -274,6 +274,9 @@ be-logs:
 parse:
 	@./bin/sync.sh
 
+alert:
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/alerts.ts").handler()'
+
 reconcile:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/reconcile.ts").handler($(RECONCILE_JSON))'
 

@@ -10,7 +10,7 @@ import { ParseService } from '../parse/parse.service';
 export const handler = async (event: ParseEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(appModule.AppModule);
   const appLogger = app.get(AppLogger);
-  const parseService = app.get(ParseService);
+  const uploadService = app.get(ParseService);
 
   appLogger.log('Parsing Lambda Handler', { event });
   appLogger.log('Parsing Lambda Handler', { _context });
@@ -21,7 +21,7 @@ export const handler = async (event: ParseEvent, _context?: Context) => {
 
   try {
     if (!filename.includes('LABOUR2')) {
-      const process = await parseService.processEvent(
+      const process = await uploadService.processBucketEvent(
         bucket,
         `${program}/${filename}`,
         event.EventName

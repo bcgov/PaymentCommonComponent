@@ -9,7 +9,7 @@ import {
 } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
-import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
+import { FileUploadedEntity } from '../../uploads/entities/file-uploaded.entity';
 
 @Entity('transaction')
 export class TransactionEntity {

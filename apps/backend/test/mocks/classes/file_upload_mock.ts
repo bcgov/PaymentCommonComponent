@@ -1,6 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { FileTypes } from '../../../src/constants';
-import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
+import { FileUploadedEntity } from '../../../src/uploads/entities/file-uploaded.entity';
 
 export class FileUploadedMock extends FileUploadedEntity {
   constructor(sourceFileType: FileTypes, sourceFileName: string, date?: Date) {

@@ -5,22 +5,24 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
+import { AlertsService } from '../../../src/alerts/alerts.service';
 import { FileTypes } from '../../../src/constants';
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
-import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-ingestion-rules.entity';
-import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
-import { ProgramDailyUploadEntity } from '../../../src/parse/entities/program-daily-upload.entity';
 import { ParseService } from '../../../src/parse/parse.service';
 import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { TransactionService } from '../../../src/transaction/transaction.service';
+import { FileIngestionRulesEntity } from '../../../src/uploads/entities/file-ingestion-rules.entity';
+import { FileUploadedEntity } from '../../../src/uploads/entities/file-uploaded.entity';
+import { ProgramDailyUploadEntity } from '../../../src/uploads/entities/program-daily-upload.entity';
 import { FileIngestionRulesMock } from '../../mocks/classes/file_ingestion_rules_mock';
 import { FileUploadedMock } from '../../mocks/classes/file_upload_mock';
 
 describe('ParseService', () => {
   let service: ParseService;
+  let alertsService: AlertsService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -52,6 +54,10 @@ describe('ParseService', () => {
           useValue: createMock<TransactionService>(),
         },
         {
+          provide: AlertsService,
+          useValue: createMock<AlertsService>(),
+        },
+        {
           provide: Logger,
           useValue: createMock<Logger>(),
         },
@@ -71,6 +77,7 @@ describe('ParseService', () => {
     }).compile();
 
     service = module.get<ParseService>(ParseService);
+    alertsService = module.get<AlertsService>(AlertsService);
   });
 
   afterEach(() => {
@@ -97,7 +104,7 @@ describe('ParseService', () => {
         FileTypes.SBC_SALES,
         '2023-01-01-sbc_sales.dat'
       );
-      const dailySuccess = service.determineDailySuccess(rule, [
+      const dailySuccess = alertsService.determineDailySuccess(rule, [
         tdi17,
         tdi34,
         sales,
@@ -120,7 +127,10 @@ describe('ParseService', () => {
         FileTypes.TDI34,
         '2023-01-01-tdi34.dat'
       );
-      const dailySuccess = service.determineDailySuccess(rule, [tdi17, tdi34]);
+      const dailySuccess = alertsService.determineDailySuccess(rule, [
+        tdi17,
+        tdi34,
+      ]);
       expect(dailySuccess.success).toBe(true);
     });
 
@@ -135,7 +145,7 @@ describe('ParseService', () => {
         FileTypes.TDI17,
         '2023-01-01-tdi17.dat'
       );
-      const dailySuccess = service.determineDailySuccess(rule, [tdi17]);
+      const dailySuccess = alertsService.determineDailySuccess(rule, [tdi17]);
       expect(dailySuccess.success).toBe(false);
     });
   });

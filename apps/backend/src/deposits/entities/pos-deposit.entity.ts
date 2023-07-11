@@ -13,9 +13,9 @@ import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
-import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PosHeuristicRound } from '../../reconciliation/types/const';
 import { PaymentEntity, PaymentMethodEntity } from '../../transaction/entities';
+import { FileUploadedEntity } from '../../uploads/entities/file-uploaded.entity';
 
 @Entity('pos_deposit')
 export class POSDepositEntity {

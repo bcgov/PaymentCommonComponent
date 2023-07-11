@@ -13,22 +13,29 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
-import { ParseService } from './parse.service';
 import { DailyAlertRO } from './ro/daily-alert.ro';
+import { AlertsService } from '../alerts/alerts.service';
 import { FileTypes } from '../constants';
+
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
+import { ParseService } from '../parse/parse.service';
 import { TransactionEntity } from '../transaction/entities';
 import { TransactionService } from '../transaction/transaction.service';
+import { UploadsService } from '../uploads/uploads.service';
 
 @Controller('parse')
 @ApiTags('Parser API')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ParseController {
   constructor(
+    @Inject(UploadsService)
+    private readonly uploadsService: UploadsService,
     @Inject(ParseService)
     private readonly parseService: ParseService,
+    @Inject(AlertsService)
+    private readonly alertsService: AlertsService,
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
     @Inject(CashDepositService)
@@ -112,7 +119,7 @@ export class ParseController {
     this.appLogger.log(`Parsing ${fileName} - ${fileType}`);
     const contents = file.buffer.toString();
 
-    const allFiles = await this.parseService.getAllFiles();
+    const allFiles = await this.uploadsService.getAllFiles();
     const allFilenames = new Set(allFiles.map((f) => f.sourceFileName));
     if (allFilenames.has(fileName)) {
       throw new BadRequestException({
@@ -121,7 +128,7 @@ export class ParseController {
     }
 
     // Throws an error if no rules exist for the specified program
-    const rules = await this.parseService.getRulesForProgram(program);
+    const rules = await this.uploadsService.getUploadRulesForProgram(program);
     if (!rules) {
       throw new HttpException(
         `No rules established for program ${program}`,
@@ -130,9 +137,9 @@ export class ParseController {
     }
 
     // Creates a new daily status for the rule, if none exist, so that files can be tracked
-    let daily = await this.parseService.getDailyForRule(rules, new Date());
+    let daily = await this.uploadsService.getDailyForRule(rules, new Date());
     if (!daily) {
-      daily = await this.parseService.createNewDaily(rules, new Date());
+      daily = await this.uploadsService.createNewDaily(rules, new Date());
     }
 
     try {
@@ -141,7 +148,7 @@ export class ParseController {
         this.appLogger.log('Parse and store SBC Sales in DB...', fileName);
         const garmsSales: TransactionEntity[] =
           await this.parseService.parseGarmsFile(contents, fileName); // validating step
-        const fileToSave = await this.parseService.saveFileUploaded({
+        const fileToSave = await this.uploadsService.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: garmsSales.length,
@@ -163,7 +170,7 @@ export class ParseController {
           program,
           file.buffer
         ); // validating step
-        const fileToSave = await this.parseService.saveFileUploaded({
+        const fileToSave = await this.uploadsService.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: cashDeposits.length,
@@ -185,7 +192,7 @@ export class ParseController {
           program,
           file.buffer
         );
-        const fileToSave = await this.parseService.saveFileUploaded({
+        const fileToSave = await this.uploadsService.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: posEntities.length,
@@ -228,14 +235,14 @@ export class ParseController {
   })
   @Post('daily-upload')
   async commenceDailyUpload(@Body() body: { date: string }): Promise<void> {
-    const rules = await this.parseService.getAllRules();
+    const rules = await this.uploadsService.getAllUploadRules();
     for (const rule of rules) {
-      const daily = await this.parseService.getDailyForRule(
+      const daily = await this.uploadsService.getDailyForRule(
         rule,
         new Date(body.date)
       );
       if (!daily) {
-        await this.parseService.createNewDaily(rule, new Date(body.date));
+        await this.uploadsService.createNewDaily(rule, new Date(body.date));
       }
     }
   }
@@ -259,15 +266,15 @@ export class ParseController {
   })
   @Post('daily-upload/alert')
   async dailyUploadAlert(@Body() body: { date: Date }): Promise<DailyAlertRO> {
-    const rules = await this.parseService.getAllRules();
+    const rules = await this.uploadsService.getAllUploadRules();
     const dailyAlertPrograms = [];
     for (const rule of rules) {
-      let daily = await this.parseService.getDailyForRule(
+      let daily = await this.uploadsService.getDailyForRule(
         rule,
         new Date(body.date)
       );
       if (!daily) {
-        daily = await this.parseService.createNewDaily(
+        daily = await this.uploadsService.createNewDaily(
           rule,
           new Date(body.date)
         );
@@ -281,12 +288,12 @@ export class ParseController {
         });
         continue;
       }
-      const successStatus = this.parseService.determineDailySuccess(
+      const successStatus = this.alertsService.determineDailySuccess(
         rule,
         daily.files
       );
       if (successStatus.success === true) {
-        await this.parseService.saveDaily({
+        await this.uploadsService.saveDaily({
           ...daily,
           success: true,
         });
@@ -302,7 +309,7 @@ export class ParseController {
           // TODO CCFPCM-441
           alerted = true;
         }
-        await this.parseService.saveDaily({
+        await this.uploadsService.saveDaily({
           ...daily,
           retries: daily.retries + 1,
         });

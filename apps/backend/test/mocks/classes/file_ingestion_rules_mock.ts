@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-ingestion-rules.entity';
+import { FileIngestionRulesEntity } from '../../../src/uploads/entities/file-ingestion-rules.entity';
 
 export class FileIngestionRulesMock extends FileIngestionRulesEntity {
   constructor(

@@ -19,27 +19,22 @@ export const natsLocalConnect = async () => {
 
       console.log(`\nReceived message: #${count + 1} from ${subject}`);
 
-      try {
-        count++;
-        const event = await JSON.parse(message);
+      count++;
+      const event = await JSON.parse(message);
 
-        console.log(`\nParsing file: #${count}\n`);
+      console.log(`\n...Parsing file: #${count}...\n`);
 
-        await handler(event);
+      const parse = await handler(event);
+      console.log(parse);
+      console.log(`\nDone file: #${count}\n`);
 
-        console.log(`\nDone file: #${count}\n`);
-        console.log("''''''''''''''''''''''''''''''''''''''''''");
-        // TODO after parse add filecheck/alert handler
-        // TODO after filecheck/alert handler add reconcile handler
-        // TODO after reconcile handler add report handler
-        // return count
-      } catch (err) {
-        console.error(err);
+      // TODO after parse add filecheck/alert handler
+      // TODO after filecheck/alert handler add reconcile handler
+      // TODO after reconcile handler add report handler
+      // return count
 
-        return err;
-      }
+      //TODO: I don't think this is being called... investigate
     }
-    //TODO: I don't think this is being called... investigate
     console.log(`...Done....${count} messages processed`);
     await nc.drain();
   })();

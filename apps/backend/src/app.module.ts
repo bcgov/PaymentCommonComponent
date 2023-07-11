@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { S3 } from 'aws-sdk';
 import { AwsSdkModule } from 'nest-aws-sdk';
+import { AlertsModule } from './alerts/alerts.module';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
@@ -15,6 +16,7 @@ import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { S3ManagerModule } from './s3-manager/s3-manager.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { TransactionModule } from './transaction/transaction.module';
       },
       services: [S3],
     }),
+    AlertsModule,
+    UploadsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
