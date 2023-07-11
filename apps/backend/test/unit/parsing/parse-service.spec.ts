@@ -14,6 +14,7 @@ import { ProgramDailyUploadEntity } from '../../../src/parse/entities/program-da
 import { ParseService } from '../../../src/parse/parse.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
 import { PaymentService } from '../../../src/transaction/payment.service';
+import { TransactionService } from '../../../src/transaction/transaction.service';
 import { FileIngestionRulesMock } from '../../mocks/classes/file_ingestion_rules_mock';
 import { FileUploadedMock } from '../../mocks/classes/file_upload_mock';
 
@@ -39,6 +40,10 @@ describe('ParseService', () => {
         {
           provide: CashDepositService,
           useValue: createMock<CashDepositService>(),
+        },
+        {
+          provide: TransactionService,
+          useValue: createMock<TransactionService>(),
         },
         {
           provide: Logger,
