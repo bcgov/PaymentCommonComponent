@@ -12,6 +12,7 @@ import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-inges
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
 import { ProgramDailyUploadEntity } from '../../../src/parse/entities/program-daily-upload.entity';
 import { ParseService } from '../../../src/parse/parse.service';
+import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { TransactionService } from '../../../src/transaction/transaction.service';
@@ -26,6 +27,10 @@ describe('ParseService', () => {
       providers: [
         ParseService,
         {
+          provide: S3ManagerService,
+          useValue: createMock<S3ManagerService>(),
+        },
+        {
           provide: PaymentMethodService,
           useValue: createMock<PaymentMethodService>(),
         },
@@ -37,6 +42,7 @@ describe('ParseService', () => {
           provide: PosDepositService,
           useValue: createMock<PosDepositService>(),
         },
+
         {
           provide: CashDepositService,
           useValue: createMock<CashDepositService>(),
@@ -77,7 +83,7 @@ describe('ParseService', () => {
         'SBC',
         'tdi17',
         'tdi34',
-        'sbc_sales'
+        'SBC_SALES'
       );
       const tdi17 = new FileUploadedMock(
         FileTypes.TDI17,
