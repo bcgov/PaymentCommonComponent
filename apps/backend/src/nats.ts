@@ -1,5 +1,3 @@
-import { Logger } from '@nestjs/common/services';
-import { NestExpressApplication } from '@nestjs/platform-express';
 import { connect, StringCodec } from 'nats';
 import { handler } from './lambdas/parser';
 /**
@@ -7,28 +5,42 @@ import { handler } from './lambdas/parser';
  * TODO: integrate with filecheck/alert handler
  * TODO: test that all files from the prod S3 are parsed into the local db...NATS "at most one" delivery guarantee might be an issue - can use NATS jetstream to solve this
  */
-export const natsLocalConnect = async (app: NestExpressApplication) => {
+export const natsLocalConnect = async () => {
   const nc = await connect({ servers: 'nats://localhost:4222' });
   const sc = StringCodec();
   const sub = nc.subscribe('bucketevents');
-  const logger = app.get(Logger);
+
   (async () => {
+    console.log(`...Waiting To Receive Messages...`);
+    let count = 0;
     for await (const msg of sub) {
       const message = sc.decode(msg.data);
-      const subjest = msg.subject;
-      logger.log(`Received ${message} on subject ${subjest}`);
+      const subject = msg.subject;
+
+      console.log(`\nReceived message: #${count + 1} from ${subject}`);
 
       try {
+        count++;
         const event = await JSON.parse(message);
+
+        console.log(`\nParsing file: #${count}\n`);
+
         await handler(event);
+
+        console.log(`\nDone file: #${count}\n`);
+        console.log("''''''''''''''''''''''''''''''''''''''''''");
         // TODO after parse add filecheck/alert handler
         // TODO after filecheck/alert handler add reconcile handler
         // TODO after reconcile handler add report handler
+        // return count
       } catch (err) {
-        logger.error(err);
+        console.error(err);
+
         return err;
       }
     }
+    //TODO: I don't think this is being called... investigate
+    console.log(`...Done....${count} messages processed`);
     await nc.drain();
   })();
 };

@@ -4,9 +4,8 @@ async function bootstrap() {
   const { app } = await createNestApp();
   const isLocalDev = process.env.RUNTIME_ENV === 'local';
   await app.init();
-
   if (isLocalDev) {
-    await natsLocalConnect(app);
+    await natsLocalConnect();
   }
 }
 bootstrap();

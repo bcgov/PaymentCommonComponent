@@ -1,16 +1,19 @@
-import * as fs from 'fs';
-import path from 'path';
 import { createMock } from '@golevelup/ts-jest';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as fs from 'fs';
+import path from 'path';
 import { FileTypes } from '../../../src/constants';
+import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
+import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-ingestion-rules.entity';
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
 import { ProgramDailyUploadEntity } from '../../../src/parse/entities/program-daily-upload.entity';
 import { ParseService } from '../../../src/parse/parse.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
+import { PaymentService } from '../../../src/transaction/payment.service';
 import { FileIngestionRulesMock } from '../../mocks/classes/file_ingestion_rules_mock';
 import { FileUploadedMock } from '../../mocks/classes/file_upload_mock';
 
@@ -24,6 +27,18 @@ describe('ParseService', () => {
         {
           provide: PaymentMethodService,
           useValue: createMock<PaymentMethodService>(),
+        },
+        {
+          provide: PaymentService,
+          useValue: createMock<PaymentService>(),
+        },
+        {
+          provide: PosDepositService,
+          useValue: createMock<PosDepositService>(),
+        },
+        {
+          provide: CashDepositService,
+          useValue: createMock<CashDepositService>(),
         },
         {
           provide: Logger,
@@ -165,7 +180,7 @@ describe('ParseService', () => {
       const wrongTotalTrailer = '70000180000008000010';
       const wrongNumberTrailer = '70000190000008000005';
       const fileContents = Buffer.from(tdi17File.toString() || '').toString();
-      let lines = fileContents.split('\n').filter((l: string) => l);
+      const lines = fileContents.split('\n').filter((l: string) => l);
       const footer = lines.splice(lines.length - 1, 1)[0];
       const newFooterWrongTotal = footer.replace(
         originalTrailer,
@@ -222,7 +237,7 @@ describe('ParseService', () => {
       const wrongTotalTrailer = '7  0017     00134100';
       const wrongNumberTrailer = '7  0019     00129100';
       const fileContents = Buffer.from(tdi34File.toString() || '').toString();
-      let lines = fileContents.split('\n').filter((l: string) => l);
+      const lines = fileContents.split('\n').filter((l: string) => l);
       const footer = lines.splice(lines.length - 1, 1)[0];
       const newFooterWrongTotal = footer.replace(
         originalTrailer,

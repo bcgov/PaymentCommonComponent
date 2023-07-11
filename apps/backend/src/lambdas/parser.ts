@@ -20,12 +20,17 @@ export const handler = async (event: ParseEvent, _context?: Context) => {
   const filename = splitKey[2];
 
   try {
-    await parseService.processEvent(
-      bucket,
-      `${program}/${filename}`,
-      event.EventName
-    );
-
+    if (!filename.includes('LABOUR2')) {
+      const process = await parseService.processEvent(
+        bucket,
+        `${program}/${filename}`,
+        event.EventName
+      );
+      console.log(process);
+      return process;
+    } else {
+      return appLogger.log('Skipping LABOUR2 file');
+    }
     // await reconcile({
     //   period: {
     //     from: '2023-01-01',
