@@ -17,6 +17,8 @@ import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules
 import { ParseService } from '../parse/parse.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { MailService } from '../notification/mail.service';
+import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
 // import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 export interface ParseEvent {
@@ -55,6 +57,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
   const transactionService = app.get(TransactionService);
   const posDepositService = app.get(PosDepositService);
   const cashDepositService = app.get(CashDepositService);
+  const mailService = app.get(MailService);
   const s3 = app.get(S3ManagerService);
 
   const processAllFiles = async () => {
@@ -130,6 +133,11 @@ export const handler = async (event?: unknown, _context?: Context) => {
             `Sent an alert to prompt ${alert.program} to complete upload`
           );
         }
+        mailService.sendEmailAlert(
+          MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
+          '',
+          ''
+        );
       }
     } catch (err) {
       appLogger.error(err);
@@ -169,7 +177,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
             return rule.program;
           }
         }
-        throw new Error(`File does not reference to any programs: ${filename}`);
+        throw new Error(`File does not reference any programs: ${filename}`);
       })();
 
       if (!currentRule) {
@@ -217,10 +225,15 @@ export const handler = async (event?: unknown, _context?: Context) => {
       } catch (err) {
         appLogger.log('\n\n=========Errors with File Upload: =========\n');
         appLogger.error(`Error with uploading file ${filename}`);
-        appLogger.error(
+        const errorMessage =
           err instanceof AxiosError
             ? `Validation Errors: ${err.response?.data?.errorMessage}`
-            : `Validation Errors present in the file`
+            : `Validation Errors present in the file`;
+        appLogger.error(errorMessage);
+        mailService.sendEmailAlert(
+          MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
+          '',
+          errorMessage
         );
       }
     } catch (err) {

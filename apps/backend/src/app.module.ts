@@ -15,6 +15,7 @@ import { ReconciliationModule } from './reconciliation/reconciliation.module';
 import { ReportingModule } from './reporting/reporting.module';
 import { S3ManagerModule } from './s3-manager/s3-manager.module';
 import { TransactionModule } from './transaction/transaction.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { TransactionModule } from './transaction/transaction.module';
     ExceptionModule,
     ExcelExportModule,
     ReportingModule,
+    NotificationModule,
     ConfigModule.forRoot({
       ignoreEnvFile:
         process.env.RUNTIME_ENV === 'local' || process.env.RUNTIME_ENV === 'ci'
