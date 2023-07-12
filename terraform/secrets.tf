@@ -15,3 +15,7 @@ data "aws_ssm_parameter" "sftp_user_bcm" {
 data "aws_ssm_parameter" "postgres_password" {
   name = "/${var.project_code}/${var.target_env}/postgres/password"
 }
+
+data "aws_ssm_parameter" "gcnotify_key" {
+  name = "/${var.project_code}/${var.target_env}/gcnotify/key"
+}
