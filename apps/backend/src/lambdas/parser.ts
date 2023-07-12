@@ -140,6 +140,11 @@ export const handler = async (event?: unknown, _context?: Context) => {
             errors.join(' ')
           );
         }
+        mailService.sendEmailAlert(
+          MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
+          '',
+          ''
+        );
       }
     } catch (err) {
       appLogger.error(err);
