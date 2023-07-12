@@ -134,12 +134,12 @@ export const handler = async (event?: unknown, _context?: Context) => {
           appLogger.error(
             `Sent an alert to prompt ${alert.program} to complete upload`
           );
+          mailService.sendEmailAlert(
+            MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
+            process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
+            errors.join(' ')
+          );
         }
-        mailService.sendEmailAlert(
-          MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
-          process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
-          errors.join(' ')
-        );
       }
     } catch (err) {
       appLogger.error(err);
