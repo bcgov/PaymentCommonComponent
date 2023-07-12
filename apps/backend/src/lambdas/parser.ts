@@ -116,15 +116,17 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
       const programAlerts = alertsSent.dailyAlertPrograms;
       for (const alert of programAlerts) {
+        const errors = [];
         if (!alert.success) {
-          appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
-          !alert.files.hasTdi17 &&
-            appLogger.log(`${alert.program} is missing a TDI17 file`);
-          !alert.files.hasTdi34 &&
-            appLogger.log(`${alert.program} is missing a TDI34 file`);
+          const incompleteString = `Daily Upload for ${alert.program} is incomplete.`;
+          errors.push(incompleteString);
+          !alert.files.hasTdi17 && errors.push('Missing a TDI17 file.');
+          !alert.files.hasTdi34 && errors.push('Missing a TDI34 file.');
           !alert.files.hasTransactionFile &&
-            appLogger.log(`${alert.program} is missing a Transactions file`);
+            errors.push('Missing a Transactions file');
         }
+
+        appLogger.log(errors.join(' '));
         if (alert.alerted) {
           appLogger.log(
             '\n\n=========Alerts Sent for Daily Upload: =========\n'
@@ -135,8 +137,8 @@ export const handler = async (event?: unknown, _context?: Context) => {
         }
         mailService.sendEmailAlert(
           MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
-          '',
-          ''
+          process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
+          errors.join(' ')
         );
       }
     } catch (err) {
@@ -232,7 +234,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
         appLogger.error(errorMessage);
         mailService.sendEmailAlert(
           MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
-          '',
+          process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
           errorMessage
         );
       }
