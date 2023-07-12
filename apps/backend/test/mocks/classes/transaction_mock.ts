@@ -15,7 +15,7 @@ export class TransactionMock extends TransactionEntity {
     payments: PaymentMock[]
   ) {
     super();
-
+    this.created_at = new Date();
     this.transaction_id = `${faker.datatype.uuid()}`;
     this.fiscal_close_date = format(
       faker.date.between(`${dateRange.minDate}`, `${dateRange.maxDate}`),

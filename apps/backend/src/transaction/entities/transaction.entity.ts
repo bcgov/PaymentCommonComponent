@@ -6,6 +6,7 @@ import {
   Entity,
   Column,
   PrimaryColumn,
+  CreateDateColumn,
 } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
@@ -15,6 +16,9 @@ import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 export class TransactionEntity {
   @PrimaryColumn({ unique: true })
   transaction_id: string;
+
+  @CreateDateColumn()
+  created_at: Date;
 
   @Column({ type: 'date' })
   transaction_date: string;

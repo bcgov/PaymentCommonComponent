@@ -87,7 +87,7 @@ describe('Reconciliation Service (e2e)', () => {
   it('parses and inserts cash deposit data', async () => {
     const parsedTDI17File = parseTDI({
       type: FileTypes.TDI17,
-      fileName: 'tdi17',
+      fileName: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
       program: 'SBC',
       fileContents: Buffer.from(
         fs.readFileSync(
@@ -103,7 +103,7 @@ describe('Reconciliation Service (e2e)', () => {
   it('parses inserts pos deposit data', async () => {
     const parsedTDI34File = parseTDI({
       type: FileTypes.TDI34,
-      fileName: 'tdi34',
+      fileName: 'bcm/PROD_SBC_F08TDI34_20230309.DAT',
       program: 'SBC',
       fileContents: Buffer.from(
         fs.readFileSync(
@@ -128,7 +128,7 @@ describe('Reconciliation Service (e2e)', () => {
           'utf8'
         )
       )) as SBCGarmsJson[],
-      'garms',
+      'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
       paymentMethods
     );
     await transService.saveTransactions(parsedGarmsFile);

@@ -1,10 +1,10 @@
-import * as fs from 'fs';
-import path from 'path';
 import { createMock } from '@golevelup/ts-jest';
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import * as fs from 'fs';
+import path from 'path';
 import { FileTypes } from '../../../src/constants';
 import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-ingestion-rules.entity';
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
@@ -55,21 +55,21 @@ describe('ParseService', () => {
     it('should be successful if all files are present', () => {
       const rule = new FileIngestionRulesMock(
         'SBC',
-        'tdi17',
-        'tdi34',
-        'sbc_sales'
+        'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+        'bcm/PROD_SBC_F08TDI34_20230309.DAT',
+        'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
       );
       const tdi17 = new FileUploadedMock(
         FileTypes.TDI17,
-        '2023-01-01-tdi17.dat'
+        'bcm/PROD_SBC_F08TDI17_20230309.DAT'
       );
       const tdi34 = new FileUploadedMock(
         FileTypes.TDI34,
-        '2023-01-01-tdi34.dat'
+        'bcm/PROD_SBC_F08TDI34_20230309.DAT'
       );
       const sales = new FileUploadedMock(
         FileTypes.SBC_SALES,
-        '2023-01-01-sbc_sales.dat'
+        'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
       );
       const dailySuccess = service.determineDailySuccess(rule, [
         tdi17,
@@ -82,17 +82,17 @@ describe('ParseService', () => {
     it('should be successful if all required files are present - not necessarily all 3', () => {
       const rule = new FileIngestionRulesMock(
         'SBC',
-        'tdi17',
-        'tdi34',
+        'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+        'bcm/PROD_SBC_F08TDI34_20230309.DAT',
         undefined
       );
       const tdi17 = new FileUploadedMock(
         FileTypes.TDI17,
-        '2023-01-01-tdi17.dat'
+        'bcm/PROD_SBC_F08TDI17_20230309.DAT'
       );
       const tdi34 = new FileUploadedMock(
         FileTypes.TDI34,
-        '2023-01-01-tdi34.dat'
+        'bcm/PROD_SBC_F08TDI34_20230309.DAT'
       );
       const dailySuccess = service.determineDailySuccess(rule, [tdi17, tdi34]);
       expect(dailySuccess.success).toBe(true);
@@ -101,13 +101,13 @@ describe('ParseService', () => {
     it('should fail if one or more of the required files are not present', () => {
       const rule = new FileIngestionRulesMock(
         'SBC',
-        'tdi17',
-        'tdi34',
+        'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+        'bcm/PROD_SBC_F08TDI34_20230309.DAT',
         undefined
       );
       const tdi17 = new FileUploadedMock(
         FileTypes.TDI17,
-        '2023-01-01-tdi17.dat'
+        'bcm/PROD_SBC_F08TDI17_20230309.DAT'
       );
       const dailySuccess = service.determineDailySuccess(rule, [tdi17]);
       expect(dailySuccess.success).toBe(false);
@@ -123,7 +123,7 @@ describe('ParseService', () => {
         (
           await service.parseGarmsFile(
             transactionFile.toString(),
-            'filename.json'
+            'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
           )
         )[0].total_transaction_amount
       ).toEqual(100);
@@ -134,7 +134,10 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/garms.json')
       );
       expect(
-        service.parseGarmsFile(transactionFile.toString(), 'filename.json')
+        service.parseGarmsFile(
+          transactionFile.toString(),
+          'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
+        )
       ).rejects.toThrow();
     });
 
@@ -143,8 +146,13 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/TDI17.TXT')
       );
       expect(
-        (await service.parseTDICashFile('filename.DAT', 'SBC', tdi17File))[0]
-          .deposit_amt_curr
+        (
+          await service.parseTDICashFile(
+            'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+            'SBC',
+            tdi17File
+          )
+        )[0].deposit_amt_curr
       ).toEqual(558.31);
     });
 
@@ -153,7 +161,11 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/TDI17.TXT')
       );
       expect(
-        service.parseTDICashFile('filename.DAT', 'SBC', tdi17File)
+        service.parseTDICashFile(
+          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+          'SBC',
+          tdi17File
+        )
       ).rejects.toThrow();
     });
 
@@ -165,7 +177,7 @@ describe('ParseService', () => {
       const wrongTotalTrailer = '70000180000008000010';
       const wrongNumberTrailer = '70000190000008000005';
       const fileContents = Buffer.from(tdi17File.toString() || '').toString();
-      let lines = fileContents.split('\n').filter((l: string) => l);
+      const lines = fileContents.split('\n').filter((l: string) => l);
       const footer = lines.splice(lines.length - 1, 1)[0];
       const newFooterWrongTotal = footer.replace(
         originalTrailer,
@@ -174,7 +186,7 @@ describe('ParseService', () => {
       lines.push(newFooterWrongTotal);
       expect(
         service.parseTDICashFile(
-          'filename.DAT',
+          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
           'SBC',
           Buffer.from(lines.join('\n'))
         )
@@ -188,7 +200,7 @@ describe('ParseService', () => {
       lines.push(newFooterWrongNumber);
       expect(
         service.parseTDICashFile(
-          'filename.DAT',
+          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
           'SBC',
           Buffer.from(lines.join('\n'))
         )
@@ -200,8 +212,13 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/TDI34.TXT')
       );
       expect(
-        (await service.parseTDICardsFile('filename.DAT', 'SBC', tdi34File))[0]
-          .transaction_amt
+        (
+          await service.parseTDICardsFile(
+            'bcm/PROD_SBC_F08TDI34_20230309.DAT',
+            'SBC',
+            tdi34File
+          )
+        )[0].transaction_amt
       ).toEqual(17);
     });
 
@@ -210,7 +227,11 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/TDI34.TXT')
       );
       expect(
-        service.parseTDICardsFile('filename.DAT', 'SBC', tdi34File)
+        service.parseTDICardsFile(
+          'bcm/PROD_SBC_F08TDI34_20230309.DAT',
+          'SBC',
+          tdi34File
+        )
       ).rejects.toThrow();
     });
 
@@ -222,7 +243,7 @@ describe('ParseService', () => {
       const wrongTotalTrailer = '7  0017     00134100';
       const wrongNumberTrailer = '7  0019     00129100';
       const fileContents = Buffer.from(tdi34File.toString() || '').toString();
-      let lines = fileContents.split('\n').filter((l: string) => l);
+      const lines = fileContents.split('\n').filter((l: string) => l);
       const footer = lines.splice(lines.length - 1, 1)[0];
       const newFooterWrongTotal = footer.replace(
         originalTrailer,
@@ -231,7 +252,7 @@ describe('ParseService', () => {
       lines.push(newFooterWrongTotal);
       expect(
         service.parseTDICashFile(
-          'filename.DAT',
+          'bcm/PROD_SBC_F08TD17_20230309.DAT',
           'SBC',
           Buffer.from(lines.join('\n'))
         )
@@ -245,7 +266,7 @@ describe('ParseService', () => {
       lines.push(newFooterWrongNumber);
       expect(
         service.parseTDICashFile(
-          'filename.DAT',
+          'bcm/PROD_SBC_F08TD17_20230309.DAT',
           'SBC',
           Buffer.from(lines.join('\n'))
         )
