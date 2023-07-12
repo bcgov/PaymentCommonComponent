@@ -62,7 +62,6 @@ test('Payment Entity Instance', () => {
       },
       metadata: {
         created_at: new Date('2023-04-28T07:35:13.155Z'),
-        file_created_date: new Date('2023-04-04T00:00:00.000Z'),
         program: 'SBC',
         source_file_name: 'bcm/PROD_SBC_F08TDI34_20230404.DAT',
         source_file_line: 1550,
