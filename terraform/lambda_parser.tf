@@ -35,3 +35,25 @@ resource "aws_lambda_function" "parser" {
     ]
   }
 }
+
+resource "aws_s3_bucket_notification" "aws-lambda-trigger" {
+  bucket = "${aws_s3_bucket.sftp_storage.id}"
+  lambda_function {
+    lambda_function_arn = "${aws_lambda_function.parser.arn}"
+    events              = ["s3:ObjectCreated:*"]
+    filter_prefix       = "file-prefix"
+    filter_suffix       = "file-extension"
+  }
+}
+
+resource "aws_lambda_permission" "test" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.parser.function_name}"
+  principal = "s3.amazonaws.com"
+  source_arn = "arn:aws:s3:::${aws_s3_bucket.sftp_storage.id}"
+}
+
+output "arn" {
+  value = "${aws_lambda_function.parser.arn}"
+}
