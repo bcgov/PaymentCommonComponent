@@ -38,7 +38,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
     if (!rule) {
       throw new Error('No rule for this program');
     }
-    const reconciliationDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
+    const reconciliationDate = new Date();
     const daily = await parseService.getDailyForRule(rule, reconciliationDate);
     if (!daily?.success) {
       throw new Error(
@@ -56,7 +56,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
       parse(event.period.from, 'yyyy-MM-dd', new Date()),
       1
     ),
-    end: parse(event.period.to, 'yyyy-MM-dd', new Date()),
+    end: new Date(),
   };
   const dateRange = {
     minDate: format(reconciliationDates.start, 'yyyy-MM-dd'),
@@ -106,7 +106,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
       location,
       locationPayments,
       locationDeposits,
-      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+      new Date()
     );
 
     appLogger.log({ reconciled }, PosReconciliationService.name);
@@ -115,11 +115,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const exceptions = await posReconciliationService.setExceptions(
       location,
       event.program,
-      format(
-        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2),
-        'yyyy-MM-dd'
-      ),
-      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+      format(subBusinessDays(new Date(), 2), 'yyyy-MM-dd'),
+      new Date()
     );
 
     appLogger.log({ exceptions }, PosReconciliationService.name);

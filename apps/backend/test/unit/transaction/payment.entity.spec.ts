@@ -27,6 +27,7 @@ test('Payment Entity Instance', () => {
     },
     transaction: {
       payments: [],
+      created_at: new Date('2023-01-10T18:45:04.000Z'),
       transaction_id: '20230109-00001-1000005',
       transaction_date: '2023-01-09',
       transaction_time: '18:53:55Z',
@@ -60,7 +61,7 @@ test('Payment Entity Instance', () => {
         sbc_code: 17,
       },
       metadata: {
-        date_uploaded: new Date('2023-04-28T07:35:13.155Z'),
+        created_at: new Date('2023-04-28T07:35:13.155Z'),
         program: 'SBC',
         source_file_name: 'bcm/PROD_SBC_F08TDI34_20230404.DAT',
         source_file_line: 1550,

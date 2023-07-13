@@ -127,7 +127,7 @@ export class ExcelExportService {
       uncommittedRow.eachCell((cell, _colNumber) => {
         const unformattedCell = sheet.getCell(cell.address);
         if (cell.type === 4) {
-          unformattedCell.style = { ...row.style, numFmt: 'dd/mm/yyyy' };
+          unformattedCell.style = { ...row.style, numFmt: 'yyyy/mm/dd' };
         } else {
           unformattedCell.style = row.style;
         }

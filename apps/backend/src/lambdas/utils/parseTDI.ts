@@ -1,8 +1,8 @@
 import Decimal from 'decimal.js';
-import { TDI17Trailer } from '../../flat-files/tdi17/TDI17Trailer';
-import { TDI34Trailer } from '../../flat-files/tdi34/TDI34Trailer';
 import { ParseArgsTDI, FileTypes } from '../../constants';
 import { TDI17Details, TDI34Details, DDFDetails } from '../../flat-files';
+import { TDI17Trailer } from '../../flat-files/tdi17/TDI17Trailer';
+import { TDI34Trailer } from '../../flat-files/tdi34/TDI34Trailer';
 
 export const parseTDI = ({
   type,
@@ -34,6 +34,14 @@ export const parseTDI = ({
     return [];
   })();
 
+  const fileDateFromFileName = (filename: string): Date => {
+    const splitname = filename.split('_');
+    const datestring = splitname[splitname.length - 1].split('.')[0];
+    const year = parseInt(datestring.slice(0, 4));
+    const month = parseInt(datestring.slice(4, 6));
+    const day = parseInt(datestring.slice(6, 8));
+    return new Date(year, month - 1, day);
+  };
   // TODO [CCFPCM-397] We don't check what the intput type is for the actual parsing!
   const detailsArr = items.map((item, index) => {
     item.convertToJson(lines[index]);
@@ -43,6 +51,7 @@ export const parseTDI = ({
       program,
       source_file_name: fileName,
       source_file_length: lines.length,
+      file_created_date: fileDateFromFileName(fileName),
     };
     return item;
   });

@@ -3,7 +3,7 @@ import { Unique, Column, CreateDateColumn } from 'typeorm';
 @Unique(['source_file_name', 'source_file_line'])
 export class FileMetadata {
   @CreateDateColumn()
-  date_uploaded: Date;
+  created_at: Date;
 
   @Column({ nullable: true })
   program: string;

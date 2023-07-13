@@ -31,6 +31,7 @@ export const parseGarms = async (
     ...itm,
     payments: itm.payments.filter((payment) => payment.amount !== 0),
   }));
+
   const parsedGarms = garmsData.map(
     ({
       sales_transaction_id,
