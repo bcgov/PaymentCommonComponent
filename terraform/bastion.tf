@@ -76,6 +76,10 @@ resource "aws_instance" "bastion_instance" {
   associate_public_ip_address = "false"
   subnet_id                   = tolist(data.aws_subnets.app.ids)[0]
   user_data                   = file("scripts/user-data.sh")
+  
+  metadata_options = {
+    http_tokens = required
+  }
 
   root_block_device {
     delete_on_termination = "true"
@@ -83,7 +87,6 @@ resource "aws_instance" "bastion_instance" {
     volume_size           = var.root_block_device.size
     volume_type           = var.root_block_device.type
   }
-
 
   tags = {
     Name = "${local.namespace}-bastion"
