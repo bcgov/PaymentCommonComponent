@@ -1,81 +1,134 @@
-## Payments Common Component
+# CCFPCM - Automated Reconciliation
 
 [![Lifecycle:Experimental](https://img.shields.io/badge/Lifecycle-Experimental-339999)](Redirect-URL)
 
-### MVP - Scope Of Project
+CCFPCM is an application which automates the reconciliation process between line-of-business Ministry transactions and the Provincial Treasury's bank and cash management deposit files 
 
-- Reconciliation as a service for Ministry LoB
+Transaction data from Ministry LoB sales is received via the API endpoint or it is pushed to an STFP server.
 
-Data Source 1:
+Deposit data from Provincial Treasury of the Province of British Columbia is obtained via sftp and comes in three formats:
+- TDI34 files - In person POS Transactions
+- TDI17 files - Cash & Cheque deposits made to the banks
+- TDI34 (DDF) files - Online card transactions (PayBC and ICE pay)
 
-- Connecting to Provinical Treasury of the Province of British Columbia
-  - Obtain and parse TDI34 files - In person PoS Transactions
-  - Obtain and parse TDI17 files - Cash & Cheque deposits made to the banks
-  - Obtain and parse TDI34 (DDF) files - Online card transactions (PayBC and ICE pay)
+These records are then reconciled through an automated job and a daily report is generated in order to highlight and resolve any exceptions or discrepancies.
 
-Date Source 2:
+## Table of Contents
 
-- Ministry LoB Sales transactions
+1. [Installation](#installation)
+2. [Running The Project](#running-the-project)
+3. [Getting Access to Payment Common Components Tools](#getting-access-to-payment-common-components-tools)
+4. [Developer Docs](#developer-docs)
 
-### Technical Setup
 
-Prerequisites:
+## Installation
 
-- Run `make check` to make sure you have all the required dependency tools and binaries setup correctly.
-
-#### Yarn Setup
-
-Yarn V2 needs to be enabled. Follow these steps to get yarn setup locally - https://yarnpkg.com/getting-started/install
-
-#### Environment Variables
-
-Create a .env file at the root prior to running the project
-
-use the `.env.example` to create `.env`
-
-#### Running The Project Locally (Docker)
-
-Use the make commands under the `docker` section to start the project.
-
-Install dependencies - `yarn`
-Run Project - `make build`
-
-#### Gettings Access to tools and credentials
-
-to run the project for development, the following is bare requirement:
-
+#### Prerequisites
+- docker 
+- node v18
+- yarn2
 - aws configuration for aws-pcc and minio [Example](./.config/credentials.example)
 - rclone configuration [Example](./.config/rclone.conf.example)
 - env file configuration [Example](./.config/.env.example)
 
 Refer [here](./docs/access.md)
+Run a make command to ensure you have all the required dependency tools and binaries setup correctly.
+```bash
+make check
+```
+#### Node
+This project config assumes node version 18. 
 
-#### Populate the database
 
-- Ensure you are connected to the cisco VPN
-- Make sure the project is up and running by using the docker make commands
-- Run `make migration-run` for the database to be setup.
-- Run `make sync` to update your local environment with all the necessary files
-- Run `make parse` to populate the db
+#### Yarn Setup
+
+```bash
+corepack enable
+
+corepack prepare yarn@stable --activate
+```
+
+
+#### Environment Variables
+
+Create a .env file (see [getting access](#getting-access-to-payment-common-component-tools) to find the relevant values) 
+
+```bash
+cp .env.example .env
+```
+
+## Running The Project
+
+
+Install dependencies:
+```bash
+yarn
+```
+Run project:
+```bash
+make build
+```
+Run migrations:
+```bash
+migration-run
+```
+Get data locally (choose option 1):
+```bash
+make sync
+```
+Parse data into the db:
+```bash
+make parse
+```
+Reconcile data:
+- Edit the `apps/backend/fixtures/reconcile.json` file to specify config
+```bash
+make reconcile
+```
+Generate a report:
+- Edit the `apps/backend/fixtures/report.json` file to specifiy config
+```bash
+make report
+```
+
+## Getting Access to Payment Common Components Tools
+
+#### Contact the product owner for the following: 
+
+- [Teams channel](https://teams.microsoft.com/l/team/19%3a5fdb0810f6b1416b8709e53e2e6ffe51%40thread.tacv2/conversations?groupId=f56865b7-57f7-419c-903d-0611fc8b3b54&tenantId=6fdb5200-3d0d-4a8a-b036-d3685e359adc)
+- [Rocket.chat](chat.developer.gov.bc.ca)
+- [Jira - CCFPCM](https://bcdevex.atlassian.net/jira/software/c/projects/CCFPCM/boards/25)
+- [Mural](https://app.mural.co/t/paymentcommoncomponent2120/m/paymentcommoncomponent2120/1654045590681/a8efeab89e64a0d1208307b553f4bd40a47018fe?wid=0-1654552668553&sender=f9175829-f8b8-409a-a914-02a545114131)
+
+
+#### Contact the project team for the following: 
+
+- [Github](https://github.com/bcgov/paymentCommonComponent/pulls)
+- [Gitops Repo](https://github.com/bcgov-c/tenant-gitops-e49a54)
+- [AWS LZ2](https://oidc.gov.bc.ca/auth/realms/umafubc9/protocol/saml/clients/amazon-aws) - Project badge - `iz8ci7`
+- [Openshift](https://console.apps.silver.devops.gov.bc.ca/k8s/cluster/projects) - Project badge - `e49a54`
+
+
+#### Getting access to secrets and ssh keys: 
+
+Once you have access to AWS LZ2 platform, login to the any of the environments to get access to the follwing: 
+
+- Terraform secret keys 
+- Database passwords
+- SSH keys for BCM SFTP 
+- AWS Local Config - Service Account Tokens
+- Minio Local Config
 
 ## Developer Docs
+The developer docs can be generated by running the following command. (Ensure you have already ran `make build`).  
 
-- Once the project has been configured and all dependencies installed, after running `make build` (ensure project is running with docker ps) you can run `make dev-docs` to view compodoc/jsdocs generated documentation for the apps/backend application
-- This takes a few minutes to build.
-- Visit `http://localhost:8081` in the brower to view the docs
-- To suppress the logs or make other configuration changes edit the compodoc.yaml file in the apps/backend directory.
-- configuration options can be found [here](https://compodoc.app/guides/options.html)
+The docs are a work in progress. If you would like to change any configurations or update the docs, configuration options can be found [here](https://compodoc.app/guides/options.html).
 
-### Reconciliation
+View the [docs](http://localhost:8081) in your browser by running:
+```bash
+make dev-docs
+```
 
-- Make sure the project is up and running by using the docker make commands
-- Make sure you have completed the steps above
-- Edit the `apps/backend/fixtures/reconcile.json` file to specifiy config
-- Run (from root) `make reconcile`
+## Project Documentation
 
-### Reporting
-
-- Make sure the project is up and running by using the docker make commands
-- Make sure you have completed the steps above
-- Edit the `apps/backend/fixtures/report.json` file to specifiy config
-- Run (from root) `make report`
+TDB
