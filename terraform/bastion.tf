@@ -77,8 +77,8 @@ resource "aws_instance" "bastion_instance" {
   subnet_id                   = tolist(data.aws_subnets.app.ids)[0]
   user_data                   = file("scripts/user-data.sh")
   
-  metadata_options = {
-    http_tokens = required
+  metadata_options {
+    http_tokens = "required"
   }
 
   root_block_device {
