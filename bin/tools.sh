@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if ! command -v corepack &> /dev/null
+then
+    echo "corepack could not be found"
+    echo "run 'brew install corepack' in your terminal"
+fi
 
 if ! command -v yarn &> /dev/null
 then
@@ -59,11 +64,6 @@ if [ ! $(aws configure list-profiles | grep -e pcc-aws -e minio | wc -l) -eq 2 ]
 then
 	echo "[pcc-aws] / [minio] Profile not found"
     echo "minio and pcc-aws keys are in secrets manager in aws"
-fi
-
-if [ ! $(mdfind "kMDItemKind == 'Application'" | grep -c "Cisco AnyConnect Secure Mobility Client") -eq 1 ]
-then
-	echo "BC Gov VPN not installed"
 fi
 
 if ! command -v session-manager-plugin &> /dev/null
