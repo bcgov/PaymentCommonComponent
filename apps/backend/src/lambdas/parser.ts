@@ -120,10 +120,11 @@ export const handler = async (event?: unknown, _context?: Context) => {
         if (!alert.success) {
           const incompleteString = `Daily Upload for ${alert.program} is incomplete.`;
           errors.push(incompleteString);
-          !alert.files.hasTdi17 && errors.push('Missing a TDI17 file.');
-          !alert.files.hasTdi34 && errors.push('Missing a TDI34 file.');
-          !alert.files.hasTransactionFile &&
-            errors.push('Missing a Transactions file');
+          alert.missingFiles.forEach((file) => {
+            errors.push(
+              `Missing a ${file.fileType} file - needs file name "${file.filename}"`
+            );
+          });
         }
 
         appLogger.log(errors.join(' '));
@@ -187,23 +188,12 @@ export const handler = async (event?: unknown, _context?: Context) => {
       }
 
       const fileType = (() => {
-        if (
-          currentRule.cashChequesFilename &&
-          filename.includes(currentRule.cashChequesFilename)
-        ) {
-          return FileTypes.TDI17;
-        }
-        if (
-          currentRule.posFilename &&
-          filename.includes(currentRule.posFilename)
-        ) {
-          return FileTypes.TDI34;
-        }
-        if (
-          currentRule.transactionsFilename &&
-          filename.includes(currentRule.transactionsFilename)
-        ) {
-          return FileTypes.SBC_SALES;
+        const requiredFiles = currentRule?.requiredFiles;
+        const requiredFile = requiredFiles?.find((rf) =>
+          filename.includes(rf.filename)
+        );
+        if (!!requiredFile) {
+          return requiredFile.fileType;
         }
         throw new Error('Unknown file type: ' + filename);
       })();
@@ -271,7 +261,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           program: rule.program,
           success: true,
           alerted: false,
-          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
+          missingFiles: [],
         });
         continue;
       }
@@ -288,7 +278,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           program: rule.program,
           success: true,
           alerted: false,
-          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
+          missingFiles: [],
         });
       } else {
         let alerted = false;
@@ -304,11 +294,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
           program: rule.program,
           success: false,
           alerted,
-          files: {
-            hasTdi17: successStatus.hasTdi17,
-            hasTdi34: successStatus.hasTdi34,
-            hasTransactionFile: successStatus.hasTransactionFile,
-          },
+          missingFiles: successStatus.missingFiles,
         });
       }
     }
