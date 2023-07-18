@@ -129,17 +129,24 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
         appLogger.log(errors.join(' '));
         if (alert.alerted) {
+          const alertDestinations = await mailService.getAlertDestinations(
+            alert.program,
+            alert.missingFiles.map((mf) => mf.filename)
+          );
           appLogger.log(
             '\n\n=========Alerts Sent for Daily Upload: =========\n'
           );
           appLogger.error(
             `Sent an alert to prompt ${alert.program} to complete upload`
           );
-          mailService.sendEmailAlert(
-            MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
-            process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
-            errors.join(' ')
-          );
+          for (const destination of alertDestinations) {
+            // TODO: Bulk send
+            await mailService.sendEmailAlert(
+              MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
+              destination,
+              errors.join(' ')
+            );
+          }
         }
       }
     } catch (err) {
@@ -218,9 +225,9 @@ export const handler = async (event?: unknown, _context?: Context) => {
         appLogger.log('\n\n=========Errors with File Upload: =========\n');
         appLogger.error(`Error with uploading file ${filename}`);
         const errorMessage =
-          err instanceof AxiosError
-            ? `Validation Errors: ${err.response?.data?.errorMessage}`
-            : `Validation Errors present in the file`;
+          err instanceof BadRequestException
+            ? `Validation Errors in file ${filename}: ${err}`
+            : `Validation Errors present in the file ${filename}`;
         appLogger.error(errorMessage);
         mailService.sendEmailAlert(
           MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,

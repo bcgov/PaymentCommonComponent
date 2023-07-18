@@ -1,13 +1,20 @@
 import axios, { AxiosInstance } from 'axios';
 import { Injectable, Inject, Logger } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { MAIL_TEMPLATE_ENUM, MailTemplate } from './mail-templates';
 import { AppLogger } from '../logger/logger.service';
+import { AlertDestinationEntity } from './entities/alert-destination.entity';
 
 @Injectable()
 export class MailService {
   private axiosInstance: AxiosInstance;
 
-  constructor(@Inject(Logger) private readonly appLogger: AppLogger) {
+  constructor(
+    @Inject(Logger) private readonly appLogger: AppLogger,
+    @InjectRepository(AlertDestinationEntity)
+    private destinationRepo: Repository<AlertDestinationEntity>
+  ) {
     this.axiosInstance = axios.create({
       baseURL: `${process.env.MAIL_SERVICE_BASE_URL}/v2/notifications/email`,
       headers: {
@@ -15,6 +22,26 @@ export class MailService {
         'content-type': 'application/json',
       },
     });
+  }
+
+  public async getAlertDestinations(
+    program: string,
+    missingFilenames: string[]
+  ): Promise<string[]> {
+    const allDestinations = await this.destinationRepo.find({
+      relations: {
+        rule: true,
+        requiredFile: true,
+      },
+    });
+    return allDestinations
+      .filter(
+        (destination) =>
+          destination.allAlerts === true ||
+          destination.rule?.program === program ||
+          missingFilenames.includes(destination.requiredFile.filename)
+      )
+      .map((destination) => destination.destination);
   }
 
   public async sendEmailAlert(
