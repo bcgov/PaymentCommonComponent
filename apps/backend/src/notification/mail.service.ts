@@ -24,9 +24,15 @@ export class MailService {
     });
   }
 
+  /**
+   * getAlertDestinations - Gets list of destinations / emails to send alerts to
+   * @param program Program name
+   * @param filenames All the filenames that have issues
+   * @returns <string[]> list of destinatinos
+   */
   public async getAlertDestinations(
     program: string,
-    missingFilenames: string[]
+    filenames: string[]
   ): Promise<string[]> {
     const allDestinations = await this.destinationRepo.find({
       relations: {
@@ -39,11 +45,17 @@ export class MailService {
         (destination) =>
           destination.allAlerts === true ||
           destination.rule?.program === program ||
-          missingFilenames.includes(destination.requiredFile.filename)
+          filenames.includes(destination.requiredFile.filename)
       )
       .map((destination) => destination.destination);
   }
 
+  /**
+   * sendEmailAlert - Sends a single email to a single destination
+   * @param template From list of template enums
+   * @param toEmail Destination email
+   * @param message Customization message
+   */
   public async sendEmailAlert(
     template: MAIL_TEMPLATE_ENUM,
     toEmail: string,
