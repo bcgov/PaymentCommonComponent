@@ -116,7 +116,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
       const programAlerts = alertsSent.dailyAlertPrograms;
       for (const alert of programAlerts) {
-        const errors = [];
+        const errors: string[] = [];
         if (!alert.success) {
           const incompleteString = `Daily Upload for ${alert.program} is incomplete.`;
           errors.push(incompleteString);
@@ -139,14 +139,13 @@ export const handler = async (event?: unknown, _context?: Context) => {
           appLogger.error(
             `Sent an alert to prompt ${alert.program} to complete upload`
           );
-          for (const destination of alertDestinations) {
-            // TODO: Bulk send
-            await mailService.sendEmailAlert(
-              MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
-              destination,
-              errors.join(' ')
-            );
-          }
+          await mailService.sendEmailAlertBulk(
+            MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
+            alertDestinations.map((ad) => ({
+              toEmail: ad,
+              message: errors.join(' '),
+            }))
+          );
         }
       }
     } catch (err) {
@@ -229,10 +228,16 @@ export const handler = async (event?: unknown, _context?: Context) => {
             ? `Validation Errors in file ${filename}: ${err}`
             : `Validation Errors present in the file ${filename}`;
         appLogger.error(errorMessage);
-        mailService.sendEmailAlert(
+        const alertDestinations = await mailService.getAlertDestinations(
+          ministry,
+          [filename]
+        );
+        await mailService.sendEmailAlertBulk(
           MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
-          process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
-          errorMessage
+          alertDestinations.map((ad) => ({
+            toEmail: ad,
+            message: errorMessage,
+          }))
         );
       }
     } catch (err) {

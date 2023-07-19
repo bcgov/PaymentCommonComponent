@@ -16,7 +16,7 @@ export class MailService {
     private destinationRepo: Repository<AlertDestinationEntity>
   ) {
     this.axiosInstance = axios.create({
-      baseURL: `${process.env.MAIL_SERVICE_BASE_URL}/v2/notifications/email`,
+      baseURL: `${process.env.MAIL_SERVICE_BASE_URL}/v2/notifications/`,
       headers: {
         authorization: `ApiKey-v1 ${process.env.MAIL_SERVICE_KEY}`,
         'content-type': 'application/json',
@@ -51,18 +51,18 @@ export class MailService {
   }
 
   /**
-   * sendEmailAlert - Sends a single email to a single destination
+   * sendEmailAlertSingle - Sends a single email to a single destination
    * @param template From list of template enums
    * @param toEmail Destination email
    * @param message Customization message
    */
-  public async sendEmailAlert(
+  public async sendEmailAlertSingle(
     template: MAIL_TEMPLATE_ENUM,
     toEmail: string,
     message: string
   ) {
     try {
-      const emailResponse = await this.axiosInstance.post('', {
+      const emailResponse = await this.axiosInstance.post('email', {
         email_address: toEmail,
         template_id: MailTemplate[template].id,
         personalisation: {
@@ -75,6 +75,42 @@ export class MailService {
     } catch (error) {
       this.appLogger.error(
         `Error sending ${MailTemplate[template].name} email to ${toEmail}`
+      );
+    }
+  }
+
+  // TODO CCFPCM-598 Make this more generalized for email templates
+  /**
+   * sendEmailAlertBulk - Sends a template to multiple emails
+   * @param template From list of template enums
+   * @param emailMessages List of toEmails and messages
+   */
+  public async sendEmailAlertBulk(
+    template: MAIL_TEMPLATE_ENUM,
+    emailMessages: {
+      toEmail: string;
+      message: string;
+    }[]
+  ) {
+    try {
+      const emailResponse = await this.axiosInstance.post('bulk', {
+        name: MailTemplate[template].name,
+        template_id: MailTemplate[template].id,
+        rows: [
+          ['email_address', 'message'],
+          ...emailMessages.map((em) => [em.toEmail, em.message]),
+        ],
+      });
+      this.appLogger.log(
+        `${MailTemplate[template].name} email sent to ${emailMessages
+          .map((em) => em.toEmail)
+          .join(', ')} - id ${emailResponse.data['id']}`
+      );
+    } catch (error) {
+      this.appLogger.error(
+        `Error sending ${MailTemplate[template].name} email to ${emailMessages
+          .map((em) => em.toEmail)
+          .join(', ')}`
       );
     }
   }
