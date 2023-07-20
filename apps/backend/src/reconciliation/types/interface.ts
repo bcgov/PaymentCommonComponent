@@ -35,6 +35,7 @@ export interface ReconciliationConfigInput {
   location_ids: number[] | [];
   program: Ministries;
   bypass_parse_validity?: boolean;
+  batchProcess?: boolean;
 }
 
 export interface ReconciliationError {

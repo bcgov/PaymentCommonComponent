@@ -31,37 +31,31 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const reportingService = app.get(ReportingService);
   const parseService = app.get(ParseService);
   const appLogger = app.get(Logger);
-
+  const currentDate = new Date();
+  // maxDate is the date we are reconciling until
+  const reconciliationDateRange = {
+    minDate: subBusinessDays(parse(event.period.from, 'yyyy-MM-dd', new Date()), 1),
+    maxDate: parse(event.period.to, 'yyyy-MM-dd', new Date()) ?? new Date(),
+  };
   if (!event.bypass_parse_validity) {
     // Prevent reconciler from running for a program if no valid files today
     const rule = await parseService.getRulesForProgram(event.program);
     if (!rule) {
       throw new Error('No rule for this program');
     }
-    const reconciliationDate = new Date();
-    const daily = await parseService.getDailyForRule(rule, reconciliationDate);
+
+    const daily = await parseService.getDailyForRule(
+      rule,
+      reconciliationDateRange.maxDate
+    );
     if (!daily?.success) {
       throw new Error(
-        `Incomplete dataset for this date ${reconciliationDate}. Please check the uploaded files.`
+        `Incomplete dataset for this date ${reconciliationDateRange.maxDate}. Please check the uploaded files.`
       );
     }
   }
 
-  // maxDate is the date we are reconciling until
-  // We reconcile 1 business day behind, so the user should only be passing in "yesterday" as maxDate
-  // We should also ensure sync (automated - should have all data by 11am PST) and parse have run before this function is called
-
-  const reconciliationDates = {
-    start: subBusinessDays(
-      parse(event.period.from, 'yyyy-MM-dd', new Date()),
-      1
-    ),
-    end: new Date(),
-  };
-  const dateRange = {
-    minDate: format(reconciliationDates.start, 'yyyy-MM-dd'),
-    maxDate: format(reconciliationDates.end, 'yyyy-MM-dd'),
-  };
+  
   const allLocations: NormalizedLocation[] =
     await locationService.getLocationsBySource(event.program);
 
@@ -75,14 +69,17 @@ export const handler = async (event: ReconciliationConfigInput) => {
         );
 
   const allPosPaymentsInDates = await paymentService.findPosPayments(
-    dateRange,
+    {minDate: format(reconciliationDateRange.minDate, 'yyyy-MM-dd'), maxDate: format(reconciliationDateRange.maxDate, 'yyyy-MM-dd')},
     locations.map((itm) => itm.location_id),
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
   );
 
   // Get all pending deposits whether its one day or many months
   const allPosDepositsInDates = await posDepositService.findPosDeposits(
-    dateRange,
+    {
+      minDate: format(reconciliationDateRange.minDate, 'yyyy-MM-dd'),
+      maxDate: format(reconciliationDateRange.maxDate, 'yyyy-MM-dd'),
+    },
     event.program,
     locations.flatMap((location) => location.merchant_ids.map((id) => id)),
     [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
@@ -106,7 +103,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
       location,
       locationPayments,
       locationDeposits,
-      new Date()
+      currentDate
     );
 
     appLogger.log({ reconciled }, PosReconciliationService.name);
@@ -115,8 +112,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const exceptions = await posReconciliationService.setExceptions(
       location,
       event.program,
-      format(subBusinessDays(new Date(), 2), 'yyyy-MM-dd'),
-      new Date()
+      format(subBusinessDays(reconciliationDateRange.maxDate, 2), 'yyyy-MM-dd'),
+      currentDate
     );
 
     appLogger.log({ exceptions }, PosReconciliationService.name);
@@ -134,15 +131,14 @@ export const handler = async (event: ReconciliationConfigInput) => {
 
     const filtered = allDates.filter(
       (date: string) =>
-        parse(date, 'yyyy-MM-dd', new Date()) >= reconciliationDates.start &&
-        parse(date, 'yyyy-MM-dd', new Date()) <= reconciliationDates.end
+        parse(date, 'yyyy-MM-dd', new Date()) >=
+          reconciliationDateRange.minDate &&
+        parse(date, 'yyyy-MM-dd', new Date()) <= reconciliationDateRange.maxDate
     );
 
-    for (const date of filtered) {
+    for (const [index, date] of filtered.entries()) {
       const currentCashDepositDate = date;
-      const previousCashDepositDate =
-        filtered[filtered.indexOf(date) - 2] ??
-        format(reconciliationDates.start, 'yyyy-MM-dd');
+      const previousCashDepositDate = allDates[index - 2];
 
       const dateRange = {
         minDate: previousCashDepositDate,
@@ -152,7 +148,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
       const result = await cashReconciliationService.reconcileCash(
         location,
         event.program,
-        dateRange
+        dateRange,
+        currentDate
       );
 
       appLogger.log({ result });
@@ -160,7 +157,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
         location,
         event.program,
         previousCashDepositDate,
-        currentCashDepositDate
+        currentCashDepositDate, 
+        
       );
       appLogger.log({ exceptions }, CashReconciliationService.name);
     }

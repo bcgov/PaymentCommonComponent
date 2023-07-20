@@ -26,7 +26,9 @@ export class CashExceptionsService {
     location: NormalizedLocation,
     program: Ministries,
     exceptionsDate: string,
-    currentDate: string
+    currentDate: string, 
+    
+
   ): Promise<{ payments: number; deposits: number }> {
     const payments: PaymentEntity[] =
       await this.paymentService.findPaymentsExceptions(

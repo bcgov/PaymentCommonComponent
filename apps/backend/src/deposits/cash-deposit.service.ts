@@ -62,16 +62,17 @@ export class CashDepositService {
    */
   async findCashDepositsByDate(
     program: Ministries,
-    deposit_date: string,
+    dateRange: DateRange,
     pt_location_id: number,
     statuses?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
     const depositStatus = statuses ?? MatchStatusAll;
+    const{ minDate, maxDate} = dateRange;
     return await this.cashDepositRepo.find({
       where: {
         pt_location_id,
         metadata: { program: program },
-        deposit_date,
+        deposit_date: Raw(alias => `${alias} >= :minDate AND ${alias} <= :maxDate`, {minDate, maxDate}),
         status: In(depositStatus),
       },
       order: {

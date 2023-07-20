@@ -58,7 +58,7 @@ export class PosReconciliationService {
     pendingDeposits: POSDepositEntity[],
     currentDate: Date
   ): Promise<unknown> {
-    const isProduction = process.env.RUNTIME_ENV === 'production';
+    
     if (pendingPayments.length === 0 || pendingDeposits.length === 0) {
       return {
         message: 'No pending payments or deposits found',
@@ -105,8 +105,7 @@ export class PosReconciliationService {
           ) as unknown[] as POSDepositEntity[]
         ),
         round,
-        currentDate,
-        isProduction
+        currentDate
       );
       matchesRoundFour.push(...roundMatches);
       this.appLogger.log(
@@ -127,8 +126,8 @@ export class PosReconciliationService {
           ),
           locationPosDepositsDictionary,
           PosHeuristicRound[heuristic as PosHeuristicRound],
-          currentDate,
-          isProduction
+          currentDate
+          
         );
         matches.push(...roundMatches);
         this.appLogger.log(
@@ -163,9 +162,7 @@ export class PosReconciliationService {
         .filter((itm) => itm.status === MatchStatus.PENDING)
         .map((itm) => ({
           ...itm,
-          in_progress_on: isProduction
-            ? currentDate
-            : parse(itm.transaction.transaction_date, 'yyyy-MM-dd', new Date()),
+          in_progress_on: currentDate,
           timestamp: itm.timestamp,
           status: MatchStatus.IN_PROGRESS,
         }))
@@ -187,9 +184,8 @@ export class PosReconciliationService {
         .filter((itm) => itm.status === MatchStatus.PENDING)
         .map((itm) => ({
           ...itm,
-          in_progress_on: isProduction
-            ? currentDate
-            : parse(itm.transaction_date, 'yyyy-MM-dd', new Date()),
+          in_progress_on: currentDate,
+
           timestamp: itm.timestamp,
           status: MatchStatus.IN_PROGRESS,
         }))
@@ -248,7 +244,6 @@ export class PosReconciliationService {
     locationDeposits: PosDepositsAmountDictionary,
     posHeuristicRound: PosHeuristicRound,
     currentDate: Date,
-    isProduction: boolean
   ): { payment: PaymentEntity; deposit: POSDepositEntity }[] {
     const matches: { payment: PaymentEntity; deposit: POSDepositEntity }[] = [];
     for (const [pindex, payment] of payments.entries()) {
@@ -290,9 +285,7 @@ export class PosReconciliationService {
                 ...payment,
                 status: MatchStatus.MATCH,
                 timestamp: payment.timestamp,
-                reconciled_on: isProduction
-                  ? currentDate
-                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on:currentDate,
                 heuristic_match_round: posHeuristicRound,
                 pos_deposit_match: {
                   ...deposit,
@@ -303,9 +296,7 @@ export class PosReconciliationService {
               },
               deposit: {
                 ...deposit,
-                reconciled_on: isProduction
-                  ? currentDate
-                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on: currentDate,
                 heuristic_match_round: posHeuristicRound,
                 status: MatchStatus.MATCH,
                 timestamp: deposit.timestamp,
@@ -342,8 +333,8 @@ export class PosReconciliationService {
     aggregatedPayments: AggregatedPosPayment[],
     aggregatedLocationDeposits: PosDepositsAmountDictionary,
     posHeuristicRound: PosHeuristicRound,
-    currentDate: Date,
-    isProduction: boolean
+    currentDate: Date
+    
   ): { payments: PaymentEntity[]; deposits: POSDepositEntity[] }[] {
     const matches: {
       payments: PaymentEntity[];
@@ -390,18 +381,14 @@ export class PosReconciliationService {
                 timestamp: itm.timestamp,
                 heuristic_match_round: posHeuristicRound,
                 round_four_matches: deposit.deposits,
-                reconciled_on: isProduction
-                  ? currentDate
-                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on: currentDate,
               })),
               deposits: deposit.deposits.map((itm) => ({
                 ...itm,
                 status: MatchStatus.MATCH,
                 timestamp: itm.timestamp,
                 heuristic_match_round: posHeuristicRound,
-                reconciled_on: isProduction
-                  ? currentDate
-                  : parse(dateToFind, 'yyyy-MM-dd', new Date()),
+                reconciled_on: currentDate,
               })),
             });
 
@@ -486,7 +473,7 @@ export class PosReconciliationService {
     location: NormalizedLocation,
     program: Ministries,
     exceptionsDate: string,
-    currentDate: Date
+    currentDate: Date, 
   ): Promise<unknown> {
     this.appLogger.log(
       `Exceptions POS: ${exceptionsDate} - ${location.description} - ${location.location_id}`,
@@ -515,13 +502,8 @@ export class PosReconciliationService {
     const updatedPayments = inProgressPayments.map((itm) => ({
       ...itm,
       timestamp: itm.timestamp,
-      reconciled_on:
-        process.env.RUNTIME_ENV === 'production'
-          ? currentDate
-          : addBusinessDays(
-              parse(itm.transaction.transaction_date, 'yyyy-MM-dd', new Date()),
-              2
-            ),
+      
+        reconciled_on: currentDate,
       status: MatchStatus.EXCEPTION,
     }));
     const paymentExceptions = await this.paymentService.updatePaymentStatus(
@@ -531,13 +513,7 @@ export class PosReconciliationService {
     const updatedDeposits = inProgressDeposits.map((itm) => ({
       ...itm,
       timestamp: itm.timestamp,
-      reconciled_on:
-        process.env.RUNTIME_ENV === 'production'
-          ? currentDate
-          : addBusinessDays(
-              parse(itm.transaction_date, 'yyyy-MM-dd', new Date()),
-              2
-            ),
+      reconciled_on: currentDate,
       status: MatchStatus.EXCEPTION,
     }));
     const depositExceptions = await this.posDepositService.updateDepositStatus(

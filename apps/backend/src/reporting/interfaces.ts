@@ -13,6 +13,7 @@ export interface ReportConfig {
     send: boolean;
   };
   reports: boolean;
+  batchProcess: boolean;
 }
 
 export interface DailySummary {

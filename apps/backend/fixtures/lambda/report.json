@@ -8,5 +8,6 @@
   "exceptions": {
     "send": false
   },
-  "reports": true
+  "reports": true,
+  "batchProcess": true
 }

@@ -8,6 +8,7 @@ import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
+import { parse } from 'date-fns';
 
 @Injectable()
 export class CashReconciliationService {
@@ -114,13 +115,15 @@ export class CashReconciliationService {
   public async reconcileCash(
     location: NormalizedLocation,
     program: Ministries,
-    dateRange: DateRange
+    dateRange: DateRange,
+    currentDate: Date
   ): Promise<unknown> {
-    const currentDate = new Date();
+    
+    
     const pendingDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDate(
         program,
-        dateRange.maxDate,
+        dateRange,
         location.pt_location_id,
         [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
       );
