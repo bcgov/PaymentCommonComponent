@@ -38,8 +38,9 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   const appLogger = app.get(AppLogger);
   const startDate = parse(event.period.from, 'yyyy-MM-dd', new Date());
   const endDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
-  const batchProcess = event.batchProcess ?? false;
+  
   const maxReportDays = 31;
+
   const BUSINESS_DAY_LEEWAY = 1;
   if (differenceInDays(startDate, endDate) > maxReportDays) {
     appLogger.log(
@@ -84,7 +85,7 @@ export const handler = async (event: ReportConfig, context?: Context) => {
     { posPayments, cashPayments },
     pageThreeDeposits,
     pageThreeDepositDates, 
-    batchProcess
+
   );
 };
 /**
@@ -98,7 +99,7 @@ export const handler = async (event: ReportConfig, context?: Context) => {
 const getCashReportData = async (
   app: INestApplicationContext,
   event: ReportConfig,
-  BUSINESS_DAY_LEEWAY: number
+  BUSINESS_DAY_LEEWAY: number, 
 ): Promise<{
   cashDeposits: CashDepositEntity[];
   cashPayments: PaymentEntity[];

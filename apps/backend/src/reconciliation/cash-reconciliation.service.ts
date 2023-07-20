@@ -116,7 +116,6 @@ export class CashReconciliationService {
     location: NormalizedLocation,
     program: Ministries,
     dateRange: DateRange,
-    currentDate: Date
   ): Promise<unknown> {
     
     
@@ -164,14 +163,18 @@ export class CashReconciliationService {
       .flatMap((itm) =>
         itm.payments.map((pmnt) => ({
           ...pmnt,
-          reconciled_on: currentDate,
+          reconciled_on: parse(pmnt.cash_deposit_match!.deposit_date, 'yyyy-MM-dd', new Date()),
           timestamp: pmnt.timestamp,
         }))
       );
 
     const matchedDeposits: CashDepositEntity[] = matches.map((itm) => ({
       ...itm.deposit,
-      reconciled_on: currentDate,
+      reconciled_on: parse(
+        itm.deposit.deposit_date,
+        'yyyy-MM-dd',
+        new Date()
+      ),
     }));
 
     this.appLogger.log(
@@ -192,7 +195,7 @@ export class CashReconciliationService {
         itm.payments.map((itm: PaymentEntity) => ({
           ...itm,
           timestamp: itm.timestamp,
-          in_progress_on: currentDate,
+          in_progress_on: parse(itm.transaction.fiscal_close_date, 'yyyy-MM-dd', new Date()),
           status: MatchStatus.IN_PROGRESS,
         }))
       );
@@ -202,7 +205,11 @@ export class CashReconciliationService {
       .map((itm: CashDepositEntity) => ({
         ...itm,
         status: MatchStatus.IN_PROGRESS,
-        in_progress_on: currentDate,
+        in_progress_on: parse(
+          itm.deposit_date,
+          'yyyy-MM-dd',
+          new Date()
+        ),
       }));
 
     this.appLogger.log(

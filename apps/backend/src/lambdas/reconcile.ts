@@ -31,7 +31,7 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const reportingService = app.get(ReportingService);
   const parseService = app.get(ParseService);
   const appLogger = app.get(Logger);
-  const currentDate = new Date();
+  
   // maxDate is the date we are reconciling until
   const reconciliationDateRange = {
     minDate: subBusinessDays(parse(event.period.from, 'yyyy-MM-dd', new Date()), 1),
@@ -102,8 +102,8 @@ export const handler = async (event: ReconciliationConfigInput) => {
     const reconciled = await posReconciliationService.reconcile(
       location,
       locationPayments,
-      locationDeposits,
-      currentDate
+      locationDeposits
+      
     );
 
     appLogger.log({ reconciled }, PosReconciliationService.name);
@@ -113,9 +113,10 @@ export const handler = async (event: ReconciliationConfigInput) => {
       location,
       event.program,
       format(subBusinessDays(reconciliationDateRange.maxDate, 2), 'yyyy-MM-dd'),
-      currentDate
+      reconciliationDateRange.maxDate
     );
-
+ 
+ 
     appLogger.log({ exceptions }, PosReconciliationService.name);
   }
 
@@ -149,7 +150,6 @@ export const handler = async (event: ReconciliationConfigInput) => {
         location,
         event.program,
         dateRange,
-        currentDate
       );
 
       appLogger.log({ result });
