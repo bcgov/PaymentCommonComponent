@@ -79,3 +79,8 @@ Refer [here](./docs/access.md)
 - Make sure you have completed the steps above
 - Edit the `apps/backend/fixtures/report.json` file to specifiy config
 - Run (from root) `make report`
+
+### Notifications
+
+For notifications, we are using GC Notify. The key can be found in the AWS Parameter Store.
+The API documentation for GC Notify sits [here](https://documentation.notification.canada.ca/en/).

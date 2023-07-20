@@ -17,6 +17,8 @@ import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules
 import { ParseService } from '../parse/parse.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { TransactionService } from '../transaction/transaction.service';
+import { MailService } from '../notification/mail.service';
+import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
 // import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 export interface ParseEvent {
@@ -55,6 +57,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
   const transactionService = app.get(TransactionService);
   const posDepositService = app.get(PosDepositService);
   const cashDepositService = app.get(CashDepositService);
+  const mailService = app.get(MailService);
   const s3 = app.get(S3ManagerService);
 
   const processAllFiles = async () => {
@@ -113,21 +116,28 @@ export const handler = async (event?: unknown, _context?: Context) => {
 
       const programAlerts = alertsSent.dailyAlertPrograms;
       for (const alert of programAlerts) {
+        const errors = [];
         if (!alert.success) {
-          appLogger.log(`Daily Upload for ${alert.program} is incomplete`);
-          !alert.files.hasTdi17 &&
-            appLogger.log(`${alert.program} is missing a TDI17 file`);
-          !alert.files.hasTdi34 &&
-            appLogger.log(`${alert.program} is missing a TDI34 file`);
+          const incompleteString = `Daily Upload for ${alert.program} is incomplete.`;
+          errors.push(incompleteString);
+          !alert.files.hasTdi17 && errors.push('Missing a TDI17 file.');
+          !alert.files.hasTdi34 && errors.push('Missing a TDI34 file.');
           !alert.files.hasTransactionFile &&
-            appLogger.log(`${alert.program} is missing a Transactions file`);
+            errors.push('Missing a Transactions file');
         }
+
+        appLogger.log(errors.join(' '));
         if (alert.alerted) {
           appLogger.log(
             '\n\n=========Alerts Sent for Daily Upload: =========\n'
           );
           appLogger.error(
             `Sent an alert to prompt ${alert.program} to complete upload`
+          );
+          mailService.sendEmailAlert(
+            MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
+            process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
+            errors.join(' ')
           );
         }
       }
@@ -169,7 +179,7 @@ export const handler = async (event?: unknown, _context?: Context) => {
             return rule.program;
           }
         }
-        throw new Error(`File does not reference to any programs: ${filename}`);
+        throw new Error(`File does not reference any programs: ${filename}`);
       })();
 
       if (!currentRule) {
@@ -217,10 +227,15 @@ export const handler = async (event?: unknown, _context?: Context) => {
       } catch (err) {
         appLogger.log('\n\n=========Errors with File Upload: =========\n');
         appLogger.error(`Error with uploading file ${filename}`);
-        appLogger.error(
+        const errorMessage =
           err instanceof AxiosError
             ? `Validation Errors: ${err.response?.data?.errorMessage}`
-            : `Validation Errors present in the file`
+            : `Validation Errors present in the file`;
+        appLogger.error(errorMessage);
+        mailService.sendEmailAlert(
+          MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
+          process.env.MAIL_SERVICE_DEFAULT_TO_EMAIL || '',
+          errorMessage
         );
       }
     } catch (err) {

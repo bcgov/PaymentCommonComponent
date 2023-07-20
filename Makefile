@@ -54,6 +54,8 @@ lz2_code = "$(LZ2_PROJECT)"
 db_username = "$(POSTGRES_USERNAME)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
+mail_base_url = ""
+mail_default_to = ""
 endef
 export TFVARS_DATA
 

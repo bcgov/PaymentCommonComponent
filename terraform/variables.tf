@@ -28,6 +28,9 @@ variable "root_block_device" {
   }
 }
 
+variable "mail_base_url" {}
+variable "mail_default_to" {}
+
 locals {
   namespace = "${var.project_code}_${var.target_env}"
   pcc_api_name = "paycocoapi"
