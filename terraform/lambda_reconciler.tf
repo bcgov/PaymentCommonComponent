@@ -23,7 +23,7 @@ resource "aws_lambda_function" "reconciler" {
       DB_PASSWORD                   = data.aws_ssm_parameter.postgres_password.value
       DB_HOST                       = aws_rds_cluster.pgsql.endpoint
       DB_NAME                       = aws_rds_cluster.pgsql.database_name
-      GCNOTIFY_KEY                  = data.aws_ssm_parameter.gcnotify_key.value
+      MAIL_SERVICE_KEY              = data.aws_ssm_parameter.gcnotify_key.value
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
     }
