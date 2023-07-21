@@ -4,16 +4,10 @@ import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-inges
 export class FileIngestionRulesMock extends FileIngestionRulesEntity {
   constructor(
     program: string,
-    cashChequesFilename?: string | undefined,
-    posFilename?: string | undefined,
-    transactionsFilename?: string | undefined
   ) {
     super();
     this.id = faker.datatype.uuid();
     this.program = program;
     this.retries = faker.datatype.number({ min: 0, max: 3 });
-    this.cashChequesFilename = cashChequesFilename;
-    this.posFilename = posFilename;
-    this.transactionsFilename = transactionsFilename;
   }
 }
