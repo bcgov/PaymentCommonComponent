@@ -48,26 +48,28 @@ export class ParseService {
     files: FileUploadedEntity[]
   ): {
     success: boolean;
-    hasTdi17: boolean;
-    hasTdi34: boolean;
-    hasTransactionFile: boolean;
+    missingFiles: { filename: string; fileType: FileTypes }[];
   } {
-    const { cashChequesFilename, posFilename, transactionsFilename } = rule;
-    const hasTdi17 = !!cashChequesFilename
-      ? files?.some((file) => file.sourceFileType === FileTypes.TDI17)
-      : true;
-    const hasTdi34 = !!posFilename
-      ? files?.some((file) => file.sourceFileType === FileTypes.TDI34)
-      : true;
-    const hasTransactionFile = !!transactionsFilename
-      ? files?.some((file) => file.sourceFileType === FileTypes.SBC_SALES)
-      : true;
-    const success = hasTdi17 && hasTdi34 && hasTransactionFile;
+    const requiredFiles = rule.requiredFiles;
+    const missingFiles: { filename: string; fileType: FileTypes }[] = [];
+    requiredFiles.forEach((requiredFile) => {
+      if (
+        !files.some(
+          (file) =>
+            file.sourceFileType === requiredFile.fileType &&
+            file.sourceFileName.includes(requiredFile.filename)
+        )
+      ) {
+        missingFiles.push({
+          filename: requiredFile.filename,
+          fileType: requiredFile.fileType,
+        });
+      }
+    });
+    const success = missingFiles.length === 0;
     return {
       success,
-      hasTdi17,
-      hasTdi34,
-      hasTransactionFile,
+      missingFiles,
     };
   }
 
@@ -266,7 +268,11 @@ export class ParseService {
    * @returns List of Rules
    */
   async getAllRules(): Promise<FileIngestionRulesEntity[]> {
-    return this.ingestionRulesRepo.find();
+    return this.ingestionRulesRepo.find({
+      relations: {
+        requiredFiles: true,
+      },
+    });
   }
 
   /**

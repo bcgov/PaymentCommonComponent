@@ -6,6 +6,8 @@ import { LocationEntity } from '../location/entities';
 import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
 import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
 import { ProgramDailyUploadEntity } from '../parse/entities/program-daily-upload.entity';
+import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
+import { AlertDestinationEntity } from '../notification/entities/alert-destination.entity';
 import {
   TransactionEntity,
   PaymentEntity,
@@ -29,6 +31,8 @@ export default new DataSource({
     FileUploadedEntity,
     ProgramDailyUploadEntity,
     FileIngestionRulesEntity,
+    ProgramRequiredFileEntity,
+    AlertDestinationEntity,
   ],
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   synchronize: false,

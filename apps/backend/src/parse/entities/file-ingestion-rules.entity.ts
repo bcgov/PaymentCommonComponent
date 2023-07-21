@@ -1,4 +1,5 @@
-import { Column, PrimaryGeneratedColumn, Entity } from 'typeorm';
+import { Column, OneToMany, PrimaryGeneratedColumn, Entity } from 'typeorm';
+import { ProgramRequiredFileEntity } from './program-required-file.entity';
 
 @Entity('file_ingestion_rules')
 export class FileIngestionRulesEntity {
@@ -8,14 +9,8 @@ export class FileIngestionRulesEntity {
   @Column()
   program: string;
 
-  @Column({ nullable: true, name: 'cash_cheques_filename' })
-  cashChequesFilename?: string; // TDI17
-
-  @Column({ nullable: true, name: 'pos_filename' })
-  posFilename?: string; // TDI34
-
-  @Column({ nullable: true, name: 'transactions_filename' })
-  transactionsFilename?: string;
+  @OneToMany(() => ProgramRequiredFileEntity, (file) => file.rule)
+  requiredFiles: ProgramRequiredFileEntity[];
 
   // Number of retries before we send an alert
   @Column({ type: 'int4', default: 0 })

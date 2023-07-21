@@ -277,7 +277,7 @@ export class ParseController {
           program: rule.program,
           success: true,
           alerted: false,
-          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
+          missingFiles: [],
         });
         continue;
       }
@@ -294,12 +294,11 @@ export class ParseController {
           program: rule.program,
           success: true,
           alerted: false,
-          files: { hasTdi17: true, hasTdi34: true, hasTransactionFile: true },
+          missingFiles: [],
         });
       } else {
         let alerted = false;
         if (daily.retries >= rule.retries) {
-          // TODO CCFPCM-441
           alerted = true;
         }
         await this.parseService.saveDaily({
@@ -310,11 +309,7 @@ export class ParseController {
           program: rule.program,
           success: false,
           alerted,
-          files: {
-            hasTdi17: successStatus.hasTdi17,
-            hasTdi34: successStatus.hasTdi34,
-            hasTransactionFile: successStatus.hasTransactionFile,
-          },
+          missingFiles: successStatus.missingFiles,
         });
       }
     }
