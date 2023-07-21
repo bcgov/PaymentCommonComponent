@@ -13,6 +13,8 @@ import { ParseService } from '../../../src/parse/parse.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
 import { FileIngestionRulesMock } from '../../mocks/classes/file_ingestion_rules_mock';
 import { FileUploadedMock } from '../../mocks/classes/file_upload_mock';
+import { ProgramRequiredFileMock } from '../../mocks/classes/required_file_mock';
+import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 
 describe('ParseService', () => {
   let service: ParseService;
@@ -41,6 +43,10 @@ describe('ParseService', () => {
           provide: getRepositoryToken(FileUploadedEntity),
           useValue: createMock<Repository<FileUploadedEntity>>(),
         },
+        {
+          provide: getRepositoryToken(ProgramRequiredFileEntity),
+          useValue: createMock<Repository<ProgramRequiredFileEntity>>(),
+        },
       ],
     }).compile();
 
@@ -53,12 +59,10 @@ describe('ParseService', () => {
 
   describe('determines whether a daily upload is successful', () => {
     it('should be successful if all files are present', () => {
-      const rule = new FileIngestionRulesMock(
-        'SBC',
-        'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-        'bcm/PROD_SBC_F08TDI34_20230309.DAT',
-        'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
-      );
+      const rule = new FileIngestionRulesMock('SBC');
+      rule.assignRequiredFile('F08TDI17', FileTypes.TDI17);
+      rule.assignRequiredFile('F08TDI34', FileTypes.TDI34);
+      rule.assignRequiredFile('SBC_SALES', FileTypes.SBC_SALES);
       const tdi17 = new FileUploadedMock(
         FileTypes.TDI17,
         'bcm/PROD_SBC_F08TDI17_20230309.DAT'
@@ -80,12 +84,9 @@ describe('ParseService', () => {
     });
 
     it('should be successful if all required files are present - not necessarily all 3', () => {
-      const rule = new FileIngestionRulesMock(
-        'SBC',
-        'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-        'bcm/PROD_SBC_F08TDI34_20230309.DAT',
-        undefined
-      );
+      const rule = new FileIngestionRulesMock('SBC');
+      rule.assignRequiredFile('F08TDI17', FileTypes.TDI17);
+      rule.assignRequiredFile('F08TDI34', FileTypes.TDI34);
       const tdi17 = new FileUploadedMock(
         FileTypes.TDI17,
         'bcm/PROD_SBC_F08TDI17_20230309.DAT'
@@ -99,12 +100,10 @@ describe('ParseService', () => {
     });
 
     it('should fail if one or more of the required files are not present', () => {
-      const rule = new FileIngestionRulesMock(
-        'SBC',
-        'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-        'bcm/PROD_SBC_F08TDI34_20230309.DAT',
-        undefined
-      );
+      const rule = new FileIngestionRulesMock('SBC');
+      rule.assignRequiredFile('F08TDI17', FileTypes.TDI17);
+      rule.assignRequiredFile('F08TDI34', FileTypes.TDI34);
+      rule.assignRequiredFile('SBC_SALES', FileTypes.SBC_SALES);
       const tdi17 = new FileUploadedMock(
         FileTypes.TDI17,
         'bcm/PROD_SBC_F08TDI17_20230309.DAT'
