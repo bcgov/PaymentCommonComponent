@@ -1,0 +1,35 @@
+name: Manual Sync S3 files from prod to dev 
+on: 
+  workflow_dispatch:
+
+env:
+  ENV_NAME: prod
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency: ci-${{ github.ref }}-prod
+    environment:
+      name: prod
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-skip-session-tagging: true
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_ID }}
+          aws-region: ca-central-1
+          role-to-assume: ${{ secrets.AWS_SA_ROLE_ARN }}
+          role-duration-seconds: 900
+          role-session-name: ci-prod-sync
+
+      - name: Setup ENV file
+        run: cp ./.config/.env.example ./.env
+        
+      - name: Sync S3 files from prod to dev
+        run: make aws-sync-files-from-prod-to-dev

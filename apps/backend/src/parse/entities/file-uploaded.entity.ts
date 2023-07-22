@@ -1,3 +1,4 @@
+import { ProgramDailyUploadEntity } from '../../notification/entities/program-daily-upload.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,7 +8,6 @@ import {
   JoinColumn,
   Relation,
 } from 'typeorm';
-import { ProgramDailyUploadEntity } from './program-daily-upload.entity';
 import { FileTypes } from '../../constants';
 
 @Entity('file_uploaded')
@@ -32,7 +32,7 @@ export class FileUploadedEntity {
 
   @ManyToOne(
     () => ProgramDailyUploadEntity,
-    (programDailyUpload) => programDailyUpload.files
+    (programDailyUpload: ProgramDailyUploadEntity) => programDailyUpload.files
   )
   @JoinColumn({ name: 'daily_upload_id' })
   dailyUpload: Relation<ProgramDailyUploadEntity>;

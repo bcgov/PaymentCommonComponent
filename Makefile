@@ -54,6 +54,7 @@ lz2_code = "$(LZ2_PROJECT)"
 db_username = "$(POSTGRES_USERNAME)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
+api_endpoint = ""
 mail_base_url = ""
 mail_default_to = ""
 endef
@@ -282,6 +283,9 @@ reconcile:
 report:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler($(REPORT_JSON))'
 
+alert:
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/daily-alert.ts").handler()'
+
 clear-database:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM transaction;"
@@ -337,9 +341,14 @@ minio-init:
 	@mc alias set s3 http://localhost:9000 pcc password
 	@mc mb s3/pcc-recon-reports-local || true
 	@mc mb s3/pcc-integration-data-files-local || true
+	@mc event add s3/pcc-integration-data-files-local arn:minio:sqs::primary:nats --event put 
+
 
 minio-ls: 
 	@mc ls s3/pcc-integration-data-files-local
+
+minio-rm:
+	@mc rm --recursive --force s3/pcc-integration-data-files-local
 
 
 # ===================================

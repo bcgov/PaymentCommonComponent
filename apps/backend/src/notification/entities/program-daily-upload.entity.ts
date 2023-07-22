@@ -1,3 +1,4 @@
+import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import {
   Column,
   CreateDateColumn,
@@ -9,7 +10,7 @@ import {
   Relation,
 } from 'typeorm';
 import { FileIngestionRulesEntity } from './file-ingestion-rules.entity';
-import { FileUploadedEntity } from './file-uploaded.entity';
+
 
 @Entity('program_daily_upload')
 export class ProgramDailyUploadEntity {

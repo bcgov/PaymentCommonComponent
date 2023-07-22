@@ -6,8 +6,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { FileIngestionRulesEntity } from '../../parse/entities/file-ingestion-rules.entity';
-import { ProgramRequiredFileEntity } from '../../parse/entities/program-required-file.entity';
+import { FileIngestionRulesEntity } from './file-ingestion-rules.entity';
+import { ProgramRequiredFileEntity } from './program-required-file.entity';
 
 @Entity('alert_destination')
 export class AlertDestinationEntity {
