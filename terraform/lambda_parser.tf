@@ -23,6 +23,7 @@ resource "aws_lambda_function" "parser" {
       DB_PASSWORD                   = data.aws_ssm_parameter.postgres_password.value
       DB_HOST                       = aws_rds_cluster.pgsql.endpoint
       DB_NAME                       = aws_rds_cluster.pgsql.database_name
+      API_URL                       = aws_apigatewayv2_api.api.api_endpoint
       MAIL_SERVICE_KEY              = data.aws_ssm_parameter.gcnotify_key.value
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
@@ -38,3 +39,24 @@ resource "aws_lambda_function" "parser" {
     ]
   }
 }
+
+resource "aws_s3_bucket_notification" "aws-lambda-trigger" {
+  bucket = "${aws_s3_bucket.sftp_storage.id}"
+  lambda_function {
+    lambda_function_arn = "${aws_lambda_function.parser.arn}"
+    events              = ["s3:ObjectCreated:*"]
+  }
+}
+
+resource "aws_lambda_permission" "trigger-parse" {
+  statement_id  = "AllowS3Invoke"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.parser.function_name}"
+  principal = "s3.amazonaws.com"
+  source_arn = "arn:aws:s3:::${aws_s3_bucket.sftp_storage.id}"
+}
+
+output "arn" {
+  value = "${aws_lambda_function.parser.arn}"
+}
+
