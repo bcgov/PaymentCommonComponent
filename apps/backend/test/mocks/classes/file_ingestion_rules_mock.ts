@@ -1,9 +1,9 @@
 import { faker } from '@faker-js/faker';
-import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-ingestion-rules.entity';
 import { ProgramRequiredFileMock } from './required_file_mock';
 import { FileTypes } from '../../../src/constants';
+import { FileIngestionRulesEntity } from '../../../src/notification/entities/file-ingestion-rules.entity';
 
-export class FileIngestionRulesMock extends FileIngestionRulesEntity {
+export class FileIngestionRulesMock extends FileIngestionRulesEntity {  
   constructor(program: string) {
     super();
     this.id = faker.datatype.uuid();

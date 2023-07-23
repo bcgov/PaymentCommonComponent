@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { format, parse, subBusinessDays } from 'date-fns';
+import { NotificationService } from 'src/notification/notification.service';
 import { FindOptionsOrderValue } from 'typeorm';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
@@ -8,7 +9,6 @@ import { NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
-import { ParseService } from '../parse/parse.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
@@ -29,17 +29,17 @@ export const handler = async (event: ReconciliationConfigInput) => {
   const posDepositService = app.get(PosDepositService);
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
-  const parseService = app.get(ParseService);
+  const alertService = app.get(NotificationService);
   const appLogger = app.get(Logger);
 
   if (!event.bypass_parse_validity) {
     // Prevent reconciler from running for a program if no valid files today
-    const rule = await parseService.getRulesForProgram(event.program);
+    const rule = await alertService.getRulesForProgram(event.program);
     if (!rule) {
       throw new Error('No rule for this program');
     }
     const reconciliationDate = new Date();
-    const daily = await parseService.getDailyForRule(rule, reconciliationDate);
+    const daily = await alertService.getDailyForRule(rule, reconciliationDate);
     if (!daily?.success) {
       throw new Error(
         `Incomplete dataset for this date ${reconciliationDate}. Please check the uploaded files.`
