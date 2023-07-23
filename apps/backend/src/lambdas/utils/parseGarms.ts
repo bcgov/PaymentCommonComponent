@@ -22,11 +22,11 @@ import {
  * @returns
  */
 
-export const parseGarms = async (
+export const parseGarms = (
   garmsJson: SBCGarmsJson[],
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[]
-): Promise<TransactionEntity[]> => {
+): TransactionEntity[] => {
   const garmsData = garmsJson.map((itm) => ({
     ...itm,
     payments: itm.payments.filter((payment) => payment.amount !== 0),
