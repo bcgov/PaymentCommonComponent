@@ -62,6 +62,8 @@ export const handler = async (event: unknown, context?: Context) => {
         );
       }
     }
+    //TO DO -- remove this -- this is just for testing
+    return {message: "alerts sent", stausCode: 200, status: "success"}
   } catch (err) {
     appLogger.error(err);
   }

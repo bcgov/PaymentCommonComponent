@@ -284,7 +284,7 @@ report:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/report.ts").handler($(REPORT_JSON))'
 
 alert:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/daily-alert.ts").handler()'
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/dailyAlert.ts").handler()'
 
 clear-database:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment;"

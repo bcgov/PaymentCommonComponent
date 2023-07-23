@@ -1,5 +1,6 @@
 name: Manual Sync S3 files from prod to dev 
-on: 
+
+on:
   workflow_dispatch:
 
 env:

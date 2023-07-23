@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "daily-alert" {
   description                    = "Daily alert function ${local.namespace}"
-  function_name                  = "daily-alert"
+  function_name                  = "dailyAlert"
   role                           = aws_iam_role.lambda.arn
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
@@ -30,14 +30,14 @@ resource "aws_lambda_function" "daily-alert" {
     }
   }
 
-  lifecycle {
-    ignore_changes = [
-      # Ignore changes to tags, e.g. because a management agent
-      # updates these based on some ruleset managed elsewhere.
-      filename,
-      source_code_hash,
-    ]
-  }
+  # lifecycle {
+  #   ignore_changes = [
+  #     # Ignore changes to tags, e.g. because a management agent
+  #     # updates these based on some ruleset managed elsewhere.
+  #     filename,
+  #     source_code_hash,
+  #   ]
+  # }
 }
 
 # resource "aws_cloudwatch_event_rule" "daily-alert" {
