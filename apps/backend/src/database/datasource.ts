@@ -3,11 +3,11 @@ import { dbLogger, logLevels } from './helpers';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { LocationEntity } from '../location/entities';
-import { FileIngestionRulesEntity } from '../parse/entities/file-ingestion-rules.entity';
-import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
-import { ProgramDailyUploadEntity } from '../parse/entities/program-daily-upload.entity';
-import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
 import { AlertDestinationEntity } from '../notification/entities/alert-destination.entity';
+import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
+import { ProgramDailyUploadEntity } from '../notification/entities/program-daily-upload.entity';
+import { ProgramRequiredFileEntity } from '../notification/entities/program-required-file.entity';
+import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
 import {
   TransactionEntity,
   PaymentEntity,
