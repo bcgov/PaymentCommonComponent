@@ -11,7 +11,6 @@ import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { FileIngestionRulesEntity } from '../../../src/notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../../../src/notification/entities/program-daily-upload.entity';
-import { ProgramRequiredFileEntity } from '../../../src/notification/entities/program-required-file.entity';
 import { MailService } from '../../../src/notification/mail.service';
 import { NotificationService } from '../../../src/notification/notification.service';
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';

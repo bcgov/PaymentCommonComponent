@@ -9,7 +9,6 @@ import {
 } from 'typeorm';
 import { FileTypes } from '../../constants';
 import { ProgramDailyUploadEntity } from '../../notification/entities/program-daily-upload.entity';
-import { ProgramDailyUploadEntity } from '../../notification/entities/program-daily-upload.entity';
 
 @Entity('file_uploaded')
 export class FileUploadedEntity {
