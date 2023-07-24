@@ -297,7 +297,7 @@ export class ParseService {
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
-        if (filename) await this.parseFile(filename);
+        if (filename) await this.parseFileFromS3(filename);
       }
     } catch (err) {
       this.appLogger.error(err);
