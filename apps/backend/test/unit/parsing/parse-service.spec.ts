@@ -14,6 +14,7 @@ import { ProgramDailyUploadEntity } from '../../../src/notification/entities/pro
 import { MailService } from '../../../src/notification/mail.service';
 import { NotificationService } from '../../../src/notification/notification.service';
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
+import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 import { ParseService } from '../../../src/parse/parse.service';
 import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
