@@ -186,5 +186,5 @@ export const handler = async (event: ReconciliationConfigInput) => {
   console.table(cashReport);
 
   //TODO use this only for local and set the reconciliation lambda destination to trigger the report
-  await reportHandler(event);
+  isLocal && (await reportHandler(event));
 };
