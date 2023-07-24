@@ -304,7 +304,7 @@ export class ParseService {
     }
   }
 
-  async parseFile(fileKey: string) {
+  async parseFileFromS3(fileKey: string) {
     try {
       const bucket = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
       const program = fileKey.split('/')[0];
