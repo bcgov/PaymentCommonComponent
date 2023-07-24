@@ -7,6 +7,7 @@ import {
   ClassSerializerInterceptor,
   Inject,
   Logger,
+  HttpException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -105,18 +106,15 @@ export class ParseController {
   @UseInterceptors(FileInterceptor('file'))
   async uploadAndParseFile(
     @Body() body: { fileName: string; fileType: FileTypes; program: string },
-    @UploadedFile() file: Express.Multer.File
+    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
+    @UploadedFile() _file: Express.Multer.File
   ) {
     const { fileName, fileType, program } = body;
-    this.appLogger.log(`Parsing ${fileName} - ${fileType}`);
-    const contents = file.buffer.toString();
+
+    this.appLogger.log(`Parsing ${fileName} - ${fileType} for ${program}`);
+
     //TODO call parse service to process file event
-    return {
-      fileName,
-      fileType,
-      program,
-      contents,
-    };
+    throw new HttpException('Not Implemented', 501);
   }
   /**
    * Makes decisions on whether to send an alert (or error log) for our programs for a date
