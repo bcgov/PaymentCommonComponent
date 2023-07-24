@@ -6,7 +6,7 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { FileIngestionRulesEntity } from '../../parse/entities/file-ingestion-rules.entity';
+import { FileIngestionRulesEntity } from './file-ingestion-rules.entity';
 import { ProgramRequiredFileEntity } from '../../parse/entities/program-required-file.entity';
 
 @Entity('alert_destination')

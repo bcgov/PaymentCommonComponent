@@ -1,4 +1,3 @@
-import { FileTypes } from '../../constants';
 import {
   Column,
   CreateDateColumn,
@@ -8,7 +7,8 @@ import {
   JoinColumn,
   Relation,
 } from 'typeorm';
-import { FileIngestionRulesEntity } from './file-ingestion-rules.entity';
+import { FileTypes } from '../../constants';
+import { FileIngestionRulesEntity } from '../../notification/entities/file-ingestion-rules.entity';
 
 @Entity('program_required_file')
 export class ProgramRequiredFileEntity {
