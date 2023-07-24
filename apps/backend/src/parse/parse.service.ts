@@ -239,7 +239,7 @@ export class ParseService {
    * @returns List of uploaded files
    */
   async getAllFiles(): Promise<FileUploadedEntity[]> {
-    return await this.uploadedRepo.find();
+    return this.uploadedRepo.find();
   }
 
   /**
@@ -251,7 +251,7 @@ export class ParseService {
   async saveFileUploaded(
     fileUploaded: Partial<FileUploadedEntity>
   ): Promise<FileUploadedEntity> {
-    return await this.uploadedRepo.save(fileUploaded);
+    return this.uploadedRepo.save(fileUploaded);
   }
 
   async processAllFiles(event: ParseEvent) {
@@ -297,18 +297,18 @@ export class ParseService {
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
-        if (filename) await this.processEvent(filename);
+        if (filename) await this.parseFile(filename);
       }
     } catch (err) {
       this.appLogger.error(err);
     }
   }
 
-  async processEvent(key: string) {
+  async parseFile(fileKey: string) {
     try {
       const bucket = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
-      const program = key.split('/')[0];
-      const filename = key.split('/')[1];
+      const program = fileKey.split('/')[0];
+      const filename = fileKey.split('/')[1];
       console.log(bucket, program, filename);
 
       const file = await this.s3.getObject(bucket, `${program}/${filename}`);
