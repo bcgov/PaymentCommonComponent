@@ -1,19 +1,7 @@
 import * as Excel from 'exceljs';
-import { Ministries } from '../constants';
+import { ReconciliationConfigInput } from '../reconciliation/types';
 
-export interface ReportConfig {
-  program: Ministries;
-  locations: number[];
-  period: {
-    from: string;
-    to: string;
-  };
-  exceptions: {
-    generate: boolean;
-    send: boolean;
-  };
-  reports: boolean;
-}
+export type ReportConfig = ReconciliationConfigInput;
 
 export interface DailySummary {
   values: {

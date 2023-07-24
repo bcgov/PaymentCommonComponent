@@ -114,9 +114,9 @@ export class CashReconciliationService {
   public async reconcileCash(
     location: NormalizedLocation,
     program: Ministries,
-    dateRange: DateRange
+    dateRange: DateRange,
+    currentDate: Date
   ): Promise<unknown> {
-    const currentDate = new Date();
     const pendingDeposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositsByDate(
         program,

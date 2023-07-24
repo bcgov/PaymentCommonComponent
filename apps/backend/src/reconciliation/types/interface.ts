@@ -28,12 +28,11 @@ export interface ReconciliationConfig {
 }
 
 export interface ReconciliationConfigInput {
+  program: Ministries;
   period: {
     from: string;
     to: string;
   };
-  location_ids: number[] | [];
-  program: Ministries;
   bypass_parse_validity?: boolean;
 }
 
