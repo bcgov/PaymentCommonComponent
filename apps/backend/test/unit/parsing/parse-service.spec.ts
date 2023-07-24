@@ -6,23 +6,60 @@ import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
 import { FileTypes } from '../../../src/constants';
-import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-ingestion-rules.entity';
+
+import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
+import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
+import { FileIngestionRulesEntity } from '../../../src/notification/entities/file-ingestion-rules.entity';
+import { ProgramDailyUploadEntity } from '../../../src/notification/entities/program-daily-upload.entity';
+import { ProgramRequiredFileEntity } from '../../../src/notification/entities/program-required-file.entity';
+import { MailService } from '../../../src/notification/mail.service';
+import { NotificationService } from '../../../src/notification/notification.service';
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
-import { ProgramDailyUploadEntity } from '../../../src/parse/entities/program-daily-upload.entity';
 import { ParseService } from '../../../src/parse/parse.service';
+import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
+import { PaymentService } from '../../../src/transaction/payment.service';
+import { TransactionService } from '../../../src/transaction/transaction.service';
 import { FileIngestionRulesMock } from '../../mocks/classes/file_ingestion_rules_mock';
 import { FileUploadedMock } from '../../mocks/classes/file_upload_mock';
-import { ProgramRequiredFileMock } from '../../mocks/classes/required_file_mock';
-import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 
 describe('ParseService', () => {
   let service: ParseService;
+  let notificationService: NotificationService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         ParseService,
+        NotificationService,
+        {
+          provide: S3ManagerService,
+          useValue: createMock<S3ManagerService>(),
+        },
+        {
+          provide: PaymentMethodService,
+          useValue: createMock<PaymentMethodService>(),
+        },
+        {
+          provide: PaymentService,
+          useValue: createMock<PaymentService>(),
+        },
+        {
+          provide: PosDepositService,
+          useValue: createMock<PosDepositService>(),
+        },
+        {
+          provide: CashDepositService,
+          useValue: createMock<CashDepositService>(),
+        },
+        {
+          provide: TransactionService,
+          useValue: createMock<TransactionService>(),
+        },
+        {
+          provide: MailService,
+          useValue: createMock<MailService>(),
+        },
         {
           provide: PaymentMethodService,
           useValue: createMock<PaymentMethodService>(),
@@ -51,6 +88,7 @@ describe('ParseService', () => {
     }).compile();
 
     service = module.get<ParseService>(ParseService);
+    notificationService = module.get<NotificationService>(NotificationService);
   });
 
   afterEach(() => {
@@ -75,11 +113,12 @@ describe('ParseService', () => {
         FileTypes.SBC_SALES,
         'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
       );
-      const dailySuccess = service.determineDailySuccess(rule, [
+      const dailySuccess = notificationService.determineDailySuccess(rule, [
         tdi17,
         tdi34,
         sales,
       ]);
+      console.log(dailySuccess, '**************');
       expect(dailySuccess.success).toBe(true);
     });
 
@@ -95,12 +134,16 @@ describe('ParseService', () => {
         FileTypes.TDI34,
         'bcm/PROD_SBC_F08TDI34_20230309.DAT'
       );
-      const dailySuccess = service.determineDailySuccess(rule, [tdi17, tdi34]);
+      const dailySuccess = notificationService.determineDailySuccess(rule, [
+        tdi17,
+        tdi34,
+      ]);
       expect(dailySuccess.success).toBe(true);
     });
 
     it('should fail if one or more of the required files are not present', () => {
       const rule = new FileIngestionRulesMock('SBC');
+
       rule.assignRequiredFile('F08TDI17', FileTypes.TDI17);
       rule.assignRequiredFile('F08TDI34', FileTypes.TDI34);
       rule.assignRequiredFile('SBC_SALES', FileTypes.SBC_SALES);
@@ -108,7 +151,9 @@ describe('ParseService', () => {
         FileTypes.TDI17,
         'bcm/PROD_SBC_F08TDI17_20230309.DAT'
       );
-      const dailySuccess = service.determineDailySuccess(rule, [tdi17]);
+      const dailySuccess = notificationService.determineDailySuccess(rule, [
+        tdi17,
+      ]);
       expect(dailySuccess.success).toBe(false);
     });
   });

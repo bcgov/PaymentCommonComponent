@@ -1,5 +1,5 @@
 import { Column, OneToMany, PrimaryGeneratedColumn, Entity } from 'typeorm';
-import { ProgramRequiredFileEntity } from './program-required-file.entity';
+import { ProgramRequiredFileEntity } from '../../parse/entities/program-required-file.entity';
 
 @Entity('file_ingestion_rules')
 export class FileIngestionRulesEntity {

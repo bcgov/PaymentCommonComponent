@@ -1,12 +1,13 @@
 variable "target_env" {
 }
 
+variable "api_endpoint" {}
+
 variable "project_code" {}
 
 variable "lz2_code" {}
 
 variable "target_aws_account_id" {}
-
 
 variable "build_id" {}
 

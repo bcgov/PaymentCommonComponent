@@ -1,7 +1,7 @@
 import { faker } from '@faker-js/faker';
-import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 import { FileTypes } from '../../../src/constants';
-import { FileIngestionRulesEntity } from '../../../src/parse/entities/file-ingestion-rules.entity';
+import { FileIngestionRulesEntity } from '../../../src/notification/entities/file-ingestion-rules.entity';
+import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 
 export class ProgramRequiredFileMock extends ProgramRequiredFileEntity {
   constructor(

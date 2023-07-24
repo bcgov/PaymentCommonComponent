@@ -2413,7 +2413,6 @@ __metadata:
     "@typescript-eslint/parser": 5.48.2
     "@vendia/serverless-express": 4.10.1
     aws-lambda: 1.0.7
-    aws-sdk: 2.1299.0
     axios: 1.2.3
     class-transformer: 0.5.1
     class-validator: 0.14.0
@@ -2428,21 +2427,18 @@ __metadata:
     eslint-plugin-unused-imports: 2.0.0
     exceljs: 4.3.0
     express: 4.18.2
-    import-local: 3.1.0
     jest: 29.3.1
     lint-staged: 13.1.0
+    nats: 2.15.1
     nest-aws-sdk: 3.0.0
     nest-winston: 1.8.0
-    node-nats-streaming: 0.3.2
     pg: 8.8.0
     prettier: 2.8.3
     reflect-metadata: 0.1.13
     rimraf: 4.1.1
     rxjs: 7.8.0
-    source-map-support: 0.5.21
     supertest: 6.3.3
     ts-jest: 29.0.5
-    ts-loader: 9.4.2
     ts-node: 10.9.1
     tsconfig-paths: 4.1.2
     typeorm: 0.3.11
@@ -2450,7 +2446,6 @@ __metadata:
     underscore: 1.13.6
     webpack: 5.75.0
     winston: 3.8.2
-    winston-daily-rotate-file: 4.7.1
   languageName: unknown
   linkType: soft
 
@@ -3745,24 +3740,6 @@ __metadata:
   bin:
     lambda: bin/lambda
   checksum: 11316e87b5c4fc36e6bd0495742a3c0ed13befc9527a7b251a58180d141d9afd68b684f37aeb3b53d117d3c2f96747eace31826b683543f1edddc03f392865fd
-  languageName: node
-  linkType: hard
-
-"aws-sdk@npm:2.1299.0":
-  version: 2.1299.0
-  resolution: "aws-sdk@npm:2.1299.0"
-  dependencies:
-    buffer: 4.9.2
-    events: 1.1.1
-    ieee754: 1.1.13
-    jmespath: 0.16.0
-    querystring: 0.2.0
-    sax: 1.2.1
-    url: 0.10.3
-    util: ^0.12.4
-    uuid: 8.0.0
-    xml2js: 0.4.19
-  checksum: 408c21837a946e411aaf340d729fa44136b0f9d353bc32336b6ecbe4d44a1781f484d7ed977053ca745ceba2e57c863d5663cd6220f1aa38a090fd5df8130629
   languageName: node
   linkType: hard
 
@@ -5374,7 +5351,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"enhanced-resolve@npm:^5.0.0, enhanced-resolve@npm:^5.10.0, enhanced-resolve@npm:^5.7.0":
+"enhanced-resolve@npm:^5.10.0, enhanced-resolve@npm:^5.7.0":
   version: 5.12.0
   resolution: "enhanced-resolve@npm:5.12.0"
   dependencies:
@@ -6308,15 +6285,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"file-stream-rotator@npm:^0.6.1":
-  version: 0.6.1
-  resolution: "file-stream-rotator@npm:0.6.1"
-  dependencies:
-    moment: ^2.29.1
-  checksum: ebdf6a9e7ca886a50f4dafb2284d4569cefd5bdf4e4451ead25f4d68b7f9776b2620a3d110d534edd40935d1e17f37d818e2129303201870ff89c71b19b49ac1
-  languageName: node
-  linkType: hard
-
 "fill-range@npm:^7.0.1":
   version: 7.0.1
   resolution: "fill-range@npm:7.0.1"
@@ -6808,13 +6776,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"google-protobuf@npm:^3.11.2":
-  version: 3.21.2
-  resolution: "google-protobuf@npm:3.21.2"
-  checksum: 3caa2e1e2654714cc1a201ac5e5faabcaa48f5fba3d8ff9b64ca66fe19e4e0506b94053f32eddc77bf3a7a47ac1660315c6744185c1e2bb27654fd76fe91b988
-  languageName: node
-  linkType: hard
-
 "gopd@npm:^1.0.1":
   version: 1.0.1
   resolution: "gopd@npm:1.0.1"
@@ -7164,7 +7125,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"import-local@npm:3.1.0, import-local@npm:^3.0.2":
+"import-local@npm:^3.0.2":
   version: 3.1.0
   resolution: "import-local@npm:3.1.0"
   dependencies:
@@ -8855,7 +8816,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"micromatch@npm:^4.0.0, micromatch@npm:^4.0.4, micromatch@npm:^4.0.5":
+"micromatch@npm:^4.0.4, micromatch@npm:^4.0.5":
   version: 4.0.5
   resolution: "micromatch@npm:4.0.5"
   dependencies:
@@ -9035,13 +8996,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"moment@npm:^2.29.1":
-  version: 2.29.4
-  resolution: "moment@npm:2.29.4"
-  checksum: 0ec3f9c2bcba38dc2451b1daed5daded747f17610b92427bebe1d08d48d8b7bdd8d9197500b072d14e326dd0ccf3e326b9e3d07c5895d3d49e39b6803b76e80e
-  languageName: node
-  linkType: hard
-
 "morgan@npm:^1.10.0":
   version: 1.10.0
   resolution: "morgan@npm:1.10.0"
@@ -9109,18 +9063,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nats@npm:^1.4.9":
-  version: 1.4.12
-  resolution: "nats@npm:1.4.12"
+"nats@npm:2.15.1":
+  version: 2.15.1
+  resolution: "nats@npm:2.15.1"
   dependencies:
-    nuid: ^1.1.4
-    ts-nkeys: ^1.0.16
-  bin:
-    node-pub: examples/node-pub
-    node-reply: examples/node-reply
-    node-req: examples/node-req
-    node-sub: examples/node-sub
-  checksum: 7c0f8daffdeeb22ae35a7237435ba44e0e7367c543da2b27f558ce8206f99cac868982cdeccdd25ca6e5290efcae13d71f58ea6673416813d4a13ee6e247a80c
+    nkeys.js: 1.0.5
+  checksum: 71172244dc45c0c20df2e69c92cb06860483335c870cf4fac03d5bc60cbaebfce4378fade4ae47c7087a6cd680c3c3e5b23e8310deae4cd725f3448ebd70ece8
   languageName: node
   linkType: hard
 
@@ -9192,6 +9140,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"nkeys.js@npm:1.0.5":
+  version: 1.0.5
+  resolution: "nkeys.js@npm:1.0.5"
+  dependencies:
+    tweetnacl: 1.0.3
+  checksum: 37f6968532f3b534714cf8d095bfc90aa1c8e491cd782f88d431959ffeb9d8e00b931f3d4422e7d79e16e3d749ec74c3ebe0ecb38907938e1ddcf80d6ffb1189
+  languageName: node
+  linkType: hard
+
 "node-abort-controller@npm:^3.0.1":
   version: 3.1.1
   resolution: "node-abort-controller@npm:3.1.1"
@@ -9246,20 +9203,6 @@ __metadata:
   version: 0.4.0
   resolution: "node-int64@npm:0.4.0"
   checksum: d0b30b1ee6d961851c60d5eaa745d30b5c95d94bc0e74b81e5292f7c42a49e3af87f1eb9e89f59456f80645d679202537de751b7d72e9e40ceea40c5e449057e
-  languageName: node
-  linkType: hard
-
-"node-nats-streaming@npm:0.3.2":
-  version: 0.3.2
-  resolution: "node-nats-streaming@npm:0.3.2"
-  dependencies:
-    google-protobuf: ^3.11.2
-    nats: ^1.4.9
-    nuid: ^1.1.4
-  bin:
-    node-stan-pub: examples/stan-pub.js
-    node-stan-sub: examples/stan-sub.js
-  checksum: e06842d765e8ea3b665becb54aa84c1fa6cfb0a5140cd27a14755787ce54e8b682c5fb8c07eb00ded1fff6c09e61ce41eb52faec8ddc2383dc9755604d43447b
   languageName: node
   linkType: hard
 
@@ -9369,13 +9312,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"nuid@npm:^1.1.4":
-  version: 1.1.6
-  resolution: "nuid@npm:1.1.6"
-  checksum: 6e994707135a853c7f0b1024498eb5f29e52d19b5037abe9e2732e678fffc923edb339d7df45dfceb46706403b55c20213ce1aa5a4c18a03b1a670ba9e67c08a
-  languageName: node
-  linkType: hard
-
 "object-assign@npm:^4, object-assign@npm:^4.0.1, object-assign@npm:^4.1.1, object-assign@npm:latest":
   version: 4.1.1
   resolution: "object-assign@npm:4.1.1"
@@ -9387,13 +9323,6 @@ __metadata:
   version: 3.0.0
   resolution: "object-hash@npm:3.0.0"
   checksum: 80b4904bb3857c52cc1bfd0b52c0352532ca12ed3b8a6ff06a90cd209dfda1b95cee059a7625eb9da29537027f68ac4619363491eedb2f5d3dddbba97494fd6c
-  languageName: node
-  linkType: hard
-
-"object-hash@npm:^2.0.1":
-  version: 2.2.0
-  resolution: "object-hash@npm:2.2.0"
-  checksum: 55ba841e3adce9c4f1b9b46b41983eda40f854e0d01af2802d3ae18a7085a17168d6b81731d43fdf1d6bcbb3c9f9c56d22c8fea992203ad90a38d7d919bc28f1
   languageName: node
   linkType: hard
 
@@ -10712,7 +10641,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"semver@npm:7.x, semver@npm:^7.3.4, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8":
+"semver@npm:7.x, semver@npm:^7.3.5, semver@npm:^7.3.7, semver@npm:^7.3.8":
   version: 7.3.8
   resolution: "semver@npm:7.3.8"
   dependencies:
@@ -11748,21 +11677,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"ts-loader@npm:9.4.2":
-  version: 9.4.2
-  resolution: "ts-loader@npm:9.4.2"
-  dependencies:
-    chalk: ^4.1.0
-    enhanced-resolve: ^5.0.0
-    micromatch: ^4.0.0
-    semver: ^7.3.4
-  peerDependencies:
-    typescript: "*"
-    webpack: ^5.0.0
-  checksum: 6f306ee4c615c2a159fb177561e3fb86ca2cbd6c641e710d408a64b4978e1ff3f2c9733df07bff27d3f82efbfa7c287523d4306049510c7485ac2669a9c37eb0
-  languageName: node
-  linkType: hard
-
 "ts-morph@npm:^13.0.3":
   version: 13.0.3
   resolution: "ts-morph@npm:13.0.3"
@@ -11770,15 +11684,6 @@ __metadata:
     "@ts-morph/common": ~0.12.3
     code-block-writer: ^11.0.0
   checksum: 0983a7c4e0e1063e3900186bf2e85c5080621e31b754434136d2130a82bda6556985fdf012b766a87b9ae47d6f63732a562bb80854c34644f9352bea9a35b8ee
-  languageName: node
-  linkType: hard
-
-"ts-nkeys@npm:^1.0.16":
-  version: 1.0.16
-  resolution: "ts-nkeys@npm:1.0.16"
-  dependencies:
-    tweetnacl: ^1.0.3
-  checksum: ba043b0aa54283f4f26a50ba5cefc8e691f403f82c505df69a5c9d2580804355c971a9a47182d96c9cc705176505785cfc0bac1ea395c269b8786e3106e72e19
   languageName: node
   linkType: hard
 
@@ -11897,7 +11802,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tweetnacl@npm:^1.0.3":
+"tweetnacl@npm:1.0.3":
   version: 1.0.3
   resolution: "tweetnacl@npm:1.0.3"
   checksum: e4a57cac188f0c53f24c7a33279e223618a2bfb5fea426231991652a13247bea06b081fd745d71291fcae0f4428d29beba1b984b1f1ce6f66b06a6d1ab90645c
@@ -12567,21 +12472,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"winston-daily-rotate-file@npm:4.7.1":
-  version: 4.7.1
-  resolution: "winston-daily-rotate-file@npm:4.7.1"
-  dependencies:
-    file-stream-rotator: ^0.6.1
-    object-hash: ^2.0.1
-    triple-beam: ^1.3.0
-    winston-transport: ^4.4.0
-  peerDependencies:
-    winston: ^3
-  checksum: 227daea41f722caa017fc7d6f1f80d0e6c428491e57693e6bebc8312b85bcf3aace53cb3a925bda72fab59a6898fa127411d29348ec4b295e2263a7544cda611
-  languageName: node
-  linkType: hard
-
-"winston-transport@npm:^4.4.0, winston-transport@npm:^4.5.0":
+"winston-transport@npm:^4.5.0":
   version: 4.5.0
   resolution: "winston-transport@npm:4.5.0"
   dependencies:
