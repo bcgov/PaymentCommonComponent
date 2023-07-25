@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
+import { format } from 'date-fns';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../logger/logger.service';
 import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
@@ -49,16 +50,30 @@ export const handler = async (event: unknown, context?: Context) => {
           alert.program,
           alert.missingFiles.map((mf) => mf.filename)
         );
+        if (!alertDestinations.length) {
+          continue;
+        }
         appLogger.log('\n\n=========Alerts Sent for Daily Upload: =========\n');
         appLogger.error(
           `Sent an alert to prompt ${alert.program} to complete upload`
         );
         await mailService.sendEmailAlertBulk(
           MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
-          alertDestinations.map((ad) => ({
-            toEmail: ad,
-            message: errors.join(' '),
-          }))
+          alertDestinations.map((ad) => ad),
+          [
+            {
+              fieldName: 'date',
+              content: format(new Date(), 'yyyy-MM-dd'),
+            },
+            {
+              fieldName: 'ministryDivision',
+              content: alert.program,
+            },
+            {
+              fieldName: 'error',
+              content: errors.join(' '),
+            },
+          ]
         );
       }
     }

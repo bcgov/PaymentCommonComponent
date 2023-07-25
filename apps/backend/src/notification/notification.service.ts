@@ -85,7 +85,9 @@ export class NotificationService {
         rule,
       };
       const daily = this.programDailyRepo.create(newDaily);
-      return await this.programDailyRepo.save(daily);
+      const dailySaved = await this.programDailyRepo.save(daily);
+      dailySaved.files = [];
+      return dailySaved;
     } catch (e) {
       throw new Error('Error saving daily upload');
     }
@@ -208,6 +210,9 @@ export class NotificationService {
           alert.program,
           alert.missingFiles.map((mf) => mf.filename)
         );
+        if (!alertDestinations.length) {
+          continue;
+        }
         this.appLogger.log(
           '\n\n=========Alerts Sent for Daily Upload: =========\n'
         );
@@ -216,10 +221,21 @@ export class NotificationService {
         );
         await this.mailService.sendEmailAlertBulk(
           MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
-          alertDestinations.map((ad) => ({
-            toEmail: ad,
-            message: errors.join(' '),
-          }))
+          alertDestinations.map((ad) => ad),
+          [
+            {
+              fieldName: 'date',
+              content: format(new Date(), 'yyyy-MM-dd'),
+            },
+            {
+              fieldName: 'ministryDivision',
+              content: alert.program,
+            },
+            {
+              fieldName: 'error',
+              content: errors.join(' '),
+            },
+          ]
         );
       }
     }

@@ -10,6 +10,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { Repository } from 'typeorm';
 import _ from 'underscore';
+import { format } from 'date-fns';
 import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
 import {
   GarmsTransactionDTO,
@@ -369,12 +370,26 @@ export class ParseService {
           ministry,
           [filename]
         );
+        if (!alertDestinations.length) {
+          return;
+        }
         await this.mailService.sendEmailAlertBulk(
           MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
-          alertDestinations.map((ad) => ({
-            toEmail: ad,
-            message: errorMessage,
-          }))
+          alertDestinations.map((ad) => ad),
+          [
+            {
+              fieldName: 'date',
+              content: format(new Date(), 'yyyy-MM-dd'),
+            },
+            {
+              fieldName: 'ministryDivision',
+              content: ministry,
+            },
+            {
+              fieldName: 'error',
+              content: errorMessage,
+            },
+          ]
         );
       }
     } catch (err) {
