@@ -99,20 +99,13 @@ export class PosDepositService {
     const { minDate, maxDate } = dateRange;
     const qb = this.posDepositRepo.createQueryBuilder('pos_deposit');
     qb.select(['settlement_date::date']);
-    qb.addSelect('payment_method.description', 'payment_method');
-    qb.addSelect(
-      'SUM(transaction_amt)::numeric(10,2)',
-      'transaction_amt'
-    ).leftJoin(
-      PaymentMethodEntity,
-      'payment_method',
-      'payment_method.method = pos_deposit.payment_method'
-    );
+    qb.addSelect('payment_method', 'payment_method');
+    qb.addSelect('SUM(transaction_amt)::numeric(10,2)', 'transaction_amt');
     qb.addSelect('location_id');
     qb.leftJoin(
       LocationEntity,
       'master_location_data',
-      'master_location_data.merchant_id = pos_deposit.merchant_id'
+      'master_location_data.merchant_id = pos_deposit.merchant_id AND master_location_data.method = pos_deposit.payment_method'
     );
     qb.where({
       metadata: { program },
@@ -126,7 +119,6 @@ export class PosDepositService {
     qb.groupBy('settlement_date');
     qb.addGroupBy('terminal_no');
     qb.addGroupBy('payment_method');
-    qb.addGroupBy('payment_method.method');
     qb.addGroupBy('location_id');
     qb.addGroupBy('master_location_data.location_id');
     qb.orderBy({
