@@ -5,11 +5,13 @@ export enum MAIL_TEMPLATE_ENUM {
 
 export const MailTemplate = {
   [MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT]: {
-    id: '1b74858b-1ac9-4f9c-bd77-d3aea5116c73',
+    id: '0bbd896d-ed4b-474a-af2a-4cbec36e5c5b',
     name: MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
+    fields: ['date', 'ministryDivision', 'error'],
   },
   [MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT]: {
-    id: '70210885-d584-4715-8e8b-60e945e46e67',
+    id: 'a2e43741-623d-4531-b9c1-a5edd0a2f49b',
     name: MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
+    fields: ['date', 'ministryDivision', 'error'],
   },
 };

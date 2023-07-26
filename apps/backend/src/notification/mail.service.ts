@@ -1,5 +1,10 @@
 import axios, { AxiosInstance } from 'axios';
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  Logger,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MAIL_TEMPLATE_ENUM, MailTemplate } from './mail-templates';
@@ -45,8 +50,10 @@ export class MailService {
         (destination) =>
           destination.allAlerts === true ||
           destination.rule?.program === program ||
-          filenames.includes(destination.requiredFile.filename)
+          (destination.requiredFile &&
+            filenames.includes(destination.requiredFile.filename))
       )
+      .filter((destination) => destination)
       .map((destination) => destination.destination);
   }
 
@@ -70,7 +77,7 @@ export class MailService {
         },
       });
       this.appLogger.log(
-        `${MailTemplate[template].name} email sent to ${toEmail} - id ${emailResponse.data['id']}`
+        `${MailTemplate[template].name} email sent to ${toEmail} - id ${emailResponse.data['data']['id']}`
       );
     } catch (error) {
       this.appLogger.error(
@@ -87,29 +94,42 @@ export class MailService {
    */
   public async sendEmailAlertBulk(
     template: MAIL_TEMPLATE_ENUM,
-    emailMessages: {
-      toEmail: string;
-      message: string;
-    }[]
+    toEmails: string[],
+    fieldEntries: {
+      fieldName: string;
+      content: string;
+    }[] // Entries are the same for all emails sent here
   ) {
+    if (
+      !fieldEntries
+        .map((fe) => fe.fieldName)
+        .every((fn) => MailTemplate[template].fields.includes(fn))
+    ) {
+      throw new InternalServerErrorException({
+        message: `Error sending template ${MailTemplate[template].name}, backend fields do not match what the template expects`,
+      });
+    }
     try {
       const emailResponse = await this.axiosInstance.post('bulk', {
         name: MailTemplate[template].name,
         template_id: MailTemplate[template].id,
         rows: [
-          ['email_address', 'message'],
-          ...emailMessages.map((em) => [em.toEmail, em.message]),
+          ['email_address', ...MailTemplate[template].fields],
+          ...toEmails.map((toEmail) => [
+            toEmail,
+            ...fieldEntries.map((fe) => fe.content),
+          ]),
         ],
       });
       this.appLogger.log(
-        `${MailTemplate[template].name} email sent to ${emailMessages
-          .map((em) => em.toEmail)
-          .join(', ')} - id ${emailResponse.data['id']}`
+        `${MailTemplate[template].name} email sent to ${toEmails
+          .map((toEmail) => toEmail)
+          .join(', ')} - id ${emailResponse.data['data']['id']}`
       );
     } catch (error) {
       this.appLogger.error(
-        `Error sending ${MailTemplate[template].name} email to ${emailMessages
-          .map((em) => em.toEmail)
+        `Error sending ${MailTemplate[template].name} email to ${toEmails
+          .map((toEmail) => toEmail)
           .join(', ')}`
       );
     }
