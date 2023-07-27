@@ -30,19 +30,12 @@ resource "aws_lambda_function" "daily-alert" {
     }
   }
 
-  # lifecycle {
-  #   ignore_changes = [
-  #     # Ignore changes to tags, e.g. because a management agent
-  #     # updates these based on some ruleset managed elsewhere.
-  #     filename,
-  #     source_code_hash,
-  #   ]
-  # }
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      filename,
+      source_code_hash,
+    ]
+  }
 }
-
-# resource "aws_cloudwatch_event_rule" "daily-alert" {
-#   name                = "daily-alert"
-#   description         = "Fires every day at 11 AM and 3 PM"
-#   schedule_expression = "cron(0 11,15/12 * * ? * )"
-# }
-

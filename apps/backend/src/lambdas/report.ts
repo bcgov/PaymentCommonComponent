@@ -1,6 +1,6 @@
 import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
-import { Context } from 'aws-lambda';
+import { Context, SNSEvent } from 'aws-lambda';
 import {
   differenceInDays,
   format,
@@ -22,6 +22,7 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
+import { ReconciliationConfigInput } from '../reconciliation/types';
 import { ReportConfig } from '../reporting/interfaces';
 import { ReportingService } from '../reporting/reporting.service';
 import { PaymentEntity } from '../transaction/entities';
@@ -33,11 +34,14 @@ import { PaymentService } from '../transaction/payment.service';
  * @param context
  * @returns
  */
-export const handler = async (event: ReportConfig, context?: Context) => {
+export const handler = async (event: SNSEvent, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
-  const startDate = parse(event.period.from, 'yyyy-MM-dd', new Date());
-  const endDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
+  const message: ReconciliationConfigInput = JSON.parse(
+    event.Records[0].Sns.Message
+  );
+  const startDate = parse(message.period.from, 'yyyy-MM-dd', new Date());
+  const endDate = parse(message.period.to, 'yyyy-MM-dd', new Date());
 
   const maxReportDays = 31;
   const BUSINESS_DAY_LEEWAY = 1;
@@ -50,35 +54,35 @@ export const handler = async (event: ReportConfig, context?: Context) => {
   }
   if (isSaturday(endDate) || isSunday(endDate)) {
     appLogger.log(
-      `Skipping Reconciliation Report generation for ${event.period.to} as it is a weekend`,
+      `Skipping Reconciliation Report generation for ${message.period.to} as it is a weekend`,
       ReportingService.name
     );
     return;
   }
   const reportingService = app.get(ReportingService);
   const locationService = app.get(LocationService);
-  const locations = await locationService.getLocationsBySource(event.program);
+  const locations = await locationService.getLocationsBySource(message.program);
 
   const { posDeposits, posPayments } = await getPosReportData(
     app,
-    event,
+    message,
     BUSINESS_DAY_LEEWAY
   );
 
   const { cashDeposits, cashPayments } = await getCashReportData(
     app,
-    event,
+    message,
     BUSINESS_DAY_LEEWAY
   );
 
   const { pageThreeDeposits, pageThreeDepositDates } =
-    await getPageThreeDeposits(app, event, locations);
+    await getPageThreeDeposits(app, message, locations);
 
   appLogger.log({ context });
   appLogger.log({ event });
 
   await reportingService.generateReport(
-    event,
+    message,
     locations,
     { posDeposits, cashDeposits },
     { posPayments, cashPayments },
@@ -96,7 +100,7 @@ export const handler = async (event: ReportConfig, context?: Context) => {
  */
 const getCashReportData = async (
   app: INestApplicationContext,
-  event: ReportConfig,
+  message: ReportConfig,
   BUSINESS_DAY_LEEWAY: number
 ): Promise<{
   cashDeposits: CashDepositEntity[];
@@ -107,15 +111,15 @@ const getCashReportData = async (
 
   const cashDeposits =
     await cashDepositService.findCashDepositsForDetailsReport(
-      { minDate: event.period.from, maxDate: event.period.to },
-      event.program,
+      { minDate: message.period.from, maxDate: message.period.to },
+      message.program,
       BUSINESS_DAY_LEEWAY
     );
 
   const cashPayments = await paymentService.findPaymentsForDetailsReport(
-    { minDate: event.period.from, maxDate: event.period.to },
+    { minDate: message.period.from, maxDate: message.period.to },
     PaymentMethodClassification.CASH,
-    event.program,
+    message.program,
     BUSINESS_DAY_LEEWAY
   );
 
@@ -135,7 +139,7 @@ const getCashReportData = async (
  */
 const getPosReportData = async (
   app: INestApplicationContext,
-  event: ReportConfig,
+  message: ReportConfig,
   BUSINESS_DAY_LEEWAY: number
 ): Promise<{
   posPayments: PaymentEntity[];
@@ -145,15 +149,15 @@ const getPosReportData = async (
   const posDepositService = app.get(PosDepositService);
 
   const posDeposits = await posDepositService.findAllByReconciledDate(
-    { minDate: event.period.from, maxDate: event.period.to },
-    event.program,
+    { minDate: message.period.from, maxDate: message.period.to },
+    message.program,
     BUSINESS_DAY_LEEWAY
   );
 
   const posPayments = await paymentService.findPaymentsForDetailsReport(
-    { minDate: event.period.from, maxDate: event.period.to },
+    { minDate: message.period.from, maxDate: message.period.to },
     PaymentMethodClassification.POS,
-    event.program,
+    message.program,
     BUSINESS_DAY_LEEWAY
   );
   return {
@@ -170,7 +174,7 @@ const getPosReportData = async (
  */
 const getPageThreeDeposits = async (
   app: INestApplicationContext,
-  event: ReportConfig,
+  message: ReportConfig,
   locations: NormalizedLocation[]
 ): Promise<{
   pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] };
@@ -178,11 +182,11 @@ const getPageThreeDeposits = async (
 }> => {
   const cashDepositService = app.get(CashDepositService);
   const posDepositService = app.get(PosDepositService);
-  const maxDate = parse(event.period.to, 'yyyy-MM-dd', new Date());
+  const maxDate = parse(message.period.to, 'yyyy-MM-dd', new Date());
   /* extract the month from the "from-date"*/
   const minDate = new Date(
-    getYear(parse(event.period.from, 'yyyy-MM-dd', new Date())),
-    getMonth(parse(event.period.from, 'yyyy-MM-dd', new Date())),
+    getYear(parse(message.period.from, 'yyyy-MM-dd', new Date())),
+    getMonth(parse(message.period.from, 'yyyy-MM-dd', new Date())),
     1
   );
 
@@ -193,14 +197,14 @@ const getPageThreeDeposits = async (
   const cashDepositsResults: CashDepositEntity[] =
     await cashDepositService.findCashDepositsForPageThreeReport(
       locations.map((itm) => itm.pt_location_id),
-      event.program,
+      message.program,
       dateRange
     );
 
   const posDeposits: POSDepositEntity[] =
     await posDepositService.findPOSBySettlementDate(
       locations,
-      event.program,
+      message.program,
       dateRange
     );
 

@@ -26,6 +26,7 @@ resource "aws_lambda_function" "reconciler" {
       MAIL_SERVICE_KEY              = data.aws_ssm_parameter.gcnotify_key.value
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
+      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
     }
   }
 
@@ -36,5 +37,18 @@ resource "aws_lambda_function" "reconciler" {
       filename,
       source_code_hash,
     ]
+  }
+}
+
+resource "aws_lambda_function_event_invoke_config" "reconciler_event" {
+  function_name = aws_lambda_function.reconciler.function_name
+
+  destination_config {
+    on_success {
+      destination = aws_sns_topic.reconciliation_results.arn
+    }
+    on_failure {
+      destination = aws_sns_topic.reconciliation_results.arn
+    }
   }
 }

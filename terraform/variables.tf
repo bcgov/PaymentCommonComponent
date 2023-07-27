@@ -1,5 +1,4 @@
-variable "target_env" {
-}
+variable "target_env" {}
 
 variable "api_endpoint" {}
 
@@ -14,6 +13,13 @@ variable "build_id" {}
 variable "build_info" {}
 
 variable "db_username" {}
+
+variable "mail_base_url" {}
+
+variable "mail_default_to" {}
+
+variable "sns_reconciler_topic" {}
+
 variable "region" {
   default = "ca-central-1"
 }
@@ -28,9 +34,6 @@ variable "root_block_device" {
     size = "10"
   }
 }
-
-variable "mail_base_url" {}
-variable "mail_default_to" {}
 
 locals {
   namespace = "${var.project_code}_${var.target_env}"

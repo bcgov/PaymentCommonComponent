@@ -1,24 +1,20 @@
-export interface Record {
-  s3: {
-    s3SchemaVersion: string;
-    configurationId: string;
-    bucket: {
-      name: string;
-      ownerIdentity: {
-        principalId: string;
-      };
-      arn: string;
-    };
-    object: {
-      key: string;
-      size: string;
-      eTag: string;
-      versionId: string;
-      sequencer: string;
-    };
+import { Ministries } from '../constants';
+
+export interface ReconciliationMessage {
+  program: Ministries;
+  period: {
+    from: string;
+    to: string;
+  };
+  bypass_parse_validity?: boolean;
+}
+
+export interface SNSRecord {
+  Sns: {
+    Message: ReconciliationMessage;
   };
 }
 
-export interface ParseEvent {
-  Records: Record[];
+export interface EventSuccessSNSMessage {
+  Records: SNSRecord[];
 }
