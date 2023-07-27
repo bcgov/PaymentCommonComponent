@@ -27,6 +27,12 @@ resource "aws_lambda_function" "parser" {
       MAIL_SERVICE_KEY              = data.aws_ssm_parameter.gcnotify_key.value
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
+      SNS_PARSER_RESULTS_TOPIC      = var.sns_parser_topic
+      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
+      BYPASS_FILE_VALIDITY          = var.bypass_file_validity
+      FISCAL_START_DATE             = var.fiscal_start_date
+      MAX_RECONCILIATION_DAYS       = var.max_reconciliation_days
+      OVERRIDE_RECONCILIATION_DATE  = var.override_reconciliation_date
     }
   }
 
@@ -54,6 +60,19 @@ resource "aws_lambda_permission" "trigger-parse" {
   function_name = "${aws_lambda_function.parser.function_name}"
   principal = "s3.amazonaws.com"
   source_arn = "arn:aws:s3:::${aws_s3_bucket.sftp_storage.id}"
+}
+
+resource "aws_lambda_function_event_invoke_config" "parser_event" {
+  function_name = aws_lambda_function.parser.function_name
+
+  destination_config {
+    on_success {
+      destination = aws_sns_topic.parser_results.arn
+    }
+    on_failure {
+      destination = aws_sns_topic.parser_results.arn
+    }
+  }
 }
 
 output "arn" {

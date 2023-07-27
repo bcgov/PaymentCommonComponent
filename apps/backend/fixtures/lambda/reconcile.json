@@ -1,5 +1,9 @@
 {
-  "period": { "from": "2023-05-31", "to": "2023-06-02" },
-  "program": "SBC",
-  "bypass_parse_validity": true
+  "Records": [
+    {
+      "Sns": {
+        "Message": {}
+      }
+    }
+  ]
 }

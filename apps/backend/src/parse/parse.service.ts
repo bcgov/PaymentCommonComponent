@@ -59,6 +59,10 @@ export class ParseService {
     @InjectRepository(FileUploadedEntity)
     private uploadedRepo: Repository<FileUploadedEntity>
   ) {}
+
+  async findAllUploadedFiles(): Promise<FileUploadedEntity[]> {
+    return await this.uploadedRepo.find();
+  }
   /**
    * Handles validation errors from validateOrReject, identifying which property is failing validation
    * Returns the error message generated
@@ -310,8 +314,6 @@ export class ParseService {
       const bucket = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
       const program = fileKey.split('/')[0];
       const filename = fileKey.split('/')[1];
-      console.log(bucket, program, filename);
-
       const file = await this.s3.getObject(bucket, `${program}/${filename}`);
 
       let currentRule: FileIngestionRulesEntity | null = null;

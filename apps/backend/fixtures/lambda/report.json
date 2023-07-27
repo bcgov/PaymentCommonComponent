@@ -1,12 +1,9 @@
 {
-  "program": "SBC",
-  "locations": [],
-  "period": {
-    "from": "2023-07-01",
-    "to": "2023-07-11"
-  },
-  "exceptions": {
-    "send": false
-  },
-  "reports": true
+  "Records": [
+    {
+      "Sns": {
+        "Message": {}
+      }
+    }
+  ]
 }

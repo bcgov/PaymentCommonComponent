@@ -1,20 +1,13 @@
 import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
-import {
-  differenceInDays,
-  format,
-  getMonth,
-  getYear,
-  isSaturday,
-  isSunday,
-  parse,
-} from 'date-fns';
+import { format, getMonth, getYear, parse } from 'date-fns';
+import { ReconciliationMessage } from './interface';
 import { AppModule } from '../app.module';
 import {
-  DateRange,
-  NormalizedLocation,
   PaymentMethodClassification,
+  NormalizedLocation,
+  DateRange,
 } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
@@ -22,7 +15,6 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
-import { ReconciliationConfigInput } from '../reconciliation/types';
 import { ReportConfig } from '../reporting/interfaces';
 import { ReportingService } from '../reporting/reporting.service';
 import { PaymentEntity } from '../transaction/entities';
@@ -37,52 +29,46 @@ import { PaymentService } from '../transaction/payment.service';
 export const handler = async (event: SNSEvent, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
-  const message: ReconciliationConfigInput = JSON.parse(
+  const message: ReconciliationMessage = JSON.parse(
     event.Records[0].Sns.Message
   );
-  const startDate = parse(message.period.from, 'yyyy-MM-dd', new Date());
-  const endDate = parse(message.period.to, 'yyyy-MM-dd', new Date());
-
-  const maxReportDays = 31;
   const BUSINESS_DAY_LEEWAY = 1;
-  if (differenceInDays(startDate, endDate) > maxReportDays) {
-    appLogger.log(
-      `Date range input exceeds maximum range (${maxReportDays} days)`,
-      ReportingService.name
-    );
-    return;
-  }
-  if (isSaturday(endDate) || isSunday(endDate)) {
-    appLogger.log(
-      `Skipping Reconciliation Report generation for ${message.period.to} as it is a weekend`,
-      ReportingService.name
-    );
-    return;
-  }
+
   const reportingService = app.get(ReportingService);
   const locationService = app.get(LocationService);
   const locations = await locationService.getLocationsBySource(message.program);
 
+  const reportMinDate = parse(message.period.from, 'yyyy-MM-dd', new Date());
+  const reportMaxDate = parse(message.period.to, 'yyyy-MM-dd', new Date());
+
+  const reportEvent = {
+    period: {
+      from: format(reportMinDate, 'yyyy-MM-dd'),
+      to: format(reportMaxDate, 'yyyy-MM-dd'),
+    },
+    program: message.program,
+  };
+
   const { posDeposits, posPayments } = await getPosReportData(
     app,
-    message,
+    reportEvent,
     BUSINESS_DAY_LEEWAY
   );
 
   const { cashDeposits, cashPayments } = await getCashReportData(
     app,
-    message,
+    reportEvent,
     BUSINESS_DAY_LEEWAY
   );
 
   const { pageThreeDeposits, pageThreeDepositDates } =
-    await getPageThreeDeposits(app, message, locations);
+    await getPageThreeDeposits(app, reportEvent, locations);
 
   appLogger.log({ context });
   appLogger.log({ event });
 
   await reportingService.generateReport(
-    message,
+    reportEvent,
     locations,
     { posDeposits, cashDeposits },
     { posPayments, cashPayments },
@@ -194,6 +180,7 @@ const getPageThreeDeposits = async (
     minDate: format(minDate, 'yyyy-MM-dd'),
     maxDate: format(maxDate, 'yyyy-MM-dd'),
   };
+
   const cashDepositsResults: CashDepositEntity[] =
     await cashDepositService.findCashDepositsForPageThreeReport(
       locations.map((itm) => itm.pt_location_id),

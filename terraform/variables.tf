@@ -20,6 +20,16 @@ variable "mail_default_to" {}
 
 variable "sns_reconciler_topic" {}
 
+variable "sns_parser_topic" {}
+
+variable "bypass_file_validity" {}
+
+variable "fiscal_start_date" {}
+
+variable "max_reconciliation_days" {}
+
+variable "override_reconciliation_date" {}
+
 variable "region" {
   default = "ca-central-1"
 }
