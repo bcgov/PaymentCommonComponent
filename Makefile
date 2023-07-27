@@ -54,9 +54,10 @@ lz2_code = "$(LZ2_PROJECT)"
 db_username = "$(POSTGRES_USERNAME)"
 build_id = "$(COMMIT_SHA)"
 build_info = "$(LAST_COMMIT_MESSAGE)"
-api_endpoint = ""
-mail_base_url = ""
+api_endpoint = "$(MAIL_SERVICE_DEFAULT_TO_EMAIL)"
+mail_base_url = "$(MAIL_SERVICE_BASE_URL)"
 mail_default_to = ""
+sns_reconciler_topic="$(SNS_RECONCILER_RESULTS_TOPIC)"
 endef
 export TFVARS_DATA
 
