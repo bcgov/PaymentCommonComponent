@@ -215,7 +215,31 @@ export const handler = async (
     } else {
       appLogger.log('Running locally, not sending to SNS');
       await showConsoleReport();
-      await reportHandler(event, _context);
+      await reportHandler(
+        {
+          Records: [
+            {
+              EventVersion: '',
+              EventSubscriptionArn: '',
+              EventSource: '',
+              Sns: {
+                Message: JSON.stringify(event),
+                MessageId: '',
+                MessageAttributes: {},
+                Type: '',
+                TopicArn: '',
+                Subject: '',
+                UnsubscribeUrl: '',
+                SignatureVersion: '',
+                Timestamp: new Date().toISOString(),
+                Signature: '',
+                SigningCertUrl: '',
+              },
+            },
+          ],
+        },
+        _context
+      );
     }
     return {
       success: true,

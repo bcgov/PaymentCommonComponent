@@ -71,8 +71,7 @@ describe('PosReconciliationService', () => {
         payments,
         service.buildPosDepositsDictionary(deposits),
         PosHeuristicRound.ONE,
-        new Date(),
-        false
+        new Date()
       );
       expect(matches.length).toBeGreaterThan(0);
     });
@@ -97,8 +96,7 @@ describe('PosReconciliationService', () => {
           )
         ),
         PosHeuristicRound.ONE,
-        new Date(),
-        false
+        new Date()
       );
       expect(payments.length).toBeGreaterThan(0);
       expect(deposits.length).toBeGreaterThan(0);
@@ -141,8 +139,7 @@ describe('PosReconciliationService', () => {
           )
         ),
         PosHeuristicRound.THREE,
-        new Date(),
-        false
+        new Date()
       );
       expect(payments.length).toBeGreaterThan(0);
       expect(deposits.length).toBeGreaterThan(0);
@@ -187,8 +184,7 @@ describe('PosReconciliationService', () => {
           )
         ),
         PosHeuristicRound.THREE,
-        new Date(),
-        false
+        new Date()
       );
 
       expect(payments.length).toBeGreaterThan(0);
@@ -236,8 +232,7 @@ describe('PosReconciliationService', () => {
         ),
         depositsDictionary,
         PosHeuristicRound.ONE,
-        new Date(),
-        false
+        new Date()
       );
 
       const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
@@ -248,8 +243,7 @@ describe('PosReconciliationService', () => {
         ),
         depositsDictionary,
         PosHeuristicRound.TWO,
-        new Date(),
-        false
+        new Date()
       );
 
       const matchedRoundThree = service.matchPosPaymentToPosDeposits(
@@ -260,8 +254,7 @@ describe('PosReconciliationService', () => {
         ),
         depositsDictionary,
         PosHeuristicRound.THREE,
-        new Date(),
-        false
+        new Date()
       );
 
       matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
@@ -350,8 +343,7 @@ describe('PosReconciliationService', () => {
         ),
         depositsDictionary,
         PosHeuristicRound.ONE,
-        new Date(),
-        false
+        new Date()
       );
 
       const matchedRoundTwo = service.matchPosPaymentToPosDeposits(
@@ -362,8 +354,7 @@ describe('PosReconciliationService', () => {
         ),
         depositsDictionary,
         PosHeuristicRound.TWO,
-        new Date(),
-        false
+        new Date()
       );
 
       const matchedRoundThree = service.matchPosPaymentToPosDeposits(
@@ -374,8 +365,7 @@ describe('PosReconciliationService', () => {
         ),
         depositsDictionary,
         PosHeuristicRound.THREE,
-        new Date(),
-        false
+        new Date()
       );
 
       matches = [...matchedRoundOne, ...matchedRoundTwo, ...matchedRoundThree];
@@ -458,8 +448,7 @@ describe('PosReconciliationService', () => {
         aggregatedPayments,
         service.buildPosDepositsDictionary(aggregatedDeposits),
         PosHeuristicRound.FOUR,
-        new Date(),
-        false
+        new Date()
       );
 
       roundFourPaymentMatches = matchedRoundFour.flatMap((itm) => itm.payments);

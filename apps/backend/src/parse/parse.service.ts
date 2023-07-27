@@ -7,10 +7,11 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { S3Event } from 'aws-lambda';
 import { validateOrReject, ValidationError } from 'class-validator';
+import { format } from 'date-fns';
 import { Repository } from 'typeorm';
 import _ from 'underscore';
-import { format } from 'date-fns';
 import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
 import {
   GarmsTransactionDTO,
@@ -24,7 +25,6 @@ import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { TDI17Details, TDI34Details } from '../flat-files';
-import { ParseEvent } from '../lambdas/interface';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI } from '../lambdas/utils/parseTDI';
 import { AppLogger } from '../logger/logger.service';
@@ -255,7 +255,7 @@ export class ParseService {
     return this.uploadedRepo.save(fileUploaded);
   }
 
-  async processAllFiles(event: ParseEvent) {
+  async processAllFiles(event: S3Event) {
     event.Records.length === 0
       ? this.appLogger.log(
           'No Records in Event...checking for files in bucket...'
