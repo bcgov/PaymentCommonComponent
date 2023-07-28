@@ -52,6 +52,7 @@ export const configureReconciliationInputs = (
 
 /**
  * Extract the file date from the file name
+ * exmaple filename: 'sbc/SBC_SALES_2026_03_03_23_17_37.JSON'
  */
 export const extractDateFromTXNFileName = (fileName: string): Date => {
   try {
@@ -63,9 +64,10 @@ export const extractDateFromTXNFileName = (fileName: string): Date => {
   }
 };
 /**
- *
+ * Validates the filename from SBC Garms. Example filename: 'sbc/SBC_SALES_2026_03_03_23_17_37.JSON',
  * @param filename
  * @returns
+ *
  */
 export const validateSbcGarmsFileName = (filename: string): boolean => {
   const reg =
