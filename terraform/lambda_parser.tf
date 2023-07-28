@@ -29,7 +29,6 @@ resource "aws_lambda_function" "parser" {
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
       SNS_PARSER_RESULTS_TOPIC      = var.sns_parser_topic
       SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
-      MAX_RECONCILIATION_DAYS       = var.max_reconciliation_days
     }
   }
 
