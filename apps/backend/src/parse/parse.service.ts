@@ -19,14 +19,16 @@ import {
 } from './dto/garms-transaction.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
-import { extractDateFromTXNFileName } from '../common/utils/format';
 import { FileTypes, ParseArgsTDI } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { TDI17Details, TDI34Details } from '../flat-files';
-import { extractDateFromBCMFileName } from '../lambdas/helpers';
+import {
+  extractDateFromBCMFileName,
+  extractDateFromTXNFileName,
+} from '../lambdas/helpers';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI } from '../lambdas/utils/parseTDI';
 import { AppLogger } from '../logger/logger.service';
