@@ -4,16 +4,15 @@ import { Context, SNSEvent } from 'aws-lambda';
 import { SNS } from 'aws-sdk';
 import { format, parse, subBusinessDays } from 'date-fns';
 import { FindOptionsOrderValue } from 'typeorm';
-import { checkFilesUploadedToday, getFilesUploadedByFileName } from './helpers';
+import { setReconciliationDates } from './helpers';
 import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
-import { Ministries, NormalizedLocation } from '../constants';
+import { NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { NotificationService } from '../notification/notification.service';
-import { ParseService } from '../parse/parse.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
@@ -29,20 +28,6 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
   //TODO - confirm the allowable dates ranges and set ministry dynamically
   const maxNumDaysToReconcile = 31;
-
-  const currentDate = process.env.OVERRIDE_RECONCILIATION_DATE
-    ? parse(process.env.OVERRIDE_RECONCILIATION_DATE, 'yyyy-MM-dd', new Date())
-    : subBusinessDays(new Date(), 1);
-
-  const reconciliationMaxDate = currentDate;
-
-  const reconciliationMinDate = subBusinessDays(
-    reconciliationMaxDate,
-    maxNumDaysToReconcile
-  );
-
-  const ministry = Ministries.SBC;
-
   const cashExceptionsService = app.get(CashExceptionsService);
   const cashReconciliationService = app.get(CashReconciliationService);
   const posReconciliationService = app.get(PosReconciliationService);
@@ -52,18 +37,40 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const locationService = app.get(LocationService);
   const reportingService = app.get(ReportingService);
   const notificationService = app.get(NotificationService);
-  const parseService = app.get(ParseService);
+
+  const {
+    reconciliationMinDate,
+    reconciliationMaxDate,
+    currentDate,
+    ministry,
+    byPassFileValidity,
+  } = setReconciliationDates(
+    event.Records[0].Sns.Message as unknown,
+    maxNumDaysToReconcile
+  );
 
   appLogger.log({ event, _context }, 'RECONCILE EVENT');
 
   const snsService = app.get(SnsManagerService);
 
   const reconcile = async () => {
-    const byPassFileValidityCheck = process.env.BYPASS_FILE_VALIDITY === 'true';
-    byPassFileValidityCheck
-      ? await getFilesUploadedByFileName(parseService, reconciliationMaxDate)
-      : await checkFilesUploadedToday(notificationService, Ministries.SBC);
+    // PrsnsEvent reconciler from running for a program if no valid files today
+    if (!byPassFileValidity) {
+      const rule = await notificationService.getRulesForProgram(ministry);
+      if (!rule) {
+        throw new Error('No rule for this program');
+      }
 
+      const daily = await notificationService.getDailyForRule(
+        rule,
+        reconciliationMaxDate
+      );
+      if (!daily?.success) {
+        throw new Error(
+          `Incomplete dataset for this date ${reconciliationMaxDate}. Please check the uploaded files.`
+        );
+      }
+    }
     const locations: NormalizedLocation[] =
       await locationService.getLocationsBySource(ministry);
 

@@ -18,6 +18,9 @@ export class FileUploadedEntity {
   @CreateDateColumn()
   created_at: Date;
 
+  @Column({ type: 'timestamp', name: 'file_created_date', nullable: true })
+  fileCreatedDate: Date;
+
   @Column({
     enum: FileTypes,
     name: 'source_file_type',

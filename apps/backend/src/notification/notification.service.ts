@@ -59,7 +59,7 @@ export class NotificationService {
     return await this.programDailyRepo.findOne({
       relations: ['rule', 'files'],
       where: {
-        dailyDate: format(date, 'yyyy-MM-dd'),
+        dailyDate: date,
         rule: {
           id: rule.id,
         },
@@ -79,7 +79,7 @@ export class NotificationService {
   ): Promise<ProgramDailyUploadEntity> {
     try {
       const newDaily: Partial<ProgramDailyUploadEntity> = {
-        dailyDate: format(date, 'yyyy-MM-dd'),
+        dailyDate: date,
         success: false,
         retries: 0,
         rule,

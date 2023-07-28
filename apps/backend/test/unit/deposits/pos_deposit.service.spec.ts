@@ -65,7 +65,7 @@ describe('POSDepositService', () => {
 
       const tdi34Mock: ParseArgsTDI = {
         type: FileTypes.TDI34,
-        fileName: 'test/TDI34',
+        fileName: 'sbc/PROD_SBC_F08TDI34_20230504.DAT',
         program: 'SBC',
         fileContents: Buffer.from(testFile).toString(),
       };

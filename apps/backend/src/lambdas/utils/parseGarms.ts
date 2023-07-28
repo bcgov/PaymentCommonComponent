@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import { extractDateFromTXNFileName } from '../helpers';
 import { parseFlatDateString } from '../../common/utils/format';
 import { Ministries } from '../../constants';
 import { TransactionEntity, PaymentEntity } from '../../transaction/entities';
@@ -45,6 +46,7 @@ export const parseGarms = (
       distributions,
     }): TransactionEntity =>
       new TransactionEntity({
+        file_created_date: extractDateFromTXNFileName(source_file_name),
         source_id: Ministries.SBC,
         transaction_id: sales_transaction_id,
         transaction_date: sales_transaction_date.slice(0, 10),

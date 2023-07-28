@@ -19,8 +19,8 @@ export class ProgramDailyUploadEntity {
   @CreateDateColumn()
   created_at: Date;
 
-  @Column({ type: 'date', name: 'daily_date' })
-  dailyDate: string;
+  @Column({ type: 'timestamp', name: 'daily_date' })
+  dailyDate: Date;
 
   @Column()
   success: boolean;

@@ -64,7 +64,7 @@ describe('CashDepositService', () => {
 
       const tdi17Mock: ParseArgsTDI = {
         type: FileTypes.TDI17,
-        fileName: 'test/TDI17',
+        fileName: 'sbc/PROD_SBC_F08TDI17_20230529.DAT',
         program: 'SBC',
         fileContents: Buffer.from(testCashFile).toString(),
       };

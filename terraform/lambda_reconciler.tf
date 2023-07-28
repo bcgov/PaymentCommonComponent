@@ -27,10 +27,7 @@ resource "aws_lambda_function" "reconciler" {
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
       SNS_PARSER_RESULTS_TOPIC      = var.sns_parser_topic
-      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
-      BYPASS_FILE_VALIDITY          = var.bypass_file_validity
-      FISCAL_START_DATE             = var.fiscal_start_date
-      OVERRIDE_RECONCILIATION_DATE  = var.override_reconciliation_date
+      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic      
     }
   }
 

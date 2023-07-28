@@ -11,7 +11,7 @@ test('Pos Deposit Entity Instance', () => {
   );
   const tdi34Mock: ParseArgsTDI = {
     type: FileTypes.TDI34,
-    fileName: 'test/TDI34',
+    fileName: 'sbc/PROD_SBC_F08TDI34_20230515.DAT',
     program: 'SBC',
     fileContents: Buffer.from(testFile).toString(),
   };

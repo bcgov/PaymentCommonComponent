@@ -1,86 +1,61 @@
-import { format } from 'date-fns';
-import { FileTypes, Ministries } from '../constants';
-import { NotificationService } from '../notification/notification.service';
-import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
-import { ParseService } from '../parse/parse.service';
+import { parse, subBusinessDays } from 'date-fns';
+import { Ministries } from '../constants';
 
-export const sbcDateFromFileName = (filename: string): string => {
-  const name = filename.split('/')[1].split('.')[0];
-  const date = name.replace('SBC_SALES_', '').replace(/[_]/gi, '');
-
-  return `${date.slice(0, 4)}-${date.slice(4, 6)}-${date.slice(6, 8)}`;
+/**
+ *  Extract the file metatdata for the file date from the title
+ * @param fileName
+ * @returns
+ */
+export const extractDateFromBCMFileName = (fileName: string): Date => {
+  const date = fileName.split('/')[1].split('.')[0].split('_')[3];
+  const year = date.substring(0, 4);
+  const month = date.substring(4, 6);
+  const day = date.substring(6, 8);
+  return new Date(`${year}-${month}-${day}`);
 };
 
-export const bcmDateFromFileName = (filename: string): string => {
-  const name = filename.split('/')[1].split('.')[0].split('_')[3];
+export const setReconciliationDates = (
+  event: unknown,
+  maxNumDaysToReconcile: number
+) => {
+  const parsedEvent = typeof event === 'string' ? JSON.parse(event) : event;
 
-  return `${name.slice(0, 4)}-${name.slice(4, 6)}-${name.slice(6, 8)}`;
+  if (parsedEvent.reconciliationEventOverride) {
+    return {
+      reconciliationMinDate: parse(
+        parsedEvent.period.from,
+        'yyyy-MM-dd',
+        new Date()
+      ),
+      reconciliationMaxDate: parse(
+        parsedEvent.period.to,
+        'yyyy-MM-dd',
+        new Date()
+      ),
+      currentDate: parse(parsedEvent.period.to, 'yyyy-MM-dd', new Date()),
+      ministry: parsedEvent.program,
+      byPassFileValidity: parsedEvent.byPassFileValidity ?? false,
+    };
+  }
+  const reconciliationMaxDate = subBusinessDays(new Date(), 1);
+  const reconciliationMinDate = subBusinessDays(
+    reconciliationMaxDate,
+    maxNumDaysToReconcile
+  );
+  return {
+    reconciliationMinDate,
+    reconciliationMaxDate: subBusinessDays(new Date(), 1),
+    currentDate: new Date(),
+    ministry: Ministries.SBC,
+    byPassFileValidity: false,
+  };
 };
 
-//TODO - ministry dynamically
-export const getFilesUploadedByFileName = async (
-  parseService: ParseService,
-  reconciliationDate: Date
-): Promise<boolean> => {
-  const date = format(reconciliationDate, 'yyyy-MM-dd');
-
-  const files = await parseService.findAllUploadedFiles();
-
-  const sbcFiles = files.filter(
-    (f: FileUploadedEntity) => f.sourceFileType === FileTypes.SBC_SALES
-  );
-
-  const bcmFiles = files
-    .filter((f: FileUploadedEntity) => f.sourceFileType !== FileTypes.SBC_SALES)
-    .filter((f: FileUploadedEntity) => !f.sourceFileName.includes('LABOUR'))
-    .filter((f: FileUploadedEntity) => !f.sourceFileName.includes('LABOUR2'))
-    .filter((f: FileUploadedEntity) => !f.sourceFileName.includes('FebMarApr'));
-
-  const hasSBCFileToday = sbcFiles.filter(
-    (f: FileUploadedEntity) => sbcDateFromFileName(f.sourceFileName) === date
-  );
-
-  const hasTDI34FileToday = bcmFiles
-    .filter((f: FileUploadedEntity) => f.sourceFileType === FileTypes.TDI34)
-    .filter(
-      (f: FileUploadedEntity) => bcmDateFromFileName(f.sourceFileName) === date
-    );
-
-  const hasTDI17FileToday = bcmFiles
-    .filter((f: FileUploadedEntity) => f.sourceFileType === FileTypes.TDI34)
-    .filter(
-      (f: FileUploadedEntity) => bcmDateFromFileName(f.sourceFileName) === date
-    );
-  if (
-    hasSBCFileToday.length === 0 ||
-    hasTDI34FileToday.length === 0 ||
-    hasTDI17FileToday.length === 0
-  ) {
-    throw new Error(
-      `Incomplete dataset for this date ${reconciliationDate}. Please check the uploaded files.`
-    );
-  }
-  return true;
-};
-
-// PrsnsEvent reconciler from running for a program if no valid files today
-export const checkFilesUploadedToday = async (
-  notificationService: NotificationService,
-  ministry: Ministries
-): Promise<boolean> => {
-  const rule = await notificationService.getRulesForProgram(ministry);
-  if (!rule) {
-    throw new Error('No rule for this program');
-  }
-  const reconciliationDate = new Date();
-  const daily = await notificationService.getDailyForRule(
-    rule,
-    reconciliationDate
-  );
-  if (!daily?.success) {
-    throw new Error(
-      `Incomplete dataset for this date ${reconciliationDate}. Please check the uploaded files.`
-    );
-  }
-  return true;
+/**
+ * Extract the file date from the file name
+ */
+export const extractDateFromTXNFileName = (fileName: string): Date => {
+  const name = fileName.split('/')[1].split('.')[0];
+  const date = name.replace('SBC_SALES_', '').replace(/[_]/gi, '-');
+  return new Date(date.slice(0, 10));
 };

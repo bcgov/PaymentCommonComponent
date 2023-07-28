@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { S3Event } from 'aws-lambda';
+import { S3Event, S3EventRecord } from 'aws-lambda';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { format } from 'date-fns';
 import { Repository } from 'typeorm';
@@ -19,12 +19,14 @@ import {
 } from './dto/garms-transaction.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
+import { extractDateFromTXNFileName } from '../common/utils/format';
 import { FileTypes, ParseArgsTDI } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { TDI17Details, TDI34Details } from '../flat-files';
+import { extractDateFromBCMFileName } from '../lambdas/helpers';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI } from '../lambdas/utils/parseTDI';
 import { AppLogger } from '../logger/logger.service';
@@ -266,7 +268,9 @@ export class ParseService {
         )
       : this.appLogger.log(`Processing ${event.Records.length} files...`);
 
-    const eventFileList = event.Records.map((r) => r.s3.object.key);
+    const eventFileList = event.Records.map(
+      (r: S3EventRecord) => r.s3.object.key
+    );
 
     const fileList =
       (await this.s3.listBucketContents(
@@ -441,11 +445,16 @@ export class ParseService {
         HttpStatus.FORBIDDEN
       );
     }
+    const dailyDate =
+      fileType === FileTypes.SBC_SALES
+        ? extractDateFromTXNFileName(fileName)
+        : extractDateFromBCMFileName(fileName);
+
+    let daily = await this.alertService.getDailyForRule(rules, dailyDate);
 
     // Creates a new daily status for the rule, if none exist, so that files can be tracked
-    let daily = await this.alertService.getDailyForRule(rules, new Date());
     if (!daily) {
-      daily = await this.alertService.createNewDaily(rules, new Date());
+      daily = await this.alertService.createNewDaily(rules, dailyDate);
     }
 
     try {
@@ -457,6 +466,7 @@ export class ParseService {
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: garmsSales.length,
+          fileCreatedDate: new Date(dailyDate),
           dailyUpload: daily,
         });
         this.appLogger.log(`Transaction count: ${garmsSales.length}`);
@@ -479,6 +489,7 @@ export class ParseService {
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: cashDeposits.length,
+          fileCreatedDate: new Date(dailyDate),
           dailyUpload: daily,
         });
         this.appLogger.log(`Cash Deposits count: ${cashDeposits.length}`);
@@ -501,6 +512,7 @@ export class ParseService {
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: posEntities.length,
+          fileCreatedDate: new Date(dailyDate),
           dailyUpload: daily,
         });
         this.appLogger.log(`POS Deposits count: ${posEntities.length}`);
