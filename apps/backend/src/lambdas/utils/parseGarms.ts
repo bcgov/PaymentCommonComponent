@@ -25,7 +25,8 @@ import {
 export const parseGarms = (
   garmsJson: SBCGarmsJson[],
   source_file_name: string,
-  paymentMethods: PaymentMethodEntity[]
+  paymentMethods: PaymentMethodEntity[],
+  fileDate: Date
 ): TransactionEntity[] => {
   const garmsData = garmsJson.map((itm) => ({
     ...itm,
@@ -45,6 +46,7 @@ export const parseGarms = (
       distributions,
     }): TransactionEntity =>
       new TransactionEntity({
+        file_created_date: fileDate,
         source_id: Ministries.SBC,
         transaction_id: sales_transaction_id,
         transaction_date: sales_transaction_date.slice(0, 10),

@@ -14,7 +14,8 @@ export class POSDepositDetailsReport extends DetailsReport {
     this.reconciled_date = deposit.reconciled_on ?? deposit.reconciled_on;
     this.in_progress_date = this.setInProgressDate(deposit);
     this.reconciliation_status = deposit.status;
-    this.uploaded_date = deposit.metadata.created_at;
+    this.uploaded_date =
+      deposit.metadata.file_created_date ?? deposit.metadata.created_at;
     this.txn_date = parse(deposit.transaction_date, 'yyyy-MM-dd', new Date());
     this.time = deposit.transaction_time;
     this.close_date = parse(deposit.settlement_date, 'yyyy-MM-dd', new Date());

@@ -169,7 +169,7 @@ describe('ParseService', () => {
             transactionFile.toString(),
             'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
           )
-        )[0].total_transaction_amount
+        ).txnFile[0].total_transaction_amount
       ).toEqual(100);
     });
 
@@ -196,7 +196,7 @@ describe('ParseService', () => {
             'SBC',
             tdi17File
           )
-        )[0].deposit_amt_curr
+        ).cashDeposits[0].deposit_amt_curr
       ).toEqual(558.31);
     });
 
@@ -262,7 +262,7 @@ describe('ParseService', () => {
             'SBC',
             tdi34File
           )
-        )[0].transaction_amt
+        ).posEntities[0].transaction_amt
       ).toEqual(17);
     });
 

@@ -16,4 +16,7 @@ export class FileMetadata {
 
   @Column()
   source_file_length: number;
+
+  @Column({ nullable: true, type: 'date' })
+  file_created_date: Date;
 }

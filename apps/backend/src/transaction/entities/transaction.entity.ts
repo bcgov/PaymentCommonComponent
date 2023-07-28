@@ -20,6 +20,9 @@ export class TransactionEntity {
   @CreateDateColumn()
   created_at: Date;
 
+  @Column({ nullable: true, type: 'date' })
+  file_created_date: Date;
+
   @Column({ type: 'date' })
   transaction_date: string;
 

@@ -1,6 +1,8 @@
 import Decimal from 'decimal.js';
 import { MatchStatus } from './common/const';
 import { POSDepositEntity } from './deposits/entities/pos-deposit.entity';
+import { TDI17Header } from './flat-files/tdi17/TDI17Header';
+import { TDI34Header } from './flat-files/tdi34/TDI34Header';
 import { PosHeuristicRound } from './reconciliation/types';
 import { PaymentEntity, PaymentMethodEntity } from './transaction/entities';
 
@@ -29,6 +31,7 @@ export interface ParseArgsTDI {
   fileName: string;
   program: string;
   fileContents: string;
+  header: TDI17Header | TDI34Header;
 }
 
 export interface DateRange {

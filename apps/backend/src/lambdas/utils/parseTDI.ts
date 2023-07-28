@@ -1,14 +1,39 @@
 import Decimal from 'decimal.js';
 import { ParseArgsTDI, FileTypes } from '../../constants';
 import { TDI17Details, TDI34Details, DDFDetails } from '../../flat-files';
+import { TDI17Header } from '../../flat-files/tdi17/TDI17Header';
 import { TDI17Trailer } from '../../flat-files/tdi17/TDI17Trailer';
+import { TDI34Header } from '../../flat-files/tdi34/TDI34Header';
 import { TDI34Trailer } from '../../flat-files/tdi34/TDI34Trailer';
+
+export const parseTDIHeader = (
+  type: FileTypes,
+  fileContents: string
+): TDI34Header | TDI17Header => {
+  // Validate header
+  const lines = fileContents.split('\n').filter((l: string) => l);
+  const header = lines.slice(0, 1);
+  let headerLine;
+
+  if (type === FileTypes.TDI17) {
+    headerLine = new TDI17Header({});
+    headerLine.convertToJson(header[0]);
+  } else if (type === FileTypes.TDI34) {
+    headerLine = new TDI34Header({});
+    headerLine.convertToJson(header[0]);
+  }
+
+  const typedTDArray = headerLine as TDI34Header | TDI17Header;
+
+  return typedTDArray;
+};
 
 export const parseTDI = ({
   type,
   fileName,
   program,
   fileContents,
+  header,
 }: ParseArgsTDI): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
   const lines = fileContents.split('\n').filter((l: string) => l);
   lines.splice(0, 1);
@@ -18,6 +43,7 @@ export const parseTDI = ({
     return [];
   }
 
+  // parse the body of the file
   const items = ((): TDI34Details[] | TDI17Details[] | DDFDetails[] | [] => {
     if (type === FileTypes.TDI17)
       return lines.map(() => {
@@ -34,14 +60,6 @@ export const parseTDI = ({
     return [];
   })();
 
-  const fileDateFromFileName = (filename: string): Date => {
-    const splitname = filename.split('_');
-    const datestring = splitname[splitname.length - 1].split('.')[0];
-    const year = parseInt(datestring.slice(0, 4));
-    const month = parseInt(datestring.slice(4, 6));
-    const day = parseInt(datestring.slice(6, 8));
-    return new Date(year, month - 1, day);
-  };
   // TODO [CCFPCM-397] We don't check what the intput type is for the actual parsing!
   const detailsArr = items.map((item, index) => {
     item.convertToJson(lines[index]);
@@ -51,7 +69,10 @@ export const parseTDI = ({
       program,
       source_file_name: fileName,
       source_file_length: lines.length,
-      file_created_date: fileDateFromFileName(fileName),
+      file_created_date:
+        type === FileTypes.TDI34
+          ? (header as TDI34Header).settlement_date
+          : (header as TDI17Header).creation_date,
     };
     return item;
   });

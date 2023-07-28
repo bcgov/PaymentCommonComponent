@@ -14,7 +14,7 @@ import {
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { TDI34Details } from '../../../src/flat-files';
-import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
+import { parseTDI, parseTDIHeader } from '../../../src/lambdas/utils/parseTDI';
 import { generateLocation } from '../../mocks/const/location_mock';
 import { MockData } from '../../mocks/mocks';
 
@@ -62,12 +62,13 @@ describe('POSDepositService', () => {
       const testFile = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/TDI34.TXT')
       );
-
+      const header = parseTDIHeader(FileTypes.TDI34, testFile.toString());
       const tdi34Mock: ParseArgsTDI = {
         type: FileTypes.TDI34,
-        fileName: 'test/TDI34',
+        fileName: 'sbc/PROD_SBC_F08TDI34_20230504.DAT',
         program: 'SBC',
         fileContents: Buffer.from(testFile).toString(),
+        header,
       };
       const data: TDI34Details[] = [...parseTDI(tdi34Mock)] as TDI34Details[];
       const posDeposit: POSDepositEntity[] = data.map(
