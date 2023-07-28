@@ -7,7 +7,7 @@ import {
   Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { S3Event } from 'aws-lambda';
+import { S3Event, S3EventRecord } from 'aws-lambda';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { format } from 'date-fns';
 import { Repository } from 'typeorm';
@@ -19,14 +19,20 @@ import {
 } from './dto/garms-transaction.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
-import { FileTypes, ParseArgsTDI } from '../constants';
+import { FileTypes, Ministries, ParseArgsTDI } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { TDI17Details, TDI34Details } from '../flat-files';
+import { TDI17Header } from '../flat-files/tdi17/TDI17Header';
+import { TDI34Header } from '../flat-files/tdi34/TDI34Header';
+import {
+  extractDateFromTXNFileName,
+  validateSbcGarmsFileName,
+} from '../lambdas/helpers';
 import { parseGarms } from '../lambdas/utils/parseGarms';
-import { parseTDI } from '../lambdas/utils/parseTDI';
+import { parseTDI, parseTDIHeader } from '../lambdas/utils/parseTDI';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
@@ -107,12 +113,14 @@ export class ParseService {
     fileContents,
   }: ParseArgsTDI): Promise<unknown> {
     try {
+      const header = parseTDIHeader(type, fileContents);
       //TODO upload? Or parse to the db?
       return parseTDI({
         type,
         fileName,
         program,
         fileContents: Buffer.from(fileContents || '').toString(),
+        header,
       });
     } catch (err) {
       this.appLogger.error(err, 'Error parsing file');
@@ -129,13 +137,18 @@ export class ParseService {
   async parseGarmsFile(
     contents: string,
     fileName: string
-  ): Promise<TransactionEntity[]> {
+  ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: Date }> {
     const paymentMethods = await this.paymentMethodService.getPaymentMethods();
+    // validate the filename - this must follow a specific format to be valid
+    validateSbcGarmsFileName(fileName);
     // Creates an array of Transaction Entities
+    const fileDate = extractDateFromTXNFileName(fileName);
+
     const garmsSales = parseGarms(
       (await JSON.parse(contents || '{}')) as SBCGarmsJson[],
       fileName,
-      paymentMethods
+      paymentMethods,
+      fileDate
     );
 
     // Converts to DTOs strictly for validation purposes
@@ -152,7 +165,7 @@ export class ParseService {
       );
       throw new Error(errorMessage);
     }
-    return garmsSales;
+    return { txnFile: garmsSales, txnFileDate: fileDate };
   }
 
   /**
@@ -166,12 +179,16 @@ export class ParseService {
     fileName: string,
     program: string,
     fileContents: Buffer
-  ): Promise<CashDepositEntity[]> {
+  ): Promise<{ cashDeposits: CashDepositEntity[]; fileDate: string }> {
+    const contents = Buffer.from(fileContents.toString() || '').toString();
+    const header = parseTDIHeader(FileTypes.TDI17, contents);
+
     const parsed = parseTDI({
       type: FileTypes.TDI17,
       fileName,
       program,
-      fileContents: Buffer.from(fileContents.toString() || '').toString(),
+      fileContents: contents,
+      header,
     });
 
     const tdi17Details = parsed as TDI17Details[];
@@ -192,7 +209,10 @@ export class ParseService {
       );
       throw new Error(errorMessage);
     }
-    return cashDeposits;
+    return {
+      cashDeposits,
+      fileDate: (header as TDI17Header).creation_date,
+    };
   }
 
   /**
@@ -206,12 +226,14 @@ export class ParseService {
     fileName: string,
     program: string,
     fileContents: Buffer
-  ): Promise<POSDepositEntity[]> {
+  ): Promise<{ posEntities: POSDepositEntity[]; fileDate: string }> {
+    const header = parseTDIHeader(FileTypes.TDI34, fileContents.toString());
     const parsed = parseTDI({
       type: FileTypes.TDI34,
       fileName,
       program,
       fileContents: Buffer.from(fileContents.toString() || '').toString(),
+      header,
     });
 
     const tdi34Details = parsed as TDI34Details[];
@@ -232,7 +254,7 @@ export class ParseService {
       );
       throw new Error(errorMessage);
     }
-    return posEntities;
+    return { posEntities, fileDate: (header as TDI34Header).settlement_date };
   }
 
   /**
@@ -254,7 +276,10 @@ export class ParseService {
   ): Promise<FileUploadedEntity> {
     return this.uploadedRepo.save(fileUploaded);
   }
-
+  /**
+   * First step in the parsing process. Checks for files in the bucket, and then checks if they have been parsed before.
+   * @param event
+   */
   async processAllFiles(event: S3Event) {
     event.Records.length === 0
       ? this.appLogger.log(
@@ -262,7 +287,9 @@ export class ParseService {
         )
       : this.appLogger.log(`Processing ${event.Records.length} files...`);
 
-    const eventFileList = event.Records.map((r) => r.s3.object.key);
+    const eventFileList = event.Records.map(
+      (r: S3EventRecord) => r.s3.object.key
+    );
 
     const fileList =
       (await this.s3.listBucketContents(
@@ -292,13 +319,15 @@ export class ParseService {
       const finalParseList = parseList.filter(
         (filename) => !filename?.includes('LABOUR2')
       );
-      this.appLogger.log('Creating daily upload for today if needed');
+      // this.appLogger.log('Creating daily upload for today if needed');
 
-      await this.commenceDailyUpload(new Date());
+      // await this.commenceDailyUpload(new Date());
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
-        if (filename) await this.parseFileFromS3(filename);
+        if (filename) {
+          await this.parseFileFromS3(filename);
+        }
       }
     } catch (err) {
       this.appLogger.error(err);
@@ -308,30 +337,41 @@ export class ParseService {
   async parseFileFromS3(fileKey: string) {
     try {
       const bucket = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
-      const program = fileKey.split('/')[0];
+
+      //file source is either bcm, or the txn data from a program
+      const fileSource = fileKey.split('/')[0];
       const filename = fileKey.split('/')[1];
-      console.log(bucket, program, filename);
+      // program is the ministry - there will be txn fileSource data and bcm fileSource data for each ministry
 
-      const file = await this.s3.getObject(bucket, `${program}/${filename}`);
+      const file = await this.s3.getObject(bucket, `${fileSource}/${filename}`);
 
+      // move this to after file parse
       let currentRule: FileIngestionRulesEntity | null = null;
+      let program: Ministries;
+      //Get all existing rules for each program
+      const rules: FileIngestionRulesEntity[] =
+        await this.alertService.getAllRules();
+      // for every ruleset, check if the FileInjestionRuleEntity matches the prgram from the filename
+      //TODO change this to not use the filename to validate (ie use the bucket key instead after the file directory is changed TBD)
 
-      const rules = await this.alertService.getAllRules();
       const ministry = (() => {
         for (const rule of rules) {
           if (filename.includes(rule.program)) {
             currentRule = rule;
+            program = rule.program as Ministries;
             return rule.program;
           }
         }
         throw new Error(`File does not reference to any programs: ${filename}`);
       })();
 
+      // if there is no current rule (program name) that matches the filename, throw an error
       if (!currentRule) {
         throw new Error('No rule associated');
       }
 
       const fileType = (() => {
+        //TODO change this to not use the filename to validate
         const requiredFiles = currentRule?.requiredFiles;
         const requiredFile = requiredFiles?.find((rf) =>
           filename.includes(rf.filename)
@@ -345,7 +385,9 @@ export class ParseService {
       try {
         this.appLogger.log('Call endpoint to upload file...', filename);
         await this.uploadAndParseFile(
-          { fileName: `${program}/${filename}`, fileType, program: ministry },
+          `${fileSource}/${filename}`,
+          program,
+          fileType,
           Buffer.from(file.Body?.toString() || '')
         );
         // const formData = new FormData();
@@ -405,26 +447,26 @@ export class ParseService {
   async commenceDailyUpload(date: Date) {
     const rules = await this.alertService.getAllRules();
     for (const rule of rules) {
-      const daily = await this.alertService.getDailyForRule(
-        rule,
-        new Date(date)
-      );
+      const daily = await this.alertService.getDailyForRule(rule, date);
       if (!daily) {
-        await this.alertService.createNewDaily(rule, new Date(date));
+        await this.alertService.createNewDaily(rule, date);
       }
+      return daily;
     }
   }
 
   async uploadAndParseFile(
-    body: { fileName: string; fileType: FileTypes; program: string },
+    fileName: string,
+    program: string,
+    fileType: FileTypes,
     buffer: Buffer
   ) {
-    const { fileName, fileType, program } = body;
-    this.appLogger.log(`Parsing ${fileName} - ${fileType}`);
+    this.appLogger.log(`Parsing ${fileName}`);
     const contents = buffer.toString();
 
     const allFiles = await this.getAllFiles();
     const allFilenames = new Set(allFiles.map((f) => f.sourceFileName));
+
     if (allFilenames.has(fileName)) {
       throw new BadRequestException({
         message: 'Invalid filename, this already exists',
@@ -433,6 +475,7 @@ export class ParseService {
 
     // Throws an error if no rules exist for the specified program
     const rules = await this.alertService.getRulesForProgram(program);
+    console.log(rules, 'RULES');
     if (!rules) {
       throw new HttpException(
         `No rules established for program ${program}`,
@@ -441,25 +484,38 @@ export class ParseService {
     }
 
     // Creates a new daily status for the rule, if none exist, so that files can be tracked
-    let daily = await this.alertService.getDailyForRule(rules, new Date());
-    if (!daily) {
-      daily = await this.alertService.createNewDaily(rules, new Date());
-    }
+    // after parse, before DB insert
+    const daily = async (date: Date) => {
+      const upload = await this.commenceDailyUpload(date);
+      console.log(upload, 'UPLOAD');
 
+      let daily = await this.alertService.getDailyForRule(rules, date);
+      console.log(daily, 'DAILY');
+
+      if (!daily) {
+        daily = await this.alertService.createNewDaily(rules, date);
+      }
+      return daily;
+    };
     try {
       // FileType is based on the filename (from Parser) or from the endpoint body
       if (fileType === FileTypes.SBC_SALES) {
         this.appLogger.log('Parse and store SBC Sales in DB...', fileName);
-        const garmsSales = await this.parseGarmsFile(contents, fileName); // validating step
+
+        const { txnFile, txnFileDate } = await this.parseGarmsFile(
+          contents,
+          fileName
+        );
+
         const fileToSave = await this.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
-          sourceFileLength: garmsSales.length,
-          dailyUpload: daily,
+          sourceFileLength: txnFile.length,
+          dailyUpload: await daily(txnFileDate),
         });
-        this.appLogger.log(`Transaction count: ${garmsSales.length}`);
+        this.appLogger.log(`Transaction count: ${txnFile.length}`);
         await this.transactionService.saveTransactions(
-          garmsSales.map((sale) => ({
+          txnFile.map((sale) => ({
             ...sale,
             fileUploadedEntityId: fileToSave.id,
           }))
@@ -468,17 +524,21 @@ export class ParseService {
 
       if (fileType === FileTypes.TDI17) {
         this.appLogger.log('Parse and store TDI17 in DB...', fileName);
-        const cashDeposits = await this.parseTDICashFile(
+
+        const { cashDeposits, fileDate } = await this.parseTDICashFile(
           fileName,
           program,
           buffer
-        ); // validating step
+        );
+
+        // validating step
         const fileToSave = await this.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: cashDeposits.length,
-          dailyUpload: daily,
+          dailyUpload: await daily(new Date(fileDate)),
         });
+
         this.appLogger.log(`Cash Deposits count: ${cashDeposits.length}`);
         await this.cashDepositService.saveCashDepositEntities(
           cashDeposits.map((deposit) => ({
@@ -490,18 +550,22 @@ export class ParseService {
 
       if (fileType === FileTypes.TDI34) {
         this.appLogger.log('Parse and store TDI34 in DB...', fileName);
-        const posEntities = await this.parseTDICardsFile(
+        // first parse the file in order to extract the date from the header
+        const { posEntities, fileDate } = await this.parseTDICardsFile(
           fileName,
           program,
           buffer
         );
+
         const fileToSave = await this.saveFileUploaded({
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: posEntities.length,
-          dailyUpload: daily,
+          dailyUpload: await daily(new Date(fileDate)),
         });
+
         this.appLogger.log(`POS Deposits count: ${posEntities.length}`);
+
         await this.posDepositService.savePOSDepositEntities(
           posEntities.map((deposit) => ({
             ...deposit,

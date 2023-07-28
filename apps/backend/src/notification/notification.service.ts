@@ -40,6 +40,7 @@ export class NotificationService {
    */
   async getRulesForProgram(program: string): Promise<FileIngestionRulesEntity> {
     return await this.ingestionRulesRepo.findOneOrFail({
+      relations: ['requiredFiles'],
       where: {
         program,
       },
