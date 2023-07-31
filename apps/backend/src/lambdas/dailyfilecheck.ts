@@ -29,7 +29,9 @@ export const handler = async (event: unknown, context?: Context) => {
     // );
     // this.appLogger.log(alertsSentResponse.data.data);
     // const alertsSent: DailyAlertRO = alertsSentResponse.data.data;
-    const alertsSent = await notificationService.dailyUploadAlert(new Date());
+    const alertsSent = await notificationService.dailyUploadAlert(
+      format(new Date(), 'yyyy-MM-dd')
+    );
 
     const programAlerts = alertsSent.dailyAlertPrograms;
     for (const alert of programAlerts) {
