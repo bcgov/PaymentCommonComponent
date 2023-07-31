@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import { FileMetadata } from '../../common/columns';
 import { ParseArgsTDI, FileTypes } from '../../constants';
 import { TDI17Details, TDI34Details, DDFDetails } from '../../flat-files';
 import { TDI17Header } from '../../flat-files/tdi17/TDI17Header';
@@ -63,17 +64,16 @@ export const parseTDI = ({
   // TODO [CCFPCM-397] We don't check what the intput type is for the actual parsing!
   const detailsArr = items.map((item, index) => {
     item.convertToJson(lines[index]);
-    item.metadata = {
-      type: type,
+    item.metadata = new FileMetadata({
       source_file_line: index + 1,
       program,
       source_file_name: fileName,
       source_file_length: lines.length,
-      file_created_date:
+      parsed_on:
         type === FileTypes.TDI34
           ? (header as TDI34Header).settlement_date
           : (header as TDI17Header).creation_date,
-    };
+    });
     return item;
   });
 
