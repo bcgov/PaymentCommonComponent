@@ -15,16 +15,8 @@ export const configureReconciliationInputs = (
   // check if the event has a reconciliationEventOverride property
   if (parsedEvent.reconciliationEventOverride) {
     return {
-      reconciliationMinDate: parse(
-        parsedEvent.period.from,
-        'yyyy-MM-dd',
-        new Date()
-      ),
-      reconciliationMaxDate: parse(
-        parsedEvent.period.to,
-        'yyyy-MM-dd',
-        new Date()
-      ),
+      reconciliationMinDate: parsedEvent.period.from,
+      reconciliationMaxDate: parsedEvent.period.to,
       //TO prevent the report from being generated with the entire dataset in case of a batch reconciliation, we will use the max date from the input parameters as the date of reconciliation
       //These overrides are only for testing purposes and should not be used outside of dev/test
       currentDate: parse(parsedEvent.period.to, 'yyyy-MM-dd', new Date()),
@@ -54,11 +46,11 @@ export const configureReconciliationInputs = (
  * Extract the file date from the file name
  * exmaple filename: 'sbc/SBC_SALES_2026_03_03_23_17_37.JSON'
  */
-export const extractDateFromTXNFileName = (fileName: string): Date => {
+export const extractDateFromTXNFileName = (fileName: string): string => {
   try {
     const name = fileName.split('/')[1].split('.')[0];
     const date = name.replace('SBC_SALES_', '').replace(/[_]/gi, '-');
-    return new Date(date.slice(0, 10));
+    return date.slice(0, 10);
   } catch (err) {
     throw new Error(`Error extracting date from file name: ${fileName}`);
   }

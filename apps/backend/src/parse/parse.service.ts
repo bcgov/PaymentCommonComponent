@@ -137,7 +137,7 @@ export class ParseService {
   async parseGarmsFile(
     contents: string,
     fileName: string
-  ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: Date }> {
+  ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: string }> {
     const paymentMethods = await this.paymentMethodService.getPaymentMethods();
     // validate the filename - this must follow a specific format to be valid
     validateSbcGarmsFileName(fileName);
@@ -444,7 +444,7 @@ export class ParseService {
    * This is to ensure its working within our lambda flows as the API Gateway
    * is currently unable to take requests from the parsing lambda
    */
-  async commenceDailyUpload(date: Date) {
+  async commenceDailyUpload(date: string) {
     const rules = await this.alertService.getAllRules();
     for (const rule of rules) {
       const daily = await this.alertService.getDailyForRule(rule, date);
@@ -475,7 +475,6 @@ export class ParseService {
 
     // Throws an error if no rules exist for the specified program
     const rules = await this.alertService.getRulesForProgram(program);
-    console.log(rules, 'RULES');
     if (!rules) {
       throw new HttpException(
         `No rules established for program ${program}`,
@@ -485,12 +484,10 @@ export class ParseService {
 
     // Creates a new daily status for the rule, if none exist, so that files can be tracked
     // after parse, before DB insert
-    const daily = async (date: Date) => {
-      const upload = await this.commenceDailyUpload(date);
-      console.log(upload, 'UPLOAD');
+    const daily = async (date: string) => {
+      await this.commenceDailyUpload(date);
 
       let daily = await this.alertService.getDailyForRule(rules, date);
-      console.log(daily, 'DAILY');
 
       if (!daily) {
         daily = await this.alertService.createNewDaily(rules, date);
@@ -536,7 +533,7 @@ export class ParseService {
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: cashDeposits.length,
-          dailyUpload: await daily(new Date(fileDate)),
+          dailyUpload: await daily(fileDate),
         });
 
         this.appLogger.log(`Cash Deposits count: ${cashDeposits.length}`);
@@ -561,7 +558,7 @@ export class ParseService {
           sourceFileType: fileType,
           sourceFileName: fileName,
           sourceFileLength: posEntities.length,
-          dailyUpload: await daily(new Date(fileDate)),
+          dailyUpload: await daily(fileDate),
         });
 
         this.appLogger.log(`POS Deposits count: ${posEntities.length}`);

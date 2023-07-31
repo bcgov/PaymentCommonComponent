@@ -87,8 +87,8 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
     const allPosPaymentsInDates = await paymentService.findPosPayments(
       {
-        minDate: format(reconciliationMinDate, 'yyyy-MM-dd'),
-        maxDate: format(reconciliationMaxDate, 'yyyy-MM-dd'),
+        minDate: reconciliationMinDate,
+        maxDate: reconciliationMaxDate,
       },
       locations.map((itm) => itm.location_id),
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
@@ -97,8 +97,8 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     // Get all pending deposits whether its one day or many months
     const allPosDepositsInDates = await posDepositService.findPosDeposits(
       {
-        minDate: format(reconciliationMinDate, 'yyyy-MM-dd'),
-        maxDate: format(reconciliationMaxDate, 'yyyy-MM-dd'),
+        minDate: reconciliationMinDate,
+        maxDate: reconciliationMaxDate,
       },
       ministry,
       locations.flatMap((location) => location.merchant_ids.map((id) => id)),
@@ -133,7 +133,13 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       const exceptions = await posReconciliationService.setExceptions(
         location,
         ministry,
-        format(subBusinessDays(reconciliationMaxDate, 2), 'yyyy-MM-dd'),
+        format(
+          subBusinessDays(
+            parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date()),
+            2
+          ),
+          'yyyy-MM-dd'
+        ),
         currentDate
       );
 
@@ -152,15 +158,16 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
       const filtered = allCashDepositDatesPerLocation.filter(
         (date: string) =>
-          parse(date, 'yyyy-MM-dd', new Date()) >= reconciliationMinDate &&
-          parse(date, 'yyyy-MM-dd', new Date()) <= reconciliationMaxDate
+          parse(date, 'yyyy-MM-dd', new Date()) >=
+            parse(reconciliationMinDate, 'yyyy-MM-dd', new Date()) &&
+          parse(date, 'yyyy-MM-dd', new Date()) <=
+            parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date())
       );
 
       for (const date of filtered) {
         const currentCashDepositDate = date;
         const previousCashDepositDate =
-          filtered[filtered.indexOf(date) - 2] ??
-          format(reconciliationMinDate, 'yyyy-MM-dd');
+          filtered[filtered.indexOf(date) - 2] ?? reconciliationMinDate;
 
         const dateRange = {
           minDate: previousCashDepositDate,
@@ -210,8 +217,8 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
         SNS_RECONCILER_RESULTS_TOPIC || '',
         JSON.stringify({
           period: {
-            from: format(reconciliationMinDate, 'yyyy-MM-dd'),
-            to: format(reconciliationMaxDate, 'yyyy-MM-dd'),
+            from: reconciliationMinDate,
+            to: reconciliationMaxDate,
           },
           program: ministry,
         })
@@ -233,8 +240,8 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
               Sns: {
                 Message: JSON.stringify({
                   period: {
-                    from: format(reconciliationMinDate, 'yyyy-MM-dd'),
-                    to: format(reconciliationMaxDate, 'yyyy-MM-dd'),
+                    from: reconciliationMinDate,
+                    to: reconciliationMaxDate,
                   },
                   program: ministry,
                 }),

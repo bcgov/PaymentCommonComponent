@@ -26,7 +26,7 @@ export const parseGarms = (
   garmsJson: SBCGarmsJson[],
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[],
-  fileDate: Date
+  fileDate: string
 ): TransactionEntity[] => {
   const garmsData = garmsJson.map((itm) => ({
     ...itm,

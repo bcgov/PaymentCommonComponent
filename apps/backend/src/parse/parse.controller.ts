@@ -130,7 +130,9 @@ export class ParseController {
     },
   })
   @Post('daily-upload/alert')
-  async dailyUploadAlert(@Body() body: { date: Date }): Promise<DailyAlertRO> {
+  async dailyUploadAlert(
+    @Body() body: { date: string }
+  ): Promise<DailyAlertRO> {
     return await this.alertService.dailyUploadAlert(body.date);
   }
 }
