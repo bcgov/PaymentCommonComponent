@@ -1,5 +1,4 @@
 import { parse, subBusinessDays } from 'date-fns';
-import { reg } from './const';
 import { Ministries } from '../constants';
 /**
  * Allows for manual override of the reconciliation dates
@@ -59,7 +58,9 @@ export const extractDateFromTXNFileName = (fileName: string): string => {
  */
 export const validateSbcGarmsFileName = (filename: string): boolean => {
   try {
-    return reg.test(filename);
+    return /sbc\/\SBC_SALES_(20)\d{2}_(0[1-9]|1[0-2])_(0[1-9]|[12][0-9]|3[01])_\d{2}_\d{2}_\d{2}.JSON/gi.test(
+      filename
+    );
   } catch (err) {
     throw new Error(`Error validating file name: ${filename}`);
   }
