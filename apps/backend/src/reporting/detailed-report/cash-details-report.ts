@@ -17,7 +17,8 @@ export class CashDepositDetailsReport extends DetailsReport {
     this.in_progress_date = this.setInProgressDate(deposit);
     this.transaction_id = deposit.jv_no ?? '';
     this.uploaded_date =
-      deposit.metadata.file_created_date ?? deposit.metadata.created_at;
+      parse(deposit.metadata.parsed_on, 'yyyy-MM-dd', new Date()) ??
+      deposit.metadata.created_at;
     this.close_date = parse(deposit.deposit_date, 'yyyy-MM-dd', new Date());
     this.type = PaymentMethodClassification.CASH;
     this.time = deposit.deposit_time ?? null;
