@@ -32,7 +32,7 @@ test('Payment Entity Instance', () => {
       transaction_date: '2023-01-09',
       transaction_time: '18:53:55Z',
       fiscal_close_date: '2023-01-09',
-      file_created_date: new Date('2023-01-09'),
+      parsed_on: '2023-01-09',
       total_transaction_amount: 161.81,
       void_indicator: false,
       source_id: 'SBC',
@@ -67,7 +67,7 @@ test('Payment Entity Instance', () => {
         source_file_name: 'bcm/PROD_SBC_F08TDI34_20230404.DAT',
         source_file_line: 1550,
         source_file_length: 2116,
-        file_created_date: new Date('2023-01-09'),
+        parsed_on: '2023-01-09',
       },
     },
   });

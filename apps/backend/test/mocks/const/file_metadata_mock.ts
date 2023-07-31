@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import { FileMetadata } from './../../../src/common/columns/metadata';
 import { FileTypes, Ministries } from './../../../src/constants';
 
@@ -8,6 +9,6 @@ export const generateMetadataMock = (filetype: FileTypes): FileMetadata => {
     source_file_length: 0,
     source_file_line: 0,
     program: Ministries.SBC,
-    file_created_date: new Date(),
+    parsed_on: format(new Date(), 'yyyy-MM-dd'),
   };
 };

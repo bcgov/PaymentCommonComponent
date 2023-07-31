@@ -16,6 +16,9 @@ describe('Tests the filename regex validation', () => {
       'sbc/SBC_SALES_2023_11_30_23_17_56.JSON',
       'sbc/SBC_SALES_2023_12_31_23_17_56.JSON',
     ];
+    validTestFileNames.forEach((name) =>
+      console.log(validateSbcGarmsFileName(name), name)
+    );
     expect(
       validTestFileNames.every((name) => validateSbcGarmsFileName(name))
     ).toStrictEqual(true);
