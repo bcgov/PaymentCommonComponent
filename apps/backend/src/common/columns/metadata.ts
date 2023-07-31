@@ -5,6 +5,9 @@ export class FileMetadata {
   @CreateDateColumn()
   created_at: Date;
 
+  @Column({ nullable: true, type: 'date' })
+  parsed_on: string;
+
   @Column({ nullable: true })
   program: string;
 
@@ -16,7 +19,4 @@ export class FileMetadata {
 
   @Column()
   source_file_length: number;
-
-  @Column({ nullable: true, type: 'date' })
-  file_created_date: Date;
 }

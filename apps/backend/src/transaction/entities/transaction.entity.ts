@@ -21,7 +21,7 @@ export class TransactionEntity {
   created_at: Date;
 
   @Column({ nullable: true, type: 'date' })
-  file_created_date: Date;
+  parsed_on: Date;
 
   @Column({ type: 'date' })
   transaction_date: string;
