@@ -1,6 +1,6 @@
 import { parse, subBusinessDays } from 'date-fns';
+import { reg } from './const';
 import { Ministries } from '../constants';
-
 /**
  * Allows for manual override of the reconciliation dates
  * @param event
@@ -47,13 +47,9 @@ export const configureReconciliationInputs = (
  * exmaple filename: 'sbc/SBC_SALES_2026_03_03_23_17_37.JSON'
  */
 export const extractDateFromTXNFileName = (fileName: string): string => {
-  try {
-    const name = fileName.split('/')[1].split('.')[0];
-    const date = name.replace('SBC_SALES_', '').replace(/[_]/gi, '-');
-    return date.slice(0, 10);
-  } catch (err) {
-    throw new Error(`Error extracting date from file name: ${fileName}`);
-  }
+  const name = fileName.split('/')[1].split('.')[0];
+  const date = name.replace('SBC_SALES_', '').replace(/[_]/gi, '-');
+  return date.slice(0, 10);
 };
 /**
  * Validates the filename from SBC Garms. Example filename: 'sbc/SBC_SALES_2026_03_03_23_17_37.JSON',
@@ -62,8 +58,6 @@ export const extractDateFromTXNFileName = (fileName: string): string => {
  *
  */
 export const validateSbcGarmsFileName = (filename: string): boolean => {
-  const reg =
-    /sbc\/\SBC_SALES_(20)\d{2}_(0[1-9]|1[0,1,2])_(0[1-9]|[12][0-9]|3[01])_\d{2}_\d{2}_\d{2}.JSON/gi;
   try {
     return reg.test(filename);
   } catch (err) {
