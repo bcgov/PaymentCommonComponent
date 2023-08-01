@@ -8,8 +8,9 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { S3Event, S3EventRecord } from 'aws-lambda';
+import { SNS } from 'aws-sdk';
 import { validateOrReject, ValidationError } from 'class-validator';
-import { format } from 'date-fns';
+import { format, parse, subBusinessDays } from 'date-fns';
 import { Repository } from 'typeorm';
 import _ from 'underscore';
 import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
@@ -39,6 +40,7 @@ import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
 import { MailService } from '../notification/mail.service';
 import { NotificationService } from '../notification/notification.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
+import { SnsManagerService } from '../sns-manager/sns-manager.service';
 import { TransactionEntity } from '../transaction/entities';
 import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
@@ -60,6 +62,8 @@ export class ParseService {
     private readonly transactionService: TransactionService,
     @Inject(MailService)
     private readonly mailService: MailService,
+    @Inject(SnsManagerService)
+    private readonly snsService: SnsManagerService,
     @Inject(NotificationService)
     private readonly alertService: NotificationService,
     @InjectRepository(FileUploadedEntity)
@@ -300,8 +304,37 @@ export class ParseService {
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
+        const isLocal = (process.env.RUNTIME_ENV = 'local');
+
         if (filename) {
-          await this.parseFileFromS3(filename);
+          const file = await this.parseFileFromS3(filename);
+          const fileDate = file?.dailyUpload?.dailyDate;
+          if (!isLocal) {
+            const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
+            type NewType = SNS.Types.PublishResponse;
+
+            const response: NewType = await this.snsService.publish(
+              topic,
+              JSON.stringify({
+                generateReport: true,
+                program: Ministries.SBC,
+                period: {
+                  to: fileDate,
+                  from: format(
+                    subBusinessDays(
+                      parse(fileDate ?? '', 'yyyy-MM-dd', new Date()),
+                      31
+                    ),
+                    'yyyy-MM-dd'
+                  ),
+                },
+              })
+            );
+            return {
+              success: true,
+              response,
+            };
+          }
         }
       }
     } catch (err) {
@@ -309,7 +342,7 @@ export class ParseService {
     }
   }
 
-  async parseFileFromS3(fileKey: string) {
+  async parseFileFromS3(fileKey: string): Promise<FileUploadedEntity | void> {
     try {
       const bucket = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
 
@@ -358,12 +391,13 @@ export class ParseService {
 
       try {
         this.appLogger.log('Call endpoint to upload file...', filename);
-        await this.uploadAndParseFile(
+        const savedFile = await this.uploadAndParseFile(
           `${fileSource}/${filename}`,
           program,
           fileType,
           Buffer.from(file.Body?.toString() || '')
         );
+        return savedFile;
       } catch (err) {
         this.appLogger.log('\n\n=========Errors with File Upload: =========\n');
         this.appLogger.error(`Error with uploading file ${filename}`);
@@ -424,7 +458,7 @@ export class ParseService {
     program: string,
     fileType: FileTypes,
     buffer: Buffer
-  ) {
+  ): Promise<FileUploadedEntity | void> {
     this.appLogger.log(`Parsing ${fileName}`);
     const contents = buffer.toString();
 
@@ -474,6 +508,7 @@ export class ParseService {
           sourceFileLength: txnFile.length,
           dailyUpload: await daily(txnFileDate),
         });
+
         this.appLogger.log(`Transaction count: ${txnFile.length}`);
         await this.transactionService.saveTransactions(
           txnFile.map((sale) => ({
@@ -481,6 +516,7 @@ export class ParseService {
             fileUploadedEntityId: fileToSave.id,
           }))
         );
+        return fileToSave;
       }
 
       if (fileType === FileTypes.TDI17) {
@@ -507,6 +543,7 @@ export class ParseService {
             fileUploadedEntityId: fileToSave.id,
           }))
         );
+        return fileToSave;
       }
 
       if (fileType === FileTypes.TDI34) {
@@ -534,6 +571,7 @@ export class ParseService {
             timestamp: deposit.timestamp,
           }))
         );
+        return fileToSave;
       }
     } catch (err: unknown) {
       const message =

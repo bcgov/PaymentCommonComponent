@@ -6,6 +6,7 @@ import { ParseService } from './parse.service';
 import { DepositModule } from '../deposits/deposit.module';
 import { NotificationModule } from '../notification/notification.module';
 import { S3ManagerModule } from '../s3-manager/s3-manager.module';
+import { SnsManagerModule } from '../sns-manager/sns-manager.module';
 import { TransactionModule } from '../transaction/transaction.module';
 
 @Module({
@@ -16,6 +17,7 @@ import { TransactionModule } from '../transaction/transaction.module';
     DepositModule,
     TransactionModule,
     NotificationModule,
+    SnsManagerModule,
     TypeOrmModule.forFeature([FileUploadedEntity]),
   ],
   controllers: [ParseController],

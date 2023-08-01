@@ -58,19 +58,6 @@ resource "aws_lambda_permission" "trigger-parse" {
   source_arn = "arn:aws:s3:::${aws_s3_bucket.sftp_storage.id}"
 }
 
-resource "aws_lambda_function_event_invoke_config" "parser_event" {
-  function_name = aws_lambda_function.parser.function_name
-
-  destination_config {
-    on_success {
-      destination = aws_sns_topic.parser_results.arn
-    }
-    on_failure {
-      destination = aws_sns_topic.parser_results.arn
-    }
-  }
-}
-
 output "arn" {
   value = "${aws_lambda_function.parser.arn}"
 }
