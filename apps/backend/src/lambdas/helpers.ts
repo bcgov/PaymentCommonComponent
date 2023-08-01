@@ -4,7 +4,7 @@
  */
 export const extractDateFromTXNFileName = (fileName: string): string => {
   const name = fileName.split('/')[1].split('.')[0];
-  const date = name.replace('SBC_SALES_', '').replace(/[_]/gi, '-');
+  const date = name.replace('SBC_SALES_', '').replace(/_/gi, '-');
   return date.slice(0, 10);
 };
 /**
@@ -15,7 +15,7 @@ export const extractDateFromTXNFileName = (fileName: string): string => {
  */
 export const validateSbcGarmsFileName = (filename: string): boolean => {
   try {
-    return /sbc\/\SBC_SALES_(20)\d{2}_(0[1-9]|1[0-2])_(0[1-9]|[12][0-9]|3[01])_\d{2}_\d{2}_\d{2}.JSON/gi.test(
+    return /sbc\/\SBC_SALES_(20)\d{2}_(0[1-9]|1[0-2])_(0[1-9]|[12]\d|3[01])_\d{2}_\d{2}_\d{2}.JSON/gi.test(
       filename
     );
   } catch (err) {

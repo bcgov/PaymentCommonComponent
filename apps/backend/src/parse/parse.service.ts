@@ -19,7 +19,7 @@ import {
 } from './dto/garms-transaction.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
-import { FileTypes, Ministries, ParseArgsTDI } from '../constants';
+import { FileTypes, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -101,31 +101,6 @@ export class ParseService {
         : '';
     }
     return errorMessage;
-  }
-
-  /**
-   * Function used by `flat-file` endpoint to parse TDI
-   */
-  async readAndParseFile({
-    type,
-    fileName,
-    program,
-    fileContents,
-  }: ParseArgsTDI): Promise<unknown> {
-    try {
-      const header = parseTDIHeader(type, fileContents);
-      //TODO upload? Or parse to the db?
-      return parseTDI({
-        type,
-        fileName,
-        program,
-        fileContents: Buffer.from(fileContents || '').toString(),
-        header,
-      });
-    } catch (err) {
-      this.appLogger.error(err, 'Error parsing file');
-      throw err;
-    }
   }
 
   /**
@@ -353,7 +328,6 @@ export class ParseService {
         await this.alertService.getAllRules();
       // for every ruleset, check if the FileInjestionRuleEntity matches the prgram from the filename
       //TODO change this to not use the filename to validate (ie use the bucket key instead after the file directory is changed TBD)
-
       const ministry = (() => {
         for (const rule of rules) {
           if (filename.includes(rule.program)) {
@@ -390,16 +364,6 @@ export class ParseService {
           fileType,
           Buffer.from(file.Body?.toString() || '')
         );
-        // const formData = new FormData();
-        // formData.append('file', Readable.from(file), filename);
-        // formData.append('fileName', filename);
-        // formData.append('fileType', fileType);
-        // formData.append('program', ministry);
-        // await axiosInstance.post('/v1/parse/upload-file', formData, {
-        //   headers: {
-        //     ...formData.getHeaders(),
-        //   },
-        // });
       } catch (err) {
         this.appLogger.log('\n\n=========Errors with File Upload: =========\n');
         this.appLogger.error(`Error with uploading file ${filename}`);
