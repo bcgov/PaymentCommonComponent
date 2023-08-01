@@ -17,6 +17,7 @@ import { NotificationService } from '../notification/notification.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
+import { ReportingService } from '../reporting/reporting.service';
 import { SnsManagerService } from '../sns-manager/sns-manager.service';
 import { PaymentService } from '../transaction/payment.service';
 
@@ -33,7 +34,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const notificationService = app.get(NotificationService);
   const snsService = app.get(SnsManagerService);
   const isLocal = process.env.RUNTIME_ENV === 'local';
-
+  const reportingService = app.get(ReportingService);
   const { program, period, generateReport } =
     typeof event.Records[0].Sns.Message === 'string'
       ? JSON.parse(event.Records[0].Sns.Message)
@@ -199,6 +200,19 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       topic,
       JSON.stringify(reportParams)
     );
+    const showConsoleReport = async () => {
+      const posReport = await reportingService.reportPosMatchSummaryByDate();
+      const statusReport = await reportingService.getStatusReport();
+      appLogger.log('\n\n=========POS Summary Report: =========\n');
+      console.table(posReport);
+      const { paymentStatus, depositStatus } = statusReport;
+      console.table(paymentStatus);
+      console.table(depositStatus);
+      const cashReport = await reportingService.reportCashMatchSummaryByDate();
+      appLogger.log('\n\n=========Cash Summary Report: =========\n');
+      console.table(cashReport);
+    };
+    isLocal && (await showConsoleReport());
     return {
       success: true,
       response,
