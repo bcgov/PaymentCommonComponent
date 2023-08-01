@@ -1,15 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { S3Event, Context } from 'aws-lambda';
 import { SNS } from 'aws-sdk';
+import { subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
+import { Ministries } from '../constants';
 import { AppLogger } from '../logger/logger.service';
 import { ParseService } from '../parse/parse.service';
 import { SnsManagerService } from '../sns-manager/sns-manager.service';
 
-const API_URL = process.env.API_URL;
-
-// let axiosInstance: AxiosInstance;
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (event: S3Event, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
@@ -18,22 +16,20 @@ export const handler = async (event: S3Event, _context?: Context) => {
   const isLocal = process.env.RUNTIME_ENV === 'local';
   appLogger.log({ event, _context }, 'PARSE EVENT');
 
-  if (!API_URL) {
-    appLogger.error(
-      'No API URL present, please check the environment variables'
-    );
-    return;
-  } else {
-    // axiosInstance = axios.create({ baseURL: API_URL });
-  }
-
   try {
     await parseService.processAllFiles(event);
     if (!isLocal) {
-      const SNS_PARSER_RESULTS_TOPIC = process.env.SNS_PARSER_RESULTS_TOPIC;
+      const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
       const response: SNS.Types.PublishResponse = await snsService.publish(
-        SNS_PARSER_RESULTS_TOPIC || '',
-        '{}'
+        topic,
+        JSON.stringify({
+          generateReport: true,
+          program: Ministries.SBC,
+          period: {
+            to: new Date(),
+            from: subBusinessDays(new Date(), 31),
+          },
+        })
       );
       return {
         success: true,

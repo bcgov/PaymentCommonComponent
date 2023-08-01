@@ -1,46 +1,3 @@
-import { parse, subBusinessDays } from 'date-fns';
-import { Ministries } from '../constants';
-/**
- * Allows for manual override of the reconciliation dates
- * @param event
- * @param numDaysToReconcile
- * @returns
- */
-export const configureReconciliationInputs = (
-  event: unknown,
-  numDaysToReconcile: number
-) => {
-  const parsedEvent = typeof event === 'string' ? JSON.parse(event) : event;
-  // check if the event has a reconciliationEventOverride property
-  if (parsedEvent.reconciliationEventOverride) {
-    return {
-      reconciliationMinDate: parsedEvent.period.from,
-      reconciliationMaxDate: parsedEvent.period.to,
-      //TO prevent the report from being generated with the entire dataset in case of a batch reconciliation, we will use the max date from the input parameters as the date of reconciliation
-      //These overrides are only for testing purposes and should not be used outside of dev/test
-      currentDate: parse(parsedEvent.period.to, 'yyyy-MM-dd', new Date()),
-      ministry: parsedEvent.program,
-      byPassFileValidity: parsedEvent.byPassFileValidity ?? false,
-    };
-  }
-  const currentDate = new Date();
-  // min date and max date for reconciliation set how far back we will look at the data that is unmatched and attempt to match it
-  // by default, look back 31 bus days from the current date
-  const reconciliationMinDate = subBusinessDays(
-    currentDate,
-    numDaysToReconcile
-  );
-  // if no override, then use the default values
-  // TODO make the ministry dynamic
-  return {
-    reconciliationMinDate,
-    reconciliationMaxDate: currentDate,
-    currentDate,
-    ministry: Ministries.SBC,
-    byPassFileValidity: false,
-  };
-};
-
 /**
  * Extract the file date from the file name
  * exmaple filename: 'sbc/SBC_SALES_2026_03_03_23_17_37.JSON'
@@ -64,4 +21,34 @@ export const validateSbcGarmsFileName = (filename: string): boolean => {
   } catch (err) {
     throw new Error(`Error validating file name: ${filename}`);
   }
+};
+
+/**
+ * Used to generate a local SNS message for running lambdas locally
+ * @param message
+ * @returns
+ */
+export const generateLocalSNSMessage = (message: unknown) => {
+  return {
+    Records: [
+      {
+        EventVersion: '',
+        EventSubscriptionArn: '',
+        EventSource: '',
+        Sns: {
+          Message: JSON.stringify(message),
+          MessageId: '',
+          MessageAttributes: {},
+          Type: '',
+          TopicArn: '',
+          Subject: '',
+          UnsubscribeUrl: '',
+          SignatureVersion: '',
+          Timestamp: new Date().toISOString(),
+          Signature: '',
+          SigningCertUrl: '',
+        },
+      },
+    ],
+  };
 };

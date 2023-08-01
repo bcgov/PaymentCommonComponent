@@ -1,7 +1,4 @@
 import * as Excel from 'exceljs';
-import { ReconciliationMessage } from '../lambdas/interface';
-
-export type ReportConfig = ReconciliationMessage;
 
 export interface DailySummary {
   values: {

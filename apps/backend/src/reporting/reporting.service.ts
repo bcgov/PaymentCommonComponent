@@ -15,11 +15,12 @@ import {
   PaymentDetailsReport,
   POSDepositDetailsReport,
 } from './detailed-report';
-import { DailySummary, ReportConfig } from './interfaces';
+import { DailySummary } from './interfaces';
 import { rowStyle } from './styles';
 import { MatchStatus } from '../common/const';
 import {
   DateRange,
+  Ministries,
   NormalizedLocation,
   PaymentMethodClassification,
 } from '../constants';
@@ -50,7 +51,8 @@ export class ReportingService {
    * @param config
    */
   async generateReport(
-    config: ReportConfig,
+    dateRange: DateRange,
+    program: Ministries,
     locations: NormalizedLocation[],
     deposits: {
       posDeposits: POSDepositEntity[];
@@ -69,7 +71,8 @@ export class ReportingService {
 
     //page 1 - summary page
     this.generateDailySummary(
-      config,
+      dateRange,
+      program,
       posPayments,
       cashPayments,
       posDeposits,
@@ -78,7 +81,8 @@ export class ReportingService {
     );
     //page 2 - details page
     this.generateDetailsWorksheet(
-      config,
+      dateRange,
+      program,
       posDeposits,
       posPayments,
       cashDeposits,
@@ -88,7 +92,8 @@ export class ReportingService {
 
     // page 3 - cas report (includes deposit data from the start of the month up to the current date)
     this.generateCasReportWorksheet(
-      config,
+      dateRange,
+      program,
       locations,
       pageThreeDeposits,
       pageThreeDepositDates
@@ -96,7 +101,7 @@ export class ReportingService {
 
     await this.excelWorkbook.saveS3(
       'reconciliation_report',
-      `${config.period.from}-${config.period.to}`
+      `${dateRange.minDate}-${dateRange.maxDate}`
     );
   }
 
@@ -106,21 +111,22 @@ export class ReportingService {
    * @param locations
    */
   generateDailySummary(
-    config: ReportConfig,
+    dateRange: DateRange,
+    program: Ministries,
     posPayments: PaymentEntity[],
     cashPayments: PaymentEntity[],
     posDeposits: POSDepositEntity[],
     cashDeposits: CashDepositEntity[],
     locations: NormalizedLocation[]
   ): void {
-    this.appLogger.log(config);
     this.appLogger.log(
       'Generating Daily Summary WorkSheet',
       ReportingService.name
     );
 
     const summaryData: DailySummary[] = this.getSummaryData(
-      config,
+      dateRange,
+      program,
       locations,
       posPayments,
       cashPayments,
@@ -155,14 +161,14 @@ export class ReportingService {
    * @param locations
    */
   generateDetailsWorksheet(
-    config: ReportConfig,
+    dateRange: DateRange,
+    program: Ministries,
     posDeposits: POSDepositEntity[],
     posPayments: PaymentEntity[],
     cashDeposits: CashDepositEntity[],
     cashPayments: PaymentEntity[],
     locations: NormalizedLocation[]
   ) {
-    this.appLogger.log(config);
     this.appLogger.log(
       'Generating Reconciliation Details Worksheet',
       ReportingService.name
@@ -207,7 +213,8 @@ export class ReportingService {
    * @param locations
    */
   generateCasReportWorksheet(
-    config: ReportConfig,
+    dateRange: DateRange,
+    program: Ministries,
     locations: NormalizedLocation[],
     pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
     pageThreeDepositDates: DateRange
@@ -253,7 +260,8 @@ export class ReportingService {
    * @returns
    */
   public getSummaryData(
-    config: ReportConfig,
+    dateRange: DateRange,
+    program: Ministries,
     locations: NormalizedLocation[],
     posPayments: PaymentEntity[],
     cashPayments: PaymentEntity[],
@@ -334,8 +342,8 @@ export class ReportingService {
 
       summaryData.push({
         values: {
-          program: config.program,
-          dates: `${config.period.from} - ${config.period.to}`,
+          program: program,
+          dates: `${dateRange.minDate} - ${dateRange.maxDate}`,
           location_id: location.location_id,
           location_name: location.description,
           total_payments: totalPayments,

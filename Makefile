@@ -42,6 +42,7 @@ export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
 REPORT_JSON:=$(shell cat ./apps/backend/fixtures/lambda/report.json | jq '.' -c)
 RECONCILE_JSON:=$(shell cat ./apps/backend/fixtures/lambda/reconcile.json | jq '.' -c)
 PARSER_JSON:=$(shell cat ./apps/backend/fixtures/lambda/parser.json | jq '.' -c)
+BATCH_JSON:=$(shell cat ./apps/backend/fixtures/lambda/batch.json | jq '.' -c)
 
 # Terraform variables
 TERRAFORM_DIR = terraform
@@ -275,6 +276,8 @@ be-logs:
 # ===================================
 # Local
 # ===================================
+batch-reconcile: 
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/batch-run.ts").handler($(BATCH_JSON))'
 
 parse:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler($(PARSER_JSON))'

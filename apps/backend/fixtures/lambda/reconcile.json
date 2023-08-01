@@ -3,13 +3,12 @@
     {
       "Sns": {
         "Message": {
-          "reconciliationEventOverride": true,
-          "byPassFileValidity": false,
           "period": {
             "from": "2023-01-01",
             "to": "2023-02-03"
           },
-          "program": "SBC"
+          "program": "SBC", 
+          "generateReport": false
         }
       }
     }
