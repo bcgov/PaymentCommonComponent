@@ -1,11 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import { SNS } from 'aws-sdk';
-import {
-  eachDayOfInterval,
-  format,
-  subBusinessDays,
-} from 'date-fns';
+import { eachDayOfInterval, format, subBusinessDays } from 'date-fns';
 import { generateLocalSNSMessage } from './helpers';
 import { HandlerEvent } from './interface';
 import { handler as reconcile } from './reconcile';
@@ -50,14 +45,7 @@ export const handler = async (event: HandlerEvent, _context?: Context) => {
       };
       if (!isLocal) {
         const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
-        const response: SNS.Types.PublishResponse = await snsService.publish(
-          topic,
-          JSON.stringify(reconciliationParams)
-        );
-        return {
-          success: true,
-          response,
-        };
+        await snsService.publish(topic, JSON.stringify(reconciliationParams));
       } else {
         await reconcile(generateLocalSNSMessage(reconciliationParams));
       }
