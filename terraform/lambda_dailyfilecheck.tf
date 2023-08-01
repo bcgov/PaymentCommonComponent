@@ -1,11 +1,11 @@
 resource "aws_lambda_function" "daily-alert" {
   description                    = "Daily alert function ${local.namespace}"
-  function_name                  = "dailyFileCheck-${local.namespace}"
+  function_name                  = "dailyFileCheck"
   role                           = aws_iam_role.lambda.arn
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
-  handler                        = "src/lambdas/dailyfilecheck.handler"
+  handler                        = "src/lambdas/empty_lambda.handler"
   memory_size                    = 1024
   timeout                        = 600
   reserved_concurrent_executions = 1
