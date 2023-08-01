@@ -31,14 +31,14 @@ resource "aws_lambda_function" "batch_reconciler" {
     }
   }
 
-#   lifecycle {
-#     ignore_changes = [
-#       # Ignore changes to tags, e.g. because a management agent
-#       # updates these based on some ruleset managed elsewhere.
-#       filename,
-#       source_code_hash,
-#     ]
-#   }
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      filename,
+      source_code_hash,
+    ]
+  }
 }
 
 resource "aws_lambda_function_event_invoke_config" "batch_reconciler_event" {

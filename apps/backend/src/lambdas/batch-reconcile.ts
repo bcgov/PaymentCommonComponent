@@ -4,8 +4,6 @@ import { SNS } from 'aws-sdk';
 import {
   eachDayOfInterval,
   format,
-  isSaturday,
-  isSunday,
   subBusinessDays,
 } from 'date-fns';
 import { generateLocalSNSMessage } from './helpers';
@@ -34,53 +32,39 @@ export const handler = async (event: HandlerEvent, _context?: Context) => {
   appLogger.log({ event, _context }, 'BATCH RECONCILIATION EVENT');
 
   for (const date of listOfDays) {
-    if (!isSaturday(date) && !isSunday(date)) {
-      appLogger.log(
-        {
-          message: `Processing Reconciliation For: ${format(
-            date,
-            'yyyy-MM-dd'
-          )}`,
-        },
-        'BATCH RECONCILIATION EVENT'
-      );
-
-      try {
-        const reconciliationParams = {
-          period: {
-            from: format(subBusinessDays(date, 31), 'yyyy-MM-dd'),
-            to: format(date, 'yyyy-MM-dd'),
-          },
-          program: event.program,
-          generateReport: event.generateReport,
-        };
-        if (!isLocal) {
-          const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
-          const response: SNS.Types.PublishResponse = await snsService.publish(
-            topic,
-            JSON.stringify(reconciliationParams)
-          );
-          return {
-            success: true,
-            response,
-          };
-        } else {
-          await reconcile(generateLocalSNSMessage(reconciliationParams));
-        }
-      } catch (err) {
-        appLogger.error(err);
-        return { success: false, message: `${err}` };
-      }
-    }
     appLogger.log(
       {
-        message: `Skipping Reconciliation: ${format(
-          date,
-          'yyyy-MM-dd'
-        )} because it is a weekend.`,
+        message: `Processing Reconciliation For: ${format(date, 'yyyy-MM-dd')}`,
       },
-      { context: 'RECONCILIATION EVENT' }
+      'BATCH RECONCILIATION EVENT'
     );
+
+    try {
+      const reconciliationParams = {
+        period: {
+          from: format(subBusinessDays(date, 31), 'yyyy-MM-dd'),
+          to: format(date, 'yyyy-MM-dd'),
+        },
+        program: event.program,
+        generateReport: event.generateReport,
+      };
+      if (!isLocal) {
+        const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
+        const response: SNS.Types.PublishResponse = await snsService.publish(
+          topic,
+          JSON.stringify(reconciliationParams)
+        );
+        return {
+          success: true,
+          response,
+        };
+      } else {
+        await reconcile(generateLocalSNSMessage(reconciliationParams));
+      }
+    } catch (err) {
+      appLogger.error(err);
+      return { success: false, message: `${err}` };
+    }
   }
   const showConsoleReport = async () => {
     const posReport = await reportingService.reportPosMatchSummaryByDate();
