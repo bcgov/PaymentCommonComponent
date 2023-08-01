@@ -277,7 +277,7 @@ be-logs:
 # Local
 # ===================================
 batch-reconcile: 
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/batch-run.ts").handler($(BATCH_JSON))'
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/batch-reconcile.ts").handler($(BATCH_JSON))'
 
 parse:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler($(PARSER_JSON))'

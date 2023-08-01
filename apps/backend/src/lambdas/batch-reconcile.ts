@@ -8,6 +8,7 @@ import {
   isSunday,
   subBusinessDays,
 } from 'date-fns';
+import { generateLocalSNSMessage } from './helpers';
 import { HandlerEvent } from './interface';
 import { handler as reconcile } from './reconcile';
 import { AppModule } from '../app.module';
@@ -45,7 +46,7 @@ export const handler = async (event: HandlerEvent, _context?: Context) => {
       );
 
       try {
-        const reconciliationInputs = {
+        const reconciliationParams = {
           period: {
             from: format(subBusinessDays(date, 31), 'yyyy-MM-dd'),
             to: format(date, 'yyyy-MM-dd'),
@@ -54,38 +55,17 @@ export const handler = async (event: HandlerEvent, _context?: Context) => {
           generateReport: event.generateReport,
         };
         if (!isLocal) {
-          const SNS_PARSER_RESULTS_TOPIC = process.env.SNS_PARSER_RESULTS_TOPIC;
+          const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
           const response: SNS.Types.PublishResponse = await snsService.publish(
-            SNS_PARSER_RESULTS_TOPIC || '',
-            JSON.stringify(reconciliationInputs)
+            topic,
+            JSON.stringify(reconciliationParams)
           );
           return {
             success: true,
             response,
           };
         } else {
-          await reconcile({
-            Records: [
-              {
-                EventSource: 'aws:sns',
-                EventVersion: '1.0',
-                EventSubscriptionArn: 'arn:aws:sns:EXAMPLE',
-                Sns: {
-                  SignatureVersion: '1',
-                  Timestamp: '1970-01-01T00:00:00.000Z',
-                  Signature: 'EXAMPLE',
-                  SigningCertUrl: 'EXAMPLE',
-                  MessageId: '95df01b4-ee98-5cb9-9903-4c221d41eb5e',
-                  TopicArn: 'arn:aws:sns:us-east-2:123456789012:MyTopic',
-                  MessageAttributes: {},
-                  Type: 'Notification',
-                  UnsubscribeUrl: 'EXAMPLE',
-                  Subject: 'TestInvoke',
-                  Message: JSON.stringify(reconciliationInputs),
-                },
-              },
-            ],
-          });
+          await reconcile(generateLocalSNSMessage(reconciliationParams));
         }
       } catch (err) {
         appLogger.error(err);
