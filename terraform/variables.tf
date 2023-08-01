@@ -22,6 +22,8 @@ variable "sns_reconciler_topic" {}
 
 variable "sns_parser_topic" {}
 
+variable "sns_batch_reconcile_topic" {}
+
 variable "region" {
   default = "ca-central-1"
 }

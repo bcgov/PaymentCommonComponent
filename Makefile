@@ -60,6 +60,7 @@ mail_base_url = "$(MAIL_SERVICE_BASE_URL)"
 mail_default_to = ""
 sns_reconciler_topic="$(SNS_RECONCILER_RESULTS_TOPIC)"
 sns_parser_topic="$(SNS_PARSER_RESULTS_TOPIC)"
+sns_batch_reconcile_topic="$(SNS_BATCH_RECONCILE_TOPIC)"
 endef
 export TFVARS_DATA
 

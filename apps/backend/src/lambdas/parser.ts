@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { S3Event, Context } from 'aws-lambda';
 import { SNS } from 'aws-sdk';
-import { subBusinessDays } from 'date-fns';
+import { format, subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
 import { Ministries } from '../constants';
 import { AppLogger } from '../logger/logger.service';
@@ -26,8 +26,8 @@ export const handler = async (event: S3Event, _context?: Context) => {
           generateReport: true,
           program: Ministries.SBC,
           period: {
-            to: new Date(),
-            from: subBusinessDays(new Date(), 31),
+            to: format(new Date(), 'yyyy-MM-dd'),
+            from: format(subBusinessDays(new Date(), 31), 'yyyy-MM-dd'),
           },
         })
       );
