@@ -27,15 +27,6 @@ export interface ReconciliationConfig {
   date: string;
 }
 
-export interface ReconciliationConfigInput {
-  program: Ministries;
-  period: {
-    from: string;
-    to: string;
-  };
-  bypass_parse_validity?: boolean;
-}
-
 export interface ReconciliationError {
   error: string;
 }

@@ -40,6 +40,7 @@ export class NotificationService {
    */
   async getRulesForProgram(program: string): Promise<FileIngestionRulesEntity> {
     return await this.ingestionRulesRepo.findOneOrFail({
+      relations: ['requiredFiles'],
       where: {
         program,
       },
@@ -54,12 +55,12 @@ export class NotificationService {
    */
   async getDailyForRule(
     rule: FileIngestionRulesEntity,
-    date: Date
+    date: string
   ): Promise<ProgramDailyUploadEntity | null> {
     return await this.programDailyRepo.findOne({
       relations: ['rule', 'files'],
       where: {
-        dailyDate: format(date, 'yyyy-MM-dd'),
+        dailyDate: date,
         rule: {
           id: rule.id,
         },
@@ -75,11 +76,11 @@ export class NotificationService {
    */
   async createNewDaily(
     rule: FileIngestionRulesEntity,
-    date: Date
+    date: string
   ): Promise<ProgramDailyUploadEntity> {
     try {
       const newDaily: Partial<ProgramDailyUploadEntity> = {
-        dailyDate: format(date, 'yyyy-MM-dd'),
+        dailyDate: date,
         success: false,
         retries: 0,
         rule,
@@ -102,13 +103,13 @@ export class NotificationService {
   ): Promise<ProgramDailyUploadEntity> {
     return await this.programDailyRepo.save(daily);
   }
-  async dailyUploadAlert(date: Date) {
+  async dailyUploadAlert(date: string) {
     const rules = await this.getAllRules();
     const dailyAlertPrograms = [];
     for (const rule of rules) {
-      let daily = await this.getDailyForRule(rule, new Date(date));
+      let daily = await this.getDailyForRule(rule, date);
       if (!daily) {
-        daily = await this.createNewDaily(rule, new Date(date));
+        daily = await this.createNewDaily(rule, date);
       }
       if (daily.success) {
         dailyAlertPrograms.push({
@@ -189,7 +190,9 @@ export class NotificationService {
   }
 
   async dailyAlert() {
-    const alertsSent = await this.dailyUploadAlert(new Date());
+    const alertsSent = await this.dailyUploadAlert(
+      format(new Date(), 'yyyy-MM-dd')
+    );
 
     const programAlerts = alertsSent.dailyAlertPrograms;
     for (const alert of programAlerts) {

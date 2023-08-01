@@ -14,7 +14,7 @@ import {
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
 import { TDI17Details } from '../../../src/flat-files';
-import { parseTDI } from '../../../src/lambdas/utils/parseTDI';
+import { parseTDI, parseTDIHeader } from '../../../src/lambdas/utils/parseTDI';
 import { generateDateRange } from '../../mocks/const/date_range_mock';
 import { generateLocation } from '../../mocks/const/location_mock';
 import { MockData } from '../../mocks/mocks';
@@ -61,12 +61,13 @@ describe('CashDepositService', () => {
       const testCashFile = fs.readFileSync(
         path.join(__dirname, '../../fixtures/TDI17.TXT')
       );
-
+      const header = parseTDIHeader(FileTypes.TDI17, testCashFile.toString());
       const tdi17Mock: ParseArgsTDI = {
         type: FileTypes.TDI17,
-        fileName: 'test/TDI17',
+        fileName: 'sbc/PROD_SBC_F08TDI17_20230529.DAT',
         program: 'SBC',
         fileContents: Buffer.from(testCashFile).toString(),
+        header,
       };
 
       const data: TDI17Details[] = [...parseTDI(tdi17Mock)] as TDI17Details[];

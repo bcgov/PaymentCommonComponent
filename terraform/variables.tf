@@ -20,6 +20,8 @@ variable "mail_default_to" {}
 
 variable "sns_reconciler_topic" {}
 
+variable "sns_parser_topic" {}
+
 variable "region" {
   default = "ca-central-1"
 }

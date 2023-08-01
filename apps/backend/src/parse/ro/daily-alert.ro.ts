@@ -34,5 +34,5 @@ export class DailyAlertRO {
     description: 'Date of daily',
     required: true,
   })
-  date: Date;
+  date: string;
 }

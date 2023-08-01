@@ -20,7 +20,9 @@ export class PaymentDetailsReport extends DetailsReport {
       'yyyy-MM-dd',
       new Date()
     );
-    this.uploaded_date = payment.transaction.created_at;
+    this.uploaded_date =
+      parse(payment.transaction.parsed_on, 'yyyy-MM-dd', new Date()) ??
+      payment.transaction.created_at;
     this.type = payment.payment_method.classification;
     this.time = payment.transaction.transaction_time ?? '';
     this.close_date = parse(

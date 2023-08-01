@@ -58,6 +58,7 @@ api_endpoint = "$(MAIL_SERVICE_DEFAULT_TO_EMAIL)"
 mail_base_url = "$(MAIL_SERVICE_BASE_URL)"
 mail_default_to = ""
 sns_reconciler_topic="$(SNS_RECONCILER_RESULTS_TOPIC)"
+sns_parser_topic="$(SNS_PARSER_RESULTS_TOPIC)"
 endef
 export TFVARS_DATA
 
@@ -293,8 +294,9 @@ clear-database:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM pos_deposit;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM cash_deposit;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_matches_pos_deposit;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM program_daily_upload;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM file_uploaded;"
+	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM program_daily_upload;"
+	
 
 reset-status: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null,reconciled_on=null, in_progress_on=null;"

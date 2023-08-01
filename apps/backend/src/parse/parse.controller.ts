@@ -8,6 +8,7 @@ import {
   Inject,
   Logger,
   HttpException,
+  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
@@ -67,13 +68,8 @@ export class ParseController {
     @Body() body: { program: string; fileType: FileTypes },
     @UploadedFile() file: Express.Multer.File
   ) {
-    const contents = file.buffer.toString();
-    return this.parseService.readAndParseFile({
-      type: body.fileType,
-      fileName: file.originalname,
-      program: body.program,
-      fileContents: contents,
-    });
+    this.appLogger.log({ ...body, file });
+    throw new HttpException('Not Implemented', HttpStatus.NOT_IMPLEMENTED);
   }
 
   @Post('upload-file')
@@ -134,7 +130,9 @@ export class ParseController {
     },
   })
   @Post('daily-upload/alert')
-  async dailyUploadAlert(@Body() body: { date: Date }): Promise<DailyAlertRO> {
+  async dailyUploadAlert(
+    @Body() body: { date: string }
+  ): Promise<DailyAlertRO> {
     return await this.alertService.dailyUploadAlert(body.date);
   }
 }
