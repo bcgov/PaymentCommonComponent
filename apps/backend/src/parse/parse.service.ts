@@ -29,8 +29,10 @@ import { TDI17Header } from '../flat-files/tdi17/TDI17Header';
 import { TDI34Header } from '../flat-files/tdi34/TDI34Header';
 import {
   extractDateFromTXNFileName,
+  generateLocalSNSMessage,
   validateSbcGarmsFileName,
 } from '../lambdas/helpers';
+import { handler as reconcileHandler } from '../lambdas/reconcile';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../lambdas/utils/parseTDI';
 import { AppLogger } from '../logger/logger.service';
@@ -309,8 +311,12 @@ export class ParseService {
           const file = await this.parseFileFromS3(filename);
           const fileDate = file?.dailyUpload?.dailyDate;
           if (!isLocal) {
+            this.appLogger.log(
+              'Publiching SNS to reconcile',
+              ParseService.name
+            );
             const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
-            const response = await this.snsService.publish(
+            await this.snsService.publish(
               topic,
               JSON.stringify({
                 generateReport: true,
@@ -327,10 +333,28 @@ export class ParseService {
                 },
               })
             );
-            return {
-              success: true,
-              response,
-            };
+          }
+          if (isLocal && !process.env.MANUAL_RECONCILE) {
+            this.appLogger.log(
+              'Running reconcile handler locally',
+              ParseService.name
+            );
+            await reconcileHandler(
+              generateLocalSNSMessage({
+                generateReport: true,
+                program: Ministries.SBC,
+                period: {
+                  to: fileDate,
+                  from: format(
+                    subBusinessDays(
+                      parse(fileDate ?? '', 'yyyy-MM-dd', new Date()),
+                      31
+                    ),
+                    'yyyy-MM-dd'
+                  ),
+                },
+              })
+            );
           }
         }
       }
