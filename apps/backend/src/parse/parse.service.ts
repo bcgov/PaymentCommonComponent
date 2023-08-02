@@ -305,14 +305,14 @@ export class ParseService {
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
-        const isLocal = (process.env.RUNTIME_ENV = 'local');
+        const isLocal = process.env.RUNTIME_ENV === 'local';
 
         if (filename) {
           const file = await this.parseFileFromS3(filename);
           const fileDate = file?.dailyUpload?.dailyDate;
           if (!isLocal) {
             this.appLogger.log(
-              'Publiching SNS to reconcile',
+              'Publishing SNS to reconcile',
               ParseService.name
             );
             const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
