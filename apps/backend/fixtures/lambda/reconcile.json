@@ -4,11 +4,12 @@
       "Sns": {
         "Message": {
           "period": {
-            "from": "",
-            "to": ""
+            "from": "2023-01-01",
+            "to": "2023-01-02"
           },
           "program": "SBC", 
-          "generateReport": false
+          "generateReport": true, 
+          "byPassFileValidity": false
         }
       }
     }
