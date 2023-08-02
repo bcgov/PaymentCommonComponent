@@ -8,7 +8,6 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { S3Event, S3EventRecord } from 'aws-lambda';
-import { SNS } from 'aws-sdk';
 import { validateOrReject, ValidationError } from 'class-validator';
 import { format, parse, subBusinessDays } from 'date-fns';
 import { Repository } from 'typeorm';
@@ -311,9 +310,7 @@ export class ParseService {
           const fileDate = file?.dailyUpload?.dailyDate;
           if (!isLocal) {
             const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
-            type NewType = SNS.Types.PublishResponse;
-
-            const response: NewType = await this.snsService.publish(
+            const response = await this.snsService.publish(
               topic,
               JSON.stringify({
                 generateReport: true,
