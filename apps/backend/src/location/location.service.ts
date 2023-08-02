@@ -11,7 +11,13 @@ export class LocationService {
     @InjectRepository(LocationEntity)
     private locationRepo: Repository<LocationEntity>
   ) {}
+  public async findAll(): Promise<LocationEntity[]> {
+    return await this.locationRepo.find();
+  }
 
+  public async createLocations(locationsData: LocationEntity[]): Promise<void> {
+    await this.locationRepo.save(this.locationRepo.create(locationsData));
+  }
   public async getLocationsByID(
     program: Ministries,
     location_ids: number[]
@@ -63,6 +69,7 @@ export class LocationService {
     );
     return Object.values(normalizedLocationList);
   }
+
   public async getLocationsBySource(
     source: Ministries
   ): Promise<NormalizedLocation[]> {

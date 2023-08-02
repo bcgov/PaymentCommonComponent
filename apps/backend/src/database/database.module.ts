@@ -5,6 +5,10 @@ import { LoggerOptions } from 'typeorm';
 import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConnectionOptions';
 import { join } from 'path';
 import { DatabaseLogger } from './database-logger';
+import { DatabaseService } from './database.service';
+import { LocationModule } from '../location/location.module';
+import { S3ManagerModule } from '../s3-manager/s3-manager.module';
+import { TransactionModule } from '../transaction/transaction.module';
 
 const config: PostgresConnectionOptions = {
   type: 'postgres',
@@ -68,9 +72,13 @@ export const appOrmConfig: PostgresConnectionOptions = {
 
 @Module({
   imports: [
+    S3ManagerModule,
+    LocationModule,
+    TransactionModule,
     TypeOrmModule.forRootAsync({
       useFactory: () => appOrmConfig,
     }),
   ],
+  providers: [DatabaseService],
 })
 export class DatabaseModule {}

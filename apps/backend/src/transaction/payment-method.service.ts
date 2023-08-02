@@ -15,4 +15,13 @@ export class PaymentMethodService {
   async getPaymentMethods(): Promise<PaymentMethodEntity[]> {
     return await this.paymentMethodRepo.find();
   }
+
+  async createPaymentMethods(
+    paymentMethodsData: PaymentMethodEntity[]
+  ): Promise<void> {
+    this.appLogger.log('Seeding payment methods', PaymentMethodService.name);
+    await this.paymentMethodRepo.save(
+      this.paymentMethodRepo.create(paymentMethodsData)
+    );
+  }
 }

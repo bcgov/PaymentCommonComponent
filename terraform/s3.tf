@@ -62,3 +62,33 @@ data "aws_iam_policy_document" "pcc-reporting" {
   }
 }
 
+resource "aws_s3_bucket" "pcc-master-data" {
+  bucket = "pcc-master-data"
+  tags = {
+    Name        = "pcc-master-data"
+    Environment = var.target_env
+  }
+}
+
+
+resource "aws_s3_bucket_ownership_controls" "pcc_master_data_ownership" {
+  bucket = aws_s3_bucket.pcc-master-data.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "pcc_master_data_pb" {
+  bucket = aws_s3_bucket.pcc-master-data.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "pcc_master_data_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.pcc_master_data_ownership]
+  bucket = aws_s3_bucket.pcc-master-data.id
+  acl    = "private"
+}
