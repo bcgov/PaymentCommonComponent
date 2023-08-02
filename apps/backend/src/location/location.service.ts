@@ -15,7 +15,7 @@ export class LocationService {
     return await this.locationRepo.find();
   }
 
-  public async seedLocations(locationsData: LocationEntity[]): Promise<void> {
+  public async createLocations(locationsData: LocationEntity[]): Promise<void> {
     await this.locationRepo.save(this.locationRepo.create(locationsData));
   }
   public async getLocationsByID(

@@ -66,6 +66,7 @@ export async function createNestApp(): Promise<{
 
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
+  let appLogger: AppLogger;
   if (
     process.env.RUNTIME_ENV === 'local' ||
     process.env.RUNTIME_ENV === 'test'
@@ -79,13 +80,16 @@ export async function createNestApp(): Promise<{
       AppModule,
       new ExpressAdapter(expressApp)
     );
-    app.useLogger(app.get(AppLogger));
+    appLogger = app.get(AppLogger);
+    app.useLogger(appLogger);
   }
   const seedData = app.get(DatabaseService);
   try {
     await seedData.seedMasterData();
   } catch (e) {
-    console.log(e);
+    appLogger = app.get(AppLogger);
+    app.useLogger(appLogger);
+    appLogger.log(e);
   } finally {
     app.close();
   }

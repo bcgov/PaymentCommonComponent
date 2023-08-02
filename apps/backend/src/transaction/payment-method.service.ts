@@ -16,7 +16,7 @@ export class PaymentMethodService {
     return await this.paymentMethodRepo.find();
   }
 
-  async seedPaymentMethods(
+  async createPaymentMethods(
     paymentMethodsData: PaymentMethodEntity[]
   ): Promise<void> {
     this.appLogger.log('Seeding payment methods', PaymentMethodService.name);

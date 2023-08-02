@@ -1,5 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import * as csv from 'csvtojson';
+import { masterData } from './const';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
@@ -20,11 +21,6 @@ export class DatabaseService {
   }
 
   async seedMasterData() {
-    const locationsCSV = 'locations.csv';
-    const paymentMethodsCSV = 'payment_method.csv';
-    const bucket = 'pcc-master-data';
-    const key = 'master_data';
-
     const locations: LocationEntity[] = await this.locationService.findAll();
 
     const paymentMethods: PaymentMethodEntity[] =
@@ -32,28 +28,28 @@ export class DatabaseService {
 
     if (locations.length === 0) {
       const locationsData = await this.s3Service.getObject(
-        bucket,
-        `${key}/${locationsCSV}`
+        masterData.Bucket,
+        `${masterData.Key}/${masterData.LocationsCSV}`
       );
       const file = locationsData?.Body?.toString('utf-8') ?? '';
       const sbcLocationMaster = await csv.default().fromString(file);
       const locationEntities = sbcLocationMaster.map(
         (loc) => new LocationEntity({ ...loc })
       );
-      await this.locationService.seedLocations(locationEntities);
+      await this.locationService.createLocations(locationEntities);
     }
 
     if (paymentMethods.length === 0) {
       const paymentMethodsData = await this.s3Service.getObject(
-        bucket,
-        `${key}/${paymentMethodsCSV}`
+        masterData.Bucket,
+        `${masterData.Key}/${masterData.PaymentMethodsCSV}`
       );
       const file = paymentMethodsData?.Body?.toString('utf-8') ?? '';
       const sbcPmntMethodsMaster = await csv.default().fromString(file);
       const locationEntities = sbcPmntMethodsMaster.map(
         (pmnt) => new PaymentMethodEntity({ ...pmnt })
       );
-      await this.paymentMethodService.seedPaymentMethods(locationEntities);
+      await this.paymentMethodService.createPaymentMethods(locationEntities);
     }
   }
 }
