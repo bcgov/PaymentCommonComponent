@@ -5,7 +5,7 @@ resource "aws_lambda_function" "daily-alert" {
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
-  handler                        = "src/lambdas/empty_lambda.handler"
+  handler                        = "src/lambdas/dailyfilecheck.handler"
   memory_size                    = 1024
   timeout                        = 600
   reserved_concurrent_executions = 1
