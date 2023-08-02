@@ -32,6 +32,7 @@ export const handler = async (event: HandlerEvent, _context?: Context) => {
     },
     program: event.program,
     generateReport: event.generateReport,
+    byPassFileValidity: true,
   }));
 
   for (const message of messages) {
