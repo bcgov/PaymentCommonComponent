@@ -16,6 +16,7 @@ import { Documentation } from './common/documentation';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
 import { API_PREFIX } from './config';
+import { DatabaseService } from './database/database.service';
 import { AppLogger } from './logger/logger.service';
 import { TrimPipe } from './trim.pipe';
 
@@ -79,6 +80,14 @@ export async function createNestApp(): Promise<{
       new ExpressAdapter(expressApp)
     );
     app.useLogger(app.get(AppLogger));
+  }
+  const seedData = app.get(DatabaseService);
+  try {
+    await seedData.seedMasterData();
+  } catch (e) {
+    console.log(e);
+  } finally {
+    app.close();
   }
 
   // Validation pipe

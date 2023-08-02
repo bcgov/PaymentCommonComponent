@@ -7,9 +7,9 @@
   "license": "UNLICENSED",
   "scripts": {
     "prebuild": "rimraf dist",
-    "build": "yarn run copy-files && nest build",
+    "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
-    "start:dev": "yarn run copy-files && NODE_ENV=local RUNTIME_ENV=local nest start --watch",
+    "start:dev": "NODE_ENV=local RUNTIME_ENV=local nest start --watch",
     "start:test": "yarn run copy-files && NODE_ENV=ci RUNTIME_ENV=ci nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "NODE_ENV=prod node dist/main",

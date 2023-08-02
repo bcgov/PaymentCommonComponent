@@ -236,7 +236,7 @@ aws-run-reports:
 run-test:
 	@echo "+\n++ Make: Running test build ...\n+"
 	@docker-compose -f docker-compose.ci.yml up --build -d --force-recreate
-	
+
 run-test-pipeline:
 	@docker exec -i pcc-backend-test yarn run test:pipeline
 
@@ -344,6 +344,8 @@ minio-init:
 	@mc alias set s3 http://localhost:9000 pcc password
 	@mc mb s3/pcc-recon-reports-local || true
 	@mc mb s3/pcc-integration-data-files-local || true
+	@mc mb s3/pcc-master-data || true
+	@mc cp --recursive apps/backend/master_data s3/pcc-master-data
 # @mc event add s3/pcc-integration-data-files-local arn:minio:sqs::primary:nats --event put 
 
 
@@ -352,7 +354,6 @@ minio-ls:
 
 minio-rm:
 	@mc rm --recursive --force s3/pcc-integration-data-files-local
-
 
 # ===================================
 # SFTP Data Sync
