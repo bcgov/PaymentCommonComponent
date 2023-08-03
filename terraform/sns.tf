@@ -33,3 +33,13 @@ resource "aws_lambda_permission" "reconciler_sns_permission" {
   principal     = "sns.amazonaws.com"
   source_arn    = aws_sns_topic.parser_results.arn
 }
+
+resource "aws_sns_topic" "batch_reconcile" {
+    name = "batch-reconcile-topic"
+}
+
+resource "aws_sns_topic_subscription" "batch_reconcile_target" {
+  topic_arn = aws_sns_topic.batch_reconcile.arn
+  protocol  = "lambda"
+  endpoint  = aws_lambda_function.reconciler.arn
+}

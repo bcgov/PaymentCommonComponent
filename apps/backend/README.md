@@ -67,12 +67,28 @@ Refer [here](./docs/access.md)
 - configuration options can be found [here](https://compodoc.app/guides/options.html)
 
 ### Reconciliation
-
+##### How To Run On local:
 - Make sure the project is up and running by using the docker make commands
 - Make sure you have completed the steps above
-- Edit the `apps/backend/fixtures/reconcile.json` file to specifiy config
-- Run (from root) `make reconcile`
-- Refer [here](./docs/reconciliation.md)
+- In order to run the reconciliation on the entire dataset as though it had run daily we should use the file metadata and filename (for SBC json files) to extract the date and run reconciliation based on that date.
+- Parsing, reconciliation and reports are all automated by default. When you run sync/parse the entire dataset will be reconciled (job is >1 hr but should only need to run once per env unless you drop your db)
+  - run: ‘make drop', ‘make migrations-run’, ‘make sync’, 'make parse’
+- Reconciliation can be run manually (only runs for the specified dates, does not batch):
+  - run: 'make reconcile' and update reconcile.json
+- Automated reconciliation can be turned off:
+  - set DISABLE_AUTOMATED_RECONCILIATION=true
+- Automated reports can be set to false in the reconciliation input:
+  - "generateReport": false
+- Reports can be generated manually
+  - run 'make report' after updating report.json
+- If you do not want to re-parse your data, or you only want to batch reconcile some of the data:
+  - run 'make batch-reconcile' (uses default inputs for Jan 1 to current date, these can be overridden in batch.json)
+
+##### How It Runs On Dev/Test:
+
+- Whenever data is dropped into the S3 bucket, either manually or via the sync job, it will be parsed and reconciled and will generate a report
+
+- On dev, if you want to use the manual overrides you should drop your test data into the db and allow it to be parsed. Then, run the queries to reset the status to the pre-reconciled state. Now you can use the test tab in the lambdas to run manually.
 
 ### Reporting
 

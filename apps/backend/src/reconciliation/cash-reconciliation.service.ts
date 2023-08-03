@@ -79,10 +79,6 @@ export class CashReconciliationService {
     for (const [dindex, deposit] of deposits.entries()) {
       for (const [pindex, payment] of aggregatedCashPayments.entries()) {
         if (this.checkMatch(payment, deposit)) {
-          this.appLogger.log(
-            `MATCHED PAYMENT: ${payment.amount} TO DEPOSIT: ${deposit.deposit_amt_cdn}`,
-            CashReconciliationService.name
-          );
           aggregatedCashPayments[pindex].status = MatchStatus.MATCH;
           deposits[dindex].status = MatchStatus.MATCH;
           matches.push({
@@ -132,20 +128,11 @@ export class CashReconciliationService {
       );
     if (pendingDeposits.length === 0 || aggregatedCashPayments.length === 0) {
       this.appLogger.log(
-        'No pending payments / deposits found',
+        'SKIPPING - No pending payments / deposits found',
         CashReconciliationService.name
       );
       return;
     }
-
-    this.appLogger.log(
-      `${aggregatedCashPayments.length} aggregated payments pending reconciliation`,
-      CashReconciliationService.name
-    );
-    this.appLogger.log(
-      `${pendingDeposits?.length} deposits pending reconciliation`,
-      CashReconciliationService.name
-    );
 
     const matches = this.matchPaymentsToDeposits(
       aggregatedCashPayments.filter((itm) =>

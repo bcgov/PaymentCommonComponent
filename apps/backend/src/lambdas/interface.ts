@@ -18,3 +18,14 @@ export interface SNSRecord {
 export interface EventSuccessSNSMessage {
   Records: SNSRecord[];
 }
+
+export interface HandlerEvent {
+  reconciliationEventOverride: boolean;
+  byPassFileValidity: boolean;
+  period: {
+    from: string;
+    to: string;
+  };
+  program: Ministries;
+  generateReport: boolean;
+}

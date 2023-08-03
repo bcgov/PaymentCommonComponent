@@ -29,6 +29,8 @@ resource "aws_lambda_function" "parser" {
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
       SNS_PARSER_RESULTS_TOPIC      = var.sns_parser_topic
       SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
+      SNS_BATCH_RECONCILE_TOPIC     = var.sns_batch_reconcile_topic
+      DISABLE_AUTOMATED_RECONCILIATION = var.disable_automated_reconciliation
     }
   }
 
@@ -56,19 +58,6 @@ resource "aws_lambda_permission" "trigger-parse" {
   function_name = "${aws_lambda_function.parser.function_name}"
   principal = "s3.amazonaws.com"
   source_arn = "arn:aws:s3:::${aws_s3_bucket.sftp_storage.id}"
-}
-
-resource "aws_lambda_function_event_invoke_config" "parser_event" {
-  function_name = aws_lambda_function.parser.function_name
-
-  destination_config {
-    on_success {
-      destination = aws_sns_topic.parser_results.arn
-    }
-    on_failure {
-      destination = aws_sns_topic.parser_results.arn
-    }
-  }
 }
 
 output "arn" {

@@ -9,7 +9,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { S3Event, S3EventRecord } from 'aws-lambda';
 import { validateOrReject, ValidationError } from 'class-validator';
-import { format } from 'date-fns';
+import { format, parse, subBusinessDays } from 'date-fns';
 import { Repository } from 'typeorm';
 import _ from 'underscore';
 import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
@@ -19,7 +19,7 @@ import {
 } from './dto/garms-transaction.dto';
 import { PosDepositDTO, PosDepositListDTO } from './dto/pos-deposit.dto';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
-import { FileTypes, Ministries, ParseArgsTDI } from '../constants';
+import { FileTypes, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
@@ -29,8 +29,10 @@ import { TDI17Header } from '../flat-files/tdi17/TDI17Header';
 import { TDI34Header } from '../flat-files/tdi34/TDI34Header';
 import {
   extractDateFromTXNFileName,
+  generateLocalSNSMessage,
   validateSbcGarmsFileName,
 } from '../lambdas/helpers';
+import { handler as reconcileHandler } from '../lambdas/reconcile';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../lambdas/utils/parseTDI';
 import { AppLogger } from '../logger/logger.service';
@@ -39,6 +41,7 @@ import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
 import { MailService } from '../notification/mail.service';
 import { NotificationService } from '../notification/notification.service';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
+import { SnsManagerService } from '../sns-manager/sns-manager.service';
 import { TransactionEntity } from '../transaction/entities';
 import { SBCGarmsJson } from '../transaction/interface';
 import { PaymentMethodService } from '../transaction/payment-method.service';
@@ -60,6 +63,8 @@ export class ParseService {
     private readonly transactionService: TransactionService,
     @Inject(MailService)
     private readonly mailService: MailService,
+    @Inject(SnsManagerService)
+    private readonly snsService: SnsManagerService,
     @Inject(NotificationService)
     private readonly alertService: NotificationService,
     @InjectRepository(FileUploadedEntity)
@@ -101,31 +106,6 @@ export class ParseService {
         : '';
     }
     return errorMessage;
-  }
-
-  /**
-   * Function used by `flat-file` endpoint to parse TDI
-   */
-  async readAndParseFile({
-    type,
-    fileName,
-    program,
-    fileContents,
-  }: ParseArgsTDI): Promise<unknown> {
-    try {
-      const header = parseTDIHeader(type, fileContents);
-      //TODO upload? Or parse to the db?
-      return parseTDI({
-        type,
-        fileName,
-        program,
-        fileContents: Buffer.from(fileContents || '').toString(),
-        header,
-      });
-    } catch (err) {
-      this.appLogger.error(err, 'Error parsing file');
-      throw err;
-    }
   }
 
   /**
@@ -280,25 +260,21 @@ export class ParseService {
    * First step in the parsing process. Checks for files in the bucket, and then checks if they have been parsed before.
    * @param event
    */
-  async processAllFiles(event: S3Event) {
-    event.Records.length === 0
-      ? this.appLogger.log(
-          'No Records in Event...checking for files in bucket...'
-        )
-      : this.appLogger.log(`Processing ${event.Records.length} files...`);
-
+  async processAllFiles(
+    event: S3Event,
+    isLocal: boolean,
+    automatedReconciliationEnabled: boolean
+  ) {
     const eventFileList = event.Records.map(
       (r: S3EventRecord) => r.s3.object.key
     );
 
-    const fileList =
+    const fileList: (string | undefined)[] =
       (await this.s3.listBucketContents(
         `pcc-integration-data-files-${process.env.RUNTIME_ENV}`
-      )) || [];
+      )) ?? [];
 
-    this.appLogger.log(
-      `Found ${fileList ? fileList.length : 0} files in bucket...`
-    );
+    this.appLogger.log(`Found ${fileList.length} files in bucket...`);
 
     try {
       const allFiles = await this.getAllFiles();
@@ -326,7 +302,58 @@ export class ParseService {
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
         if (filename) {
-          await this.parseFileFromS3(filename);
+          const file = await this.parseFileFromS3(filename);
+          const fileDate = file?.dailyUpload?.dailyDate;
+
+          if (!isLocal) {
+            this.appLogger.log(
+              'Publishing SNS to reconcile',
+              ParseService.name
+            );
+
+            const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
+
+            await this.snsService.publish(
+              topic,
+              JSON.stringify({
+                generateReport: true,
+                program: Ministries.SBC,
+                period: {
+                  to: fileDate,
+                  from: format(
+                    subBusinessDays(
+                      parse(fileDate ?? '', 'yyyy-MM-dd', new Date()),
+                      31
+                    ),
+                    'yyyy-MM-dd'
+                  ),
+                },
+              })
+            );
+          }
+
+          if (isLocal && automatedReconciliationEnabled) {
+            this.appLogger.log(
+              'Running reconcile handler locally',
+              ParseService.name
+            );
+            await reconcileHandler(
+              generateLocalSNSMessage({
+                generateReport: true,
+                program: Ministries.SBC,
+                period: {
+                  to: fileDate,
+                  from: format(
+                    subBusinessDays(
+                      parse(fileDate ?? '', 'yyyy-MM-dd', new Date()),
+                      31
+                    ),
+                    'yyyy-MM-dd'
+                  ),
+                },
+              })
+            );
+          }
         }
       }
     } catch (err) {
@@ -334,7 +361,7 @@ export class ParseService {
     }
   }
 
-  async parseFileFromS3(fileKey: string) {
+  async parseFileFromS3(fileKey: string): Promise<FileUploadedEntity | void> {
     try {
       const bucket = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
 
@@ -353,7 +380,6 @@ export class ParseService {
         await this.alertService.getAllRules();
       // for every ruleset, check if the FileInjestionRuleEntity matches the prgram from the filename
       //TODO change this to not use the filename to validate (ie use the bucket key instead after the file directory is changed TBD)
-
       const ministry = (() => {
         for (const rule of rules) {
           if (filename.includes(rule.program)) {
@@ -384,22 +410,13 @@ export class ParseService {
 
       try {
         this.appLogger.log('Call endpoint to upload file...', filename);
-        await this.uploadAndParseFile(
+        const savedFile = await this.uploadAndParseFile(
           `${fileSource}/${filename}`,
           program,
           fileType,
           Buffer.from(file.Body?.toString() || '')
         );
-        // const formData = new FormData();
-        // formData.append('file', Readable.from(file), filename);
-        // formData.append('fileName', filename);
-        // formData.append('fileType', fileType);
-        // formData.append('program', ministry);
-        // await axiosInstance.post('/v1/parse/upload-file', formData, {
-        //   headers: {
-        //     ...formData.getHeaders(),
-        //   },
-        // });
+        return savedFile;
       } catch (err) {
         this.appLogger.log('\n\n=========Errors with File Upload: =========\n');
         this.appLogger.error(`Error with uploading file ${filename}`);
@@ -460,7 +477,7 @@ export class ParseService {
     program: string,
     fileType: FileTypes,
     buffer: Buffer
-  ) {
+  ): Promise<FileUploadedEntity | void> {
     this.appLogger.log(`Parsing ${fileName}`);
     const contents = buffer.toString();
 
@@ -510,6 +527,7 @@ export class ParseService {
           sourceFileLength: txnFile.length,
           dailyUpload: await daily(txnFileDate),
         });
+
         this.appLogger.log(`Transaction count: ${txnFile.length}`);
         await this.transactionService.saveTransactions(
           txnFile.map((sale) => ({
@@ -517,6 +535,7 @@ export class ParseService {
             fileUploadedEntityId: fileToSave.id,
           }))
         );
+        return fileToSave;
       }
 
       if (fileType === FileTypes.TDI17) {
@@ -543,6 +562,7 @@ export class ParseService {
             fileUploadedEntityId: fileToSave.id,
           }))
         );
+        return fileToSave;
       }
 
       if (fileType === FileTypes.TDI34) {
@@ -570,6 +590,7 @@ export class ParseService {
             timestamp: deposit.timestamp,
           }))
         );
+        return fileToSave;
       }
     } catch (err: unknown) {
       const message =

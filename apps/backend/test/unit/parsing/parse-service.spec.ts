@@ -17,6 +17,7 @@ import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.en
 import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 import { ParseService } from '../../../src/parse/parse.service';
 import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
+import { SnsManagerService } from '../../../src/sns-manager/sns-manager.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { TransactionService } from '../../../src/transaction/transaction.service';
@@ -35,6 +36,10 @@ describe('ParseService', () => {
         {
           provide: S3ManagerService,
           useValue: createMock<S3ManagerService>(),
+        },
+        {
+          provide: SnsManagerService,
+          useValue: createMock<SnsManagerService>(),
         },
         {
           provide: PaymentMethodService,

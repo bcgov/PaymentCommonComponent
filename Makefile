@@ -42,6 +42,7 @@ export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
 REPORT_JSON:=$(shell cat ./apps/backend/fixtures/lambda/report.json | jq '.' -c)
 RECONCILE_JSON:=$(shell cat ./apps/backend/fixtures/lambda/reconcile.json | jq '.' -c)
 PARSER_JSON:=$(shell cat ./apps/backend/fixtures/lambda/parser.json | jq '.' -c)
+BATCH_JSON:=$(shell cat ./apps/backend/fixtures/lambda/batch.json | jq '.' -c)
 
 # Terraform variables
 TERRAFORM_DIR = terraform
@@ -59,6 +60,8 @@ mail_base_url = "$(MAIL_SERVICE_BASE_URL)"
 mail_default_to = ""
 sns_reconciler_topic="$(SNS_RECONCILER_RESULTS_TOPIC)"
 sns_parser_topic="$(SNS_PARSER_RESULTS_TOPIC)"
+sns_batch_reconcile_topic="$(SNS_BATCH_RECONCILE_TOPIC)"
+disable_automated_reconciliation="$(DISABLE_AUTOMATED_RECONCILIATION)"
 endef
 export TFVARS_DATA
 
@@ -275,6 +278,8 @@ be-logs:
 # ===================================
 # Local
 # ===================================
+batch-reconcile: 
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/batch-reconcile.ts").handler($(BATCH_JSON))'
 
 parse:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/parser.ts").handler($(PARSER_JSON))'

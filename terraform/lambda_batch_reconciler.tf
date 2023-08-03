@@ -1,11 +1,11 @@
-resource "aws_lambda_function" "reconciler" {
-  description                    = "Reconciliation function ${local.namespace}"
-  function_name                  = "reconciler"
+resource "aws_lambda_function" "batch_reconciler" {
+  description                    = "Manual Batch Reconciliation function ${local.namespace}"
+  function_name                  = "batch_reconciler"
   role                           = aws_iam_role.lambda.arn
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
-  handler                        = "src/lambdas/reconcile.handler"
+  handler                        = "src/lambdas/batch-reconcile.handler"
   memory_size                    = 1024
   timeout                        = 900
   reserved_concurrent_executions = 1
@@ -40,18 +40,5 @@ resource "aws_lambda_function" "reconciler" {
       filename,
       source_code_hash,
     ]
-  }
-}
-
-resource "aws_lambda_function_event_invoke_config" "reconciler_event" {
-  function_name = aws_lambda_function.reconciler.function_name
-
-  destination_config {
-    on_success {
-      destination = aws_sns_topic.reconciliation_results.arn
-    }
-    on_failure {
-      destination = aws_sns_topic.reconciliation_results.arn
-    }
   }
 }
