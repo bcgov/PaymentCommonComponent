@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "daily-alert" {
   description                    = "Daily alert function ${local.namespace}"
-  function_name                  = "dailyFileCheck-${local.namespace}"
+  function_name                  = "dailyFileCheck"
   role                           = aws_iam_role.lambda.arn
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
