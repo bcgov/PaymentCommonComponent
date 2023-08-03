@@ -63,9 +63,9 @@ data "aws_iam_policy_document" "pcc-reporting" {
 }
 
 resource "aws_s3_bucket" "pcc-master-data" {
-  bucket = "pcc-master-data"
+  bucket = "pcc-master-data-${var.target_env}"
   tags = {
-    Name        = "pcc-master-data"
+    Name        = "pcc-master-data-${var.target_env}"
     Environment = var.target_env
   }
 }

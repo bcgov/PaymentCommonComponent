@@ -345,7 +345,7 @@ minio-init:
 	@mc mb s3/pcc-recon-reports-local || true
 	@mc mb s3/pcc-integration-data-files-local || true
 	@mc mb s3/pcc-master-data || true
-	@mc cp --recursive apps/backend/master_data s3/pcc-master-data
+	@mc cp --recursive apps/backend/master_data s3/pcc-master-data-local
 # @mc event add s3/pcc-integration-data-files-local arn:minio:sqs::primary:nats --event put 
 
 
