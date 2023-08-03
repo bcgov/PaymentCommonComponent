@@ -27,8 +27,9 @@ resource "aws_lambda_function" "batch_reconciler" {
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
       SNS_PARSER_RESULTS_TOPIC      = var.sns_parser_topic
-      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic      
+      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
       SNS_BATCH_RECONCILE_TOPIC     = var.sns_batch_reconcile_topic
+      DISABLE_AUTOMATED_RECONCILIATION = var.disable_automated_reconciliation
     }
   }
 
@@ -39,18 +40,5 @@ resource "aws_lambda_function" "batch_reconciler" {
       filename,
       source_code_hash,
     ]
-  }
-}
-
-resource "aws_lambda_function_event_invoke_config" "batch_reconciler_event" {
-  function_name = aws_lambda_function.batch_reconciler.function_name
-
-  destination_config {
-    on_success {
-      destination = aws_sns_topic.batch_reconcile.arn
-    }
-    on_failure {
-      destination = aws_sns_topic.batch_reconcile.arn
-    }
   }
 }

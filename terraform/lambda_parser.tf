@@ -29,6 +29,8 @@ resource "aws_lambda_function" "parser" {
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
       SNS_PARSER_RESULTS_TOPIC      = var.sns_parser_topic
       SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
+      SNS_BATCH_RECONCILE_TOPIC     = var.sns_batch_reconcile_topic
+      DISABLE_AUTOMATED_RECONCILIATION = var.disable_automated_reconciliation
     }
   }
 
