@@ -260,25 +260,21 @@ export class ParseService {
    * First step in the parsing process. Checks for files in the bucket, and then checks if they have been parsed before.
    * @param event
    */
-  async processAllFiles(event: S3Event) {
-    event.Records.length === 0
-      ? this.appLogger.log(
-          'No Records in Event...checking for files in bucket...'
-        )
-      : this.appLogger.log(`Processing ${event.Records.length} files...`);
-
+  async processAllFiles(
+    event: S3Event,
+    isLocal: boolean,
+    automatedReconciliationEnabled: boolean
+  ) {
     const eventFileList = event.Records.map(
       (r: S3EventRecord) => r.s3.object.key
     );
 
-    const fileList =
+    const fileList: (string | undefined)[] =
       (await this.s3.listBucketContents(
         `pcc-integration-data-files-${process.env.RUNTIME_ENV}`
-      )) || [];
+      )) ?? [];
 
-    this.appLogger.log(
-      `Found ${fileList ? fileList.length : 0} files in bucket...`
-    );
+    this.appLogger.log(`Found ${fileList.length} files in bucket...`);
 
     try {
       const allFiles = await this.getAllFiles();
@@ -305,17 +301,18 @@ export class ParseService {
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
-        const isLocal = process.env.RUNTIME_ENV === 'local';
-
         if (filename) {
           const file = await this.parseFileFromS3(filename);
           const fileDate = file?.dailyUpload?.dailyDate;
+
           if (!isLocal) {
             this.appLogger.log(
               'Publishing SNS to reconcile',
               ParseService.name
             );
+
             const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
+
             await this.snsService.publish(
               topic,
               JSON.stringify({
@@ -334,7 +331,8 @@ export class ParseService {
               })
             );
           }
-          if (isLocal && !process.env.MANUAL_RECONCILE) {
+
+          if (isLocal && automatedReconciliationEnabled) {
             this.appLogger.log(
               'Running reconcile handler locally',
               ParseService.name
