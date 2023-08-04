@@ -127,6 +127,10 @@ tag-test:
 	@git tag -fa test -m "Deploy test: $(git rev-parse --abbrev-ref HEAD)"
 	@git push --force origin refs/tags/test:refs/tags/test
 
+tag-tools:
+	@git tag -fa tools -m "Deploy tools: $(git rev-parse --abbrev-ref HEAD)"
+	@git push --force origin refs/tags/tools:refs/tags/tools
+
 tag-prod:
 ifndef version
 	@echo "++\n***** ERROR: version not set.\n++"
