@@ -13,7 +13,7 @@ data "aws_iam_policy_document" "service_account" {
       "s3:GetBucketLocation",
       "s3:DeleteObject"
     ]
-  resources = [
+    resources = [
       "arn:aws:s3:::*",
     ]
   }
@@ -45,8 +45,8 @@ data "aws_iam_policy_document" "service_account" {
 
 # Uncomment when output iam is required - Less noisy this way
 
-output "service_account_iam" {
-  value = data.aws_iam_policy_document.service_account.json
-}
+# output "service_account_iam" {
+#   value = data.aws_iam_policy_document.service_account.json
+# }
 
 
