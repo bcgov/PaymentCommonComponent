@@ -118,13 +118,14 @@ describe('ParseService', () => {
         FileTypes.SBC_SALES,
         'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
       );
-      const dailySuccess = notificationService.findMissingDailyFiles(rule, [
+
+      const missingFiles = notificationService.findMissingDailyFiles(rule, [
         tdi17,
         tdi34,
         sales,
       ]);
-      console.log(dailySuccess, '**************');
-      expect(dailySuccess.length).toBe(0);
+
+      expect(missingFiles.length).toBe(0);
     });
 
     it('should be successful if all required files are present - not necessarily all 3', () => {
@@ -139,11 +140,11 @@ describe('ParseService', () => {
         FileTypes.TDI34,
         'bcm/PROD_SBC_F08TDI34_20230309.DAT'
       );
-      const dailySuccess = notificationService.findMissingDailyFiles(rule, [
+      const missingFiles = notificationService.findMissingDailyFiles(rule, [
         tdi17,
         tdi34,
       ]);
-      expect(dailySuccess.length).toBe(0);
+      expect(missingFiles.length).toBe(0);
     });
 
     it('should fail if one or more of the required files are not present', () => {
@@ -156,10 +157,10 @@ describe('ParseService', () => {
         FileTypes.TDI17,
         'bcm/PROD_SBC_F08TDI17_20230309.DAT'
       );
-      const dailySuccess = notificationService.findMissingDailyFiles(rule, [
+      const missingFiles = notificationService.findMissingDailyFiles(rule, [
         tdi17,
       ]);
-      const failed = dailySuccess.length > 0;
+      const failed = missingFiles.length > 0;
       expect(failed).toBe(true);
     });
   });
