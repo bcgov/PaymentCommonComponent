@@ -215,6 +215,9 @@ aws-sync-files-from-prod-to-dev:
 aws-sync-files-from-prod-to-test:
 	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test --acl bucket-owner-full-control
 
+aws-sync-files-from-prod-to-tools:
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-tools --acl bucket-owner-full-control
+
 aws-empty-s3-bucket-dev:
 	@aws s3 rm s3://pcc-integration-data-files-dev/bcm --recursive
 	@aws s3 rm s3://pcc-integration-data-files-dev/sbc --recursive
@@ -232,6 +235,9 @@ aws-run-parser:
 
 aws-run-reports: 
 	@aws lambda invoke --function-name reports  --payload file://./apps/backend/fixtures/lambda/report.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
+
+aws-run-filecheck: 
+	@aws lambda invoke --function-name dailyFileCheck  --payload file://./apps/backend/fixtures/lambda/dailyfilecheck.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
 
 
 # ======================================================================
