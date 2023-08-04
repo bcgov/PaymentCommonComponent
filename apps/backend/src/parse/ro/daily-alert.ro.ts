@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { ProgramRequiredFileEntity } from '../entities/program-required-file.entity';
 
 class DailyAlertProgramRO {
   @ApiProperty({
@@ -21,6 +22,13 @@ class DailyAlertProgramRO {
     required: true,
   })
   alerted: boolean;
+
+  @ApiProperty({
+    description: 'List of file types that are missing',
+    example: [],
+    required: false,
+  })
+  missingFiles: ProgramRequiredFileEntity[];
 }
 
 export class DailyAlertRO {

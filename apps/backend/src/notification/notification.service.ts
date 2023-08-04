@@ -2,13 +2,16 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
 import { Repository } from 'typeorm';
+import { AlertDestinationEntity } from './entities/alert-destination.entity';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { MAIL_TEMPLATE_ENUM } from './mail-templates';
 import { MailService } from './mail.service';
-import { FileTypes } from '../constants';
+import { Ministries } from '../constants';
 import { AppLogger } from '../logger/logger.service';
 import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
+import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
+import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 @Injectable()
 export class NotificationService {
@@ -53,7 +56,7 @@ export class NotificationService {
    * @param date
    * @returns A daily upload entity or nothing
    */
-  async getDailyForRule(
+  async getProgramDailyUploadRecord(
     rule: FileIngestionRulesEntity,
     date: string
   ): Promise<ProgramDailyUploadEntity | null> {
@@ -74,7 +77,7 @@ export class NotificationService {
    * @param date
    * @returns
    */
-  async createNewDaily(
+  async createNewDailyUploadRecord(
     rule: FileIngestionRulesEntity,
     date: string
   ): Promise<ProgramDailyUploadEntity> {
@@ -98,59 +101,68 @@ export class NotificationService {
    * @param daily Daily with updated information
    * @returns ProgramDailyUploadEntity
    */
-  async saveDaily(
+  async saveProgramDailyUpload(
     daily: ProgramDailyUploadEntity
   ): Promise<ProgramDailyUploadEntity> {
     return await this.programDailyRepo.save(daily);
   }
-  async dailyUploadAlert(date: string) {
-    const rules = await this.getAllRules();
-    const dailyAlertPrograms = [];
+
+  async dailyUploadAlert(date: string): Promise<DailyAlertRO> {
+    const rules: FileIngestionRulesEntity[] = await this.getAllRules();
+
+    const dailyAlert: DailyAlertRO = { dailyAlertPrograms: [], date };
+
     for (const rule of rules) {
-      let daily = await this.getDailyForRule(rule, date);
-      if (!daily) {
-        daily = await this.createNewDaily(rule, date);
+      let dailyUploadRecord: ProgramDailyUploadEntity | null =
+        await this.getProgramDailyUploadRecord(rule, date);
+      if (!dailyUploadRecord) {
+        dailyUploadRecord = await this.createNewDailyUploadRecord(rule, date);
       }
-      if (daily.success) {
-        dailyAlertPrograms.push({
-          program: rule.program,
+      if (dailyUploadRecord.success) {
+        dailyAlert.dailyAlertPrograms.push({
+          program: rule.program as Ministries,
           success: true,
           alerted: false,
           missingFiles: [],
         });
         continue;
       }
-      const successStatus = this.determineDailySuccess(rule, daily.files);
-      if (successStatus.success === true) {
-        await this.saveDaily({
-          ...daily,
+      const missingFiles = this.findMissingDailyFiles(
+        rule,
+        dailyUploadRecord.files
+      );
+
+      if (missingFiles.length === 0) {
+        await this.saveProgramDailyUpload({
+          ...dailyUploadRecord,
           success: true,
         });
-        dailyAlertPrograms.push({
-          program: rule.program,
+
+        dailyAlert.dailyAlertPrograms.push({
+          program: rule.program as Ministries,
           success: true,
           alerted: false,
           missingFiles: [],
         });
       } else {
         let alerted = false;
-        if (daily.retries >= rule.retries) {
+        if (dailyUploadRecord.retries >= rule.retries) {
           // TODO CCFPCM-441
           alerted = true;
         }
-        await this.saveDaily({
-          ...daily,
-          retries: daily.retries + 1,
+        await this.saveProgramDailyUpload({
+          ...dailyUploadRecord,
+          retries: dailyUploadRecord.retries + 1,
         });
-        dailyAlertPrograms.push({
+        dailyAlert.dailyAlertPrograms.push({
           program: rule.program,
           success: false,
           alerted,
-          missingFiles: successStatus.missingFiles,
+          missingFiles: missingFiles,
         });
       }
     }
-    return { dailyAlertPrograms, date: date };
+    return dailyAlert;
   }
 
   /**
@@ -159,16 +171,11 @@ export class NotificationService {
    * @param files Files uploaded on the day
    * @returns Success or no
    */
-  determineDailySuccess(
+  findMissingDailyFiles(
     rule: FileIngestionRulesEntity,
     files: FileUploadedEntity[]
-  ): {
-    success: boolean;
-    missingFiles: { filename: string; fileType: FileTypes }[];
-  } {
-    const requiredFiles = rule.requiredFiles;
-    const missingFiles: { filename: string; fileType: FileTypes }[] = [];
-    requiredFiles.forEach((requiredFile) => {
+  ): ProgramRequiredFileEntity[] {
+    return rule.requiredFiles.filter((requiredFile) => {
       if (
         !files.some(
           (file) =>
@@ -176,74 +183,43 @@ export class NotificationService {
             file.sourceFileName.includes(requiredFile.filename)
         )
       ) {
-        missingFiles.push({
-          filename: requiredFile.filename,
-          fileType: requiredFile.fileType,
-        });
+        return requiredFile;
       }
     });
-    const success = missingFiles.length === 0;
-    return {
-      success,
-      missingFiles,
-    };
   }
 
-  async dailyAlert() {
-    const alertsSent = await this.dailyUploadAlert(
-      format(new Date(), 'yyyy-MM-dd')
+  async validationAlert(
+    ministry: Ministries,
+    filename: string,
+    fileType: string,
+    errorMessage: string
+  ) {
+    const alertDestinationEntities: AlertDestinationEntity[] =
+      await this.mailService.getAlertDestinations(ministry, [filename]);
+    const alertDestinations = alertDestinationEntities.map(
+      (itm) => itm.destination
     );
 
-    const programAlerts = alertsSent.dailyAlertPrograms;
-    for (const alert of programAlerts) {
-      const errors: string[] = [];
-      if (!alert.success) {
-        const incompleteString = `Daily Upload for ${alert.program} is incomplete.`;
-        errors.push(incompleteString);
-        alert.missingFiles.forEach((file) => {
-          errors.push(
-            `Missing a ${file.fileType} file - needs file name "${file.filename}"`
-          );
-        });
-      }
-
-      this.appLogger.log(errors.join(' '));
-      if (alert.alerted) {
-        const alertDestinations = await this.mailService.getAlertDestinations(
-          alert.program,
-          alert.missingFiles.map((mf) => mf.filename)
-        );
-        if (!alertDestinations.length) {
-          continue;
-        }
-        this.appLogger.log(
-          '\n\n=========Alerts Sent for Daily Upload: =========\n'
-        );
-        this.appLogger.error(
-          `Sent an alert to prompt ${alert.program} to complete upload`
-        );
-        await this.mailService.sendEmailAlertBulk(
-          MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
-          alertDestinations.map((ad) => ad),
-          [
-            {
-              fieldName: 'date',
-              content: format(new Date(), 'yyyy-MM-dd'),
-            },
-            {
-              fieldName: 'ministryDivision',
-              content: alert.program,
-            },
-            {
-              fieldName: 'error',
-              content: errors.join(' '),
-            },
-          ]
-        );
-      }
+    if (!alertDestinations.length) {
+      return;
     }
-  }
-  catch(err: Error) {
-    this.appLogger.error(err);
+    await this.mailService.sendEmailAlertBulk(
+      MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
+      alertDestinations.map((ad) => ad),
+      [
+        {
+          fieldName: 'date',
+          content: format(new Date(), 'MMM do, yyyy'),
+        },
+        {
+          fieldName: 'ministryDivision',
+          content: ministry,
+        },
+        {
+          fieldName: 'error',
+          content: `Validation error found in ${ministry} file: ${filename}.\n${errorMessage}`,
+        },
+      ]
+    );
   }
 }

@@ -1,4 +1,3 @@
-import axios, { AxiosInstance } from 'axios';
 import {
   Injectable,
   Inject,
@@ -6,10 +5,11 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import axios, { AxiosInstance } from 'axios';
 import { Repository } from 'typeorm';
+import { AlertDestinationEntity } from './entities/alert-destination.entity';
 import { MAIL_TEMPLATE_ENUM, MailTemplate } from './mail-templates';
 import { AppLogger } from '../logger/logger.service';
-import { AlertDestinationEntity } from './entities/alert-destination.entity';
 
 @Injectable()
 export class MailService {
@@ -38,7 +38,7 @@ export class MailService {
   public async getAlertDestinations(
     program: string,
     filenames: string[]
-  ): Promise<string[]> {
+  ): Promise<AlertDestinationEntity[]> {
     const allDestinations = await this.destinationRepo.find({
       relations: {
         rule: true,
@@ -54,7 +54,7 @@ export class MailService {
             filenames.includes(destination.requiredFile.filename))
       )
       .filter((destination) => destination)
-      .map((destination) => destination.destination);
+      .map((destination) => destination);
   }
 
   /**
