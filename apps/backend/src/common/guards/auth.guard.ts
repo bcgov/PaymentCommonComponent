@@ -11,8 +11,6 @@ import { Request } from 'express';
 import jwt from 'jsonwebtoken';
 import { PUBLIC_ENDPOINT } from './../decorators/publicEndpoint.decorator';
 
-let axiosInstance: AxiosInstance;
-
 /**
  * AuthGuard
  * Globally applied guard to ensure that a valid client id and secret are passed into each request
@@ -20,8 +18,10 @@ let axiosInstance: AxiosInstance;
  */
 @Injectable()
 export class AuthGuard implements CanActivate {
+  axiosInstance: AxiosInstance;
+
   constructor(private readonly reflector: Reflector) {
-    axiosInstance = axios.create({
+    this.axiosInstance = axios.create({
       baseURL: process.env.AUTH_BASE_URL,
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
@@ -43,7 +43,7 @@ export class AuthGuard implements CanActivate {
     const credentials = this.extractAuthClientCredentials(req);
     try {
       // make request to api
-      const authResponse = await axiosInstance.post(
+      const authResponse = await this.axiosInstance.post(
         '/protocol/openid-connect/token',
         {
           grant_type: 'client_credentials',
