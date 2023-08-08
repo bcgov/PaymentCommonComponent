@@ -1,4 +1,4 @@
-import { CanActivate, INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
 import request from 'supertest';
 import * as transactionJson from '../../sample-files/transaction.json';
@@ -11,13 +11,11 @@ describe('Transaction Controller (e2e)', () => {
   let app: INestApplication;
 
   beforeAll(async () => {
-    const mockAuthGuard: CanActivate = { canActivate: jest.fn(() => true) };
-
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     })
-      .overrideGuard(AuthGuard)
-      .useValue(mockAuthGuard)
+      .overrideProvider(AuthGuard)
+      .useValue({ canActivate: () => true })
       .compile();
 
     app = moduleFixture.createNestApplication();
