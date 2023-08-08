@@ -10,13 +10,20 @@ import {
   Post,
   UseInterceptors,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBasicAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { TransactionDTO } from './dto/transaction.dto';
 import { TransactionService } from './transaction.service';
 import { AppLogger } from '../logger/logger.service';
 import transactionJson from '../../sample-files/transaction.json';
 @Controller('transaction')
+@ApiBasicAuth()
 @ApiTags('Transaction API')
 export class TransactionController {
   constructor(
