@@ -18,12 +18,6 @@ variable "mail_base_url" {}
 
 variable "mail_default_to" {}
 
-variable "sns_reconciler_topic" {}
-
-variable "sns_parser_topic" {}
-
-variable "sns_batch_reconcile_topic" {}
-
 variable "disable_automated_reconciliation" {} 
 
 variable "region" {
