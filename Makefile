@@ -69,6 +69,10 @@ export TFVARS_DATA
 APP_SRC_BUCKET = $(LZ2_PROJECT)-$(ENV_NAME)-packages
 
 # Set Vars based on ENV 
+ifeq ($(ENV_NAME), tools)
+DB_HOST = $(DB_HOST_TOOLS)
+endif
+
 ifeq ($(ENV_NAME), dev) 
 DB_HOST = $(DB_HOST_DEV)
 endif
