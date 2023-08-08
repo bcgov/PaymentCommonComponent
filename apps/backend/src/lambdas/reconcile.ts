@@ -54,7 +54,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     if (!rule) {
       throw new Error('No rule for this program');
     }
-    const daily = await notificationService.getDailyForRule(
+    const daily = await notificationService.getProgramDailyUploadRecord(
       rule,
       reconciliationMaxDate
     );
