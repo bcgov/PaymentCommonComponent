@@ -199,6 +199,8 @@ aws-deploy-all:
 	@aws lambda update-function-code --function-name parser --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 	@aws lambda update-function-code --function-name reports --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name dailyFileCheck --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	@aws lambda update-function-code --function-name batch_reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
 
 aws-deploy-migrator:
 	@aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
