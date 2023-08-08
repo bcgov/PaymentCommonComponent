@@ -59,8 +59,9 @@ import { TransactionModule } from './transaction/transaction.module';
     {
       // Globally applies AuthGuard
       provide: APP_GUARD,
-      useClass: AuthGuard,
+      useExisting: AuthGuard,
     },
+    AuthGuard,
   ],
 })
 export class AppModule {}
