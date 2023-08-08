@@ -12,7 +12,7 @@ locals {
     dev     = "Dev"
     test    = "Test"
     prod    = "Prod"
-    tools = "Tools"
+    tools   = "Tools"
     unclass = "UnClass"
   }
   environment        = local.env_map[lower(var.target_env)]
