@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { format } from 'date-fns';
+import { ProgramTemplateName } from './const';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../logger/logger.service';
 import { AlertDestinationEntity } from '../notification/entities/alert-destination.entity';
@@ -28,9 +29,11 @@ export const handler = async (event: unknown, context?: Context) => {
 
   for (const alert of programAlerts) {
     const errors: string[] = [];
+    const program =
+      ProgramTemplateName[alert.program as keyof typeof ProgramTemplateName];
 
     if (!alert.success) {
-      const incompleteString = `Daily Upload for ${alert.program} is incomplete.\n`;
+      const incompleteString = `Daily Upload for ${program} is incomplete.\n`;
       errors.push(incompleteString);
       alert.missingFiles.forEach((file) => {
         errors.push(`Missing a ${file.fileType} - needs ${file.filename}\n`);
@@ -54,9 +57,7 @@ export const handler = async (event: unknown, context?: Context) => {
       }
 
       appLogger.log('\n\n=========Alerts Sent for Daily Upload: =========\n');
-      appLogger.error(
-        `Sent an alert to prompt ${alert.program} to complete upload`
-      );
+      appLogger.error(`Sent an alert to prompt ${program} to complete upload`);
       await mailService.sendEmailAlertBulk(
         MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
         alertDestinations.map((ad) => ad),
@@ -67,7 +68,7 @@ export const handler = async (event: unknown, context?: Context) => {
           },
           {
             fieldName: 'ministryDivision',
-            content: alert.program,
+            content: program,
           },
           {
             fieldName: 'error',
