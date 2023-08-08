@@ -84,3 +84,10 @@ Refer [here](./docs/access.md)
 
 For notifications, we are using GC Notify. The key can be found in the AWS Parameter Store.
 The API documentation for GC Notify sits [here](https://documentation.notification.canada.ca/en/).
+
+### Authentication
+
+The app includes an authentication layer for all endpoints but healthcheck using by using the BCGov API Portal located at https://api.gov.bc.ca
+Accounts will need to be generated on the portal by a user with API Provider permissions. This will generate a client id and secret for the payments API. This ID and Secret then must be used as the username/password in requests with Basic Auth.
+
+An AuthGuard then makes a request to the API Portal using those credentials to retrieve a token if the account is valid. The AuthGuard is globally applied, except for instances defined by the @Public() decorator.
