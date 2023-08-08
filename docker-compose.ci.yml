@@ -1,4 +1,4 @@
-version: "3.7"
+version: '3.7'
 services:
   db-test:
     image: postgres:14-alpine
@@ -11,7 +11,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_ROOT_PASSWORD=${DB_ROOT_PASSWORD}
     ports:
-      - "5454:5432"
+      - '5454:5432'
     networks:
       - pcc-test
   backend-test:
@@ -19,12 +19,12 @@ services:
     container_name: pcc-backend-test
     restart: always
     build:
-      context: "."
+      context: '.'
       target: development
     stdin_open: true
-    command: "yarn run start:backend:test"
+    command: 'yarn run start:backend:test'
     ports:
-      - "3100:3000"
+      - '3100:3000'
     environment:
       - DB_HOST=db-test
       - DB_NAME=${DB_NAME}test
@@ -34,6 +34,7 @@ services:
       - MAIL_SERVICE_BASE_URL=${MAIL_SERVICE_BASE_URL}
       - MAIL_SERVICE_KEY=${MAIL_SERVICE_KEY}
       - MAIL_SERVICE_DEFAULT_TO_EMAIL=${MAIL_SERVICE_DEFAULT_TO_EMAIL}
+      - AUTH_BASE_URL=${AUTH_BASE_URL}
       - CHOKIDAR_USEPOLLING=true
       - APP_PORT=3000
       - NODE_ENV=ci
@@ -56,8 +57,8 @@ services:
     image: minio/minio
     container_name: pcc-minio
     ports:
-      - "9000:9000"
-      - "9001:9001"
+      - '9000:9000'
+      - '9001:9001'
     volumes:
       - minio_storage:/data
     environment:

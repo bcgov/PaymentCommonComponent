@@ -1,6 +1,12 @@
-import { Controller, Get, InternalServerErrorException } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import {
+  Controller,
+  Get,
+  InternalServerErrorException,
+  UseGuards,
+} from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBasicAuth } from '@nestjs/swagger';
 import { AppService } from './app.service';
+import { AuthGuard } from './common/guards/auth.guard';
 
 @Controller()
 @ApiTags('Health API')
@@ -17,6 +23,8 @@ export class AppController {
     throw new InternalServerErrorException('Breaking uptime');
   }
 
+  @ApiBasicAuth()
+  @UseGuards(AuthGuard)
   @Get('/health')
   @ApiOperation({})
   getHealth(): object {
