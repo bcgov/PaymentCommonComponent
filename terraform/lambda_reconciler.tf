@@ -26,9 +26,9 @@ resource "aws_lambda_function" "reconciler" {
       MAIL_SERVICE_KEY              = data.aws_ssm_parameter.gcnotify_key.value
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
-      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_topic_arn_reconciler
-      SNS_PARSER_RESULTS_TOPIC      = var.sns_topic_arn_parser
-      SNS_BATCH_RECONCILE_TOPIC     = var.sns_topic_arn_batch
+      SNS_RECONCILER_RESULTS_TOPIC  = aws_sns_topic.reconciliation_results.arn
+      SNS_PARSER_RESULTS_TOPIC      = aws_sns_topic.parser_results.arn
+      SNS_BATCH_RECONCILE_TOPIC     = aws_sns_topic.batch_reconcile.arn
       DISABLE_AUTOMATED_RECONCILIATION = var.disable_automated_reconciliation
     }
   }
@@ -43,15 +43,3 @@ resource "aws_lambda_function" "reconciler" {
   }
 }
 
-resource "aws_lambda_function_event_invoke_config" "reconciler_event" {
-  function_name = aws_lambda_function.reconciler.function_name
-
-  destination_config {
-    on_success {
-      destination = aws_sns_topic.reconciliation_results.arn
-    }
-    on_failure {
-      destination = aws_sns_topic.reconciliation_results.arn
-    }
-  }
-}

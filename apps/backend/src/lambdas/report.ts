@@ -25,15 +25,15 @@ import { PaymentService } from '../transaction/payment.service';
  * @param context
  * @returns
  */
-export const handler = async (event: SNSEvent, context?: Context) => {
+export const handler = async (event: SNSEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
 
-  appLogger.log({ event, context }, 'REPORT EVENT');
+  appLogger.log({ event, _context }, 'REPORT EVENT');
 
-  const { period, program } =
+  const { program, period } =
     typeof event.Records[0].Sns.Message === 'string'
-      ? JSON.parse(event.Records[0].Sns.Message)
+      ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
 
   const BUSINESS_DAY_LEEWAY = 1;
@@ -63,9 +63,6 @@ export const handler = async (event: SNSEvent, context?: Context) => {
 
   const { pageThreeDeposits, pageThreeDepositDates } =
     await getPageThreeDeposits(app, dateRange, program, locations);
-
-  appLogger.log({ context });
-  appLogger.log({ event });
 
   await reportingService.generateReport(
     dateRange,

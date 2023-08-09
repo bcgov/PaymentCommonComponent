@@ -1,14 +1,13 @@
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
-import { SNS } from 'aws-sdk';
 import { format, parse, subBusinessDays } from 'date-fns';
 import { FindOptionsOrderValue } from 'typeorm';
 import { generateLocalSNSMessage } from './helpers';
 import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
-import { NormalizedLocation } from '../constants';
+import { Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
@@ -35,17 +34,18 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const snsService = app.get(SnsManagerService);
   const isLocal = process.env.RUNTIME_ENV === 'local';
   const reportingService = app.get(ReportingService);
-  const { program, period, generateReport } =
+
+  appLogger.log({ event, _context }, 'RECONCILE EVENT');
+
+  const { program, period, reportEnabled } =
     typeof event.Records[0].Sns.Message === 'string'
-      ? JSON.parse(event.Records[0].Sns.Message)
+      ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
 
   const reconciliationMinDate = period.from;
   const reconciliationMaxDate = period.to;
 
   const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
-
-  appLogger.log({ event, _context }, 'RECONCILE EVENT');
 
   const fileCheck = async () => {
     const rule: FileIngestionRulesEntity =
@@ -180,43 +180,56 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     }
   };
 
-  try {
-    await fileCheck();
-    await reconcile();
-    const reportParams = {
+  const showConsoleReport = async () => {
+    const posReport = await reportingService.reportPosMatchSummaryByDate();
+    const statusReport = await reportingService.getStatusReport();
+    appLogger.log('\n\n=========POS Summary Report: =========\n');
+    console.table(posReport);
+    const { paymentStatus, depositStatus } = statusReport;
+    console.table(paymentStatus);
+    console.table(depositStatus);
+    const cashReport = await reportingService.reportCashMatchSummaryByDate();
+    appLogger.log('\n\n=========Cash Summary Report: =========\n');
+    console.table(cashReport);
+  };
+
+  const generateReport = async () => {
+    const message = {
       period: {
         from: reconciliationMinDate,
         to: reconciliationMaxDate,
       },
       program,
     };
+
     if (isLocal) {
       appLogger.log('Running locally, not sending to SNS');
-      generateReport &&
-        (await reportHandler(generateLocalSNSMessage(reportParams), _context));
+      await showConsoleReport();
+      reportEnabled &&
+        (await reportHandler(generateLocalSNSMessage(message), _context));
     }
-    const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
-    const response: SNS.Types.PublishResponse = await snsService.publish(
-      topic,
-      JSON.stringify(reportParams)
-    );
-    const showConsoleReport = async () => {
-      const posReport = await reportingService.reportPosMatchSummaryByDate();
-      const statusReport = await reportingService.getStatusReport();
-      appLogger.log('\n\n=========POS Summary Report: =========\n');
-      console.table(posReport);
-      const { paymentStatus, depositStatus } = statusReport;
-      console.table(paymentStatus);
-      console.table(depositStatus);
-      const cashReport = await reportingService.reportCashMatchSummaryByDate();
-      appLogger.log('\n\n=========Cash Summary Report: =========\n');
-      console.table(cashReport);
-    };
-    isLocal && (await showConsoleReport());
-    return {
-      success: true,
-      response,
-    };
+    if (!isLocal) {
+      appLogger.log('Publishing SNS to reconcile', 'ReconciliationLambda');
+
+      const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
+
+      await snsService.publish(
+        topic,
+        JSON.stringify({
+          program: Ministries.SBC,
+          period: {
+            to: reconciliationMaxDate,
+            from: reconciliationMinDate,
+          },
+        })
+      );
+    }
+  };
+
+  try {
+    await fileCheck();
+    await reconcile();
+    await generateReport();
   } catch (err) {
     appLogger.error(err);
   }
