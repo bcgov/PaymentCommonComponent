@@ -10,7 +10,7 @@ export const Documentation = (app: INestApplication) => {
     .setTitle('PayCoCo API Docs')
     .setDescription('Payment Common Component API Documentation')
     .setVersion(`1.0.0`)
-    // .addBearerAuth()
+    .addBasicAuth()
     .build();
 
   const baseDocument = SwaggerModule.createDocument(app, options, {

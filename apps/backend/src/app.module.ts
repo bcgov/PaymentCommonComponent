@@ -1,9 +1,11 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_GUARD } from '@nestjs/core';
 import { S3, SNS } from 'aws-sdk';
 import { AwsSdkModule } from 'nest-aws-sdk';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthGuard } from './common/guards/auth.guard';
 import { DatabaseModule } from './database/database.module';
 import { DepositModule } from './deposits/deposit.module';
 import { ExcelExportModule } from './excelexport/excelexport.module';
@@ -52,6 +54,14 @@ import { TransactionModule } from './transaction/transaction.module';
     }),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      // Globally applies AuthGuard
+      provide: APP_GUARD,
+      useExisting: AuthGuard,
+    },
+    AuthGuard,
+  ],
 })
 export class AppModule {}

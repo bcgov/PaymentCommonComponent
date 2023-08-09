@@ -4,6 +4,7 @@ import request from 'supertest';
 import * as transactionJson from '../../sample-files/transaction.json';
 import { validationPipeConfig } from '../../src/app.config';
 import { AppModule } from '../../src/app.module';
+import { AuthGuard } from '../../src/common/guards/auth.guard';
 import { TrimPipe } from '../../src/trim.pipe';
 
 describe('Transaction Controller (e2e)', () => {
@@ -12,7 +13,10 @@ describe('Transaction Controller (e2e)', () => {
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(AuthGuard)
+      .useValue({ canActivate: () => true })
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(

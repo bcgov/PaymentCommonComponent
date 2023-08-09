@@ -11,7 +11,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiConsumes, ApiBody, ApiTags } from '@nestjs/swagger';
+import { ApiConsumes, ApiBasicAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
 import { DailyAlertRO } from './ro/daily-alert.ro';
 import { FileTypes } from '../constants';
@@ -22,6 +22,7 @@ import { NotificationService } from '../notification/notification.service';
 import { TransactionService } from '../transaction/transaction.service';
 
 @Controller('parse')
+@ApiBasicAuth()
 @ApiTags('Parser API')
 @UseInterceptors(ClassSerializerInterceptor)
 export class ParseController {
