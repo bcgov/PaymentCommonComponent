@@ -12,7 +12,7 @@ include $(ENV)
 export PROJECT := pcc
 
 # Environment
-export ENV_NAME ?= test
+export ENV_NAME ?= dev
 export PCC_SFTP :=  "$(PCC_SFTP)" 
 export BCM_SFTP :=  "$(BCM_SFTP)"
 export POSTGRES_USERNAME := $(AWS_POSTGRES_USERNAME)
@@ -82,7 +82,6 @@ sns_topic_arn_parser="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):parser-resu
 sns_topic_arn_batch="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):batch-reconcile-topic"
 endef
 export TFVARS_DATA
-
 # Deployment
 APP_SRC_BUCKET = $(LZ2_PROJECT)-$(ENV_NAME)-packages
 

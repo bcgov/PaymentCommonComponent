@@ -43,15 +43,3 @@ resource "aws_lambda_function" "reconciler" {
   }
 }
 
-resource "aws_lambda_function_event_invoke_config" "reconciler_event" {
-  function_name = aws_lambda_function.reconciler.function_name
-
-  destination_config {
-    on_success {
-      destination = aws_sns_topic.reconciliation_results.arn
-    }
-    on_failure {
-      destination = aws_sns_topic.reconciliation_results.arn
-    }
-  }
-}
