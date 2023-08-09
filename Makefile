@@ -12,7 +12,7 @@ include $(ENV)
 export PROJECT := pcc
 
 # Environment
-export ENV_NAME ?= test
+export ENV_NAME ?= dev
 export PCC_SFTP :=  "$(PCC_SFTP)" 
 export BCM_SFTP :=  "$(BCM_SFTP)"
 export POSTGRES_USERNAME := $(AWS_POSTGRES_USERNAME)
