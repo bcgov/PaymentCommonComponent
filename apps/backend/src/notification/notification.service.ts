@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
+import { ProgramTemplateName } from 'src/lambdas/const';
 import { Repository } from 'typeorm';
 import { AlertDestinationEntity } from './entities/alert-destination.entity';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
@@ -203,6 +204,8 @@ export class NotificationService {
     if (!alertDestinations.length) {
       return;
     }
+    const program =
+      ProgramTemplateName[ministry as keyof typeof ProgramTemplateName];
     await this.mailService.sendEmailAlertBulk(
       MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
       alertDestinations.map((ad) => ad),
@@ -213,7 +216,7 @@ export class NotificationService {
         },
         {
           fieldName: 'ministryDivision',
-          content: ministry,
+          content: program,
         },
         {
           fieldName: 'error',
