@@ -48,22 +48,6 @@ BATCH_JSON:=$(shell cat ./apps/backend/fixtures/lambda/batch.json | jq '.' -c)
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
-ifeq ($(ENV_NAME), dev) 
-TARGET_ACCOUNT_ID = $(TARGET_ACCOUNT_ID_DEV)
-endif
-
-ifeq ($(ENV_NAME), test) 
-TARGET_ACCOUNT_ID = $(TARGET_ACCOUNT_ID_TEST)
-endif
-
-ifeq ($(ENV_NAME), tools) 
-TARGET_ACCOUNT_ID = $(TARGET_ACCOUNT_ID_TOOLS)
-endif
-
-ifeq ($(ENV_NAME), prod)
-TARGET_ACCOUNT_ID = $(TARGET_ACCOUNT_ID_PROD)
-endif
-
 
 define TFVARS_DATA
 target_env = "$(ENV_NAME)"
@@ -77,9 +61,6 @@ mail_base_url = "$(MAIL_SERVICE_BASE_URL)"
 mail_default_to = ""
 disable_automated_reconciliation="$(DISABLE_AUTOMATED_RECONCILIATION)"
 auth_base_url="$(AUTH_BASE_URL)"
-sns_topic_arn_reconciler="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):reconciliation-results-topic"
-sns_topic_arn_parser="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):parser-results-topic"
-sns_topic_arn_batch="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):batch-reconcile-topic"
 endef
 export TFVARS_DATA
 # Deployment
