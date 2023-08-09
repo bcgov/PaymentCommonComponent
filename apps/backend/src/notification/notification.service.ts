@@ -8,6 +8,7 @@ import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity
 import { MAIL_TEMPLATE_ENUM } from './mail-templates';
 import { MailService } from './mail.service';
 import { Ministries } from '../constants';
+import { ProgramTemplateName } from '../lambdas/const';
 import { AppLogger } from '../logger/logger.service';
 import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
@@ -203,6 +204,8 @@ export class NotificationService {
     if (!alertDestinations.length) {
       return;
     }
+    const program =
+      ProgramTemplateName[ministry as keyof typeof ProgramTemplateName];
     await this.mailService.sendEmailAlertBulk(
       MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
       alertDestinations.map((ad) => ad),
@@ -213,7 +216,7 @@ export class NotificationService {
         },
         {
           fieldName: 'ministryDivision',
-          content: ministry,
+          content: program,
         },
         {
           fieldName: 'error',
