@@ -26,9 +26,9 @@ resource "aws_lambda_function" "reports" {
       MAIL_SERVICE_KEY              = data.aws_ssm_parameter.gcnotify_key.value
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
-      SNS_PARSER_RESULTS_TOPIC      = var.sns_parser_topic
-      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_reconciler_topic
-      SNS_BATCH_RECONCILE_TOPIC     = var.sns_batch_reconcile_topic
+      SNS_RECONCILER_RESULTS_TOPIC  = var.sns_topic_arn_reconciler
+      SNS_PARSER_RESULTS_TOPIC      = var.sns_topic_arn_parser
+      SNS_BATCH_RECONCILE_TOPIC     = var.sns_topic_arn_batch
       DISABLE_AUTOMATED_RECONCILIATION = var.disable_automated_reconciliation
     }
   }

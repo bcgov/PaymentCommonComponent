@@ -18,16 +18,13 @@ variable "mail_base_url" {}
 
 variable "mail_default_to" {}
 
-variable "sns_reconciler_topic" {}
+variable "disable_automated_reconciliation" {} 
 
-variable "sns_parser_topic" {}
-
-variable "sns_batch_reconcile_topic" {}
-
-variable "disable_automated_reconciliation" {}
+variable "sns_topic_arn_reconciler" {}
+variable "sns_topic_arn_parser" {}
+variable "sns_topic_arn_batch" {}
 
 variable "auth_base_url" {}
-
 variable "region" {
   default = "ca-central-1"
 }
