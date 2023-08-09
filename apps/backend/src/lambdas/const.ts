@@ -1,3 +1,3 @@
 export enum ProgramTemplateName {
-  SBC = 'Citizens Services / SBC',
+  SBC = "Citizens' Services / SBC",
 }
