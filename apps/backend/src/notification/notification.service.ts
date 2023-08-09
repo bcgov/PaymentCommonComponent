@@ -1,7 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
-import { ProgramTemplateName } from 'src/lambdas/const';
 import { Repository } from 'typeorm';
 import { AlertDestinationEntity } from './entities/alert-destination.entity';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
@@ -9,6 +8,7 @@ import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity
 import { MAIL_TEMPLATE_ENUM } from './mail-templates';
 import { MailService } from './mail.service';
 import { Ministries } from '../constants';
+import { ProgramTemplateName } from '../lambdas/const';
 import { AppLogger } from '../logger/logger.service';
 import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
