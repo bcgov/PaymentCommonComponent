@@ -77,9 +77,9 @@ mail_base_url = "$(MAIL_SERVICE_BASE_URL)"
 mail_default_to = ""
 disable_automated_reconciliation="$(DISABLE_AUTOMATED_RECONCILIATION)"
 auth_base_url="$(AUTH_BASE_URL)"
-sns_topic_arn_reconciler="arn:aws:sns:$(AWS_REGION):$(var.target_aws_account_id):reconciliation-results-topic"
-sns_topic_arn_parser="arn:aws:sns:$(AWS_REGION):$(var.target_aws_account_id):parser-results-topic"
-sns_topic_arn_batch="arn:aws:sns:$(AWS_REGION):$(var.target_aws_account_id):batch-reconcile-topic"
+sns_topic_arn_reconciler="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):reconciliation-results-topic"
+sns_topic_arn_parser="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):parser-results-topic"
+sns_topic_arn_batch="arn:aws:sns:$(AWS_REGION):$(TARGET_ACCOUNT_ID):batch-reconcile-topic"
 endef
 export TFVARS_DATA
 
