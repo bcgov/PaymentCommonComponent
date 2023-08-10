@@ -1,26 +1,21 @@
-import { LoggerService, LogLevel } from '@nestjs/common';
+import { LoggerService } from '@nestjs/common';
 import axios from 'axios';
 import { utilities, WinstonModule } from 'nest-winston';
 import winston from 'winston';
 
 export class AppLogger implements LoggerService {
-  private context = 'App Logger';
   private logger;
-  private level = 'debug';
+  private context = 'App Logger';
 
   setContext(context: string) {
     this.context = context;
   }
-  setLogLevel(level: LogLevel) {
-    this.level = level;
-  }
 
   constructor() {
     this.logger = WinstonModule.createLogger({
-      level: this.level,
+      level: 'debug',
       transports: [
         new winston.transports.Console({
-          level: this.level,
           format: winston.format.combine(
             winston.format.timestamp(),
             winston.format.colorize({ all: true }),
@@ -36,7 +31,7 @@ export class AppLogger implements LoggerService {
 
   /*eslint-disable @typescript-eslint/no-explicit-any*/
   log(message: unknown, context?: any) {
-    this.logger.log(message, context ?? this.context, this.level);
+    this.logger.log(message, context ?? this.context);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -54,14 +49,12 @@ export class AppLogger implements LoggerService {
     }
     // For handling manually crafted validation error message arrays, see 'exceptionFactory' in 'app.config.ts'
     if (error.response?.message) {
-      this.level = 'error';
       this.logger.error(error.message, context ?? this.context);
     }
     this.logger.error(error.message, context ?? this.context);
   }
 
   warn(message: unknown, context?: string) {
-    this.level = 'warn';
     this.logger.warn(message, context);
   }
 }
