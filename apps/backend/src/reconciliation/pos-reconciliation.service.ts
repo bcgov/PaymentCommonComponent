@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import {
   addBusinessDays,
   differenceInBusinessDays,
@@ -38,11 +38,14 @@ export class PosReconciliationService {
    * @param posDepositService
    * @param paymentService
    */
+
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(PosDepositService) private posDepositService: PosDepositService,
-    @Inject(PaymentService) private paymentService: PaymentService
-  ) {}
+    @Inject(PaymentService) private paymentService: PaymentService,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(PosReconciliationService.name);
+  }
 
   /**
    * Match POS payments to POS deposits on location, program, date and time based heuristics
@@ -64,15 +67,9 @@ export class PosReconciliationService {
       };
     }
 
-    this.appLogger.log(
-      `Payments to be matched: ${pendingPayments.length}`,
-      PosReconciliationService.name
-    );
+    this.appLogger.log(`Payments to be matched: ${pendingPayments.length}`);
 
-    this.appLogger.log(
-      `Deposits to be matched: ${pendingDeposits.length}`,
-      PosReconciliationService.name
-    );
+    this.appLogger.log(`Deposits to be matched: ${pendingDeposits.length}`);
 
     const locationPosDepositsDictionary =
       this.buildPosDepositsDictionary(pendingDeposits);
@@ -108,8 +105,7 @@ export class PosReconciliationService {
       );
       matchesRoundFour.push(...roundMatches);
       this.appLogger.log(
-        `MATCHES - ROUND ${round} - ${roundMatches.length} matches`,
-        PosReconciliationService.name
+        `MATCHES - ROUND ${round} - ${roundMatches.length} matches`
       );
     };
 
@@ -129,8 +125,7 @@ export class PosReconciliationService {
         );
         matches.push(...roundMatches);
         this.appLogger.log(
-          `MATCHES - ROUND ${heuristic} - ${roundMatches.length} matches`,
-          PosReconciliationService.name
+          `MATCHES - ROUND ${heuristic} - ${roundMatches.length} matches`
         );
       }
     }
@@ -472,8 +467,7 @@ export class PosReconciliationService {
     currentDate: Date
   ): Promise<unknown> {
     this.appLogger.log(
-      `Exceptions POS: ${exceptionsDate} - ${location.description} - ${location.location_id}`,
-      PosReconciliationService.name
+      `Exceptions POS: ${exceptionsDate} - ${location.description} - ${location.location_id}`
     );
 
     const inProgressPayments =

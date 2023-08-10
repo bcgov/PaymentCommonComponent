@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { addBusinessDays, parse, subBusinessDays } from 'date-fns';
 import {
@@ -19,10 +19,12 @@ import { AppLogger } from '../logger/logger.service';
 @Injectable()
 export class CashDepositService {
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
     @InjectRepository(CashDepositEntity)
-    private cashDepositRepo: Repository<CashDepositEntity>
-  ) {}
+    private cashDepositRepo: Repository<CashDepositEntity>,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(CashDepositService.name);
+  }
 
   /**
    * @description Find all uploaded files

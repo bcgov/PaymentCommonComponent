@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import { ReconciliationType, AggregatedCashPayment } from './types';
 import { MatchStatus } from '../common/const';
@@ -12,10 +12,12 @@ import { PaymentService } from '../transaction/payment.service';
 @Injectable()
 export class CashReconciliationService {
   constructor(
-    @Inject(Logger) private appLogger: AppLogger,
     @Inject(CashDepositService) private cashDepositService: CashDepositService,
-    @Inject(PaymentService) private paymentService: PaymentService
-  ) {}
+    @Inject(PaymentService) private paymentService: PaymentService,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(CashReconciliationService.name);
+  }
 
   public checkStatus(
     payment: AggregatedCashPayment,
@@ -127,10 +129,7 @@ export class CashReconciliationService {
         location.location_id
       );
     if (pendingDeposits.length === 0 || aggregatedCashPayments.length === 0) {
-      this.appLogger.log(
-        'SKIPPING - No pending payments / deposits found',
-        CashReconciliationService.name
-      );
+      this.appLogger.log('SKIPPING - No pending payments / deposits found');
       return;
     }
 
@@ -158,14 +157,8 @@ export class CashReconciliationService {
       reconciled_on: currentDate,
     }));
 
-    this.appLogger.log(
-      `${matchedPayments.length} PAYMENTS MARKED MATCHED`,
-      CashReconciliationService.name
-    );
-    this.appLogger.log(
-      `${matchedDeposits.length} DEPOSITS MARKED MATCHED`,
-      CashReconciliationService.name
-    );
+    this.appLogger.log(`${matchedPayments.length} PAYMENTS MARKED MATCHED`);
+    this.appLogger.log(`${matchedDeposits.length} DEPOSITS MARKED MATCHED`);
 
     const inProgressPayments: PaymentEntity[] = aggregatedCashPayments
       .filter(
@@ -192,12 +185,10 @@ export class CashReconciliationService {
     this.appLogger.log(
       `${
         this.paymentService.aggregatePayments(inProgressPayments).length
-      } payments set as in progress`,
-      CashReconciliationService.name
+      } payments set as in progress`
     );
     this.appLogger.log(
-      `${inProgressDeposits.length} deposits set as in progress`,
-      CashReconciliationService.name
+      `${inProgressDeposits.length} deposits set as in progress`
     );
 
     const updatePayments = await this.paymentService.updatePayments([

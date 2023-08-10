@@ -6,7 +6,6 @@ import {
   Controller,
   ClassSerializerInterceptor,
   Inject,
-  Logger,
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
@@ -37,8 +36,10 @@ export class ParseController {
     private readonly cashDepositService: CashDepositService,
     @Inject(PosDepositService)
     private readonly posDepositService: PosDepositService,
-    @Inject(Logger) private readonly appLogger: AppLogger
-  ) {}
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(ParseController.name);
+  }
 
   @Post('flat-file')
   @UseInterceptors(ClassSerializerInterceptor)

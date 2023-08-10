@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format, parse, addBusinessDays, subBusinessDays } from 'date-fns';
 import { Between, In, LessThan, Raw, Repository } from 'typeorm';
@@ -9,17 +9,18 @@ import { DateRange, Ministries, NormalizedLocation } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
-import { PaymentMethodEntity } from '../transaction/entities/payment-method.entity';
 
 @Injectable()
 export class PosDepositService {
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(LocationService)
     private locationService: LocationService,
     @InjectRepository(POSDepositEntity)
-    private posDepositRepo: Repository<POSDepositEntity>
-  ) {}
+    private posDepositRepo: Repository<POSDepositEntity>,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(PosDepositService.name);
+  }
 
   async findPosDeposits(
     dateRange: DateRange,

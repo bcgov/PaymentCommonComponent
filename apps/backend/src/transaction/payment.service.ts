@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { addBusinessDays, parse, subBusinessDays } from 'date-fns';
 import Decimal from 'decimal.js';
@@ -25,8 +25,10 @@ export class PaymentService {
   constructor(
     @InjectRepository(PaymentEntity)
     private paymentRepo: Repository<PaymentEntity>,
-    @Inject(Logger) private readonly appLogger: AppLogger
-  ) {}
+    private readonly logger: AppLogger
+  ) {
+    this.logger.setContext(PaymentService.name);
+  }
 
   async findPosPayments(
     dateRange: DateRange,

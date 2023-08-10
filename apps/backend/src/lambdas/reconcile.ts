@@ -1,4 +1,3 @@
-import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
 import { format, parse, subBusinessDays } from 'date-fns';
@@ -11,6 +10,7 @@ import { Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
+import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
 import { CashExceptionsService } from '../reconciliation/cash-exceptions.service';
@@ -22,7 +22,8 @@ import { PaymentService } from '../transaction/payment.service';
 
 export const handler = async (event: SNSEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = app.get(Logger);
+  const appLogger = new AppLogger();
+  appLogger.setContext('Reconcile Lambda');
   const cashExceptionsService = app.get(CashExceptionsService);
   const cashReconciliationService = app.get(CashReconciliationService);
   const posReconciliationService = app.get(PosReconciliationService);

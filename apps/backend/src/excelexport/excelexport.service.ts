@@ -1,6 +1,6 @@
 /*eslint-disable @typescript-eslint/no-explicit-any*/
 /*eslint-disable @typescript-eslint/no-unused-vars*/
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { format, parse } from 'date-fns';
 import * as Excel from 'exceljs';
 import { Stream } from 'stream';
@@ -13,10 +13,12 @@ import { S3ManagerService } from '../s3-manager/s3-manager.service';
 export class ExcelExportService {
   private workbook: Excel.stream.xlsx.WorkbookWriter;
   private stream: Stream;
+
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
-    @Inject(S3ManagerService) private readonly s3Manager: S3ManagerService
+    @Inject(S3ManagerService) private readonly s3Manager: S3ManagerService,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
+    this.appLogger.setContext(ExcelExportService.name);
     this.stream = new Stream.PassThrough();
     this.workbook = new Excel.stream.xlsx.WorkbookWriter({
       stream: this.stream,
@@ -31,7 +33,7 @@ export class ExcelExportService {
    */
 
   public async saveS3(filename: string, date: string): Promise<void> {
-    this.appLogger.log('Saving to S3 Bucket', ExcelExportService.name);
+    this.appLogger.log('Saving to S3 Bucket');
     this.workbook.commit();
     try {
       await this.s3Manager.s3
@@ -44,7 +46,7 @@ export class ExcelExportService {
         })
         .promise();
     } catch (error) {
-      this.appLogger.error(`${error}`, ExcelExportService.name);
+      this.appLogger.error(`${error}`);
     }
   }
 
@@ -61,8 +63,7 @@ export class ExcelExportService {
     this.workbook.title = title;
     this.workbook.created = date;
     this.appLogger.log(
-      `New ${title} workbook created on: ${format(date, 'yyyy-MM-dd')}`,
-      ExcelExportService.name
+      `New ${title} workbook created on: ${format(date, 'yyyy-MM-dd')}`
     );
   }
   public commitWorksheet(sheetName: string): void {
@@ -75,7 +76,7 @@ export class ExcelExportService {
    */
   public addSheet(name: string): void {
     this.workbook.addWorksheet(name);
-    this.appLogger.log(`New ${name} worksheet added`, ExcelExportService.name);
+    this.appLogger.log(`New ${name} worksheet added`);
   }
   /**
    *
@@ -106,10 +107,7 @@ export class ExcelExportService {
 
     rowOne.commit();
 
-    this.appLogger.log(
-      `Title added and formatted to sheet ${sheetName}`,
-      ExcelExportService.name
-    );
+    this.appLogger.log(`Title added and formatted to sheet ${sheetName}`);
   }
   /**
    *
@@ -141,8 +139,7 @@ export class ExcelExportService {
       uncommittedRow.commit();
     });
     this.appLogger.log(
-      `${rowData.length} rows added and formatted to sheet ${sheetName}`,
-      ExcelExportService.name
+      `${rowData.length} rows added and formatted to sheet ${sheetName}`
     );
   }
   /**
@@ -165,10 +162,7 @@ export class ExcelExportService {
       };
     });
     // do not commit this row as formatting will need to be added after - this row will be commited when the worksheet is commited
-    this.appLogger.log(
-      `Columns added and formatted to sheet ${sheetName}`,
-      ExcelExportService.name
-    );
+    this.appLogger.log(`Columns added and formatted to sheet ${sheetName}`);
   }
   /**
    *
@@ -181,9 +175,6 @@ export class ExcelExportService {
   ): void {
     const sheet = this.workbook.getWorksheet(sheetName);
     sheet.autoFilter = filterOptions;
-    this.appLogger.log(
-      `Filter options added to sheet ${sheetName}`,
-      ExcelExportService.name
-    );
+    this.appLogger.log(`Filter options added to sheet ${sheetName}`);
   }
 }
