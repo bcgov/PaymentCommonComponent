@@ -15,6 +15,7 @@ import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.ent
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { TDI34Details } from '../../../src/flat-files';
 import { parseTDI, parseTDIHeader } from '../../../src/lambdas/utils/parseTDI';
+import { LoggerModule } from '../../../src/logger/logger.module';
 import { generateLocation } from '../../mocks/const/location_mock';
 import { MockData } from '../../mocks/mocks';
 
@@ -25,6 +26,7 @@ describe('POSDepositService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         PosDepositService,
         {

@@ -19,6 +19,7 @@ import {
   PaymentMethodClassification,
 } from '../../../src/constants';
 import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
+import { LoggerModule } from '../../../src/logger/logger.module';
 import { PosHeuristicRound } from '../../../src/reconciliation/types';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { MockData } from '../../mocks/mocks';
@@ -36,6 +37,7 @@ describe('PosReconciliationService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         PosReconciliationService,
         {

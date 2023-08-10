@@ -9,6 +9,7 @@ import { FileTypes } from '../../../src/constants';
 
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
+import { LoggerModule } from '../../../src/logger/logger.module';
 import { FileIngestionRulesEntity } from '../../../src/notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../../../src/notification/entities/program-daily-upload.entity';
 import { MailService } from '../../../src/notification/mail.service';
@@ -30,6 +31,7 @@ describe('ParseService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         ParseService,
         NotificationService,
