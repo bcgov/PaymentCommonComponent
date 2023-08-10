@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TransactionEntity } from './entities';
@@ -9,11 +9,13 @@ import { AppLogger } from '../logger/logger.service';
 @Injectable()
 export class TransactionService {
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(PaymentService) private readonly paymentService: PaymentService,
     @InjectRepository(TransactionEntity)
-    private transactionRepo: Repository<TransactionEntity>
-  ) {}
+    private transactionRepo: Repository<TransactionEntity>,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(TransactionService.name);
+  }
 
   async saveTransactions(
     data: TransactionEntity[]

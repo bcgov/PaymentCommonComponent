@@ -4,7 +4,6 @@ import {
   HttpStatus,
   Inject,
   Injectable,
-  Logger,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { S3Event, S3EventRecord } from 'aws-lambda';
@@ -50,7 +49,7 @@ import { TransactionService } from '../transaction/transaction.service';
 @Injectable()
 export class ParseService {
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
+    @Inject(AppLogger) @Inject(AppLogger) private readonly appLogger: AppLogger,
     @Inject(PaymentMethodService)
     private readonly paymentMethodService: PaymentMethodService,
     @Inject(S3ManagerService)
@@ -69,7 +68,9 @@ export class ParseService {
     private readonly notificationService: NotificationService,
     @InjectRepository(FileUploadedEntity)
     private uploadedRepo: Repository<FileUploadedEntity>
-  ) {}
+  ) {
+    this.appLogger.setContext(ParseService.name);
+  }
   /**
    * Handles validation errors from validateOrReject, identifying which property is failing validation
    * Returns the error message generated
@@ -304,10 +305,7 @@ export class ParseService {
           const fileDate = file?.dailyUpload?.dailyDate;
 
           if (!isLocal) {
-            this.appLogger.log(
-              'Publishing SNS to reconcile',
-              ParseService.name
-            );
+            this.appLogger.log('Publishing SNS to reconcile');
 
             const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
 
@@ -331,10 +329,7 @@ export class ParseService {
           }
 
           if (isLocal && automatedReconciliationEnabled) {
-            this.appLogger.log(
-              'Running reconcile handler locally',
-              ParseService.name
-            );
+            this.appLogger.log('Running reconcile handler locally');
             await reconcileHandler(
               generateLocalSNSMessage({
                 generateReport: true,
@@ -410,7 +405,7 @@ export class ParseService {
             ? `Validation Errors in file ${filename}: ${err.message}`
             : `Validation Errors present in the file ${filename}`;
 
-        this.appLogger.error({ errorMessage }, ParseService.name);
+        this.appLogger.error({ errorMessage });
 
         await this.notificationService.validationAlert(
           currentRule?.program as Ministries,

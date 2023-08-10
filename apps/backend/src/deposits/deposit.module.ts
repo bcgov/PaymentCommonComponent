@@ -5,9 +5,11 @@ import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { PosDepositService } from './pos-deposit.service';
 import { LocationModule } from '../location/location.module';
+import { LoggerModule } from '../logger/logger.module';
 
 @Module({
   imports: [
+    LoggerModule,
     LocationModule,
     TypeOrmModule.forFeature([POSDepositEntity, CashDepositEntity]),
   ],

@@ -12,7 +12,8 @@ import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 export const handler = async (event: unknown, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = app.get(AppLogger);
+  const appLogger = new AppLogger();
+  appLogger.setContext('Daily File Check Lambda');
   const notificationService = app.get(NotificationService);
   const mailService = app.get(MailService);
 

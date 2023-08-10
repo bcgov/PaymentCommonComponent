@@ -11,9 +11,9 @@ import { S3ManagerService } from './../../../src/s3-manager/s3-manager.service';
 import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
 import { PaymentService } from './../../../src/transaction/payment.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import { LoggerModule } from '../../../src/logger/logger.module';
 import { ReportingService } from '../../../src/reporting/reporting.service';
 import { PaymentMethodEntity } from '../../../src/transaction/entities';
-
 describe('ReportingService', () => {
   let service: ReportingService;
 
@@ -26,6 +26,7 @@ describe('ReportingService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         ReportingService,
         LocationService,

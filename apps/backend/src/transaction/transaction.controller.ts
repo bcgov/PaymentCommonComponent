@@ -6,7 +6,6 @@ import {
   HttpStatus,
   Inject,
   InternalServerErrorException,
-  Logger,
   Post,
   UseInterceptors,
 } from '@nestjs/common';
@@ -29,8 +28,10 @@ export class TransactionController {
   constructor(
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
-    @Inject(Logger) private readonly appLogger: AppLogger
-  ) {}
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(TransactionController.name);
+  }
 
   @Post()
   @HttpCode(HttpStatus.CREATED)

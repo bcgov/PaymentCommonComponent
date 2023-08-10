@@ -12,7 +12,8 @@ import { SnsManagerService } from '../sns-manager/sns-manager.service';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 export const handler = async (event: HandlerEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = app.get(AppLogger);
+  const appLogger = new AppLogger();
+  appLogger.setContext('Batch Reconcile Lambda');
   const snsService = app.get(SnsManagerService);
 
   appLogger.log({ event, _context }, 'BATCH RECONCILIATION EVENT');

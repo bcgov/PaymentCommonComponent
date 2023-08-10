@@ -1,7 +1,6 @@
 import {
-  Injectable,
   Inject,
-  Logger,
+  Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -16,10 +15,11 @@ export class MailService {
   private axiosInstance: AxiosInstance;
 
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
     @InjectRepository(AlertDestinationEntity)
-    private destinationRepo: Repository<AlertDestinationEntity>
+    private destinationRepo: Repository<AlertDestinationEntity>,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
+    this.appLogger.setContext(MailService.name);
     this.axiosInstance = axios.create({
       baseURL: `${process.env.MAIL_SERVICE_BASE_URL}/v2/notifications/`,
       headers: {

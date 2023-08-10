@@ -1,6 +1,7 @@
 import { Logger } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { LoggerModule } from '../../../src/logger/logger.module';
 import { TransactionEntity } from '../../../src/transaction/entities';
 import { PaymentService } from '../../../src/transaction/payment.service';
 import { TransactionService } from '../../../src/transaction/transaction.service';
@@ -18,6 +19,7 @@ describe('TransactionService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         TransactionService,
         Logger,

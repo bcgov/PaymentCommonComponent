@@ -5,6 +5,7 @@ import { locations } from './../../mocks/const/locations';
 import { Ministries } from '../../../src/constants';
 import { LocationEntity } from '../../../src/location/entities';
 import { LocationService } from '../../../src/location/location.service';
+import { LoggerModule } from '../../../src/logger/logger.module';
 
 describe('LocationService', () => {
   let service: LocationService;
@@ -12,6 +13,7 @@ describe('LocationService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         LocationService,
         {

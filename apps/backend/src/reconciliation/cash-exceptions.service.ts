@@ -1,4 +1,4 @@
-import { Injectable, Inject, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { MatchStatus } from '../common/const';
 import { Ministries, NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
@@ -10,10 +10,12 @@ import { PaymentService } from '../transaction/payment.service';
 @Injectable()
 export class CashExceptionsService {
   constructor(
-    @Inject(Logger) private appLogger: AppLogger,
     @Inject(CashDepositService) private cashDepositService: CashDepositService,
-    @Inject(PaymentService) private paymentService: PaymentService
-  ) {}
+    @Inject(PaymentService) private paymentService: PaymentService,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(CashExceptionsService.name);
+  }
   /**
    *
    * @param event

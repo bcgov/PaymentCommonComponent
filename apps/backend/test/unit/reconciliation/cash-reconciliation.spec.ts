@@ -8,6 +8,7 @@ import { MatchStatus } from '../../../src/common/const';
 import { PaymentMethodClassification } from '../../../src/constants';
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import { LoggerModule } from '../../../src/logger/logger.module';
 import { AppLogger } from '../../../src/logger/logger.service';
 import { CashReconciliationService } from '../../../src/reconciliation/cash-reconciliation.service';
 import { AggregatedCashPayment } from '../../../src/reconciliation/types';
@@ -22,6 +23,7 @@ describe('CashReconciliationService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
+      imports: [LoggerModule],
       providers: [
         CashReconciliationService,
         {

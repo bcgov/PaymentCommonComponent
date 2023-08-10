@@ -5,10 +5,12 @@ import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity
 import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { MailService } from './mail.service';
 import { NotificationService } from './notification.service';
+import { LoggerModule } from '../logger/logger.module';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
 
 @Module({
   imports: [
+    LoggerModule,
     TypeOrmModule.forFeature([
       AlertDestinationEntity,
       FileIngestionRulesEntity,

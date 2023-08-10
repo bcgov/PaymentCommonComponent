@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
 import { Repository } from 'typeorm';
@@ -17,14 +17,16 @@ import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 @Injectable()
 export class NotificationService {
   constructor(
-    @Inject(Logger) private readonly appLogger: AppLogger,
     @Inject(MailService)
     private readonly mailService: MailService,
     @InjectRepository(FileIngestionRulesEntity)
     private ingestionRulesRepo: Repository<FileIngestionRulesEntity>,
     @InjectRepository(ProgramDailyUploadEntity)
-    private programDailyRepo: Repository<ProgramDailyUploadEntity>
-  ) {}
+    private programDailyRepo: Repository<ProgramDailyUploadEntity>,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(NotificationService.name);
+  }
   /**
    * Gets all existing rules for each program
    * @returns List of Rules

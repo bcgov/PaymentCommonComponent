@@ -1,4 +1,4 @@
-import { Inject, Logger } from '@nestjs/common';
+import { Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import Decimal from 'decimal.js';
 import { Repository } from 'typeorm';
@@ -34,7 +34,6 @@ import { PaymentEntity } from '../transaction/entities';
 
 export class ReportingService {
   constructor(
-    @Inject(Logger) private appLogger: AppLogger,
     @InjectRepository(POSDepositEntity)
     private posDepositRepo: Repository<POSDepositEntity>,
     @Inject(CashDepositService)
@@ -44,8 +43,11 @@ export class ReportingService {
     @InjectRepository(PaymentEntity)
     private paymentRepo: Repository<PaymentEntity>,
     @Inject(ExcelExportService)
-    private excelWorkbook: ExcelExportService
-  ) {}
+    private excelWorkbook: ExcelExportService,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(ReportingService.name);
+  }
   /**
    * Generates a three page daily report
    * @param config
@@ -119,10 +121,7 @@ export class ReportingService {
     cashDeposits: CashDepositEntity[],
     locations: NormalizedLocation[]
   ): void {
-    this.appLogger.log(
-      'Generating Daily Summary WorkSheet',
-      ReportingService.name
-    );
+    this.appLogger.log('Generating Daily Summary WorkSheet');
 
     const summaryData: DailySummary[] = this.getSummaryData(
       dateRange,
@@ -169,10 +168,7 @@ export class ReportingService {
     cashPayments: PaymentEntity[],
     locations: NormalizedLocation[]
   ) {
-    this.appLogger.log(
-      'Generating Reconciliation Details Worksheet',
-      ReportingService.name
-    );
+    this.appLogger.log('Generating Reconciliation Details Worksheet');
 
     // format cash and pos payments and deposits according to the details report interface
     const detailsData: DetailsReport[] = this.getDetailsReportData(
@@ -220,8 +216,7 @@ export class ReportingService {
     pageThreeDepositDates: DateRange
   ) {
     this.appLogger.log(
-      `Generating cas report for: ${pageThreeDepositDates.minDate}-${pageThreeDepositDates.maxDate}`,
-      ReportingService.name
+      `Generating cas report for: ${pageThreeDepositDates.minDate}-${pageThreeDepositDates.maxDate}`
     );
 
     // query for the CAS report data

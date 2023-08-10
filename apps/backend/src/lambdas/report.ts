@@ -27,9 +27,11 @@ import { PaymentService } from '../transaction/payment.service';
  */
 export const handler = async (event: SNSEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = app.get(AppLogger);
+  const appLogger = new AppLogger();
+  appLogger.setContext('Report Lambda');
 
-  appLogger.log({ event, _context }, 'REPORT EVENT');
+  appLogger.log({ event }, _context);
+  appLogger.log({ event }, _context);
 
   const { program, period } =
     typeof event.Records[0].Sns.Message === 'string'
