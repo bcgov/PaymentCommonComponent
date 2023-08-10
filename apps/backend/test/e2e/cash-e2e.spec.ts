@@ -34,7 +34,6 @@ describe('Reconciliation Service (e2e)', () => {
   let transService: TransactionService;
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [LoggerModule],
       imports: [AppModule],
     }).compile();
 
