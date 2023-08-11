@@ -1,3 +1,4 @@
+import { GetObjectCommandInput } from '@aws-sdk/client-s3';
 import { Inject, Injectable } from '@nestjs/common';
 import * as csv from 'csvtojson';
 import { masterData } from './const';
@@ -27,12 +28,17 @@ export class DatabaseService {
       await this.paymentMethodService.getPaymentMethods();
 
     if (locations.length === 0) {
-      const locationsData = await this.s3Service.getObject(
-        masterData.Bucket,
-        `${masterData.Key}/${masterData.LocationsCSV}`
+      const requestParams: GetObjectCommandInput = {
+        Bucket: masterData.Bucket,
+        Key: `${masterData.Key}/${masterData.LocationsCSV}`,
+      };
+
+      const awsBucketResponse = await this.s3Service.getObjectString(
+        requestParams
       );
-      const file = locationsData?.Body?.toString('utf-8') ?? '';
-      const sbcLocationMaster = await csv.default().fromString(file);
+      const sbcLocationMaster = await csv
+        .default()
+        .fromString(awsBucketResponse);
       const locationEntities = sbcLocationMaster.map(
         (loc) => new LocationEntity({ ...loc })
       );
@@ -40,13 +46,17 @@ export class DatabaseService {
     }
 
     if (paymentMethods.length === 0) {
-      const paymentMethodsData = await this.s3Service.getObject(
-        masterData.Bucket,
-        `${masterData.Key}/${masterData.PaymentMethodsCSV}`
+      const requestParams: GetObjectCommandInput = {
+        Bucket: masterData.Bucket,
+        Key: `${masterData.Key}/${masterData.PaymentMethodsCSV}`,
+      };
+      const awsBucketResponse = await this.s3Service.getObjectString(
+        requestParams
       );
-      const file = paymentMethodsData?.Body?.toString('utf-8') ?? '';
-      const sbcPmntMethodsMaster = await csv.default().fromString(file);
-      const locationEntities = sbcPmntMethodsMaster.map(
+      const sbcPaymentMethodMaster = await csv
+        .default()
+        .fromString(awsBucketResponse);
+      const locationEntities = sbcPaymentMethodMaster.map(
         (pmnt) => new PaymentMethodEntity({ ...pmnt })
       );
       await this.paymentMethodService.createPaymentMethods(locationEntities);

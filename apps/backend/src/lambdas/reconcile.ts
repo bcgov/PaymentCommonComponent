@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { Context, SNSEvent } from 'aws-lambda';
+import { Context } from 'aws-lambda';
+import { SNSEvent } from 'aws-lambda/trigger/sns';
 import { format, parse, subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';

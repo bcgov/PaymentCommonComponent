@@ -2,37 +2,46 @@
 https://docs.nestjs.com/providers#services
 */
 
+import {
+  GetObjectCommandInput,
+  ListObjectsV2CommandOutput,
+  PutObjectCommandInput,
+  PutObjectCommandOutput,
+  S3,
+  _Object,
+} from '@aws-sdk/client-s3';
 import { Injectable } from '@nestjs/common';
-import { S3 } from 'aws-sdk';
-import { InjectAwsService } from 'nest-aws-sdk';
 
 @Injectable()
 export class S3ManagerService {
-  constructor(@InjectAwsService(S3) public readonly s3: S3) {}
+  private s3: S3;
+  constructor() {
+    this.s3 = new S3({
+      endpoint: process.env.AWS_ENDPOINT ?? 'http://localhost:9000',
+      region: 'ca-central-1',
+      forcePathStyle: true,
+    });
+  }
 
   async listBucketContents(bucket: string) {
-    const response = await this.s3.listObjectsV2({ Bucket: bucket }).promise();
-    return response.Contents?.map((c) => c.Key);
+    const response: ListObjectsV2CommandOutput = await this.s3.listObjectsV2({
+      Bucket: bucket,
+    });
+    const { Contents } = response;
+    return Contents?.map((c: _Object) => c.Key);
   }
 
-  async getObject(bucket: string, key: string) {
-    const response = await this.s3
-      .getObject({ Bucket: bucket, Key: key })
-      .promise();
-    return response;
+  async getObjectString({
+    Bucket,
+    Key,
+  }: GetObjectCommandInput): Promise<string> {
+    const response = await this.s3.getObject({ Bucket, Key });
+    return (await response.Body?.transformToString()) ?? '';
   }
 
-  async getObjectStream(bucket: string, key: string) {
-    const response = await this.s3
-      .getObject({ Bucket: bucket, Key: key })
-      .createReadStream();
-    return response;
-  }
-
-  async putObject(bucket: string, key: string, body: Buffer) {
-    const response = await this.s3
-      .putObject({ Bucket: bucket, Key: key, Body: body })
-      .promise();
-    return response;
+  async putObject({
+    ...params
+  }: PutObjectCommandInput): Promise<PutObjectCommandOutput> {
+    return await this.s3.putObject(params);
   }
 }

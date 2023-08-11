@@ -36,15 +36,13 @@ export class ExcelExportService {
     this.appLogger.log('Saving to S3 Bucket');
     this.workbook.commit();
     try {
-      await this.s3Manager.s3
-        .upload({
-          Key: `${filename}_${date}.xlsx`,
-          Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
-          Body: this.stream,
-          ContentType:
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        })
-        .promise();
+      await this.s3Manager.putObject({
+        Key: `${filename}_${date}.xlsx`,
+        Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
+        Body: this.stream.pipe(new Stream.PassThrough()),
+        ContentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
     } catch (error) {
       this.appLogger.error(`${error}`);
     }

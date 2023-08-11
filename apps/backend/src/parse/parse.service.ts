@@ -311,8 +311,10 @@ export class ParseService {
       const fileSource = fileKey.split('/')[0];
       const filename = fileKey.split('/')[1];
       // program is the ministry - there will be txn fileSource data and bcm fileSource data for each ministry
-
-      const file = await this.s3.getObject(bucket, `${fileSource}/${filename}`);
+      const file = await this.s3.getObjectString({
+        Bucket: bucket,
+        Key: `${fileSource}/${filename}`,
+      });
 
       //Get all existing rules for each program
       const rules: FileIngestionRulesEntity[] =
@@ -344,7 +346,7 @@ export class ParseService {
           `${fileSource}/${filename}`,
           currentRule?.program as Ministries,
           fileType,
-          Buffer.from(file.Body?.toString() ?? '')
+          Buffer.from(file)
         );
         return savedFile;
       } catch (err) {

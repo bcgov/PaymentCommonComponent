@@ -1,3 +1,5 @@
+import { SNSEvent } from 'aws-lambda/trigger/sns';
+
 /**
  * Extract the file date from the file name
  * exmaple filename: 'sbc/SBC_SALES_2026_03_03_23_17_37.JSON'
@@ -28,7 +30,12 @@ export const validateSbcGarmsFileName = (filename: string): boolean => {
  * @param message
  * @returns
  */
-export const generateLocalSNSMessage = (message: unknown) => {
+/**
+ * Used to generate a local SNS message for running lambdas locally
+ * @param message
+ * @returns
+ */
+export const generateLocalSNSMessage = (message: unknown): SNSEvent => {
   return {
     Records: [
       {
@@ -36,17 +43,18 @@ export const generateLocalSNSMessage = (message: unknown) => {
         EventSubscriptionArn: '',
         EventSource: '',
         Sns: {
-          Message: JSON.stringify(message),
+          SignatureVersion: '',
+          Timestamp: '',
+          Signature: '',
+          SigningCertURL: '',
           MessageId: '',
+          Message: JSON.stringify(message),
           MessageAttributes: {},
           Type: '',
+          UnsubscribeURL: '',
           TopicArn: '',
           Subject: '',
-          UnsubscribeUrl: '',
-          SignatureVersion: '',
-          Timestamp: new Date().toISOString(),
-          Signature: '',
-          SigningCertUrl: '',
+          Token: '',
         },
       },
     ],
