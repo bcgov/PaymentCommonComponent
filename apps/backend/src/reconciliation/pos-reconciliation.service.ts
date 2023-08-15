@@ -1,10 +1,5 @@
 import { Injectable, Inject } from '@nestjs/common';
-import {
-  addBusinessDays,
-  differenceInBusinessDays,
-  differenceInMinutes,
-  parse,
-} from 'date-fns';
+import { differenceInBusinessDays, differenceInMinutes } from 'date-fns';
 import Decimal from 'decimal.js';
 import {
   PosDepositsAmountDictionary,
@@ -492,13 +487,7 @@ export class PosReconciliationService {
     const updatedPayments = inProgressPayments.map((itm) => ({
       ...itm,
       timestamp: itm.timestamp,
-      reconciled_on:
-        process.env.RUNTIME_ENV === 'production'
-          ? currentDate
-          : addBusinessDays(
-              parse(itm.transaction.transaction_date, 'yyyy-MM-dd', new Date()),
-              2
-            ),
+      reconciled_on: currentDate,
       status: MatchStatus.EXCEPTION,
     }));
     const paymentExceptions = await this.paymentService.updatePaymentStatus(
@@ -508,15 +497,10 @@ export class PosReconciliationService {
     const updatedDeposits = inProgressDeposits.map((itm) => ({
       ...itm,
       timestamp: itm.timestamp,
-      reconciled_on:
-        process.env.RUNTIME_ENV === 'production'
-          ? currentDate
-          : addBusinessDays(
-              parse(itm.transaction_date, 'yyyy-MM-dd', new Date()),
-              2
-            ),
+      reconciled_on: currentDate,
       status: MatchStatus.EXCEPTION,
     }));
+
     const depositExceptions = await this.posDepositService.updateDepositStatus(
       updatedDeposits // TO EXCEPTION
     );
