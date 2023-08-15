@@ -92,3 +92,24 @@ resource "aws_s3_bucket_acl" "pcc_master_data_acl" {
   bucket = aws_s3_bucket.pcc-master-data.id
   acl    = "private"
 }
+
+
+resource "aws_s3_bucket" "pcc-deployments" {
+  bucket = "pcc-deployments-${var.target_env}"
+  tags = {
+    Name        = "pcc-deployments-${var.target_env}"
+    Environment = var.target_env
+  }
+}
+
+resource "aws_s3_bucket_versioning" "pcc-deployments" {
+  bucket = aws_s3_bucket.pcc-deployments.id
+  versioning_configuration {
+    status = "Disabled"
+  }
+}
+
+resource "aws_s3_bucket_acl" "pcc-deployments" {
+  bucket = aws_s3_bucket.pcc-deployments.id
+  acl    = "private"
+}

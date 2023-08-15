@@ -64,7 +64,7 @@ auth_base_url="$(AUTH_BASE_URL)"
 endef
 export TFVARS_DATA
 # Deployment
-APP_SRC_BUCKET = $(LZ2_PROJECT)-$(ENV_NAME)-packages
+APP_SRC_BUCKET = ${PROJECT}-deployments-${ENV_NAME}
 
 # Set Vars based on ENV 
 ifeq ($(ENV_NAME), dev) 
@@ -167,23 +167,31 @@ build-backend: pre-build
 	@rm -rf ./.build || true
 
 	@echo 'Creating build dir...\n'
-	@mkdir -p .build
+	@mkdir -p .build/backend
+	@mkdir -p .build/layer
+	@mkdir -p terraform/build/backend
+	@mkdir -p terraform/build/layer
 
 	@echo 'Copy Node modules....\n'
-	@mv node_modules .build
+	@mv node_modules .build/layer/node_modules
+	@cp package.json .build/layer/package.json
 
 	@echo 'Unlink local packages...\n'
-	@rm -rf .build/node_modules/@payment/*
+	@rm -rf .build/layer/node_modules/@payment/*
 	
 	@echo 'Copy backend ...\n' 
-	@cp -r apps/backend/dist/* .build
+	@cp -ri apps/backend/dist/* .build/backend
 
-	@echo 'Creating Zip ...\n'
-	@cd .build && zip -r backend.zip .
-	@cd ..
+	@echo 'Creating Backend Zip ...\n'
+	@cd .build/backend && zip -r backend.zip .
+	
+	@echo 'Creating layer Zip ...\n'
+	@cd .build/layer && zip -r nodejs.zip .
+	cd ../../
 
 	@echo 'Copying to terraform build location...\n'
-	@mv .build/backend.zip ./terraform/build/backend.zip
+	@mv .build/backend/backend.zip ./terraform/build/backend/backend.zip
+	@mv .build/layer/nodejs.zip ./terraform/build/layer/nodejs.zip
 
 
 # ======================================================================
@@ -192,16 +200,25 @@ build-backend: pre-build
 
 # Full redirection to /dev/null is required to not leak env variables
 
-aws-deploy-all:
-	@aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name parser --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name reports --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name dailyFileCheck --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name batch_reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+# Uploads built backend and layer zip bundles to s3://$APP_SRC_BUCKET/$COMMIT_SHA
+aws-upload-artifacts:
+	@aws s3 cp ./terraform/build/backend/backend.zip s3://$(APP_SRC_BUCKET)/$(COMMIT_SHA)/backend/backend.zip --region ca-central-1 --no-cli-pager
+	@aws s3 cp ./terraform/build/layer/nodejs.zip s3://$(APP_SRC_BUCKET)/$(COMMIT_SHA)/layer/nodejs.zip --region ca-central-1 --no-cli-pager
 
+# Publishes a new lambda layer version of the archive located at s3://$APP_SRC_BUCKET/$COMMIT_SHA/layer/nodejs.zip
+aws-publish-layer:
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-publish-layer
+
+# Updates lambda functions to the lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
+aws-deploy-all:
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function paycocoapi parser reports reconciler dailyFileCheck batch_reconciler
+
+# Updates migrator lambda function to lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-deploy-migrator:
-	@aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function migrator
+
+aws-build-and-deploy-all: aws-upload-artifacts aws-publish-layer aws-deploy-all
+aws-build-and-deploy-migrator: aws-upload-artifacts aws-publish-layer aws-deploy-migrator
 
 # ======================================================================
 # AWS Interactions
