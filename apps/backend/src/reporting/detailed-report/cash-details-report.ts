@@ -18,7 +18,8 @@ export class CashDepositDetailsReport extends DetailsReport {
     this.transaction_id = deposit.jv_no ?? '';
     this.uploaded_date =
       parse(deposit.metadata.parsed_on, 'yyyy-MM-dd', new Date()) ??
-      deposit.metadata.created_at;
+      deposit.metadata.created_at ??
+      null;
     this.close_date = parse(deposit.deposit_date, 'yyyy-MM-dd', new Date());
     this.type = PaymentMethodClassification.CASH;
     this.time = deposit.deposit_time ?? null;
