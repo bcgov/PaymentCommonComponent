@@ -108,8 +108,3 @@ resource "aws_s3_bucket_versioning" "pcc-deployments" {
     status = "Disabled"
   }
 }
-
-resource "aws_s3_bucket_acl" "pcc-deployments" {
-  bucket = aws_s3_bucket.pcc-deployments.id
-  acl    = "private"
-}
