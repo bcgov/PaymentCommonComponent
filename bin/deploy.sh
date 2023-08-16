@@ -6,7 +6,7 @@
 #####
 function aws-publish-layer() {
   aws lambda publish-layer-version \
-    --layer-name "ppc-dependencies" \
+    --layer-name "pcc-dependencies" \
     --content S3Bucket=$APP_SRC_BUCKET,S3Key=$COMMIT_SHA/layer/nodejs.zip \
     --compatible-runtimes nodejs18.x \
     --region ca-central-1 \
@@ -17,7 +17,7 @@ function aws-publish-layer() {
 
 function aws-get-latest-layer-version() {
   aws lambda list-layer-versions \
-    --layer-name ppc-dependencies \
+    --layer-name pcc-dependencies \
     --region ca-central-1 \
     --query 'LayerVersions[0].LayerVersionArn'
 }
