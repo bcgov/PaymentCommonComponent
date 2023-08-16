@@ -160,7 +160,7 @@ build-backend: pre-build
 	@yarn workspaces focus @payment/backend --production
 
 	@echo 'Pruning node modules...\n'
-	# @npx --yes node-prune
+	@npx --yes node-prune
 	# @npx --yes modclean -n default:safe,default:caution -r
 
 	@echo 'Deleting existing build dir...\n'
