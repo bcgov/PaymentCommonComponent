@@ -147,8 +147,10 @@ clean:
 pre-build:
 	@echo "++\n***** Pre-build Clean Build Artifact\n++"
 	@rm -rf ./terraform/build || true
+
 	@mkdir -p ./terraform/build
 	@echo "++\n*****"
+
 
 build-backend: pre-build
 	@yarn 
@@ -156,42 +158,17 @@ build-backend: pre-build
 	@echo 'Building backend package... \n' 
 	@yarn workspace @payment/backend build
 
-	@echo 'Updating prod dependencies...\n'
-	@yarn workspaces focus @payment/backend --production
-
-	@echo 'Pruning node modules...\n'
-	@npx --yes node-prune
-	# @npx --yes modclean -n default:safe,default:caution -r
-
-	@echo 'Deleting existing build dir...\n'
-	@rm -rf ./.build || true
-
-	@echo 'Creating build dir...\n'
-	@mkdir -p .build/backend
-	@mkdir -p .build/layer
 	@mkdir -p terraform/build/backend
 	@mkdir -p terraform/build/layer
+	@mkdir -p ./apps/backend/dist/node_modules
 
-	@echo 'Copy Node modules....\n'
-	@mv node_modules .build/layer/node_modules
-	@cp package.json .build/layer/package.json
-
-	@echo 'Unlink local packages...\n'
-	@rm -rf .build/layer/node_modules/@payment/*
-	
-	@echo 'Copy backend ...\n' 
-	@cp -ri apps/backend/dist/* .build/backend
-
-	@echo 'Creating Backend Zip ...\n'
-	@cd .build/backend && zip -r backend.zip .
-	
-	@echo 'Creating layer Zip ...\n'
-	@cd .build/layer && zip -r nodejs.zip .
-	cd ../../
+	@cd ./apps/backend/dist && mv *.js node_modules
+	@cd ./apps/backend/dist && zip -r backend.zip src
+	@cd ./apps/backend/dist && zip -r nodejs.zip node_modules
 
 	@echo 'Copying to terraform build location...\n'
-	@mv .build/backend/backend.zip ./terraform/build/backend/backend.zip
-	@mv .build/layer/nodejs.zip ./terraform/build/layer/nodejs.zip
+	@cp ./apps/backend/dist/backend.zip ./terraform/build/backend/backend.zip
+	@cp ./apps/backend/dist/nodejs.zip ./terraform/build/layer/nodejs.zip
 
 
 # ======================================================================
@@ -291,6 +268,9 @@ wipe:
 
 be-logs:
 	@docker logs $(PROJECT)-backend --follow --tail 25
+
+start-prod:
+	@yarn workspace @payment/backend start:prod
 
 # ===================================
 # Local
