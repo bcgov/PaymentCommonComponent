@@ -87,7 +87,6 @@ export class NotificationService {
       const newDaily: Partial<ProgramDailyUploadEntity> = {
         dailyDate: date,
         success: false,
-        retries: 0,
         rule,
       };
       const daily = this.programDailyRepo.create(newDaily);
