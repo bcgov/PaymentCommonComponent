@@ -3,7 +3,7 @@
     {
       "Sns": {
         "Message": {
-          "reconciliationDate": "2023-08-14",
+          "reconciliationMaxDate": "2023-08-14",
           "program": "SBC",
           "reportEnabled": true,
           "byPassFileValidity": false

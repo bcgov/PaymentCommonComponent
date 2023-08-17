@@ -11,14 +11,18 @@ import { SnsManagerService } from '../sns-manager/sns-manager.service';
 export const handler = async (event: S3Event, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = new AppLogger();
+
   appLogger.setContext('Parser Lambda');
+
   const parseService = app.get(ParseService);
   const snsService = app.get(SnsManagerService);
 
   const automationDisabled = process.env.DISABLE_AUTOMATED_RECONCILIATION;
 
   const isLocal: boolean = process.env.RUNTIME_ENV === 'local';
+
   appLogger.log({ event, _context });
+
   const triggerReconcileSnsMessage = async () => {
     const message: ReconciliationEventMessage = {
       program: Ministries.SBC,

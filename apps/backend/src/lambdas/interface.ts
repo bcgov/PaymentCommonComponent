@@ -20,4 +20,5 @@ export interface BatchHandlerEvent {
   };
   program: Ministries;
   reportEnabled: boolean;
+  byPassFileValidity: boolean;
 }
