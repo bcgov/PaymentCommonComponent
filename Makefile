@@ -159,15 +159,13 @@ build-backend: pre-build
 	@yarn workspace @payment/backend build
 
 	@mkdir -p terraform/build/backend
-	@mkdir -p terraform/build/layer
 	@mkdir -p ./apps/backend/dist/node_modules
 
-	@cd ./apps/backend/dist && zip nodejs.zip * -x src
-	@cd ./apps/backend/dist && zip -r backend.zip src
+	@echo 'Creating build artifact'
+	@cd ./apps/backend/dist && zip -r backend.zip *
 
 	@echo 'Copying to terraform build location...\n'
 	@cp ./apps/backend/dist/backend.zip ./terraform/build/backend/backend.zip
-	@cp ./apps/backend/dist/nodejs.zip ./terraform/build/layer/nodejs.zip
 
 
 # ======================================================================
@@ -176,14 +174,9 @@ build-backend: pre-build
 
 # Full redirection to /dev/null is required to not leak env variables
 
-# Uploads built backend and layer zip bundles to s3://$APP_SRC_BUCKET/$COMMIT_SHA
+# Uploads built backend zip bundle to s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-upload-artifacts:
 	@aws s3 cp ./terraform/build/backend/backend.zip s3://$(APP_SRC_BUCKET)/$(COMMIT_SHA)/backend/backend.zip --region ca-central-1 --no-cli-pager
-	@aws s3 cp ./terraform/build/layer/nodejs.zip s3://$(APP_SRC_BUCKET)/$(COMMIT_SHA)/layer/nodejs.zip --region ca-central-1 --no-cli-pager
-
-# Publishes a new lambda layer version of the archive located at s3://$APP_SRC_BUCKET/$COMMIT_SHA/layer/nodejs.zip
-aws-publish-layer:
-	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-publish-layer
 
 # Updates lambda functions to the lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-deploy-all:
@@ -193,8 +186,8 @@ aws-deploy-all:
 aws-deploy-migrator:
 	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function migrator
 
-aws-build-and-deploy-all: aws-upload-artifacts aws-publish-layer aws-deploy-all
-aws-build-and-deploy-migrator: aws-upload-artifacts aws-publish-layer aws-deploy-migrator
+aws-build-and-deploy-all: aws-build-backend aws-upload-artifacts aws-deploy-all
+aws-build-and-deploy-migrator: aws-build-backend aws-upload-artifacts aws-deploy-migrator
 
 # ======================================================================
 # AWS Interactions

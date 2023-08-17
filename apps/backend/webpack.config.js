@@ -1,6 +1,9 @@
 /**
  * Webpack configuration modelled after https://docs.nestjs.com/faq/serverless
  */
+
+const TerserPlugin = require('terser-webpack-plugin');
+
 module.exports = function (options, webpack) {
     const lazyImports = [
         '@nestjs/microservices/microservices-module',
@@ -25,7 +28,6 @@ module.exports = function (options, webpack) {
         devtool: 'source-map',
         externals: [],
         optimization: {
-            minimize: false,
             splitChunks: {
                 chunks: 'all',
                 cacheGroups: {
@@ -34,8 +36,31 @@ module.exports = function (options, webpack) {
                         name: 'vendors',
                     }
                 }
-            }
+            },
+            minimizer: [
+                new TerserPlugin({
+                    terserOptions: {
+                        keep_classnames: true
+                    }
+                })
+            ]
         }, 
+        module: {
+            rules: [
+                {
+                test: /.tsx?$/,
+                use: [
+                    {
+                        loader: 'ts-loader',
+                        options: {
+                            transpileOnly: false
+                        },
+                    }
+                ],
+                exclude: /node_modules/,
+                },
+            ],
+        },      
         output: {
             ...options.output,
             filename: '[name].js',
