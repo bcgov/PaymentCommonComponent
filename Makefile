@@ -162,9 +162,8 @@ build-backend: pre-build
 	@mkdir -p terraform/build/layer
 	@mkdir -p ./apps/backend/dist/node_modules
 
-	@cd ./apps/backend/dist && mv *.js node_modules
+	@cd ./apps/backend/dist && zip nodejs.zip * -x src
 	@cd ./apps/backend/dist && zip -r backend.zip src
-	@cd ./apps/backend/dist && zip -r nodejs.zip node_modules
 
 	@echo 'Copying to terraform build location...\n'
 	@cp ./apps/backend/dist/backend.zip ./terraform/build/backend/backend.zip
