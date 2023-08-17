@@ -30,7 +30,7 @@ resource "aws_lambda_function" "parser" {
       SNS_RECONCILER_RESULTS_TOPIC  = aws_sns_topic.reconciliation_results.arn
       SNS_PARSER_RESULTS_TOPIC      = aws_sns_topic.parser_results.arn
       SNS_BATCH_RECONCILE_TOPIC     = aws_sns_topic.batch_reconcile.arn
-      DISABLE_AUTOMATED_RECONCILIATION = var.automation_disabled
+      DISABLE_AUTOMATED_RECONCILIATION = var.disable_automated_reconciliation
     }
   }
 

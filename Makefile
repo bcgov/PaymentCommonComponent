@@ -47,7 +47,13 @@ BATCH_JSON:=$(shell cat ./apps/backend/fixtures/lambda/batch.json | jq '.' -c)
 # Terraform variables
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
+ifeq ($(ENV_NAME), dev) 
+DB_HOST = $(DB_HOST_DEV)
+endif
 
+ifeq ($(ENV_NAME), dev)
+DISABLE_AUTOMATED_RECONCILIATION=true
+endif
 
 define TFVARS_DATA
 target_env = "$(ENV_NAME)"
