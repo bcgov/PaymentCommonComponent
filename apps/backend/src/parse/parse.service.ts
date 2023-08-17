@@ -8,7 +8,6 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { S3Event, S3EventRecord } from 'aws-lambda';
 import { validateOrReject, ValidationError } from 'class-validator';
-import { format, parse, subBusinessDays } from 'date-fns';
 import { Repository } from 'typeorm';
 import _ from 'underscore';
 import { CashDepositDTO, CashDepositsListDTO } from './dto/cash-deposit.dto';
@@ -28,10 +27,8 @@ import { TDI17Header } from '../flat-files/tdi17/TDI17Header';
 import { TDI34Header } from '../flat-files/tdi34/TDI34Header';
 import {
   extractDateFromTXNFileName,
-  generateLocalSNSMessage,
   validateSbcGarmsFileName,
 } from '../lambdas/helpers';
-import { handler as reconcileHandler } from '../lambdas/reconcile';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../lambdas/utils/parseTDI';
 import { AppLogger } from '../logger/logger.service';
@@ -261,11 +258,7 @@ export class ParseService {
    * First step in the parsing process. Checks for files in the bucket, and then checks if they have been parsed before.
    * @param event
    */
-  async processAllFiles(
-    event: S3Event,
-    isLocal: boolean,
-    automatedReconciliationEnabled: boolean
-  ) {
+  async processAllFiles(event: S3Event) {
     const eventFileList = event.Records.map(
       (r: S3EventRecord) => r.s3.object.key
     );
@@ -301,52 +294,7 @@ export class ParseService {
       for (const filename of finalParseList) {
         this.appLogger.log(`Parsing ${filename}..`);
         if (filename) {
-          const file = await this.parseFileFromS3(filename);
-          const fileDate = file?.dailyUpload?.dailyDate;
-
-          if (!isLocal) {
-            this.appLogger.log('Publishing SNS to reconcile');
-
-            const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
-
-            await this.snsService.publish(
-              topic,
-              JSON.stringify({
-                generateReport: true,
-                program: Ministries.SBC,
-                period: {
-                  to: fileDate,
-                  from: format(
-                    subBusinessDays(
-                      parse(fileDate ?? '', 'yyyy-MM-dd', new Date()),
-                      31
-                    ),
-                    'yyyy-MM-dd'
-                  ),
-                },
-              })
-            );
-          }
-
-          if (isLocal && automatedReconciliationEnabled) {
-            this.appLogger.log('Running reconcile handler locally');
-            await reconcileHandler(
-              generateLocalSNSMessage({
-                generateReport: true,
-                program: Ministries.SBC,
-                period: {
-                  to: fileDate,
-                  from: format(
-                    subBusinessDays(
-                      parse(fileDate ?? '', 'yyyy-MM-dd', new Date()),
-                      31
-                    ),
-                    'yyyy-MM-dd'
-                  ),
-                },
-              })
-            );
-          }
+          await this.parseFileFromS3(filename);
         }
       }
     } catch (err) {
@@ -383,7 +331,7 @@ export class ParseService {
         const requiredFile = requiredFiles?.find((rf) =>
           filename.includes(rf.filename)
         );
-        if (!!requiredFile) {
+        if (requiredFile !== undefined) {
           return requiredFile.fileType;
         }
         throw new Error('Unknown file type: ' + filename);
