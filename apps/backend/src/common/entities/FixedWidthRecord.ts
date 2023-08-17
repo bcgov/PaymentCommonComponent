@@ -1,6 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-// TODO [CCFPCM-397] Can we type more here?
-import Decimal from 'decimal.js';
 import { Resource, ResourceBase } from './Resource';
 import {
   ColumnMetadataKey,
@@ -61,23 +59,26 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
       const value = line
         .substring(options.start, options.start + options.width)
         .trim();
-      (target as any)[field] = value;
-      if (options.format) {
-        if (options.format.type === DataType.Integer) {
+
+      switch (options?.format?.type) {
+        case DataType.Integer:
           (target as any)[field] = parseInt(value);
-        } else if (options.format.type === DataType.Float) {
-          (target as any)[field] = new Decimal(value)
-            .toDecimalPlaces(2)
-            .toNumber();
-        } else if (options.format.type === DataType.Date) {
-          (target as any)[field] = value ? parseFlatDateString(value) : null;
-        } else if (options.format.type === DataType.Time) {
-          (target as any)[field] = value ? timeFormat(value) : null;
-        } else if (options.format.type === DataType.Decimal) {
+          break;
+        case DataType.Decimal:
           (target as any)[field] = value ? decimalFormat(value) : '';
-        } else if (options.format.type === DataType.Boolean) {
-          (target as any)[field] = value ? true : false;
-        }
+          break;
+        case DataType.Date:
+          (target as any)[field] = value ? parseFlatDateString(value) : null;
+          break;
+        case DataType.Time:
+          (target as any)[field] = value ? timeFormat(value) : null;
+          break;
+        case DataType.Boolean:
+          (target as any)[field] = value;
+          break;
+        default:
+          (target as any)[field] = value ?? false;
+          break;
       }
     }
 
@@ -96,7 +97,7 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
     );
     // get `__proto__` and (recursively) all parent classes
     const rs = new Set([
-      ...(fields || []),
+      ...(fields ?? []),
       ...this.getAllFields(Object.getPrototypeOf(clz)),
     ]);
     return Array.from(rs);
@@ -132,9 +133,9 @@ export class FixedWidthRecord<T extends IFixedWidthRecord<T>>
     if (target.delimiter?.value) {
       target.delimiter.positions.forEach((pos: number) => {
         result = Buffer.concat([
-          result.slice(0, pos + 1),
+          result.subarray(0, pos + 1),
           Buffer.from(target.delimiter?.value),
-          result.slice(pos + 1),
+          result.subarray(pos + 1),
         ]);
       });
     }

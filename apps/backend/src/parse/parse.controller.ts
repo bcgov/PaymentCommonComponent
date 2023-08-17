@@ -7,12 +7,12 @@ import {
   ClassSerializerInterceptor,
   Inject,
   HttpException,
-  HttpStatus,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBasicAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
-import { FileTypes } from '../constants';
+import { DailyAlertRO } from './ro/daily-alert.ro';
+import { FileTypes, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
@@ -66,11 +66,23 @@ export class ParseController {
   })
   @UseInterceptors(FileInterceptor('file'))
   uploadFile(
-    @Body() body: { program: string; fileType: FileTypes },
+    @Body() body: { program: Ministries; fileType: FileTypes },
     @UploadedFile() file: Express.Multer.File
   ) {
     this.appLogger.log({ ...body, file });
-    throw new HttpException('Not Implemented', HttpStatus.NOT_IMPLEMENTED);
+    if (body.fileType === FileTypes.TDI34) {
+      return this.parseService.parseTDICardsFile(
+        file.filename,
+        Ministries.LABOUR,
+        Buffer.from(file.buffer)
+      );
+    } else {
+      return this.parseService.parseTDICashFile(
+        file.filename,
+        Ministries.LABOUR,
+        Buffer.from(file.buffer)
+      );
+    }
   }
 
   @Post('upload-file')
