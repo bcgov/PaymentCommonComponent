@@ -34,16 +34,6 @@ function aws-update-function-code() {
     --s3-key=$COMMIT_SHA/backend/backend.zip \
     --region ca-central-1 \
     --no-cli-pager > /dev/null
-
-  latest_layer_version="$(aws-get-latest-layer-version)"
-
-  echo "Updating function layer for $1 to layer version $latest_layer_version"
-
-  aws lambda update-function-configuration \
-    --function-name $1 \
-    --layers [$latest_layer_version] \
-    --region ca-central-1 \
-    --no-cli-pager > /dev/null
 }
 
 #####

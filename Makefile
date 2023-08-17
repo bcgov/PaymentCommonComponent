@@ -159,7 +159,6 @@ build-backend: pre-build
 	@yarn workspace @payment/backend build
 
 	@mkdir -p terraform/build/backend
-	@mkdir -p ./apps/backend/dist/node_modules
 
 	@echo 'Creating build artifact'
 	@cd ./apps/backend/dist && zip -r backend.zip *
