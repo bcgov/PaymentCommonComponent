@@ -10,7 +10,7 @@ import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
 import express from 'express';
-
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { Documentation } from './common/documentation';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
@@ -109,6 +109,27 @@ export async function createNestApp(): Promise<{
 
   // Global Error Filter
   app.useGlobalFilters(new ErrorExceptionFilter(app.get(AppLogger)));
+
+  // somewhere in your initialization file
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          'script-src': ["'self'", 'example.com'],
+          'style-src': null,
+        },
+      },
+    })
+  );
+
+  // {
+
+  // // Content Security Policy
+  // // Anti-clickjacking
+  // // Permissions Policy
+  // // Strict-Transport-Security
+  // // X-Content-Type-Options
+  // }));
 
   // Printing the environment variables
   // eslint-disable-next-line no-console
