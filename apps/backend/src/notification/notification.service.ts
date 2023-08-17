@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format } from 'date-fns';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { AlertDestinationEntity } from './entities/alert-destination.entity';
 import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
@@ -12,7 +12,6 @@ import { ProgramTemplateName } from '../lambdas/const';
 import { AppLogger } from '../logger/logger.service';
 import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
-import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 @Injectable()
 export class NotificationService {
@@ -110,62 +109,31 @@ export class NotificationService {
     return await this.programDailyRepo.save(daily);
   }
 
-  async dailyUploadAlert(date: string): Promise<DailyAlertRO> {
-    const rules: FileIngestionRulesEntity[] = await this.getAllRules();
-
-    const dailyAlert: DailyAlertRO = { dailyAlertPrograms: [], date };
-
-    for (const rule of rules) {
-      let dailyUploadRecord: ProgramDailyUploadEntity | null =
-        await this.getProgramDailyUploadRecord(rule, date);
-      if (!dailyUploadRecord) {
-        dailyUploadRecord = await this.createNewDailyUploadRecord(rule, date);
-      }
-      if (dailyUploadRecord.success) {
-        dailyAlert.dailyAlertPrograms.push({
-          program: rule.program as Ministries,
-          success: true,
-          alerted: false,
-          missingFiles: [],
-        });
-        continue;
-      }
-      const missingFiles = this.findMissingDailyFiles(
-        rule,
-        dailyUploadRecord.files
-      );
-
-      if (missingFiles.length === 0) {
-        await this.saveProgramDailyUpload({
-          ...dailyUploadRecord,
-          success: true,
-        });
-
-        dailyAlert.dailyAlertPrograms.push({
-          program: rule.program as Ministries,
-          success: true,
-          alerted: false,
-          missingFiles: [],
-        });
-      } else {
-        let alerted = false;
-        if (dailyUploadRecord.retries >= rule.retries) {
-          // TODO CCFPCM-441
-          alerted = true;
-        }
-        await this.saveProgramDailyUpload({
-          ...dailyUploadRecord,
-          retries: dailyUploadRecord.retries + 1,
-        });
-        dailyAlert.dailyAlertPrograms.push({
-          program: rule.program,
-          success: false,
-          alerted,
-          missingFiles: missingFiles,
-        });
-      }
-    }
-    return dailyAlert;
+  /**
+   * Gets all daily upload statuses with all relations
+   * @param fromDate First date to check
+   * @param toDate Last date to check
+   * @returns ProgramDailyUploadEntity[]
+   */
+  async retrieveRecentDailyStatuses(
+    fromDate: Date,
+    toDate: Date
+  ): Promise<ProgramDailyUploadEntity[]> {
+    return this.programDailyRepo.find({
+      where: {
+        dailyDate: Between(
+          format(fromDate, 'yyyy-MM-dd'),
+          format(toDate, 'yyyy-MM-dd')
+        ),
+      },
+      relations: {
+        rule: true,
+        files: true,
+      },
+      order: {
+        dailyDate: 'ASC',
+      },
+    });
   }
 
   /**

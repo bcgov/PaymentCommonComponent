@@ -12,7 +12,6 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBasicAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
-import { DailyAlertRO } from './ro/daily-alert.ro';
 import { FileTypes } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
@@ -113,28 +112,5 @@ export class ParseController {
 
     //TODO call parse service to process file event
     throw new HttpException('Not Implemented', 501);
-  }
-  /**
-   * Makes decisions on whether to send an alert (or error log) for our programs for a date
-   * Based on the daily program status, and which files are required by the rules
-   * @returns Array of DailyAlertROs to determine which programs are successful and which programs have been alerted
-   */
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        date: {
-          type: 'string',
-          nullable: false,
-          example: '2023-01-01',
-        },
-      },
-    },
-  })
-  @Post('daily-upload/alert')
-  async dailyUploadAlert(
-    @Body() body: { date: string }
-  ): Promise<DailyAlertRO> {
-    return await this.alertService.dailyUploadAlert(body.date);
   }
 }

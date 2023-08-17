@@ -424,22 +424,23 @@ export class ParseService {
    * This is to ensure its working within our lambda flows as the API Gateway
    * is currently unable to take requests from the parsing lambda
    */
-  async commenceDailyUpload(
-    date: string
-  ): Promise<ProgramDailyUploadEntity | null | undefined> {
+  async commenceDailyUpload(date: string): Promise<ProgramDailyUploadEntity[]> {
     const rules: FileIngestionRulesEntity[] =
       await this.notificationService.getAllRules();
+    const dailies: ProgramDailyUploadEntity[] = [];
     for (const rule of rules) {
-      const daily: ProgramDailyUploadEntity | null =
+      let daily: ProgramDailyUploadEntity | null =
         await this.notificationService.getProgramDailyUploadRecord(rule, date);
       if (!daily) {
-        return await this.notificationService.createNewDailyUploadRecord(
+        daily = await this.notificationService.createNewDailyUploadRecord(
           rule,
           date
         );
+        daily.rule = rule;
       }
-      return daily;
+      dailies.push(daily);
     }
+    return dailies;
   }
 
   async uploadAndParseFile(
@@ -473,20 +474,27 @@ export class ParseService {
     // Creates a new daily status for the rule, if none exist, so that files can be tracked
     // after parse, before DB insert
     const getOrCreateDailyUploadRecord = async (date: string) => {
-      await this.commenceDailyUpload(date);
+      const dailies = await this.commenceDailyUpload(date);
+      return dailies.find((d) => d.rule.id === rules.id);
+    };
 
-      let daily = await this.notificationService.getProgramDailyUploadRecord(
+    // Checks if the daily is successful by identifying if files are missing
+    const updateDailyRecordSuccess = async (date: string) => {
+      const daily = await this.notificationService.getProgramDailyUploadRecord(
         rules,
         date
       );
-
       if (!daily) {
-        daily = await this.notificationService.createNewDailyUploadRecord(
-          rules,
-          date
-        );
+        throw new Error('Error');
       }
-      return daily;
+      const missingFiles = await this.notificationService.findMissingDailyFiles(
+        rules,
+        daily.files
+      );
+      if (missingFiles.length === 0) {
+        daily.success = true;
+        await this.notificationService.saveProgramDailyUpload(daily);
+      }
     };
 
     try {
@@ -514,6 +522,7 @@ export class ParseService {
             fileUploadedEntityId: fileToSave.id,
           }))
         );
+        await updateDailyRecordSuccess(txnFileDate);
         return fileToSave;
       }
 
@@ -541,6 +550,7 @@ export class ParseService {
             fileUploadedEntityId: fileToSave.id,
           }))
         );
+        await updateDailyRecordSuccess(fileDate);
         return fileToSave;
       }
 
@@ -569,6 +579,7 @@ export class ParseService {
             timestamp: deposit.timestamp,
           }))
         );
+        await updateDailyRecordSuccess(fileDate);
         return fileToSave;
       }
     } catch (err: unknown) {

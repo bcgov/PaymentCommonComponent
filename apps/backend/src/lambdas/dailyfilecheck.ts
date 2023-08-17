@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import { format } from 'date-fns';
+import { format, isSameDay, parse, subDays } from 'date-fns';
 import { ProgramTemplateName } from './const';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../logger/logger.service';
@@ -8,7 +8,6 @@ import { AlertDestinationEntity } from '../notification/entities/alert-destinati
 import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
 import { MailService } from '../notification/mail.service';
 import { NotificationService } from '../notification/notification.service';
-import { DailyAlertRO } from '../parse/ro/daily-alert.ro';
 
 export const handler = async (event: unknown, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
@@ -20,33 +19,54 @@ export const handler = async (event: unknown, context?: Context) => {
   appLogger.log({ event });
   appLogger.log({ context });
 
-  const date = format(new Date(), 'yyyy-MM-dd');
+  const date = new Date();
 
-  const dailyAlert: DailyAlertRO = await notificationService.dailyUploadAlert(
-    date
-  );
+  // Retrieve statuses from the past 7 days
+  const allRecentStatuses =
+    await notificationService.retrieveRecentDailyStatuses(
+      subDays(date, 7),
+      new Date()
+    );
 
-  const programAlerts = dailyAlert.dailyAlertPrograms;
+  if (
+    allRecentStatuses.filter((status) =>
+      isSameDay(parse(status.dailyDate, 'yyyy-MM-dd', new Date()), date)
+    ).length === 0
+  ) {
+    // No files today, skip alerting for off days
+    // Assumption: At least one file upload should have arrived on time
+    return;
+  }
 
-  for (const alert of programAlerts) {
-    const errors: string[] = [];
-    const program =
-      ProgramTemplateName[alert.program as keyof typeof ProgramTemplateName];
+  const rules = await notificationService.getAllRules();
+  for (const rule of rules) {
+    const unsuccessfulStatuses = allRecentStatuses.filter(
+      (status) => status.success === false && status.rule.id === rule.id
+    );
 
-    if (!alert.success) {
-      const incompleteString = `Daily Upload for ${program} is incomplete.\n`;
+    // Alert - This program has files missing either today or in past days
+    if (unsuccessfulStatuses.length > 0) {
+      const earliestStatus = unsuccessfulStatuses[0]; // Query should be ordered by daily date
+      const errors: string[] = [];
+      const program =
+        ProgramTemplateName[rule.program as keyof typeof ProgramTemplateName];
+
+      const incompleteString = `Daily Upload for ${program} is incomplete for date: ${earliestStatus.dailyDate}.\n`;
       errors.push(incompleteString);
-      alert.missingFiles.forEach((file) => {
+
+      const missingFiles = notificationService.findMissingDailyFiles(
+        rule,
+        earliestStatus.files
+      );
+      missingFiles.forEach((file) => {
         errors.push(`Missing a ${file.fileType} - needs ${file.filename}\n`);
       });
-    }
 
-    appLogger.log(errors.join(' '));
-    if (alert.alerted) {
+      appLogger.log(errors.join(' '));
       const alertDestinationEntities: AlertDestinationEntity[] =
         await mailService.getAlertDestinations(
-          alert.program,
-          alert.missingFiles.map((mf) => mf.filename)
+          program,
+          missingFiles.map((mf) => mf.filename)
         );
 
       const alertDestinations = alertDestinationEntities.map(
@@ -78,6 +98,5 @@ export const handler = async (event: unknown, context?: Context) => {
         ]
       );
     }
-    return { message: 'alerts sent', stausCode: 200, status: 'success' };
   }
 };
