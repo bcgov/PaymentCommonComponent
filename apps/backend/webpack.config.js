@@ -31,6 +31,7 @@ module.exports = function (options, webpack) {
     devtool: 'source-map',
     externals: [],
     optimization: {
+      minimize: true,
       splitChunks: {
         chunks: 'all',
         cacheGroups: {

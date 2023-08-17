@@ -1,19 +1,6 @@
 import { DataSource } from 'typeorm';
+import { entities } from './entity.config';
 import { dbLogger, logLevels } from './helpers';
-import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
-import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { LocationEntity } from '../location/entities';
-import { AlertDestinationEntity } from '../notification/entities/alert-destination.entity';
-import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
-import { ProgramDailyUploadEntity } from '../notification/entities/program-daily-upload.entity';
-
-import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
-import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
-import {
-  TransactionEntity,
-  PaymentEntity,
-  PaymentMethodEntity,
-} from '../transaction/entities/index';
 
 export default new DataSource({
   type: 'postgres',
@@ -22,19 +9,7 @@ export default new DataSource({
   username: process.env.DB_USER ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
   database: process.env.DB_NAME ?? 'pcc',
-  entities: [
-    PaymentMethodEntity,
-    PaymentEntity,
-    TransactionEntity,
-    POSDepositEntity,
-    CashDepositEntity,
-    LocationEntity,
-    FileUploadedEntity,
-    ProgramDailyUploadEntity,
-    FileIngestionRulesEntity,
-    ProgramRequiredFileEntity,
-    AlertDestinationEntity,
-  ],
+  entities,
   migrations: [__dirname + '/migrations/**/*{.ts,.js}'],
   synchronize: false,
   logging: logLevels,

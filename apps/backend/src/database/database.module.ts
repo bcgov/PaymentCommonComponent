@@ -6,6 +6,7 @@ import { PostgresConnectionOptions } from 'typeorm/driver/postgres/PostgresConne
 import { join } from 'path';
 import { DatabaseLogger } from './database-logger';
 import { DatabaseService } from './database.service';
+import { entities } from './entity.config';
 import { LocationModule } from '../location/location.module';
 import { S3ManagerModule } from '../s3-manager/s3-manager.module';
 import { TransactionModule } from '../transaction/transaction.module';
@@ -29,7 +30,10 @@ const getEnvironmentSpecificConfig = (env?: string) => {
       return {
         synchronize: false,
         migrationsRun: false,
-        entities: [join(__dirname, '../**/*.entity.js')],
+        // Manually specify entities to load seeing as the glob pattern
+        // will not work when running the built app due to webpack
+        // bundling.
+        entities,
         migrations: [join(__dirname, '../migrations/*.js')],
         logging: ['migration'] as LoggerOptions,
       };
