@@ -10,7 +10,7 @@ export class SnsManagerService {
   private sns: SNS;
   constructor() {
     this.sns = new SNS({
-      endpoint: process.env.AWS_ENDPOINT || 'http://localhost:9000',
+      endpoint: process.env.AWS_ENDPOINT ?? 'http://localhost:9000',
       region: 'ca-central-1',
     });
   }

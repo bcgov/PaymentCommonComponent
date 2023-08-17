@@ -1,6 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { SNS } from 'aws-sdk';
-import { AwsSdkModule } from 'nest-aws-sdk';
 import { LoggerModule } from '../../../src/logger/logger.module';
 import { SnsManagerModule } from '../../../src/sns-manager/sns-manager.module';
 import { SnsManagerService } from '../../../src/sns-manager/sns-manager.service';
@@ -10,18 +8,7 @@ describe('SnsManagerService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [
-        LoggerModule,
-        SnsManagerModule,
-        AwsSdkModule.forRoot({
-          defaultServiceOptions: {
-            endpoint: 'http://minio:9000',
-            region: 'ca-central-1',
-            s3ForcePathStyle: true,
-          },
-          services: [SNS],
-        }),
-      ],
+      imports: [LoggerModule, SnsManagerModule],
       providers: [SnsManagerService],
     }).compile();
 

@@ -12,9 +12,9 @@ export class PaymentMock extends PaymentEntity {
     status?: MatchStatus
   ) {
     super();
-    this.id = faker.datatype.uuid();
+    this.id = faker.string.uuid();
     this.amount = Math.abs(
-      faker.datatype.number({ min: 1, max: 1000, precision: 0.01 })
+      faker.number.float({ min: 1, max: 1000, precision: 0.01 })
     );
     this.payment_method = faker.helpers.arrayElement(
       paymentMethods.filter((itm) => itm.classification === classification)

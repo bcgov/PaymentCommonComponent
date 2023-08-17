@@ -92,7 +92,7 @@ export class ParseService {
             .map(
               (child: ValidationError) =>
                 `${errantColumnName} ${
-                  child.value?.[errantIdColumnName] ||
+                  child.value?.[errantIdColumnName] ??
                   child.value?.metadata?.[errantIdColumnName]
                 } - Issue with ${
                   child.children?.[0]?.property

@@ -7,7 +7,7 @@ import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-r
 export class FileIngestionRulesMock extends FileIngestionRulesEntity {
   constructor(program: string) {
     super();
-    this.id = faker.datatype.uuid();
+    this.id = faker.string.uuid();
     this.program = program;
     this.requiredFiles = [];
   }

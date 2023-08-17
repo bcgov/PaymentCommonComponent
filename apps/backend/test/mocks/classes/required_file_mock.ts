@@ -10,7 +10,7 @@ export class ProgramRequiredFileMock extends ProgramRequiredFileEntity {
     rule: FileIngestionRulesEntity
   ) {
     super();
-    this.id = faker.datatype.uuid();
+    this.id = faker.string.uuid();
     this.createdAt = faker.date.past();
     this.fileType = fileType;
     this.filename = filename;
