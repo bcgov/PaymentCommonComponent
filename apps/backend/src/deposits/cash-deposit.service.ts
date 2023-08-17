@@ -10,8 +10,7 @@ import {
   Repository,
 } from 'typeorm';
 import { CashDepositEntity } from './entities/cash-deposit.entity';
-import { MatchStatus } from '../common/const';
-import { MatchStatusAll } from '../common/const';
+import { MatchStatusAll, MatchStatus } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
 import { AppLogger } from '../logger/logger.service';

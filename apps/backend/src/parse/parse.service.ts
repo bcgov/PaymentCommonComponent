@@ -96,7 +96,7 @@ export class ParseService {
                   child.value?.metadata?.[errantIdColumnName]
                 } - Issue with ${
                   child.children?.[0]?.property
-                }: ${Object.values(child.children?.[0]?.constraints || {}).join(
+                }: ${Object.values(child.children?.[0]?.constraints ?? {}).join(
                   ', '
                 )}`
             )
@@ -123,7 +123,7 @@ export class ParseService {
     const fileDate = extractDateFromTXNFileName(fileName);
 
     const garmsSales = parseGarms(
-      (await JSON.parse(contents || '{}')) as SBCGarmsJson[],
+      (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
       fileName,
       paymentMethods,
       fileDate

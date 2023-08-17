@@ -1,5 +1,7 @@
 import { Injectable, Inject } from '@nestjs/common';
+import { parse } from 'date-fns';
 import Decimal from 'decimal.js';
+import { FindOptionsOrderValue } from 'typeorm';
 import { ReconciliationType, AggregatedCashPayment } from './types';
 import { MatchStatus } from '../common/const';
 import { DateRange, Ministries, NormalizedLocation } from '../constants';
@@ -17,6 +19,107 @@ export class CashReconciliationService {
     @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
     this.appLogger.setContext(CashReconciliationService.name);
+  }
+  /**
+   *
+   * @param event
+   * @returns PaymentEntity[]
+   * @description Find all payments and deposits that are older than the past due date and mark as exceptions
+   */
+
+  public async setExceptions(
+    location: NormalizedLocation,
+    program: Ministries,
+    exceptionsDate: string,
+    currentDate: Date
+  ): Promise<{ payments: number; deposits: number }> {
+    const payments: PaymentEntity[] =
+      await this.paymentService.findPaymentsExceptions(
+        location.location_id,
+        exceptionsDate
+      );
+
+    const deposits: CashDepositEntity[] =
+      await this.cashDepositService.findCashDepositExceptions(
+        exceptionsDate,
+        program,
+        location.pt_location_id
+      );
+
+    const paymentExceptions: PaymentEntity[] =
+      await this.paymentService.updatePayments(
+        payments.map((itm) => ({
+          ...itm,
+          timestamp: itm.timestamp,
+          status: MatchStatus.EXCEPTION,
+          reconciled_on: currentDate,
+        }))
+      );
+
+    const depositExceptions: CashDepositEntity[] =
+      await this.cashDepositService.updateDeposits(
+        deposits.map((itm) => ({
+          ...itm,
+          status: MatchStatus.EXCEPTION,
+          reconciled_on: currentDate,
+        }))
+      );
+
+    return {
+      payments: paymentExceptions?.length ?? 0,
+      deposits: depositExceptions?.length ?? 0,
+    };
+  }
+
+  public async reconcileCashByLocation(
+    location: NormalizedLocation,
+    program: Ministries,
+    dateRange: DateRange
+  ) {
+    const order: FindOptionsOrderValue = 'ASC';
+
+    const allCashDepositDatesPerLocation =
+      await this.cashDepositService.findAllCashDepositDatesPerLocation(
+        program,
+        location.pt_location_id,
+        order
+      );
+
+    const filtered = allCashDepositDatesPerLocation.filter(
+      (date: string) =>
+        parse(date, 'yyyy-MM-dd', new Date()) >=
+          parse(dateRange.minDate, 'yyyy-MM-dd', new Date()) &&
+        parse(date, 'yyyy-MM-dd', new Date()) <=
+          parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+    );
+    this.appLogger.log(
+      `Reconciliation Cash: ${location.description} - ${location.location_id}`,
+      CashReconciliationService.name
+    );
+    for (const date of filtered) {
+      const currentCashDepositDate = date;
+      const previousCashDepositDate =
+        filtered[filtered.indexOf(date) - 2] ?? dateRange.minDate;
+
+      const cashDepositDateRange = {
+        minDate: previousCashDepositDate,
+        maxDate: currentCashDepositDate,
+      };
+
+      await this.reconcileCash(
+        location,
+        program,
+        cashDepositDateRange,
+        parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+      );
+
+      await this.setExceptions(
+        location,
+        program,
+        previousCashDepositDate,
+        parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+      );
+    }
   }
 
   public checkStatus(

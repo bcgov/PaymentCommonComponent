@@ -252,9 +252,15 @@ describe('CashReconciliationService', () => {
       expect(
         aggregatedCashPayments
           .flatMap((itm) => itm.payments)
-          .forEach((itm) => itm.status === MatchStatus.PENDING)
-      );
-      expect(deposits.forEach((itm) => itm.status === MatchStatus.PENDING));
+          .map((itm) => itm.status === MatchStatus.PENDING)
+          .every((itm) => itm)
+      ).toBe(true);
+
+      expect(
+        deposits
+          .map((itm) => itm.status === MatchStatus.PENDING)
+          .every((itm) => itm)
+      ).toBe(true);
     });
   });
 });

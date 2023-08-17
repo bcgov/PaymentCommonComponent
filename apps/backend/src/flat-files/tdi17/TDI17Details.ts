@@ -37,10 +37,6 @@ export class TDI17Details
   implements ITDI17Details
 {
   public static readonly resourceType = 'TDIDetails';
-  /*eslint-disable @typescript-eslint/no-explicit-any*/
-  constructor(init?: any) {
-    super(init);
-  }
 
   public get metadata(): unknown {
     return this.resource.metadata;

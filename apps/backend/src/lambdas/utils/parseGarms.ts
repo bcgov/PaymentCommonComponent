@@ -59,7 +59,7 @@ export const parseGarms = (
         payments: payments.map((garmsPayment: SBCGarmsPayment) =>
           parseSBCGarmsPayments(garmsPayment, paymentMethods)
         ),
-        void_indicator: void_indicator !== ' ' ? true : false,
+        void_indicator: void_indicator === ' ',
         migrated: true,
         source_file_name,
         transactionJson: new Transaction({
@@ -73,7 +73,7 @@ export const parseGarms = (
           payments: payments.map((garmsPayment: SBCGarmsPayment) =>
             parseSBCGarmsPayments(garmsPayment, paymentMethods)
           ),
-          void_indicator: void_indicator !== ' ' ? true : false,
+          void_indicator: void_indicator === ' ',
           misc: {
             ...misc,
           },
@@ -110,7 +110,7 @@ const parseSBCGarmsPayments = (
       (pm: PaymentMethodEntity) =>
         pm.sbc_code === parseInt(garmsPayment.method) && pm
     ),
-    currency: garmsPayment.currency || 'CAD',
+    currency: garmsPayment.currency ?? 'CAD',
     exchange_rate: garmsPayment.exchange_rate,
     foreign_currency_amount:
       garmsPayment.currency !== 'CAD' ? garmsPayment.amount : undefined,

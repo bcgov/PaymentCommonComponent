@@ -26,10 +26,9 @@ export class PosDepositService {
     dateRange: DateRange,
     program: Ministries,
     merchant_ids: number[],
-    statuses?: MatchStatus[],
+    statuses: MatchStatus[] = MatchStatusAll,
     payment_match = false
   ): Promise<POSDepositEntity[]> {
-    const depositStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
 
     return await this.posDepositRepo.find({
@@ -41,7 +40,7 @@ export class PosDepositService {
         metadata: {
           program: program,
         },
-        status: In(depositStatuses),
+        status: In(statuses),
         merchant_id: In(merchant_ids),
       },
       relations: {
