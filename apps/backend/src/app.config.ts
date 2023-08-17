@@ -110,26 +110,13 @@ export async function createNestApp(): Promise<{
   // Global Error Filter
   app.useGlobalFilters(new ErrorExceptionFilter(app.get(AppLogger)));
 
-  // somewhere in your initialization file
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          'script-src': ["'self'", 'example.com'],
-          'style-src': null,
-        },
-      },
-    })
-  );
-
-  // {
-
-  // // Content Security Policy
-  // // Anti-clickjacking
-  // // Permissions Policy
-  // // Strict-Transport-Security
-  // // X-Content-Type-Options
-  // }));
+  // TODO: verify if we need to add these headers or if they are included by default
+  // Content Security Policy
+  // Anti-clickjacking
+  // Permissions Policy
+  // Strict-Transport-Security
+  // X-Content-Type-Options
+  app.use(helmet());
 
   // Printing the environment variables
   // eslint-disable-next-line no-console
