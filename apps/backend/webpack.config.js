@@ -10,7 +10,10 @@ module.exports = function (options, webpack) {
     '@nestjs/websockets',
     '@nestjs/websockets/socket-module',
     '@nestjs/mapped-types',
-    'class-transformer/storage'
+    'class-transformer/storage',
+    'cache-manager',
+    'class-validator',
+    'class-transformer',
   ];
 
   return {
