@@ -186,8 +186,8 @@ aws-deploy-all:
 aws-deploy-migrator:
 	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function migrator
 
-aws-build-and-deploy-all: aws-build-backend aws-upload-artifacts aws-deploy-all
-aws-build-and-deploy-migrator: aws-build-backend aws-upload-artifacts aws-deploy-migrator
+aws-build-and-deploy-all: build-backend aws-upload-artifacts aws-deploy-all
+aws-build-and-deploy-migrator: build-backend aws-upload-artifacts aws-deploy-migrator
 
 # ======================================================================
 # AWS Interactions
