@@ -64,7 +64,7 @@ auth_base_url="$(AUTH_BASE_URL)"
 endef
 export TFVARS_DATA
 # Deployment
-APP_SRC_BUCKET = $(LZ2_PROJECT)-$(ENV_NAME)-packages
+APP_SRC_BUCKET = ${PROJECT}-deployments-${ENV_NAME}
 
 # Set Vars based on ENV 
 ifeq ($(ENV_NAME), dev) 
@@ -147,8 +147,10 @@ clean:
 pre-build:
 	@echo "++\n***** Pre-build Clean Build Artifact\n++"
 	@rm -rf ./terraform/build || true
+
 	@mkdir -p ./terraform/build
 	@echo "++\n*****"
+
 
 build-backend: pre-build
 	@yarn 
@@ -156,34 +158,13 @@ build-backend: pre-build
 	@echo 'Building backend package... \n' 
 	@yarn workspace @payment/backend build
 
-	@echo 'Updating prod dependencies...\n'
-	@yarn workspaces focus @payment/backend --production
+	@mkdir -p terraform/build/backend
 
-	@echo 'Pruning node modules...\n'
-	# @npx --yes node-prune
-	# @npx --yes modclean -n default:safe,default:caution -r
-
-	@echo 'Deleting existing build dir...\n'
-	@rm -rf ./.build || true
-
-	@echo 'Creating build dir...\n'
-	@mkdir -p .build
-
-	@echo 'Copy Node modules....\n'
-	@mv node_modules .build
-
-	@echo 'Unlink local packages...\n'
-	@rm -rf .build/node_modules/@payment/*
-	
-	@echo 'Copy backend ...\n' 
-	@cp -r apps/backend/dist/* .build
-
-	@echo 'Creating Zip ...\n'
-	@cd .build && zip -r backend.zip .
-	@cd ..
+	@echo 'Creating build artifact'
+	@cd ./apps/backend/dist && zip -r backend.zip *
 
 	@echo 'Copying to terraform build location...\n'
-	@mv .build/backend.zip ./terraform/build/backend.zip
+	@cp ./apps/backend/dist/backend.zip ./terraform/build/backend/backend.zip
 
 
 # ======================================================================
@@ -192,16 +173,20 @@ build-backend: pre-build
 
 # Full redirection to /dev/null is required to not leak env variables
 
-aws-deploy-all:
-	@aws lambda update-function-code --function-name paycocoapi --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name parser --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name reports --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name dailyFileCheck --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
-	@aws lambda update-function-code --function-name batch_reconciler --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+# Uploads built backend zip bundle to s3://$APP_SRC_BUCKET/$COMMIT_SHA
+aws-upload-artifacts:
+	@aws s3 cp ./terraform/build/backend/backend.zip s3://$(APP_SRC_BUCKET)/$(COMMIT_SHA)/backend/backend.zip --region ca-central-1 --no-cli-pager
 
+# Updates lambda functions to the lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
+aws-deploy-all:
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function paycocoapi parser reports reconciler dailyFileCheck batch_reconciler
+
+# Updates migrator lambda function to lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-deploy-migrator:
-	@aws lambda update-function-code --function-name migrator --zip-file fileb://./terraform/build/backend.zip --region ca-central-1 > /dev/null
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function migrator
+
+aws-build-and-deploy-all: build-backend aws-upload-artifacts aws-deploy-all
+aws-build-and-deploy-migrator: build-backend aws-upload-artifacts aws-deploy-migrator
 
 # ======================================================================
 # AWS Interactions
@@ -274,6 +259,9 @@ wipe:
 
 be-logs:
 	@docker logs $(PROJECT)-backend --follow --tail 25
+
+start-prod:
+	@yarn workspace @payment/backend start:prod
 
 # ===================================
 # Local

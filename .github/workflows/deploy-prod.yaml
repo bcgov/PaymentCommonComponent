@@ -44,6 +44,9 @@ jobs:
       - name: Build
         run: make build-backend
 
+      - name: Upload build artifacts
+        run: make aws-upload-artifacts
+      
       - name: Deploy Migrations
         run: make aws-deploy-migrator
 
