@@ -2,11 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
 import { format, parse, subBusinessDays } from 'date-fns';
 import { FindOptionsOrderValue } from 'typeorm';
-import { generateLocalSNSMessage } from './helpers';
-import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
-import { Ministries, NormalizedLocation } from '../constants';
+import { NormalizedLocation } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
@@ -33,20 +31,28 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const locationService = app.get(LocationService);
   const notificationService = app.get(NotificationService);
   const snsService = app.get(SnsManagerService);
-  const isLocal = process.env.RUNTIME_ENV === 'local';
   const reportingService = app.get(ReportingService);
+  const numDaysToReconcile = 31;
+  const isLocal = process.env.RUNTIME_ENV === 'local';
 
-  appLogger.log({ event, _context }, 'RECONCILE EVENT');
+  appLogger.log({ event, _context });
 
-  const { program, period, reportEnabled } =
+  /**
+   * Reconciliation Date is the current date in the automated flow (PROD/TEST)
+   * Reconciliation Date is inferred in the manual/batch flow (LOCAL/DEV) - this is to allow for testing of historical data
+   */
+
+  const { program, reconciliationMaxDate, reportEnabled, byPassFileValidity } =
     typeof event.Records[0].Sns.Message === 'string'
       ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
 
-  const reconciliationMinDate = period.from;
-  const reconciliationMaxDate = period.to;
-
   const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
+
+  const reconciliationMinDate = format(
+    subBusinessDays(currentDate, numDaysToReconcile),
+    'yyyy-MM-dd'
+  );
 
   const fileCheck = async () => {
     const rule: FileIngestionRulesEntity =
@@ -107,8 +113,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       );
 
       appLogger.log(
-        `Reconciliation POS: ${location.description} - ${location.location_id}`,
-        PosReconciliationService.name
+        `Pos Reconciliation: ${location.description} - ${reconciliationMaxDate}`
       );
 
       await posReconciliationService.reconcile(
@@ -118,17 +123,15 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
         currentDate
       );
 
+      appLogger.log(
+        `Setting Exceptions POS: ${location.description} - ${reconciliationMaxDate}`
+      );
+
       // Set exceptions for items still PENDING or IN PROGRESS for day before maxDate
       await posReconciliationService.setExceptions(
         location,
         program,
-        format(
-          subBusinessDays(
-            parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date()),
-            2
-          ),
-          'yyyy-MM-dd'
-        ),
+        format(subBusinessDays(currentDate, 2), 'yyyy-MM-dd'),
         currentDate
       );
     }
@@ -151,8 +154,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
             parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date())
       );
       appLogger.log(
-        `Reconciliation Cash: ${location.description} - ${location.location_id}`,
-        CashReconciliationService.name
+        `Reconciliation Cash: ${location.description} -  ${reconciliationMaxDate}`
       );
       for (const date of filtered) {
         const currentCashDepositDate = date;
@@ -195,42 +197,27 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   };
 
   const generateReport = async () => {
-    const message = {
-      period: {
-        from: reconciliationMinDate,
-        to: reconciliationMaxDate,
-      },
-      program,
-    };
+    appLogger.log('Publishing Report SNS');
 
-    if (isLocal) {
-      appLogger.log('Running locally, not sending to SNS');
-      await showConsoleReport();
-      reportEnabled &&
-        (await reportHandler(generateLocalSNSMessage(message), _context));
-    }
-    if (!isLocal) {
-      appLogger.log('Publishing SNS to reconcile', 'ReconciliationLambda');
+    const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
 
-      const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
-
-      await snsService.publish(
-        topic,
-        JSON.stringify({
-          program: Ministries.SBC,
-          period: {
-            to: reconciliationMaxDate,
-            from: reconciliationMinDate,
-          },
-        })
-      );
-    }
+    await snsService.publish(
+      topic,
+      JSON.stringify({
+        program,
+        period: {
+          to: reconciliationMaxDate,
+          from: reconciliationMinDate,
+        },
+      })
+    );
   };
 
   try {
-    await fileCheck();
+    !byPassFileValidity && (await fileCheck());
     await reconcile();
-    await generateReport();
+    reportEnabled && (await generateReport());
+    isLocal && (await showConsoleReport());
   } catch (err) {
     appLogger.error(err);
   }
