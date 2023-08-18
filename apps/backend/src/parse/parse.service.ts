@@ -487,7 +487,7 @@ export class ParseService {
       if (!daily) {
         throw new Error('Error');
       }
-      const missingFiles = await this.notificationService.findMissingDailyFiles(
+      const missingFiles = this.notificationService.findMissingDailyFiles(
         rules,
         daily.files
       );

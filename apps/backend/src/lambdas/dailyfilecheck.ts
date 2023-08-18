@@ -9,6 +9,8 @@ import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
 import { MailService } from '../notification/mail.service';
 import { NotificationService } from '../notification/notification.service';
 
+const ALERT_EXPIRY_DAYS = 7; // Num days before we stop alerting for a LOB if they haven't submitted all files for a day
+
 export const handler = async (event: unknown, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = new AppLogger();
@@ -24,7 +26,7 @@ export const handler = async (event: unknown, context?: Context) => {
   // Retrieve statuses from the past 7 days
   const allRecentStatuses =
     await notificationService.retrieveRecentDailyStatuses(
-      subDays(date, 7),
+      subDays(date, ALERT_EXPIRY_DAYS),
       new Date()
     );
 
@@ -33,8 +35,8 @@ export const handler = async (event: unknown, context?: Context) => {
       isSameDay(parse(status.dailyDate, 'yyyy-MM-dd', new Date()), date)
     ).length === 0
   ) {
-    // No files today, skip alerting for off days
-    // Assumption: At least one file upload should have arrived on time
+    // No files have been sent in today, skip alerting for off days
+    // Assumption: At least one file upload should have arrived on time from any LOB
     return;
   }
 
@@ -73,12 +75,14 @@ export const handler = async (event: unknown, context?: Context) => {
         (itm) => itm.destination
       );
 
-      if (!alertDestinations.length) {
+      if (!alertDestinations.length || !program) {
         continue;
       }
 
       appLogger.log('\n\n=========Alerts Sent for Daily Upload: =========\n');
-      appLogger.error(`Sent an alert to prompt ${program} to complete upload`);
+      appLogger.error(
+        `Sending an alert to prompt ${program} to complete upload`
+      );
       await mailService.sendEmailAlertBulk(
         MAIL_TEMPLATE_ENUM.FILES_MISSING_ALERT,
         alertDestinations.map((ad) => ad),
