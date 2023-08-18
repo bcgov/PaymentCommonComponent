@@ -9,7 +9,6 @@ export class FileIngestionRulesMock extends FileIngestionRulesEntity {
     super();
     this.id = faker.datatype.uuid();
     this.program = program;
-    this.retries = faker.datatype.number({ min: 0, max: 3 });
     this.requiredFiles = [];
   }
 

@@ -11,8 +11,4 @@ export class FileIngestionRulesEntity {
 
   @OneToMany(() => ProgramRequiredFileEntity, (file) => file.rule)
   requiredFiles: ProgramRequiredFileEntity[];
-
-  // Number of retries before we send an alert
-  @Column({ type: 'int4', default: 0 })
-  retries: number;
 }

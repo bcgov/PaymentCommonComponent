@@ -25,10 +25,6 @@ export class ProgramDailyUploadEntity {
   @Column()
   success: boolean;
 
-  // Number of times we have tried uploading this grouping for a day
-  @Column({ type: 'int4' })
-  retries: number;
-
   @ManyToOne(() => FileIngestionRulesEntity)
   @JoinColumn()
   rule: Relation<FileIngestionRulesEntity>;
