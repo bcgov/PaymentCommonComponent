@@ -51,7 +51,7 @@ resource "aws_lambda_permission" "daily_alert_cloudwatch_permission" {
 
 resource "aws_cloudwatch_event_rule" "daily_alert_trigger" {
   name = "daily"
-  schedule_expression = "cron(0 11,14,17 * * *)"
+  schedule_expression = "cron(0 0,18,21 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "invoke_daily_alert" {
