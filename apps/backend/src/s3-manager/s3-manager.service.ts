@@ -3,11 +3,14 @@ https://docs.nestjs.com/providers#services
 */
 
 import {
+  GetObjectCommand,
   GetObjectCommandInput,
+  ListObjectsV2Command,
   ListObjectsV2CommandOutput,
+  PutObjectCommand,
   PutObjectCommandInput,
   PutObjectCommandOutput,
-  S3,
+  S3Client,
   _Object,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
@@ -15,9 +18,9 @@ import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class S3ManagerService {
-  private s3: S3;
+  private s3: S3Client;
   constructor() {
-    this.s3 = new S3({
+    this.s3 = new S3Client({
       endpoint: process.env.AWS_ENDPOINT ?? 'http://localhost:9000',
       region: 'ca-central-1',
       forcePathStyle: true,
@@ -25,9 +28,8 @@ export class S3ManagerService {
   }
 
   async listBucketContents(bucket: string) {
-    const response: ListObjectsV2CommandOutput = await this.s3.listObjectsV2({
-      Bucket: bucket,
-    });
+    const command = new ListObjectsV2Command({ Bucket: bucket });
+    const response: ListObjectsV2CommandOutput = await this.s3.send(command);
     const { Contents } = response;
     return Contents?.map((c: _Object) => c.Key);
   }
@@ -36,14 +38,17 @@ export class S3ManagerService {
     Bucket,
     Key,
   }: GetObjectCommandInput): Promise<string> {
-    const response = await this.s3.getObject({ Bucket, Key });
+    const command = new GetObjectCommand({ Bucket, Key });
+    const response = await this.s3.send(command);
+
     return (await response.Body?.transformToString()) ?? '';
   }
 
   async putObject({
     ...params
   }: PutObjectCommandInput): Promise<PutObjectCommandOutput> {
-    return await this.s3.putObject(params);
+    const command = new PutObjectCommand(params);
+    return await this.s3.send(command);
   }
 
   async upload({ Bucket, Key, Body, ContentType }: PutObjectCommandInput) {
