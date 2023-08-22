@@ -35,7 +35,7 @@ export const handler = async (event: BatchHandlerEvent, _context?: Context) => {
     reconciliationMaxDate: format(date, 'yyyy-MM-dd'),
     program: event.program,
     reportEnabled: event.reportEnabled,
-    byPassFileValidity: event.byPassFileValidity,
+    byPassFileValidity: true,
   }));
 
   for (const message of messages) {
