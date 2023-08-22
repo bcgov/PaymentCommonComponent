@@ -20,10 +20,6 @@ export class TDI34Trailer
 {
   public static readonly resourceType = 'TDI34Trailer';
 
-  constructor(init?: any) {
-    super(init);
-  }
-
   @Column({ start: 0, width: 1, format: { type: DataType.Integer } })
   public get rcd_type(): number {
     return this.resource.rcd_type;

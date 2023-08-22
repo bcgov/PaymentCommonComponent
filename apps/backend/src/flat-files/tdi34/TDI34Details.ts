@@ -34,10 +34,6 @@ export class TDI34Details
   implements ITDI34Details
 {
   public static readonly resourceType = 'TDI34Details';
-  /*eslint-disable */
-  constructor(init?: any) {
-    super(init);
-  }
 
   public get metadata() {
     return this.resource.metadata;

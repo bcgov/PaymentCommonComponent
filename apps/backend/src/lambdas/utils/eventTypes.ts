@@ -1,63 +1,66 @@
-// From: https://gist.github.com/jeshan/52cb021fd20d871c56ad5ce6d2654d7b
-
+// From https://gist.github.com/jeshan/52cb021fd20d871c56ad5ce6d2654d7b
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getLambdaEventSource = (event?: any) => {
-  if (event.Records && event.Records[0].cf) return 'isCloudfront';
+  switch (event) {
+    case event?.Records[0]?.cf:
+      return 'isCloudfront';
 
-  if (event.configRuleId && event.configRuleName && event.configRuleArn)
-    return 'isAwsConfig';
+    case event.configRuleId && event.configRuleName && event.configRuleArn:
+      return 'isAwsConfig';
 
-  if (event.Records && event.Records[0].eventSource === 'aws:codecommit')
-    return 'isCodeCommit';
+    case event.Records && event.Records[0].eventSource === 'awscodecommit':
+      return 'isCodeCommit';
 
-  if (event.authorizationToken === 'incoming-client-token')
-    return 'isApiGatewayAuthorizer';
+    case event.authorizationToken === 'incoming-client-token':
+      return 'isApiGatewayAuthorizer';
 
-  if (event.StackId && event.RequestType && event.ResourceType)
-    return 'isCloudFormation';
+    case event.StackId && event.RequestType && event.ResourceType:
+      return 'isCloudFormation';
 
-  if (event.Records && event.Records[0].eventSource === 'aws:ses')
-    return 'isSes';
+    case event.Records && event.Records[0].eventSource === 'awsses':
+      return 'isSes';
 
-  if (event.pathParameters && event.pathParameters.proxy)
-    return 'isApiGatewayAwsProxy';
+    case event?.pathParameters?.proxy:
+      return 'isApiGatewayAwsProxy';
 
-  if (event.source === 'aws.events') return 'isScheduledEvent';
+    case event.source === 'aws.events':
+      return 'isScheduledEvent';
 
-  if (event.awslogs && event.awslogs.data) return 'isCloudWatchLogs';
+    case event?.awslogs?.data:
+      return 'isCloudWatchLogs';
 
-  if (event.Records && event.Records[0].EventSource === 'aws:sns')
-    return 'isSns';
+    case event?.Records[0]?.EventSource === 'awssns':
+      return 'isSns';
 
-  if (event.Records && event.Records[0].eventSource === 'aws:dynamodb')
-    return 'isDynamoDb';
+    case event?.Records[0]?.eventSource === 'awsdynamodb':
+      return 'isDynamoDb';
 
-  if (event.records && event.records[0].approximateArrivalTimestamp)
-    return 'isKinesisFirehose';
+    case event?.records[0]?.approximateArrivalTimestamp:
+      return 'isKinesisFirehose';
 
-  if (
-    event.records &&
-    event.deliveryStreamArn &&
-    event.deliveryStreamArn.startsWith('arn:aws:kinesis:')
-  )
-    return 'isKinesisFirehose';
+    case event?.deliveryStreamArn?.startsWith('arnawskinesis'):
+      return 'isKinesisFirehose';
 
-  if (
-    event.eventType === 'SyncTrigger' &&
-    event.identityId &&
-    event.identityPoolId
-  )
-    return 'isCognitoSyncTrigger';
+    case event.eventType === 'SyncTrigger' &&
+      event.identityId &&
+      event.identityPoolId:
+      return 'isCognitoSyncTrigger';
 
-  if (event.Records && event.Records[0].eventSource === 'aws:kinesis')
-    return 'isKinesis';
+    case event.Records && event.Records[0].eventSource === 'awskinesis':
+      return 'isKinesis';
 
-  if (event.Records && event.Records[0].eventSource === 'aws:s3') return 'isS3';
+    case event.Records && event.Records[0].eventSource === 'awss3':
+      return 'isS3';
 
-  if (event.operation && event.message) return 'isMobileBackend';
+    case event.operation && event.message:
+      return 'isMobileBackend';
 
-  if (event.Records && event.Records[0].eventSource === 'aws:sqs')
-    return 'isSqs';
+    case event.Records && event.Records[0].eventSource === 'awssqs':
+      return 'isSqs';
 
-  if (event.eventType === 'all') return 'all';
+    case event.eventType === 'all':
+      return 'all';
+    default:
+      return 'isUnknown';
+  }
 };

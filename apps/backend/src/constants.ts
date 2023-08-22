@@ -16,7 +16,6 @@ export enum Ministries {
 export enum FileTypes {
   TDI17 = 'TDI17',
   TDI34 = 'TDI34',
-  DDF = 'DDF',
   SBC_SALES = 'SBC_SALES',
 }
 

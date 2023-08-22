@@ -25,10 +25,6 @@ export class TDI17Header
 {
   public static readonly resourceType = 'TDI17Header';
 
-  constructor(init?: any) {
-    super(init);
-  }
-
   @Column({ start: 0, width: 1, format: { type: DataType.Integer } })
   public get rcd_type() {
     return this.resource.rcd_type;

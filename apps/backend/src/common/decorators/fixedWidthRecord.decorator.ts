@@ -8,7 +8,6 @@ export interface ColumnOptions {
   format?:
     | BooleanOptions
     | DecimalOptions
-    | FloatOptions
     | IntOptions
     | DateOptions
     | TimeOptions
@@ -27,11 +26,6 @@ export interface DecimalOptions {
 }
 export interface CardOptions {
   type: DataType.Card;
-}
-
-export interface FloatOptions {
-  type: DataType.Float;
-  precision?: number;
 }
 
 export interface DateOptions {
@@ -56,11 +50,13 @@ export interface MerchantTypeOptions {
 export interface TransactionCodeOptions {
   type: DataType.TransactionCode;
 }
+export interface StringOptions {
+  type: DataType.String;
+}
 
 export enum DataType {
   Decimal = 'Decimal',
   Boolean = 'Boolean',
-  Float = 'Float',
   Integer = 'Integer',
   Date = 'Date',
   Time = 'Time',
@@ -68,6 +64,7 @@ export enum DataType {
   TransactionCode = 'TransactionCode',
   TransactionType = 'TransactionType',
   MerchantLocation = 'MerchantLocation',
+  String = 'String',
 }
 
 export const ColumnMetadataKey = Symbol('Column:metadata');

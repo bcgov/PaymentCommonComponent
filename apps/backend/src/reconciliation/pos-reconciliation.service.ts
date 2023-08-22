@@ -1,5 +1,11 @@
 import { Injectable, Inject } from '@nestjs/common';
-import { differenceInBusinessDays, differenceInMinutes } from 'date-fns';
+import {
+  differenceInBusinessDays,
+  differenceInMinutes,
+  format,
+  parse,
+  subBusinessDays,
+} from 'date-fns';
 import Decimal from 'decimal.js';
 import {
   PosDepositsAmountDictionary,
@@ -12,6 +18,7 @@ import { subtractBusinessDaysNoTimezone } from '../common/utils/format';
 import {
   AggregatedDeposit,
   AggregatedPosPayment,
+  DateRange,
   Ministries,
   NormalizedLocation,
 } from '../constants';
@@ -40,6 +47,41 @@ export class PosReconciliationService {
     @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
     this.appLogger.setContext(PosReconciliationService.name);
+  }
+
+  public async reconcileByLocation(
+    location: NormalizedLocation,
+    program: Ministries,
+    dateRange: DateRange,
+    allPosPaymentsInDates: PaymentEntity[],
+    allPosDepositsInDates: POSDepositEntity[]
+  ) {
+    const locationPayments = allPosPaymentsInDates.filter(
+      (posPayment) =>
+        posPayment.transaction.location_id === location.location_id
+    );
+
+    const locationDeposits = allPosDepositsInDates.filter((posDeposit) =>
+      location.merchant_ids.includes(posDeposit.merchant_id)
+    );
+
+    await this.reconcile(
+      location,
+      locationPayments,
+      locationDeposits,
+      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+    );
+
+    // Set exceptions for items still PENDING or IN PROGRESS for day before maxDate
+    await this.setExceptions(
+      location,
+      program,
+      format(
+        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2),
+        'yyyy-MM-dd'
+      ),
+      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
+    );
   }
 
   /**

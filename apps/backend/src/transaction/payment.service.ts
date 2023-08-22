@@ -33,10 +33,9 @@ export class PaymentService {
   async findPosPayments(
     dateRange: DateRange,
     location_ids: number[],
-    statuses?: MatchStatus[],
+    statuses: MatchStatus[] = MatchStatusAll,
     pos_deposit_match = false
   ): Promise<PaymentEntity[]> {
-    const paymentStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
 
     return await this.paymentRepo.find({
@@ -48,7 +47,7 @@ export class PaymentService {
           ),
           location_id: In(location_ids),
         },
-        status: In(paymentStatuses),
+        status: In(statuses),
         payment_method: { classification: PaymentMethodClassification.POS },
       },
       relations: {
@@ -135,15 +134,14 @@ export class PaymentService {
   public async findCashPayments(
     dateRange: DateRange,
     location_ids: number[],
-    statuses?: MatchStatus[],
+    statuses: MatchStatus[] = MatchStatusAll,
     cash_deposit_match?: boolean
   ): Promise<PaymentEntity[]> {
-    const paymentStatuses = statuses ? statuses : MatchStatusAll;
     const { minDate, maxDate } = dateRange;
     const payments = await this.paymentRepo.find({
       where: {
         payment_method: { classification: PaymentMethodClassification.CASH },
-        status: In(paymentStatuses),
+        status: In(statuses),
         transaction: {
           location_id: In(location_ids),
           fiscal_close_date: Raw(

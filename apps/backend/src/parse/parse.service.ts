@@ -96,7 +96,7 @@ export class ParseService {
                   child.value?.metadata?.[errantIdColumnName]
                 } - Issue with ${
                   child.children?.[0]?.property
-                }: ${Object.values(child.children?.[0]?.constraints || {}).join(
+                }: ${Object.values(child.children?.[0]?.constraints ?? {}).join(
                   ', '
                 )}`
             )
@@ -123,7 +123,7 @@ export class ParseService {
     const fileDate = extractDateFromTXNFileName(fileName);
 
     const garmsSales = parseGarms(
-      (await JSON.parse(contents || '{}')) as SBCGarmsJson[],
+      (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
       fileName,
       paymentMethods,
       fileDate
@@ -284,11 +284,12 @@ export class ParseService {
           ? _.difference(fileList, allUploadedFiles)
           : _.difference(eventFileList, allUploadedFiles);
 
-      this.appLogger.log(`Found ${parseList.length} files to parse...`);
       // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
       const finalParseList = parseList.filter(
         (filename) => !filename?.includes('LABOUR2')
       );
+
+      this.appLogger.log(`Found ${finalParseList.length} files to parse...`);
 
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
