@@ -10,6 +10,7 @@ import {
   S3,
   _Object,
 } from '@aws-sdk/client-s3';
+import { Upload } from '@aws-sdk/lib-storage';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -43,5 +44,19 @@ export class S3ManagerService {
     ...params
   }: PutObjectCommandInput): Promise<PutObjectCommandOutput> {
     return await this.s3.putObject(params);
+  }
+
+  async upload({ Bucket, Key, Body, ContentType }: PutObjectCommandInput) {
+    const target = { Bucket, Key, Body, ContentType };
+    try {
+      const upload = new Upload({
+        client: this.s3,
+        params: target,
+      });
+
+      await upload.done();
+    } catch (e) {
+      console.log(e);
+    }
   }
 }

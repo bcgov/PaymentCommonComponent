@@ -4,7 +4,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { format, parse } from 'date-fns';
 import * as Excel from 'exceljs';
 import { Stream } from 'stream';
-
 import { AppLogger } from '../logger/logger.service';
 import { Placement } from '../reporting/interfaces';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
@@ -35,11 +34,12 @@ export class ExcelExportService {
   public async saveS3(filename: string, date: string): Promise<void> {
     this.appLogger.log('Saving to S3 Bucket');
     this.workbook.commit();
+
     try {
-      await this.s3Manager.putObject({
+      await this.s3Manager.upload({
         Key: `${filename}_${date}.xlsx`,
         Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
-        Body: this.stream.pipe(new Stream.PassThrough()),
+        Body: this.stream,
         ContentType:
           'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
       });
