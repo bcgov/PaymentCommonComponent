@@ -47,11 +47,15 @@ export class S3ManagerService {
   }
 
   async upload({ Bucket, Key, Body, ContentType }: PutObjectCommandInput) {
-    const target = { Bucket, Key, Body, ContentType };
     try {
       const upload = new Upload({
         client: this.s3,
-        params: target,
+        params: {
+          Bucket,
+          Key,
+          Body,
+          ContentType,
+        },
       });
 
       await upload.done();
