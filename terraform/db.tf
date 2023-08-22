@@ -27,6 +27,7 @@ resource "aws_rds_cluster" "pgsql" {
 
   db_subnet_group_name   = aws_db_subnet_group.pgsql.name
   vpc_security_group_ids = [data.aws_security_group.data.id]
+  enabled_cloudwatch_logs_exports = ["postgresql"]
 
   # 2AM-4AM PST
   preferred_backup_window = "09:00-11:00"
