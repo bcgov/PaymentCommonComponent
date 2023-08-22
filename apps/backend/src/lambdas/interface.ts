@@ -1,4 +1,3 @@
-import { SNSEventRecord } from 'aws-lambda';
 import { Ministries } from '../constants';
 
 export interface ReconciliationEventMessage {
@@ -15,11 +14,6 @@ export interface SNSRecord {
 }
 
 export interface BatchHandlerEvent {
-  Records: SNSEventRecord[];
-}
-
-export interface HandlerEvent {
-  reconciliationEventOverride: boolean;
   byPassFileValidity: boolean;
   period: {
     from: string;
