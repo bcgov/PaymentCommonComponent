@@ -33,7 +33,7 @@ export const handler = async (event: S3Event, _context?: Context) => {
 
     if (!isLocal && !automationDisabled) {
       appLogger.log('Publishing SNS to reconcile');
-      const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
+      const topic = process.env.SNS_TRIGGER_RECONCILIATION_TOPIC_ARN;
       await snsService.publish(topic, JSON.stringify(message));
     }
   };
