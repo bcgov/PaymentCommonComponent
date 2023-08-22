@@ -135,7 +135,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   };
 
   const generateReport = async () => {
-    const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
+    const topic = process.env.SNS_TRIGGER_REPORT_TOPIC_ARN;
 
     await snsService.publish(
       topic,

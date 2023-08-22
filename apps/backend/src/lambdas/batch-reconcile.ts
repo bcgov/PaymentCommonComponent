@@ -40,7 +40,7 @@ export const handler = async (event: BatchHandlerEvent, _context?: Context) => {
 
   for (const message of messages) {
     if (!isLocal) {
-      const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
+      const topic = process.env.SNS_TRIGGER_RECONCILIATION_TOPIC_ARN;
       await snsService.publish(topic, JSON.stringify(message));
     } else {
       await reconcile(generateLocalSNSMessage(message));
