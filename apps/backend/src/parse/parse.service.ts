@@ -284,11 +284,12 @@ export class ParseService {
           ? _.difference(fileList, allUploadedFiles)
           : _.difference(eventFileList, allUploadedFiles);
 
-      this.appLogger.log(`Found ${parseList.length} files to parse...`);
       // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
       const finalParseList = parseList.filter(
         (filename) => !filename?.includes('LABOUR2')
       );
+
+      this.appLogger.log(`Found ${finalParseList.length} files to parse...`);
 
       // Parse & Save only files that have not been parsed before
       for (const filename of finalParseList) {
