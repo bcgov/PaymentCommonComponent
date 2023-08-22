@@ -49,7 +49,7 @@ TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
 ifeq ($(ENV_NAME), dev)
-DISABLE_AUTOMATED_RECONCILIATION=true
+DISABLE_AUTOMATED_RECONCILIATION=false
 endif
 
 define TFVARS_DATA
