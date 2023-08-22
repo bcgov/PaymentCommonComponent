@@ -1,10 +1,9 @@
 import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
-import { generateLocalSNSMessage } from './helpers';
-import { handler as reportHandler } from './report';
+import { format, parse, subBusinessDays } from 'date-fns';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
-import { Ministries, NormalizedLocation } from '../constants';
+import { NormalizedLocation } from '../constants';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
@@ -20,23 +19,25 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = new AppLogger();
 
+  appLogger.setContext('Reconcile Lambda');
+  appLogger.log({ event, _context });
+
   const posReconciliationService = app.get(PosReconciliationService);
   const cashReconciliationService = app.get(CashReconciliationService);
   const locationService = app.get(LocationService);
   const notificationService = app.get(NotificationService);
   const snsService = app.get(SnsManagerService);
   const reportingService = app.get(ReportingService);
-  const posDepositService = app.get(PosDepositService);
-  const paymentService = app.get(PaymentService);
-
-  appLogger.setContext('Reconcile Lambda');
-  appLogger.log({ event, _context });
+  const numDaysToReconcile = 31;
 
   const isLocal = process.env.RUNTIME_ENV === 'local';
 
+  const posDepositService = app.get(PosDepositService);
+  const paymentService = app.get(PaymentService);
+
   /**
-   * Reconciliation Date is the current date in the automated flow (PROD/TEST)
-   * Reconciliation Date is inferred in the manual/batch flow (LOCAL/DEV) - this is to allow for testing of historical data
+   * Reconciliation Max Date is the current date in the automated flow (PROD/TEST) and is derived from a loop in the batch reconcilaition flow
+   * Reconciliation Min Date is the Max date minus the number of days to reconcile
    */
 
   const { program, reconciliationMaxDate, reportEnabled, byPassFileValidity } =
@@ -44,15 +45,17 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
 
-  const dateRange = {
-    minDate: period.from,
-    maxDate: period.to,
-  };
+  const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
 
   const reconciliationMinDate = format(
     subBusinessDays(currentDate, numDaysToReconcile),
     'yyyy-MM-dd'
   );
+
+  const dateRange = {
+    minDate: reconciliationMinDate,
+    maxDate: reconciliationMaxDate,
+  };
 
   const fileCheck = async () => {
     const rule: FileIngestionRulesEntity =
@@ -112,7 +115,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       await cashReconciliationService.reconcileCashByLocation(
         location,
         program,
-        period
+        dateRange
       );
     }
   };
@@ -131,29 +134,18 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   };
 
   const generateReport = async () => {
-    const message = {
-      period: {
-        from: dateRange.minDate,
-        to: dateRange.maxDate,
-      },
-      program,
-    };
-
     const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
 
-      const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
-
-      await snsService.publish(
-        topic,
-        JSON.stringify({
-          program: Ministries.SBC,
-          period: {
-            to: dateRange.maxDate,
-            from: dateRange.minDate,
-          },
-        })
-      );
-    }
+    await snsService.publish(
+      topic,
+      JSON.stringify({
+        program,
+        period: {
+          to: reconciliationMaxDate,
+          from: reconciliationMinDate,
+        },
+      })
+    );
   };
 
   try {
