@@ -3,12 +3,9 @@
     {
       "Sns": {
         "Message": {
-          "period": {
-            "from": "2023-01-01",
-            "to": "2023-01-02"
-          },
-          "program": "SBC", 
-          "generateReport": true, 
+          "reconciliationMaxDate": "2023-08-14",
+          "program": "SBC",
+          "reportEnabled": true,
           "byPassFileValidity": false
         }
       }

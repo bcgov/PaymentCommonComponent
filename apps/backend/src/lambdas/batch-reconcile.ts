@@ -1,16 +1,21 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import { eachDayOfInterval, format, subBusinessDays } from 'date-fns';
+import { eachDayOfInterval, format } from 'date-fns';
 import { generateLocalSNSMessage } from './helpers';
-import { HandlerEvent } from './interface';
+import { BatchHandlerEvent, ReconciliationEventMessage } from './interface';
 import { handler as reconcile } from './reconcile';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../logger/logger.service';
 
 import { SnsManagerService } from '../sns-manager/sns-manager.service';
-
-/* eslint-disable @typescript-eslint/no-explicit-any */
-export const handler = async (event: HandlerEvent, _context?: Context) => {
+/**
+ * Enables batch reconciliation by iterating over the dates for a given period.
+ * Use batch.json to configure locally.
+ * Not used in production.
+ * @param event
+ * @param _context
+ */
+export const handler = async (event: BatchHandlerEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = new AppLogger();
   appLogger.setContext('Batch Reconcile Lambda');
@@ -26,14 +31,11 @@ export const handler = async (event: HandlerEvent, _context?: Context) => {
     end: event.period.to ? new Date(event.period.to) : new Date(),
   });
 
-  const messages = listOfDays.map((date) => ({
-    period: {
-      from: format(subBusinessDays(date, 31), 'yyyy-MM-dd'),
-      to: format(date, 'yyyy-MM-dd'),
-    },
+  const messages: ReconciliationEventMessage[] = listOfDays.map((date) => ({
+    reconciliationMaxDate: format(date, 'yyyy-MM-dd'),
     program: event.program,
-    generateReport: event.generateReport,
-    byPassFileValidity: true,
+    reportEnabled: event.reportEnabled,
+    byPassFileValidity: event.byPassFileValidity,
   }));
 
   for (const message of messages) {

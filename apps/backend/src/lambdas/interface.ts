@@ -1,31 +1,24 @@
 import { Ministries } from '../constants';
 
-export interface ReconciliationMessage {
+export interface ReconciliationEventMessage {
+  reconciliationMaxDate: string;
   program: Ministries;
-  period: {
-    from: string;
-    to: string;
-  };
-  bypass_parse_validity?: boolean;
+  reportEnabled: boolean;
+  byPassFileValidity: boolean;
 }
 
 export interface SNSRecord {
   Sns: {
-    Message: ReconciliationMessage;
+    Message: ReconciliationEventMessage;
   };
 }
 
-export interface EventSuccessSNSMessage {
-  Records: SNSRecord[];
-}
-
-export interface HandlerEvent {
-  reconciliationEventOverride: boolean;
-  byPassFileValidity: boolean;
+export interface BatchHandlerEvent {
   period: {
     from: string;
     to: string;
   };
   program: Ministries;
-  generateReport: boolean;
+  reportEnabled: boolean;
+  byPassFileValidity: boolean;
 }
