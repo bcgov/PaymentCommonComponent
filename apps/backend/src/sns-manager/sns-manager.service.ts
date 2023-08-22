@@ -14,10 +14,13 @@ import { Injectable } from '@nestjs/common';
 export class SnsManagerService {
   private sns: SNSClient;
   constructor() {
-    this.sns = new SNSClient({
-      endpoint: process.env.AWS_ENDPOINT ?? 'http://localhost:9000',
-      region: 'ca-central-1',
-    });
+    this.sns =
+      process.env.NODE_ENV === 'production'
+        ? new SNSClient({})
+        : new SNSClient({
+            endpoint: process.env.AWS_ENDPOINT,
+            region: 'ca-central-1',
+          });
   }
 
   /*eslint-disable */

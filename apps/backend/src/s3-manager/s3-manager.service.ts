@@ -20,11 +20,14 @@ import { Injectable } from '@nestjs/common';
 export class S3ManagerService {
   private s3: S3Client;
   constructor() {
-    this.s3 = new S3Client({
-      endpoint: process.env.AWS_ENDPOINT ?? 'http://localhost:9000',
-      region: 'ca-central-1',
-      forcePathStyle: true,
-    });
+    this.s3 =
+      process.env.NODE_ENV === 'production'
+        ? new S3Client({})
+        : new S3Client({
+            endpoint: process.env.AWS_ENDPOINT,
+            region: 'ca-central-1',
+            forcePathStyle: true,
+          });
   }
 
   async listBucketContents(bucket: string) {
