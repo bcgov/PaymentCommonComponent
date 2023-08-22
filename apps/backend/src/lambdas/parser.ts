@@ -10,7 +10,7 @@ import { SnsManagerService } from '../sns-manager/sns-manager.service';
 
 export const handler = async (event: S3Event, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = new AppLogger();
+  const appLogger = app.get(AppLogger);
 
   appLogger.setContext('Parser Lambda');
 

@@ -13,7 +13,7 @@ const ALERT_EXPIRY_DAYS = 7; // Num days before we stop alerting for a LOB if th
 
 export const handler = async (event: unknown, context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = new AppLogger();
+  const appLogger = app.get(AppLogger);
   appLogger.setContext('Daily File Check Lambda');
   const notificationService = app.get(NotificationService);
   const mailService = app.get(MailService);
