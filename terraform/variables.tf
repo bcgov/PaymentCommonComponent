@@ -18,7 +18,9 @@ variable "mail_base_url" {}
 
 variable "mail_default_to" {}
 
-variable "disable_automated_reconciliation" {} 
+variable "disable_automated_reconciliation" {
+  default = false
+} 
 
 variable "auth_base_url" {}
 variable "region" {
