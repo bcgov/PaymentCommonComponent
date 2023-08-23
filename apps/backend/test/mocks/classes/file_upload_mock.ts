@@ -5,10 +5,10 @@ import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.en
 export class FileUploadedMock extends FileUploadedEntity {
   constructor(sourceFileType: FileTypes, sourceFileName: string, date?: Date) {
     super();
-    this.id = faker.datatype.uuid();
-    this.created_at = date || faker.date.past();
+    this.id = faker.string.uuid();
+    this.created_at = date ?? faker.date.past();
     this.sourceFileType = sourceFileType;
     this.sourceFileName = sourceFileName;
-    this.sourceFileLength = faker.datatype.number();
+    this.sourceFileLength = faker.number.int();
   }
 }

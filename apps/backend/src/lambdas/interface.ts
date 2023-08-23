@@ -14,11 +14,11 @@ export interface SNSRecord {
 }
 
 export interface BatchHandlerEvent {
+  byPassFileValidity: boolean;
   period: {
     from: string;
     to: string;
   };
   program: Ministries;
   reportEnabled: boolean;
-  byPassFileValidity: boolean;
 }

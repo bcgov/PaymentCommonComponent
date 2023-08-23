@@ -15,7 +15,7 @@ export class CashDepositMock extends CashDepositEntity {
     status?: MatchStatus
   ) {
     super();
-    this.id = faker.datatype.uuid();
+    this.id = faker.string.uuid();
     this.deposit_date = dateRange.maxDate;
     this.metadata = metadata;
     this.deposit_amt_cdn = amount;

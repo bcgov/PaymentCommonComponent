@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
-import { S3, SNS } from 'aws-sdk';
-import { AwsSdkModule } from 'nest-aws-sdk';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthGuard } from './common/guards/auth.guard';
@@ -34,23 +32,7 @@ import { TransactionModule } from './transaction/transaction.module';
     ReportingModule,
     NotificationModule,
     ConfigModule.forRoot({
-      ignoreEnvFile:
-        process.env.RUNTIME_ENV === 'local' || process.env.RUNTIME_ENV === 'ci'
-          ? false
-          : true,
-    }),
-    AwsSdkModule.forRoot({
-      defaultServiceOptions: {
-        ...(process.env.RUNTIME_ENV === 'local' ||
-        process.env.RUNTIME_ENV === 'ci'
-          ? {
-              endpoint: process.env.AWS_ENDPOINT || 'http://localhost:9000',
-              region: 'ca-central-1',
-              s3ForcePathStyle: true,
-            }
-          : {}),
-      },
-      services: [S3, SNS],
+      ignoreEnvFile: process.env.NODE_ENV === 'production',
     }),
   ],
   controllers: [AppController],

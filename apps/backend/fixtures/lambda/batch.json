@@ -4,5 +4,6 @@
     "to": ""
   },
   "program": "SBC",
-  "reportEnabled": false
+  "reportEnabled": false,
+  "byPassFileValidity": false
 }

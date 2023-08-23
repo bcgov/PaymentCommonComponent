@@ -114,21 +114,21 @@ export const unmatchedTestData = (
       ...itm,
       transaction: {
         ...itm.transaction,
-        transaction_date: format(faker.date.recent(10), 'yyyy-MM-dd'),
+        transaction_date: format(faker.date.recent({ days: 10 }), 'yyyy-MM-dd'),
         location: faker.helpers.arrayElement(locations),
       },
       timestamp: parse(
-        format(faker.date.recent(10), 'yyyy-MM-dd'),
+        format(faker.date.recent({ days: 10 }), 'yyyy-MM-dd'),
         'yyyy-MM-dd',
         new Date()
       ),
-      amount: faker.datatype.number({ min: 1, max: 1000 }),
+      amount: faker.number.int({ min: 1, max: 1000 }),
       payment_method: faker.helpers.arrayElement(paymentMethods),
     })),
     deposits: posData.map((itm) => ({
       ...itm,
       timestamp: itm.timestamp,
-      transaction_amt: faker.datatype.number({ min: 1, max: 1000 }),
+      transaction_amt: faker.number.int({ min: 1, max: 1000 }),
     })),
   };
 };

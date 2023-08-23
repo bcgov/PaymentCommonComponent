@@ -1,6 +1,9 @@
 import { NestFactory } from '@nestjs/core';
-import { Context, SNSEvent } from 'aws-lambda';
+import { Context } from 'aws-lambda';
+import { SNSEvent } from 'aws-lambda/trigger/sns';
 import { format, parse, subBusinessDays } from 'date-fns';
+import { generateLocalSNSMessage } from './helpers';
+import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
 import { NormalizedLocation } from '../constants';
@@ -17,7 +20,7 @@ import { PaymentService } from '../transaction/payment.service';
 
 export const handler = async (event: SNSEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = new AppLogger();
+  const appLogger = app.get(AppLogger);
 
   appLogger.setContext('Reconcile Lambda');
   appLogger.log({ event, _context });
@@ -118,6 +121,8 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
         dateRange
       );
     }
+    reportEnabled && (await generateReport());
+    isLocal && (await showConsoleReport());
   };
 
   const showConsoleReport = async () => {
@@ -134,25 +139,33 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   };
 
   const generateReport = async () => {
-    const topic = process.env.SNS_RECONCILER_RESULTS_TOPIC;
+    const topic = process.env.SNS_TRIGGER_REPORT_TOPIC_ARN;
 
-    await snsService.publish(
-      topic,
-      JSON.stringify({
-        program,
-        period: {
-          to: reconciliationMaxDate,
-          from: reconciliationMinDate,
-        },
-      })
-    );
+    !isLocal
+      ? await snsService.publish(
+          topic,
+          JSON.stringify({
+            program,
+            period: {
+              to: reconciliationMaxDate,
+              from: reconciliationMinDate,
+            },
+          })
+        )
+      : await reportHandler(
+          generateLocalSNSMessage({
+            program,
+            period: {
+              to: reconciliationMaxDate,
+              from: reconciliationMinDate,
+            },
+          })
+        );
   };
 
   try {
     !byPassFileValidity && (await fileCheck());
     await reconcile();
-    reportEnabled && (await generateReport());
-    isLocal && (await showConsoleReport());
   } catch (err) {
     appLogger.error(err);
   }

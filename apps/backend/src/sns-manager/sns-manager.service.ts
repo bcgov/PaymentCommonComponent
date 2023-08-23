@@ -2,22 +2,33 @@
 https://docs.nestjs.com/providers#services
 */
 
+import {
+  PublishInput,
+  PublishCommandOutput,
+  SNSClient,
+  PublishCommand,
+} from '@aws-sdk/client-sns';
 import { Injectable } from '@nestjs/common';
-import { SNS } from 'aws-sdk';
-import { PublishInput } from 'aws-sdk/clients/sns';
-import { InjectAwsService } from 'nest-aws-sdk';
 
 @Injectable()
 export class SnsManagerService {
-  constructor(@InjectAwsService(SNS) public readonly sns: SNS) {}
+  private sns: SNSClient;
+  constructor() {
+    this.sns =
+      process.env.NODE_ENV === 'production'
+        ? new SNSClient({})
+        : new SNSClient({
+            endpoint: process.env.AWS_ENDPOINT,
+            region: 'ca-central-1',
+          });
+  }
 
   /*eslint-disable */
   async publish(
     topic: PublishInput['TopicArn'],
     message: PublishInput['Message']
-  ): Promise<SNS.Types.PublishResponse> {
-    return await this.sns
-      .publish({ TopicArn: topic, Message: message })
-      .promise();
+  ): Promise<PublishCommandOutput> {
+    const command = new PublishCommand({ TopicArn: topic, Message: message });
+    return await this.sns.send(command);
   }
 }

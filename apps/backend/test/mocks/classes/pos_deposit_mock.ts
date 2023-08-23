@@ -16,7 +16,7 @@ export class POSDepositMock extends POSDepositEntity {
   ) {
     super();
 
-    this.id = faker.datatype.uuid();
+    this.id = faker.string.uuid();
     this.metadata = metadata;
     this.merchant_id = locations.find(
       (l) => l.location_id === location.location_id

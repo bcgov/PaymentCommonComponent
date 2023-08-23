@@ -17,8 +17,10 @@ import { SnsManagerService } from '../sns-manager/sns-manager.service';
  */
 export const handler = async (event: BatchHandlerEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
-  const appLogger = new AppLogger();
+  const appLogger = app.get(AppLogger);
+
   appLogger.setContext('Batch Reconcile Lambda');
+
   const snsService = app.get(SnsManagerService);
 
   appLogger.log({ event, _context }, 'BATCH RECONCILIATION EVENT');
@@ -40,7 +42,7 @@ export const handler = async (event: BatchHandlerEvent, _context?: Context) => {
 
   for (const message of messages) {
     if (!isLocal) {
-      const topic = process.env.SNS_PARSER_RESULTS_TOPIC;
+      const topic = process.env.SNS_TRIGGER_RECONCILIATION_TOPIC_ARN;
       await snsService.publish(topic, JSON.stringify(message));
     } else {
       await reconcile(generateLocalSNSMessage(message));

@@ -16,18 +16,21 @@ export class TransactionMock extends TransactionEntity {
   ) {
     super();
     this.created_at = new Date();
-    this.transaction_id = `${faker.datatype.uuid()}`;
+    this.transaction_id = `${faker.string.uuid()}`;
     this.fiscal_close_date = format(
-      faker.date.between(`${dateRange.minDate}`, `${dateRange.maxDate}`),
+      faker.date.between({
+        from: `${dateRange.minDate}`,
+        to: `${dateRange.maxDate}`,
+      }),
       'yyyy-MM-dd'
     );
     this.source_id = program;
     this.location_id = location.location_id;
     this.transaction_date = dateRange.maxDate;
-    this.transaction_time = `${faker.datatype.number({
+    this.transaction_time = `${faker.number.int({
       min: 0,
       max: 1,
-    })}${faker.datatype.number({
+    })}${faker.number.int({
       min: 0,
       max: 9,
     })}:00:00`;

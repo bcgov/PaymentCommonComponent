@@ -3,8 +3,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { format, parse } from 'date-fns';
 import * as Excel from 'exceljs';
-import { Stream } from 'stream';
-
+import { PassThrough, Stream } from 'stream';
 import { AppLogger } from '../logger/logger.service';
 import { Placement } from '../reporting/interfaces';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
@@ -12,7 +11,7 @@ import { S3ManagerService } from '../s3-manager/s3-manager.service';
 @Injectable()
 export class ExcelExportService {
   private workbook: Excel.stream.xlsx.WorkbookWriter;
-  private stream: Stream;
+  private stream: PassThrough;
 
   constructor(
     @Inject(S3ManagerService) private readonly s3Manager: S3ManagerService,
@@ -35,16 +34,15 @@ export class ExcelExportService {
   public async saveS3(filename: string, date: string): Promise<void> {
     this.appLogger.log('Saving to S3 Bucket');
     this.workbook.commit();
+
     try {
-      await this.s3Manager.s3
-        .upload({
-          Key: `${filename}_${date}.xlsx`,
-          Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
-          Body: this.stream,
-          ContentType:
-            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        })
-        .promise();
+      await this.s3Manager.upload({
+        Key: `${filename}_${date}.xlsx`,
+        Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
+        Body: this.stream,
+        ContentType:
+          'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
     } catch (error) {
       this.appLogger.error(`${error}`);
     }
