@@ -3,6 +3,7 @@
  */
 
 const TerserPlugin = require('terser-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 
 module.exports = function (options, webpack) {
   const lazyImports = [
@@ -39,16 +40,16 @@ module.exports = function (options, webpack) {
           vendor: {
             test: '/[\\/]node_modules[\\/]/',
             name: 'vendors',
-          }
-        }
+          },
+        },
       },
       minimizer: [
         new TerserPlugin({
           terserOptions: {
-            keep_classnames: true
-          }
-        })
-      ]
+            keep_classnames: true,
+          },
+        }),
+      ],
     },
     module: {
       rules: [
@@ -58,9 +59,9 @@ module.exports = function (options, webpack) {
             {
               loader: 'ts-loader',
               options: {
-                transpileOnly: false
+                transpileOnly: false,
               },
-            }
+            },
           ],
           exclude: /node_modules/,
         },
@@ -70,11 +71,19 @@ module.exports = function (options, webpack) {
       ...options.output,
       filename: '[name].js',
       chunkFilename: '[id].dependencies.js',
-      libraryTarget: 'commonjs2'
+      libraryTarget: 'commonjs2',
     },
     plugins: [
       ...options.plugins,
-
+      new CopyWebpackPlugin({
+        patterns: [
+          '../../node_modules/swagger-ui-dist/swagger-ui.css',
+          '../../node_modules/swagger-ui-dist/swagger-ui-bundle.js',
+          '../../node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js',
+          '../../node_modules/swagger-ui-dist/favicon-16x16.png',
+          '../../node_modules/swagger-ui-dist/favicon-32x32.png',
+        ],
+      }),
       new webpack.IgnorePlugin({
         checkResource(resource) {
           if (/^pg-native$/.test(resource)) {
@@ -90,7 +99,7 @@ module.exports = function (options, webpack) {
           }
           return false;
         },
-      })
-    ]
+      }),
+    ],
   };
 };

@@ -81,6 +81,7 @@ export async function createNestApp(): Promise<{
       AppModule,
       new ExpressAdapter(expressApp)
     );
+
     app.useLogger(appLogger);
   }
   const seedData = app.get(DatabaseService);
@@ -116,8 +117,20 @@ export async function createNestApp(): Promise<{
   // Permissions Policy
   // Strict-Transport-Security
   // X-Content-Type-Options
-  app.use(helmet());
-
+  app.use(
+    helmet({
+      xFrameOptions: { action: 'deny' },
+      contentSecurityPolicy: {
+        directives: {
+          frameAncestors: 'none',
+          defaultSrc: [`'self'`],
+          styleSrc: [`'self'`, `'unsafe-inline'`],
+          imgSrc: [`'self'`, 'data:', 'validator.swagger.io'],
+          scriptSrc: [`'self'`, `https: 'unsafe-inline'`],
+        },
+      },
+    })
+  );
   // Printing the environment variables
   // eslint-disable-next-line no-console
   console.table({

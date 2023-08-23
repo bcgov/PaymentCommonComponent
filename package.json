@@ -6,7 +6,7 @@
     "apps/*"
   ],
   "engines": {
-    "node": "^18.14.0"
+    "node": "18.14.0"
   },
   "scripts": {
     "start:backend:local": "yarn workspace @payment/backend start:dev",
@@ -20,6 +20,7 @@
     "postinstall": "husky install"
   },
   "devDependencies": {
+    "copy-webpack-plugin": "11.0.0",
     "eslint": "8.47.0",
     "eslint-config-prettier": "9.0.0",
     "eslint-nibble": "8.1.0",
