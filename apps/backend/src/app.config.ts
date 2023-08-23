@@ -10,7 +10,7 @@ import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
 import express from 'express';
-
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { Documentation } from './common/documentation';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
@@ -66,6 +66,24 @@ export async function createNestApp(): Promise<{
 
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
+  const policies = {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: [`'self'`],
+        imgSrc: `'self' data:`,
+        scriptSrc: [`'self'`],
+        styleSrc: [
+          `'self'`,
+          `'unsafe-hashes'`,
+          `'sha256-/jDKvbQ8cdux+c5epDIqkjHbXDaIY8RucT1PmAe8FG4='`,
+          `'sha256-ezdv1bOGcoOD7FKudKN0Y2Mb763O6qVtM8LT2mtanIU='`,
+          `'sha256-eaPyLWVdqMc60xuz5bTp2yBRgVpQSoUggte1+40ONPU='`,
+        ],
+        fontSrc: [`'self'`],
+      },
+    },
+  };
+
   const appLogger = new AppLogger();
   appLogger.setContext('App Logger');
   if (
@@ -75,12 +93,14 @@ export async function createNestApp(): Promise<{
     app = await NestFactory.create(AppModule, {
       bufferLogs: true,
     });
+    app.use(helmet(policies));
     app.useLogger(appLogger);
   } else {
     app = await NestFactory.create<NestExpressApplication>(
       AppModule,
       new ExpressAdapter(expressApp)
     );
+    app.use(helmet(policies));
     app.useLogger(appLogger);
   }
   const seedData = app.get(DatabaseService);
@@ -109,6 +129,13 @@ export async function createNestApp(): Promise<{
 
   // Global Error Filter
   app.useGlobalFilters(new ErrorExceptionFilter(app.get(AppLogger)));
+
+  // TODO: verify if we need to add these headers or if they are included by default
+  // Content Security Policy
+  // Anti-clickjacking
+  // Permissions Policy
+  // Strict-Transport-Security
+  // X-Content-Type-Options
 
   // Printing the environment variables
   // eslint-disable-next-line no-console
