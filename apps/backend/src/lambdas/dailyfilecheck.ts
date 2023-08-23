@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import { format, isSameDay, parse, subDays } from 'date-fns';
+import { format, isSameDay, subDays } from 'date-fns';
 import { ProgramTemplateName } from './const';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../logger/logger.service';
@@ -31,9 +31,8 @@ export const handler = async (event: unknown, context?: Context) => {
     );
 
   if (
-    allRecentStatuses.filter((status) =>
-      isSameDay(parse(status.dailyDate, 'yyyy-MM-dd', new Date()), date)
-    ).length === 0
+    allRecentStatuses.filter((status) => isSameDay(status.created_at, date))
+      .length === 0
   ) {
     // No files have been sent in today, skip alerting for off days
     // Assumption: At least one file upload should have arrived on time from any LOB
@@ -42,8 +41,14 @@ export const handler = async (event: unknown, context?: Context) => {
 
   const rules = await notificationService.getAllRules();
   for (const rule of rules) {
+    appLogger.log(
+      `Checking recent statuses for rule ${rule.program} (${rule.id})`
+    );
     const unsuccessfulStatuses = allRecentStatuses.filter(
       (status) => status.success === false && status.rule.id === rule.id
+    );
+    appLogger.log(
+      `${unsuccessfulStatuses.length} unsuccessful days in the past ${ALERT_EXPIRY_DAYS} days`
     );
 
     // Alert - This program has files missing either today or in past days
