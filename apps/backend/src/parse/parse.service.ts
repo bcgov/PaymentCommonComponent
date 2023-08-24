@@ -94,11 +94,10 @@ export class ParseService {
                 `${errantColumnName} ${
                   child.value?.[errantIdColumnName] ??
                   child.value?.metadata?.[errantIdColumnName]
-                } - Issue with ${
-                  child.children?.[0]?.property
-                }: ${Object.values(child.children?.[0]?.constraints ?? {}).join(
-                  ', '
-                )}`
+                } - Issue with ${child.children?.[0]
+                  ?.property}: ${Object.values(
+                  child.children?.[0]?.constraints ?? {}
+                ).join(', ')}`
             )
             .join('; ')
         : '';
@@ -189,7 +188,7 @@ export class ParseService {
     }
     return {
       cashDeposits,
-      fileDate: (header as TDI17Header).creation_date,
+      fileDate: (header as TDI17Header).to_date,
     };
   }
 
