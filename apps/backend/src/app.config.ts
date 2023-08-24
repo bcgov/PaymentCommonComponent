@@ -19,7 +19,7 @@ import { API_PREFIX } from './config';
 import { DatabaseService } from './database/database.service';
 import { AppLogger } from './logger/logger.service';
 import { TrimPipe } from './trim.pipe';
-
+import {policies} from './policies'
 interface ValidationErrorMessage {
   property: string;
   errors: string[];
@@ -66,23 +66,7 @@ export async function createNestApp(): Promise<{
 
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
-  const policies = {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: [`'self'`],
-        imgSrc: `'self' data:`,
-        scriptSrc: [`'self'`],
-        styleSrc: [
-          `'self'`,
-          `'unsafe-hashes'`,
-          `'sha256-/jDKvbQ8cdux+c5epDIqkjHbXDaIY8RucT1PmAe8FG4='`,
-          `'sha256-ezdv1bOGcoOD7FKudKN0Y2Mb763O6qVtM8LT2mtanIU='`,
-          `'sha256-eaPyLWVdqMc60xuz5bTp2yBRgVpQSoUggte1+40ONPU='`,
-        ],
-        fontSrc: [`'self'`],
-      },
-    },
-  };
+  
 
   const appLogger = new AppLogger();
   appLogger.setContext('App Logger');
@@ -93,16 +77,17 @@ export async function createNestApp(): Promise<{
     app = await NestFactory.create(AppModule, {
       bufferLogs: true,
     });
-    app.use(helmet(policies));
+    
     app.useLogger(appLogger);
   } else {
     app = await NestFactory.create<NestExpressApplication>(
       AppModule,
       new ExpressAdapter(expressApp)
     );
-    app.use(helmet(policies));
+    
     app.useLogger(appLogger);
   }
+  app.use(helmet(policies));
   const seedData = app.get(DatabaseService);
   try {
     await seedData.seedMasterData();
