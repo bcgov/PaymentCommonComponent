@@ -18,8 +18,8 @@ import { SuccessResponseInterceptor } from './common/interceptors/success-respon
 import { API_PREFIX } from './config';
 import { DatabaseService } from './database/database.service';
 import { AppLogger } from './logger/logger.service';
+import { policies } from './policies';
 import { TrimPipe } from './trim.pipe';
-import {policies} from './policies'
 interface ValidationErrorMessage {
   property: string;
   errors: string[];
@@ -66,7 +66,6 @@ export async function createNestApp(): Promise<{
 
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
-  
 
   const appLogger = new AppLogger();
   appLogger.setContext('App Logger');
@@ -77,14 +76,14 @@ export async function createNestApp(): Promise<{
     app = await NestFactory.create(AppModule, {
       bufferLogs: true,
     });
-    
+
     app.useLogger(appLogger);
   } else {
     app = await NestFactory.create<NestExpressApplication>(
       AppModule,
       new ExpressAdapter(expressApp)
     );
-    
+
     app.useLogger(appLogger);
   }
   app.use(helmet(policies));
@@ -114,13 +113,6 @@ export async function createNestApp(): Promise<{
 
   // Global Error Filter
   app.useGlobalFilters(new ErrorExceptionFilter(app.get(AppLogger)));
-
-  // TODO: verify if we need to add these headers or if they are included by default
-  // Content Security Policy
-  // Anti-clickjacking
-  // Permissions Policy
-  // Strict-Transport-Security
-  // X-Content-Type-Options
 
   // Printing the environment variables
   // eslint-disable-next-line no-console
