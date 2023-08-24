@@ -6,7 +6,6 @@ export const policies = {
       scriptSrc: [`'self'`],
       styleSrc: [
         `'self'`,
-        `'unsafe-hashes'`,
         `'sha256-/jDKvbQ8cdux+c5epDIqkjHbXDaIY8RucT1PmAe8FG4='`,
         `'sha256-ezdv1bOGcoOD7FKudKN0Y2Mb763O6qVtM8LT2mtanIU='`,
         `'sha256-eaPyLWVdqMc60xuz5bTp2yBRgVpQSoUggte1+40ONPU='`,
@@ -56,5 +55,4 @@ export const policies = {
     'unload=()',
     'window-placement=()',
     'vertical-scroll=()'`,
-
 };
