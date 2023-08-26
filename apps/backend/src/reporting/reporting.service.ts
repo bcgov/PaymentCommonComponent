@@ -30,6 +30,7 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { ExcelExportService } from '../excelexport/excelexport.service';
 import { AppLogger } from '../logger/logger.service';
+import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { PaymentEntity } from '../transaction/entities';
 
 export class ReportingService {
@@ -44,9 +45,25 @@ export class ReportingService {
     private paymentRepo: Repository<PaymentEntity>,
     @Inject(ExcelExportService)
     private excelWorkbook: ExcelExportService,
+    @Inject(S3ManagerService)
+    private s3Manager: S3ManagerService,
     @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
     this.appLogger.setContext(ReportingService.name);
+  }
+
+  async generateReportLinks(filename: string, date: string) {
+    const indexUrl = await this.s3Manager.getPreSignedUrl({
+      Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
+      Key: 'report_columns_guide.pdf',
+    });
+
+    const reportUrl = await this.s3Manager.getPreSignedUrl({
+      Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
+      Key: `${filename}_${date}.xlsx`,
+    });
+
+    return { reportUrl, indexUrl };
   }
   /**
    * Generates a three page daily report
@@ -66,7 +83,7 @@ export class ReportingService {
     },
     pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
     pageThreeDepositDates: DateRange
-  ): Promise<void> {
+  ): Promise<{ indexUrl: string; reportUrl: string }> {
     const { cashPayments, posPayments } = payments;
     const { cashDeposits, posDeposits } = deposits;
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
@@ -102,6 +119,10 @@ export class ReportingService {
     );
 
     await this.excelWorkbook.saveS3(
+      'reconciliation_report',
+      `${dateRange.minDate}-${dateRange.maxDate}`
+    );
+    return await this.generateReportLinks(
       'reconciliation_report',
       `${dateRange.minDate}-${dateRange.maxDate}`
     );

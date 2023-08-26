@@ -66,7 +66,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const { pageThreeDeposits, pageThreeDepositDates } =
     await getPageThreeDeposits(app, dateRange, program, locations);
 
-  await reportingService.generateReport(
+  const reportLinks = await reportingService.generateReport(
     dateRange,
     program,
     locations,
@@ -75,6 +75,9 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     pageThreeDeposits,
     pageThreeDepositDates
   );
+
+  //TODO: include these links (index and report) in the email to send
+  return reportLinks;
 };
 /**
  * Query for all matched/exceptions deposits and payments from report date, as well as the cash matching deposit window

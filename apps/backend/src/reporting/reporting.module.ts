@@ -4,6 +4,7 @@ import { DepositModule } from '../deposits/deposit.module';
 import { ExcelExportModule } from '../excelexport/excelexport.module';
 import { LocationModule } from '../location/location.module';
 import { LoggerModule } from '../logger/logger.module';
+import { S3ManagerModule } from '../s3-manager/s3-manager.module';
 import { TransactionModule } from '../transaction/transaction.module';
 
 @Module({
@@ -15,6 +16,7 @@ import { TransactionModule } from '../transaction/transaction.module';
     DepositModule,
     TransactionModule,
     LoggerModule,
+    S3ManagerModule,
   ],
   providers: [ReportingService, Logger],
   exports: [ReportingService],

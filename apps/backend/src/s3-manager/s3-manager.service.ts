@@ -1,7 +1,6 @@
 /*
 https://docs.nestjs.com/providers#services
 */
-
 import {
   GetObjectCommand,
   GetObjectCommandInput,
@@ -14,6 +13,7 @@ import {
   _Object,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -46,7 +46,13 @@ export class S3ManagerService {
 
     return (await response.Body?.transformToString()) ?? '';
   }
-
+  async getPreSignedUrl({ Bucket, Key }: GetObjectCommandInput) {
+    const command = new GetObjectCommand({
+      Bucket,
+      Key,
+    });
+    return await getSignedUrl(this.s3, command, { expiresIn: 172800 });
+  }
   async putObject({
     ...params
   }: PutObjectCommandInput): Promise<PutObjectCommandOutput> {
