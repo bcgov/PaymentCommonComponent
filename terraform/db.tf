@@ -1,4 +1,20 @@
+locals {
+  pgaudit_role_name = "rds_pgaudit"
+  rds_engine = "aurora-postgresql"
+  rds_engine_version = "13.8"
+  parameter_group_params = {
+    shared_preload_libraries = "pgaudit"
+    client_encoding    = "utf8"
+    log_connections    = "1"
+    log_disconnections = "1"
 
+    // pgAudit configuration parameters
+    // Reference for available settings: https://access.crunchydata.com/documentation/pgaudit/latest/#settings
+    "pgaudit.role" = local.pgaudit_role_name
+    "pgaudit.log" = "ALL"
+  }
+
+}
 resource "aws_db_subnet_group" "pgsql" {
   name       = "pgsql"
   subnet_ids = data.aws_subnets.data.ids
@@ -16,8 +32,8 @@ resource "aws_rds_cluster_instance" "pgsql" {
 
 resource "aws_rds_cluster" "pgsql" {
   cluster_identifier  = local.db_name
-  engine              = "aurora-postgresql"
-  engine_version      = "13.8"
+  engine              = local.rds_engine
+  engine_version      = local.rds_engine_version
   availability_zones  = ["ca-central-1a", "ca-central-1b"]
   database_name       = replace(var.project_code, "-", "_")
   master_username     = var.db_username
@@ -38,5 +54,26 @@ resource "aws_rds_cluster" "pgsql" {
     ignore_changes = [
       availability_zones
     ]
+  }
+}
+resource "postgresql_extension" "pgsql-pgaudit-extension" {
+  name = "pgaudit"
+}
+
+resource "postgresql_role" "rds_pgaudit_role" {
+  name = local.pgaudit_role_name
+}
+resource "aws_db_parameter_group" "pgsql-audit-param-group" {
+  count = 1
+  name = "pgsql-audit-param-group"
+  family = "${local.rds_engine}${local.rds_engine_version}"
+  // Load pgaudit extension 
+  dynamic "parameter" {
+    for_each = local.parameter_group_params
+    content {
+      apply_method = "pending_reboot"
+      name = parameter.key
+      value = parameter.value
+    }
   }
 }
