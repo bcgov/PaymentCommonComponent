@@ -10,7 +10,7 @@ import {
   NestExpressApplication,
 } from '@nestjs/platform-express';
 import express from 'express';
-
+import helmet from 'helmet';
 import { AppModule } from './app.module';
 import { Documentation } from './common/documentation';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
@@ -18,8 +18,8 @@ import { SuccessResponseInterceptor } from './common/interceptors/success-respon
 import { API_PREFIX } from './config';
 import { DatabaseService } from './database/database.service';
 import { AppLogger } from './logger/logger.service';
+import { policies } from './policies';
 import { TrimPipe } from './trim.pipe';
-
 interface ValidationErrorMessage {
   property: string;
   errors: string[];
@@ -66,6 +66,7 @@ export async function createNestApp(): Promise<{
 
   // Nest Application With Express Adapter
   let app: NestExpressApplication;
+
   const appLogger = new AppLogger();
   appLogger.setContext('App Logger');
   if (
@@ -75,14 +76,17 @@ export async function createNestApp(): Promise<{
     app = await NestFactory.create(AppModule, {
       bufferLogs: true,
     });
+
     app.useLogger(appLogger);
   } else {
     app = await NestFactory.create<NestExpressApplication>(
       AppModule,
       new ExpressAdapter(expressApp)
     );
+
     app.useLogger(appLogger);
   }
+  app.use(helmet(policies));
   const seedData = app.get(DatabaseService);
   try {
     await seedData.seedMasterData();
