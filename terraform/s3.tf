@@ -1,9 +1,20 @@
+locals {
+  pcc-reporting-bucket-name = "pcc-recon-reports-${var.target_env}"
+  pcc-master-data-bucket-name = "pcc-master-data-${var.target_env}"
+  pcc-deployments-bucket-name = "pcc-deployments-${var.target_env}"
+}
+
 
 resource "aws_s3_bucket" "pcc-reporting" {
-  bucket = "pcc-recon-reports-${var.target_env}"
+  bucket = local.pcc-reporting-bucket-name
   tags = {
-    Name        = "pcc-recon-reports-${var.target_env}"
+    Name        = local.pcc-reporting-bucket-name
     Environment = var.target_env
+  }
+
+  logging {
+    target_bucket = aws_s3_bucket.pcc-s3-access-logs.id
+    target_prefix = "logs/${local.pcc-reporting-bucket-name}/"
   }
 }
 
@@ -63,10 +74,15 @@ data "aws_iam_policy_document" "pcc-reporting" {
 }
 
 resource "aws_s3_bucket" "pcc-master-data" {
-  bucket = "pcc-master-data-${var.target_env}"
+  bucket = local.pcc-master-data-bucket-name
   tags = {
-    Name        = "pcc-master-data-${var.target_env}"
+    Name        = local.pcc-master-data-bucket-name
     Environment = var.target_env
+  }
+
+  logging {
+    target_bucket = aws_s3_bucket.pcc-s3-access-logs.id
+    target_prefix = "logs/${local.pcc-master-data-bucket-name}/"
   }
 }
 
@@ -95,10 +111,14 @@ resource "aws_s3_bucket_acl" "pcc_master_data_acl" {
 
 
 resource "aws_s3_bucket" "pcc-deployments" {
-  bucket = "pcc-deployments-${var.target_env}"
+  bucket = local.pcc-deployments-bucket-name
   tags = {
-    Name        = "pcc-deployments-${var.target_env}"
+    Name        = local.pcc-deployments-bucket-name
     Environment = var.target_env
+  }
+  logging {
+    target_bucket = aws_s3_bucket.pcc-s3-access-logs.id
+    target_prefix = "logs/${local.pcc-deployments-bucket-name}/"
   }
 }
 
@@ -108,3 +128,29 @@ resource "aws_s3_bucket_versioning" "pcc-deployments" {
     status = "Disabled"
   }
 }
+
+// S3 bucket for storing S3 access logs
+resource "aws_s3_bucket" "pcc-s3-access-logs" {
+  bucket = "pcc-s3-access-logs-${var.target_env}"
+  tags = {
+    Name        = "pcc-s3-access-logs-${var.target_env}"
+    Environment = var.target_env
+  }
+}
+
+resource "aws_s3_bucket_versioning" "pcc-s3-access-logs" {
+  bucket = aws_s3_bucket.pcc-s3-access-logs.id
+  versioning_configuration {
+    status = "Disabled"
+  }
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "pcc-s3-access-logs" {
+  bucket = aws_s3_bucket.pcc-s3-access-logs.id
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
+}
+
