@@ -31,7 +31,7 @@ resource "aws_rds_cluster" "pgsql" {
 
   # 2AM-4AM PST
   preferred_backup_window = "09:00-11:00"
-  backup_retention_period = var.target_env == "prod" ? 14 : 3
+  backup_retention_period = var.target_env == "dev" ? 0: 14
 
   lifecycle {
     # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/rds_cluster#argument-reference
