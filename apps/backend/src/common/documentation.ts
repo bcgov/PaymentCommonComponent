@@ -7,9 +7,9 @@ import { TransactionModule } from '../transaction/transaction.module';
 
 export const Documentation = (app: INestApplication) => {
   const options = new DocumentBuilder()
+    .addServer(`/api/v${process.env.APP_VERSION}`)
     .setTitle('PayCoCo API Docs')
     .setDescription('Payment Common Component API Documentation')
-    .setVersion(`1.0.0`)
     .addBasicAuth()
     .build();
 
