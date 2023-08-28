@@ -12,7 +12,7 @@ include $(ENV)
 export PROJECT := pcc
 
 # App Version
-export APP_VERSION := $(shell cat package.json | jq '.version' -r)
+export APP_VERSION := $(shell cat apps/backend/package.json | jq '.version' -r)
 
 # Environment
 export ENV_NAME ?= dev
@@ -386,10 +386,10 @@ open-db-tunnel:
 # ===================================
 
 version-major:
-	@yarn version major
+	@yarn run version:major
 
 version-minor:
-	@yarn version minor
+	@yarn run version:minor
 
 version-patch:
-	@yarn version patch
+	@yarn run version:patch

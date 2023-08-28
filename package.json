@@ -1,6 +1,5 @@
 {
   "name": "payment",
-  "version": "0.0.1",
   "packageManager": "yarn@3.2.3",
   "private": true,
   "workspaces": [
@@ -10,6 +9,9 @@
     "node": "^18.14.0"
   },
   "scripts": {
+    "version:major": "yarn workspace @payment/backend version:major",
+    "version:minor": "yarn workspace @payment/backend version:minor",
+    "version:patch": "yarn workspace @payment/backend version:patch",
     "start:backend:local": "yarn workspace @payment/backend start:dev",
     "start:backend:test": "yarn workspace @payment/backend start:test",
     "test:pipeline": "yarn workspace @payment/backend test:pipeline",
