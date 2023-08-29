@@ -9,6 +9,8 @@ export class FileIngestionRulesEntity {
   @Column()
   program: string;
 
-  @OneToMany(() => ProgramRequiredFileEntity, (file) => file.rule)
+  @OneToMany(() => ProgramRequiredFileEntity, (file) => file.rule, {
+    cascade: true,
+  })
   requiredFiles: ProgramRequiredFileEntity[];
 }

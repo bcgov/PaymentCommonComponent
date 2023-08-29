@@ -13,6 +13,11 @@ import { AppLogger } from '../logger/logger.service';
 import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
 
+interface FileIngestionRules {
+  program: string;
+  requiredFiles: ProgramRequiredFileEntity[];
+}
+
 @Injectable()
 export class NotificationService {
   constructor(
@@ -25,6 +30,12 @@ export class NotificationService {
     @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
     this.appLogger.setContext(NotificationService.name);
+  }
+
+  async createRulesForProgram(rules: FileIngestionRules[]) {
+    return await this.ingestionRulesRepo.save(
+      this.ingestionRulesRepo.create(rules)
+    );
   }
   /**
    * Gets all existing rules for each program
