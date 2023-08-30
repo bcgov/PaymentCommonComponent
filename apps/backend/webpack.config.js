@@ -2,8 +2,8 @@
  * Webpack configuration modelled after https://docs.nestjs.com/faq/serverless
  */
 
-const TerserPlugin = require('terser-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const TerserPlugin = require('terser-webpack-plugin');
 
 module.exports = function (options, webpack) {
   const lazyImports = [
@@ -26,7 +26,8 @@ module.exports = function (options, webpack) {
       'src/lambdas/reconcile': './src/lambdas/reconcile.ts',
       'src/lambdas/report': './src/lambdas/report.ts',
       'src/database/migrate': './src/database/migrate.ts',
-      'src/lambda': './src/lambda.ts'
+      'src/lambda': './src/lambda.ts',
+      'src/database/datasource': './src/database/datasource.ts',
     },
     target: 'node',
     mode: 'production',
@@ -83,6 +84,7 @@ module.exports = function (options, webpack) {
           '../../node_modules/swagger-ui-dist/favicon-16x16.png',
           '../../node_modules/swagger-ui-dist/favicon-32x32.png',
           'src/database/migrations/**/*',
+          'src/database/datasource',
         ],
       }),
       new webpack.IgnorePlugin({
