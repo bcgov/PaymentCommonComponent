@@ -72,14 +72,17 @@ APP_SRC_BUCKET = ${PROJECT}-deployments-${ENV_NAME}
 # Set Vars based on ENV 
 ifeq ($(ENV_NAME), dev) 
 DB_HOST = $(DB_HOST_DEV)
+BASTION_ID = $(BASTION_INSTANCE_ID_DEV)
 endif
 
 ifeq ($(ENV_NAME), test) 
 DB_HOST = $(DB_HOST_TEST)
+BASTION_ID = $(BASTION_INSTANCE_ID_TEST)
 endif
 
 ifeq ($(ENV_NAME), prod)
 DB_HOST = $(DB_HOST_PROD)
+BASTION_ID = $(BASTION_INSTANCE_ID_PROD)
 endif
 
 
@@ -363,13 +366,13 @@ sync:
 # ===================================
 
 open-db-tunnel:
-	# Needs exported credentials for a matching LZ2 space
+# Needs exported credentials for a matching LZ2 space
 	@echo "Running for ENV_NAME=$(ENV_NAME)\n"
 	@echo "Host Instance Id: $(shell ./bin/bastionid.sh $(ENV_NAME)) | $(DOMAIN)\n"
 	@echo "DB HOST URL: $(DB_HOST)\n"
-	# Checking you have the SSM plugin for the AWS cli installed
+# Checking you have the SSM plugin for the AWS cli installed
 	session-manager-plugin
 	rm ssh-keypair ssh-keypair.pub || true
 	ssh-keygen -t rsa -f ssh-keypair -N ''
-	aws ec2-instance-connect send-ssh-public-key --instance-id $(shell ./bin/bastionid.sh $(ENV_NAME))  --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
-	ssh -i ssh-keypair ec2-user@$(shell ./bin/bastionid.sh $(ENV_NAME))  -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+	aws ec2-instance-connect send-ssh-public-key --instance-id $(BASTION_ID)  --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
+	ssh -i ssh-keypair ec2-user@$(BASTION_ID)  -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
