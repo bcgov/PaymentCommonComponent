@@ -1,36 +1,43 @@
+import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { MigrationExecutor } from 'typeorm';
 import db from './datasource';
+import { AppModule } from '../app.module';
+import { AppLogger } from '../logger/logger.service';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (_event?: unknown, _context?: Context) => {
-  console.log('Starting migrations...');
+  const app = await NestFactory.createApplicationContext(AppModule);
+  const appLogger = app.get(AppLogger);
   try {
     if (!db.isInitialized) {
+      appLogger.log('Initializing database connection...');
       await db.initialize();
     }
 
     const migrationExecutor = new MigrationExecutor(db, db.createQueryRunner());
-
+    appLogger.log(db.migrations);
+    appLogger.log('Migration executor created.');
     const executed = await migrationExecutor.getExecutedMigrations();
+
     const pending = await migrationExecutor.getPendingMigrations();
 
-    console.log('---> executed:');
-    console.log(executed.map((mig) => mig.name));
+    appLogger.log('---> executed:');
+    appLogger.log(executed.map((mig) => mig.name));
 
-    console.log('---> pending:');
-    console.log(pending.map((mig) => mig.name));
+    appLogger.log('---> pending:');
+    appLogger.log(pending.map((mig) => mig.name));
 
     const run = await migrationExecutor.executePendingMigrations();
 
-    console.log('---> ran now:');
-    console.log(run.map((mig) => mig.name));
+    appLogger.log('---> ran now:');
+    appLogger.log(run.map((mig) => mig.name));
 
-    console.log('Migration complete.');
+    appLogger.log('Migration complete.');
     return 'success';
   } catch (e) {
-    console.log(e);
-    console.log('Migration failure.');
+    appLogger.log(e);
+    appLogger.log('Migration failure.');
     return 'failure';
   }
 };
