@@ -95,6 +95,9 @@ export const handler = async (event: unknown, context?: Context) => {
     if (unsuccessfulStatuses.length > 0) {
       const program =
         ProgramTemplateName[rule.program as keyof typeof ProgramTemplateName];
+      if (!program) {
+        continue;
+      }
 
       const allAlertDestinations = await mailService.getAlertDestinations(
         program,
