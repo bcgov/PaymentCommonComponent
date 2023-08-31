@@ -1,12 +1,11 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
-import * as csv from 'csvtojson';
-import { Repository } from 'typeorm';
 import fs from 'fs';
-import path, { join } from 'path';
+import { join } from 'path';
 import { validationPipeConfig } from '../../src/app.config';
 import { AppModule } from '../../src/app.module';
 import { FileTypes } from '../../src/constants';
+import { handler } from '../../src/database/migrate';
 import { CashDepositService } from '../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../src/deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../src/deposits/entities/pos-deposit.entity';
@@ -16,10 +15,7 @@ import { TDI34Details } from '../../src/flat-files/tdi34/TDI34Details';
 import { extractDateFromTXNFileName } from '../../src/lambdas/helpers';
 import { parseGarms } from '../../src/lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../../src/lambdas/utils/parseTDI';
-import { LocationEntity } from '../../src/location/entities';
-import { ILocation } from '../../src/location/interface/location.interface';
 import { TransactionEntity } from '../../src/transaction/entities';
-import { PaymentMethodEntity } from '../../src/transaction/entities/payment-method.entity';
 import { SBCGarmsJson } from '../../src/transaction/interface';
 import { TransactionService } from '../../src/transaction/transaction.service';
 import { TrimPipe } from '../../src/trim.pipe';
@@ -27,11 +23,10 @@ import { TrimPipe } from '../../src/trim.pipe';
 //TODO WIP
 describe('Reconciliation Service (e2e)', () => {
   let app: INestApplication;
-  let paymentMethodRepo: Repository<PaymentMethodEntity>;
-  let locationRepo: Repository<LocationEntity>;
   let posDepositService: PosDepositService;
   let cashDepositService: CashDepositService;
   let transService: TransactionService;
+
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -42,49 +37,12 @@ describe('Reconciliation Service (e2e)', () => {
       new TrimPipe(),
       new ValidationPipe(validationPipeConfig)
     );
+    await handler();
     await app.init();
     cashDepositService = module.get(CashDepositService);
     posDepositService = module.get(PosDepositService);
     transService = module.get(TransactionService);
-    locationRepo = module.get('LocationEntityRepository');
-    paymentMethodRepo = module.get('PaymentMethodEntityRepository');
   });
-  it('creates location table', async () => {
-    const sbcLocationsMasterDataFile = path.resolve(
-      __dirname,
-      '../../master_data/locations.csv'
-    );
-    const sbcLocationMaster = (await csv
-      .default()
-      .fromFile(sbcLocationsMasterDataFile)) as ILocation[];
-
-    const locationEntities = sbcLocationMaster.map((loc) => {
-      return new LocationEntity({ ...loc });
-    });
-
-    await locationRepo.save(locationEntities);
-  });
-  it('creates payment method table', async () => {
-    const paymentMethodMasterFile = path.resolve(
-      __dirname,
-      '../../master_data/payment_method.csv'
-    );
-    const paymentMethods = (await csv
-      .default()
-      .fromFile(paymentMethodMasterFile)) as PaymentMethodEntity[];
-
-    const paymentMethodsEntities = paymentMethods.map((pm) => {
-      return new PaymentMethodEntity({
-        method: pm.method,
-        description: pm.description,
-        sbc_code: pm.sbc_code,
-        classification: pm.classification,
-      });
-    });
-
-    await paymentMethodRepo.save(paymentMethodsEntities);
-  });
-
   it('parses and inserts cash deposit data', async () => {
     const contents = Buffer.from(
       fs.readFileSync(
