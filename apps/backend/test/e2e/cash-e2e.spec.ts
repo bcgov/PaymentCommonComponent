@@ -1,5 +1,6 @@
 import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { TestingModule, Test } from '@nestjs/testing';
+import { Repository } from 'typeorm';
 import fs from 'fs';
 import { join } from 'path';
 import { validationPipeConfig } from '../../src/app.config';
@@ -16,6 +17,7 @@ import { extractDateFromTXNFileName } from '../../src/lambdas/helpers';
 import { parseGarms } from '../../src/lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../../src/lambdas/utils/parseTDI';
 import { TransactionEntity } from '../../src/transaction/entities';
+import { PaymentMethodEntity } from '../../src/transaction/entities/payment-method.entity';
 import { SBCGarmsJson } from '../../src/transaction/interface';
 import { TransactionService } from '../../src/transaction/transaction.service';
 import { TrimPipe } from '../../src/trim.pipe';
@@ -23,6 +25,7 @@ import { TrimPipe } from '../../src/trim.pipe';
 //TODO WIP
 describe('Reconciliation Service (e2e)', () => {
   let app: INestApplication;
+  let paymentMethodRepo: Repository<PaymentMethodEntity>;
   let posDepositService: PosDepositService;
   let cashDepositService: CashDepositService;
   let transService: TransactionService;
