@@ -1,10 +1,13 @@
 import { GetObjectCommandInput } from '@aws-sdk/client-s3';
 import { Inject, Injectable } from '@nestjs/common';
+import { InjectDataSource } from '@nestjs/typeorm';
 import * as csv from 'csvtojson';
+import { DataSource, MigrationExecutor } from 'typeorm';
 import { masterData } from './const';
 import { FileTypes } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
+import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
@@ -20,8 +23,38 @@ export class DatabaseService {
     @Inject(NotificationService)
     private readonly notificationService: NotificationService,
     @Inject(PaymentMethodService)
-    private readonly paymentMethodService: PaymentMethodService
-  ) {}
+    private readonly paymentMethodService: PaymentMethodService,
+    @InjectDataSource()
+    private readonly db: DataSource,
+    @Inject(AppLogger) private readonly appLogger: AppLogger
+  ) {
+    this.appLogger.setContext(DatabaseService.name);
+  }
+
+  async runMigrations() {
+    const migrationExecutor = new MigrationExecutor(
+      this.db,
+      this.db.createQueryRunner()
+    );
+    this.appLogger.log(this.db.migrations);
+    this.appLogger.log('Migration executor created.');
+    const executed = await migrationExecutor.getExecutedMigrations();
+
+    const pending = await migrationExecutor.getPendingMigrations();
+
+    this.appLogger.log('---> executed:');
+    this.appLogger.log(executed.map((mig) => mig.name));
+
+    this.appLogger.log('---> pending:');
+    this.appLogger.log(pending.map((mig) => mig.name));
+
+    const run = await migrationExecutor.executePendingMigrations();
+
+    this.appLogger.log('---> ran now:');
+    this.appLogger.log(run.map((mig) => mig.name));
+
+    this.appLogger.log('Migration complete.');
+  }
 
   async seedMasterData() {
     const locations: LocationEntity[] = await this.locationService.findAll();
