@@ -29,8 +29,6 @@ module.exports = function (options, webpack) {
       'src/database/migrate': './src/database/migrate.ts',
       'src/lambda': './src/lambda.ts',
       'src/database/datasource': './src/database/datasource.ts',
-      'src/database/migrations/1693436330368-migration.ts':
-        './src/database/migrations/1693436330368-migration',
     },
     target: 'node',
     mode: 'production',
@@ -86,6 +84,7 @@ module.exports = function (options, webpack) {
           '../../node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js',
           '../../node_modules/swagger-ui-dist/favicon-16x16.png',
           '../../node_modules/swagger-ui-dist/favicon-32x32.png',
+          './src/database/migrations/1693436330368-migration.ts'
         ],
       }),
       new webpack.IgnorePlugin({
