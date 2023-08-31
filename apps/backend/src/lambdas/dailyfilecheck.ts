@@ -34,8 +34,8 @@ export const handler = async (event: unknown, context?: Context) => {
         {
           fieldName: 'ministryDivision',
           content: `${
-            process.env.NODE_ENV !== 'production' &&
-            `[${process.env.NODE_ENV}] `
+            process.env.RUNTIME_ENV !== 'production' &&
+            `[${process.env.RUNTIME_ENV}] `
           }${program}`,
         },
         {
