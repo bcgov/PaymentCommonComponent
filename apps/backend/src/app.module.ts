@@ -19,8 +19,8 @@ import { TransactionModule } from './transaction/transaction.module';
 
 @Module({
   imports: [
-    LoggerModule,
     DatabaseModule,
+    LoggerModule,
     S3ManagerModule,
     ReconciliationModule,
     DepositModule,

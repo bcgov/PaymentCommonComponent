@@ -1,7 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import { MigrationExecutor } from 'typeorm';
-import db from './datasource';
+import { DataSource, MigrationExecutor } from 'typeorm';
 import { AppModule } from '../app.module';
 import { AppLogger } from '../logger/logger.service';
 
@@ -9,10 +8,11 @@ import { AppLogger } from '../logger/logger.service';
 export const handler = async (_event?: unknown, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
+  const db = app.get(DataSource);
+  appLogger.log(`Database Initialized: ${db.isInitialized}`);
   try {
     if (!db.isInitialized) {
       appLogger.log('Initializing database connection...');
-      await db.initialize();
     }
 
     const migrationExecutor = new MigrationExecutor(db, db.createQueryRunner());
@@ -41,5 +41,3 @@ export const handler = async (_event?: unknown, _context?: Context) => {
     return 'failure';
   }
 };
-
-handler();

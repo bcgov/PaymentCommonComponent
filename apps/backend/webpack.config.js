@@ -21,14 +21,16 @@ module.exports = function (options, webpack) {
   return {
     ...options,
     entry: {
+      'src/database/migrations/1693436330368-migration':
+        './src/database/migrations/1693436330368-migration.ts',
+      'src/database/datasource': './src/database/datasource.ts',
+      'src/database/migrate': './src/database/migrate.ts',
       'src/lambdas/batch-reconcile': './src/lambdas/batch-reconcile.ts',
       'src/lambdas/dailyfilecheck': './src/lambdas/dailyfilecheck.ts',
       'src/lambdas/parser': './src/lambdas/parser.ts',
       'src/lambdas/reconcile': './src/lambdas/reconcile.ts',
       'src/lambdas/report': './src/lambdas/report.ts',
-      'src/database/migrate': './src/database/migrate.ts',
       'src/lambda': './src/lambda.ts',
-      'src/database/datasource': './src/database/datasource.ts',
     },
     target: 'node',
     mode: 'production',
@@ -79,12 +81,12 @@ module.exports = function (options, webpack) {
       ...options.plugins,
       new CopyWebpackPlugin({
         patterns: [
+          './src/database/migrations/1693436330368-migration.ts',
           '../../node_modules/swagger-ui-dist/swagger-ui.css',
           '../../node_modules/swagger-ui-dist/swagger-ui-bundle.js',
           '../../node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js',
           '../../node_modules/swagger-ui-dist/favicon-16x16.png',
           '../../node_modules/swagger-ui-dist/favicon-32x32.png',
-          './src/database/migrations/1693436330368-migration.ts'
         ],
       }),
       new webpack.IgnorePlugin({
