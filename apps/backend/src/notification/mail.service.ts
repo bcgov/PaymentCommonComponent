@@ -37,7 +37,7 @@ export class MailService {
    */
   public async getAlertDestinations(
     program: string,
-    filenames: string[]
+    filenames?: string[]
   ): Promise<AlertDestinationEntity[]> {
     const allDestinations = await this.destinationRepo.find({
       relations: {
@@ -51,6 +51,7 @@ export class MailService {
           destination.allAlerts === true ||
           destination.rule?.program === program ||
           (destination.requiredFile &&
+            filenames &&
             filenames.includes(destination.requiredFile.filename))
       )
       .filter((destination) => destination)

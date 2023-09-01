@@ -33,7 +33,7 @@ export class AlertDestinationEntity {
   // Send all alerts for a specific file type / data source to this destination
   @ManyToOne(() => ProgramRequiredFileEntity, { nullable: true })
   @JoinColumn({ name: 'required_file_id' })
-  requiredFile: ProgramRequiredFileEntity;
+  requiredFile?: ProgramRequiredFileEntity;
 
   // Typically email; can eventually be a phone number if necessary
   @Column({ nullable: false })
