@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 10
     concurrency: ci-${{ github.ref }}-prod
     environment:
-      name: prod-deployments
+      name: prod-deployment
 
     steps:
       - name: Checkout
