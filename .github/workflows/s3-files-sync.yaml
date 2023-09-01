@@ -1,8 +1,8 @@
 name: Sync S3 files
-on: 
+on:
   workflow_dispatch:
   schedule:
-    - cron: "* */6 * * *"
+    - cron: '* */6 * * *'
 
 env:
   ENV_NAME: prod
@@ -13,7 +13,7 @@ jobs:
     timeout-minutes: 10
     concurrency: ci-${{ github.ref }}-prod
     environment:
-      name: prod
+      name: prod-deployments
 
     steps:
       - name: Checkout
@@ -32,6 +32,6 @@ jobs:
 
       - name: Setup ENV file
         run: cp ./.config/.env.example ./.env
-        
+
       - name: Sync S3 files from prod to test
         run: make aws-sync-files-from-prod-to-test
