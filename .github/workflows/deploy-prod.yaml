@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 10
     concurrency: ci-${{ github.ref }}-prod
     environment:
-      name: prod
+      name: prod-deployment
     steps:
       - uses: actions/checkout@v3
         name: checkout
@@ -46,7 +46,7 @@ jobs:
 
       - name: Upload build artifacts
         run: make aws-upload-artifacts
-      
+
       - name: Deploy Migrations
         run: make aws-deploy-migrator
 
@@ -55,4 +55,3 @@ jobs:
 
       - name: Deploy All
         run: aws-deploy-all
-
