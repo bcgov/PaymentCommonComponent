@@ -17,7 +17,8 @@ export const handler = async (event: S3Event, _context?: Context) => {
   const parseService = app.get(ParseService);
   const snsService = app.get(SnsManagerService);
 
-  const automationDisabled = process.env.DISABLE_AUTOMATED_RECONCILIATION;
+  const automationDisabled =
+    process.env.DISABLE_AUTOMATED_RECONCILIATION === 'true';
 
   const isLocal: boolean = process.env.RUNTIME_ENV === 'local';
 
