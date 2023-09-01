@@ -5,7 +5,7 @@ on:
     - cron: "* */6 * * *"
 
 env:
-  ENV_NAME: prod
+  ENV_NAME: prod-deployment
 
 jobs:
   sync:
