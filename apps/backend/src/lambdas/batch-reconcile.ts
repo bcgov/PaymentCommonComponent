@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
-import { eachDayOfInterval, format } from 'date-fns';
+import { eachDayOfInterval, format, subBusinessDays } from 'date-fns';
 import { generateLocalSNSMessage } from './helpers';
 import { BatchHandlerEvent, ReconciliationEventMessage } from './interface';
 import { handler as reconcile } from './reconcile';
@@ -35,6 +35,7 @@ export const handler = async (event: BatchHandlerEvent, _context?: Context) => {
 
   const messages: ReconciliationEventMessage[] = listOfDays.map((date) => ({
     reconciliationMaxDate: format(date, 'yyyy-MM-dd'),
+    reconciliationMinDate: format(subBusinessDays(date, 31), 'yyyy-MM-dd'),
     program: event.program,
     reportEnabled: event.reportEnabled,
     byPassFileValidity: event.byPassFileValidity,

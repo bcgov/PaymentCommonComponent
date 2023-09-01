@@ -2,6 +2,7 @@ import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
 import { format, getMonth, getYear, parse } from 'date-fns';
+import { ReportType } from './interface';
 import { AppModule } from '../app.module';
 import {
   PaymentMethodClassification,
@@ -18,6 +19,7 @@ import { AppLogger } from '../logger/logger.service';
 import { ReportingService } from '../reporting/reporting.service';
 import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
+
 /**
  * Report lambda handler for reconciliation report
  * Report input "to date" should be 3 business days prior to the report date and reconciliation should run the previous day
@@ -33,7 +35,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   appLogger.log({ _context });
   appLogger.log({ event });
 
-  const { program, period } =
+  const { program, period, type } =
     typeof event.Records[0].Sns.Message === 'string'
       ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
@@ -53,14 +55,16 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     app,
     dateRange,
     program,
-    BUSINESS_DAY_LEEWAY
+    BUSINESS_DAY_LEEWAY,
+    type
   );
 
   const { cashDeposits, cashPayments } = await getCashReportData(
     app,
     dateRange,
     program,
-    BUSINESS_DAY_LEEWAY
+    BUSINESS_DAY_LEEWAY,
+    type
   );
 
   const { pageThreeDeposits, pageThreeDepositDates } =
@@ -88,7 +92,8 @@ const getCashReportData = async (
   app: INestApplicationContext,
   dateRange: DateRange,
   program: Ministries,
-  BUSINESS_DAY_LEEWAY: number
+  BUSINESS_DAY_LEEWAY: number,
+  type: ReportType
 ): Promise<{
   cashDeposits: CashDepositEntity[];
   cashPayments: PaymentEntity[];
@@ -97,18 +102,30 @@ const getCashReportData = async (
   const cashDepositService = app.get(CashDepositService);
 
   const cashDeposits =
-    await cashDepositService.findCashDepositsForDetailsReport(
-      dateRange,
-      program,
-      BUSINESS_DAY_LEEWAY
-    );
+    type === ReportType.DAILY
+      ? await cashDepositService.findCashDepositsForDailyReport(
+          dateRange,
+          program,
+          BUSINESS_DAY_LEEWAY
+        )
+      : await cashDepositService.findCashDepositsForHistoricalReport(
+          dateRange,
+          program
+        );
 
-  const cashPayments = await paymentService.findPaymentsForDetailsReport(
-    dateRange,
-    PaymentMethodClassification.CASH,
-    program,
-    BUSINESS_DAY_LEEWAY
-  );
+  const cashPayments =
+    type === ReportType.DAILY
+      ? await paymentService.findPaymentsForDailyReport(
+          dateRange,
+          PaymentMethodClassification.CASH,
+          program,
+          BUSINESS_DAY_LEEWAY
+        )
+      : await paymentService.findPaymentsForHistoricalReport(
+          dateRange,
+          PaymentMethodClassification.CASH,
+          program
+        );
 
   return {
     cashDeposits,
@@ -128,7 +145,8 @@ const getPosReportData = async (
   app: INestApplicationContext,
   dateRange: DateRange,
   program: Ministries,
-  BUSINESS_DAY_LEEWAY: number
+  BUSINESS_DAY_LEEWAY: number,
+  type: ReportType
 ): Promise<{
   posPayments: PaymentEntity[];
   posDeposits: POSDepositEntity[];
@@ -136,18 +154,31 @@ const getPosReportData = async (
   const paymentService = app.get(PaymentService);
   const posDepositService = app.get(PosDepositService);
 
-  const posDeposits = await posDepositService.findAllByReconciledDate(
-    dateRange,
-    program,
-    BUSINESS_DAY_LEEWAY
-  );
+  const posDeposits =
+    type === ReportType.DAILY
+      ? await posDepositService.findPOSDepositsForDailyReport(
+          dateRange,
+          program,
+          BUSINESS_DAY_LEEWAY
+        )
+      : await posDepositService.findPOSDepositsForHistoricalReport(
+          dateRange,
+          program
+        );
 
-  const posPayments = await paymentService.findPaymentsForDetailsReport(
-    dateRange,
-    PaymentMethodClassification.POS,
-    program,
-    BUSINESS_DAY_LEEWAY
-  );
+  const posPayments =
+    type === ReportType.DAILY
+      ? await paymentService.findPaymentsForDailyReport(
+          dateRange,
+          PaymentMethodClassification.POS,
+          program,
+          BUSINESS_DAY_LEEWAY
+        )
+      : await paymentService.findPaymentsForHistoricalReport(
+          dateRange,
+          PaymentMethodClassification.POS,
+          program
+        );
   return {
     posDeposits,
     posPayments,

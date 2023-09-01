@@ -2,6 +2,7 @@ import { Ministries } from '../constants';
 
 export interface ReconciliationEventMessage {
   reconciliationMaxDate: string;
+  reconciliationMinDate: string;
   program: Ministries;
   reportEnabled: boolean;
   byPassFileValidity: boolean;
@@ -21,4 +22,9 @@ export interface BatchHandlerEvent {
   };
   program: Ministries;
   reportEnabled: boolean;
+}
+
+export enum ReportType {
+  DAILY = 'daily',
+  HISTORICAL = 'historical',
 }

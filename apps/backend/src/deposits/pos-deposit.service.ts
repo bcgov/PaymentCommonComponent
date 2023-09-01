@@ -1,6 +1,6 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { format, parse, addBusinessDays, subBusinessDays } from 'date-fns';
+import { addBusinessDays, format, parse, subBusinessDays } from 'date-fns';
 import { Between, In, LessThan, Raw, Repository } from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
@@ -193,7 +193,7 @@ export class PosDepositService {
    * @param program
    * @returns
    */
-  async findAllByReconciledDate(
+  async findPOSDepositsForDailyReport(
     dateRange: DateRange,
     program: Ministries,
     busDays: number
@@ -254,5 +254,32 @@ export class PosDepositService {
       },
     });
     return [...reconciled, ...in_progress, ...pending];
+  }
+
+  /**
+   * Find all pos deposits for the details report - return any entities marked as matched or in progress on this day as well as any pending
+   * @param dateRange
+   * @param program
+   * @returns
+   */
+  async findPOSDepositsForHistoricalReport(
+    dateRange: DateRange,
+    program: Ministries
+  ): Promise<POSDepositEntity[]> {
+    return await this.posDepositRepo.find({
+      where: {
+        settlement_date: Between(dateRange.minDate, dateRange.maxDate),
+        metadata: { program },
+      },
+      relations: {
+        payment_match: true,
+      },
+      order: {
+        merchant_id: 'ASC',
+        reconciled_on: 'ASC',
+        transaction_amt: 'ASC',
+        status: 'ASC',
+      },
+    });
   }
 }

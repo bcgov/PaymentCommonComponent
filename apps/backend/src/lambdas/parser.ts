@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { S3Event, Context } from 'aws-lambda';
-import { format } from 'date-fns';
+import { subBusinessDays, format } from 'date-fns';
 import { ReconciliationEventMessage } from './interface';
 import { AppModule } from '../app.module';
 import { Ministries } from '../constants';
@@ -20,7 +20,7 @@ export const handler = async (event: S3Event, _context?: Context) => {
   const automationDisabled = process.env.DISABLE_AUTOMATED_RECONCILIATION;
 
   const isLocal: boolean = process.env.RUNTIME_ENV === 'local';
-
+  const numDaysToReconcile = 31;
   appLogger.log({ event, _context });
 
   const triggerReconcileSnsMessage = async () => {
@@ -29,6 +29,10 @@ export const handler = async (event: S3Event, _context?: Context) => {
       reportEnabled: true,
       byPassFileValidity: false,
       reconciliationMaxDate: format(new Date(), 'yyyy-MM-dd'),
+      reconciliationMinDate: format(
+        subBusinessDays(new Date(), numDaysToReconcile),
+        'yyyy-MM-dd'
+      ),
     };
 
     if (!isLocal && !automationDisabled) {

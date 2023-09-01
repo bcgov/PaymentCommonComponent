@@ -259,7 +259,38 @@ export class PaymentService {
    * @param classification
    * @returns
    */
-  async findPaymentsForDetailsReport(
+  async findPaymentsForHistoricalReport(
+    dateRange: DateRange,
+    classification: PaymentMethodClassification,
+    program: Ministries
+  ): Promise<PaymentEntity[]> {
+    return await this.paymentRepo.find({
+      where: {
+        payment_method: { classification },
+        transaction: {
+          source_id: program,
+          fiscal_close_date: Between(dateRange.minDate, dateRange.maxDate),
+        },
+      },
+      order: {
+        transaction: { location_id: 'ASC' },
+        reconciled_on: 'ASC',
+        amount: 'ASC',
+        status: 'ASC',
+      },
+      relations: {
+        pos_deposit_match: true,
+        cash_deposit_match: true,
+      },
+    });
+  }
+  /**
+   * Find all payments for the details report - return any entities marked as matched or in progress on this day as well as any pending
+   * @param program
+   * @param classification
+   * @returns
+   */
+  async findPaymentsForDailyReport(
     dateRange: DateRange,
     classification: PaymentMethodClassification,
     program: Ministries,

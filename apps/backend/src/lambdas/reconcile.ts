@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { SNSEvent } from 'aws-lambda/trigger/sns';
-import { format, parse, subBusinessDays } from 'date-fns';
 import { generateLocalSNSMessage } from './helpers';
+import { ReportType } from './interface';
 import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
@@ -31,8 +31,6 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const notificationService = app.get(NotificationService);
   const snsService = app.get(SnsManagerService);
   const reportingService = app.get(ReportingService);
-  const numDaysToReconcile = 31;
-
   const isLocal = process.env.RUNTIME_ENV === 'local';
 
   const posDepositService = app.get(PosDepositService);
@@ -43,17 +41,16 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
    * Reconciliation Min Date is the Max date minus the number of days to reconcile
    */
 
-  const { program, reconciliationMaxDate, reportEnabled, byPassFileValidity } =
+  const {
+    program,
+    reconciliationMinDate,
+    reconciliationMaxDate,
+    reportEnabled,
+    byPassFileValidity,
+  } =
     typeof event.Records[0].Sns.Message === 'string'
       ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
-
-  const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
-
-  const reconciliationMinDate = format(
-    subBusinessDays(currentDate, numDaysToReconcile),
-    'yyyy-MM-dd'
-  );
 
   const dateRange = {
     minDate: reconciliationMinDate,
@@ -150,6 +147,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
               to: reconciliationMaxDate,
               from: reconciliationMinDate,
             },
+            type: ReportType.DAILY,
           })
         )
       : await reportHandler(
@@ -159,6 +157,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
               to: reconciliationMaxDate,
               from: reconciliationMinDate,
             },
+            type: ReportType.DAILY,
           })
         );
   };

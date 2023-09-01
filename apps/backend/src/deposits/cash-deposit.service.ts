@@ -185,7 +185,31 @@ export class CashDepositService {
    * @param program
    * @returns
    */
-  async findCashDepositsForDetailsReport(
+  async findCashDepositsForHistoricalReport(
+    dateRange: DateRange,
+    program: Ministries
+  ): Promise<CashDepositEntity[]> {
+    return await this.cashDepositRepo.find({
+      where: {
+        deposit_date: Between(dateRange.minDate, dateRange.maxDate),
+
+        metadata: { program },
+      },
+      order: {
+        pt_location_id: 'ASC',
+        reconciled_on: 'ASC',
+        deposit_amt_cdn: 'ASC',
+        status: 'ASC',
+      },
+    });
+  }
+  /**
+   * Find all cash deposits for the details report - return any entities marked as matched or in progress on this day as well as any pending
+   * @param dateRange
+   * @param program
+   * @returns
+   */
+  async findCashDepositsForDailyReport(
     dateRange: DateRange,
     program: Ministries,
     busDays: number
