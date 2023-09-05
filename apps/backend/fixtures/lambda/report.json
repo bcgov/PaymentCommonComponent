@@ -5,7 +5,7 @@
         "Message": {
           "period": {
             "from": "2023-08-01",
-            "to": "2023-09-01"
+            "to": "2023-08-31"
           },
           "program": "SBC", 
           "type": "historical"

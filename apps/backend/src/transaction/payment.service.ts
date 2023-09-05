@@ -36,6 +36,7 @@ export class PaymentService {
     statuses: MatchStatus[] = MatchStatusAll,
     pos_deposit_match = false
   ): Promise<PaymentEntity[]> {
+    console.log(dateRange);
     const { minDate, maxDate } = dateRange;
 
     return await this.paymentRepo.find({
