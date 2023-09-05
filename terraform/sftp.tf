@@ -64,6 +64,11 @@ POLICY
 
 resource "aws_s3_bucket" "sftp_storage" {
   bucket = "pcc-integration-data-files-${var.target_env}"
+
+  logging {
+    target_bucket = aws_s3_bucket.pcc-s3-access-logs.id
+    target_prefix = "logs/pcc-integration-data-files-${var.target_env}/"
+  }
 }
 
 resource "aws_s3_bucket_policy" "allow_prod_to_access_other_envs" {
