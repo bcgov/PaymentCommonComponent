@@ -17,12 +17,14 @@ resource "aws_lambda_function" "migrator" {
 
   environment {
     variables = {
+      APP_VERSION = var.app_version
       NODE_ENV    = "production"
       RUNTIME_ENV = var.target_env
       DB_USER     = var.db_username
       DB_PASSWORD = data.aws_ssm_parameter.postgres_password.value
       DB_HOST     = aws_rds_cluster.pgsql.endpoint
       DB_NAME     = aws_rds_cluster.pgsql.database_name
+      
     }
   }
 

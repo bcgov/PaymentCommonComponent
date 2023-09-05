@@ -24,9 +24,9 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
+      APP_VERSION                   = var.app_version
       NODE_ENV                      = "production"
       RUNTIME_ENV                   = "hosted"
-      APP_VERSION                   = var.app_version
       DB_USER                       = var.db_username
       DB_PASSWORD                   = data.aws_ssm_parameter.postgres_password.value
       DB_HOST                       = aws_rds_cluster.pgsql.endpoint
