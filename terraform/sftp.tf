@@ -1,4 +1,13 @@
+locals {
+  // Disable sftp transfer server and associated resources in
+  // dev and test.
+  transfer_family_disabled_envs = ["dev", "test"]
+  transfer_family_resource_count = "${contains(local.transfer_family_disabled_envs, var.target_env) == true? 0: 1}"
+}
+
+
 resource "aws_transfer_server" "sftp" {
+  count                            = local.transfer_family_resource_count
   domain                           = "S3"
   protocols                        = ["SFTP"]
   endpoint_type                    = "PUBLIC"
@@ -105,7 +114,8 @@ resource "aws_s3_bucket_acl" "sftp_storage_acl" {
 }
 
 resource "aws_transfer_user" "sbc" {
-  server_id           = aws_transfer_server.sftp.id
+  count               = local.transfer_family_resource_count
+  server_id           = aws_transfer_server.sftp[0].id
   user_name           = "sbc"
   role                = aws_iam_role.sftp_user.arn
   home_directory_type = "LOGICAL"
@@ -117,13 +127,15 @@ resource "aws_transfer_user" "sbc" {
 }
 
 resource "aws_transfer_ssh_key" "sbc" {
-  server_id = aws_transfer_server.sftp.id
-  user_name = aws_transfer_user.sbc.user_name
+  count     = local.transfer_family_resource_count
+  server_id = aws_transfer_server.sftp[0].id
+  user_name = aws_transfer_user.sbc[0].user_name
   body      = data.aws_ssm_parameter.sftp_user_sbc.value
 }
 
 resource "aws_transfer_user" "pcc" {
-  server_id           = aws_transfer_server.sftp.id
+  count               = local.transfer_family_resource_count
+  server_id           = aws_transfer_server.sftp[0].id
   user_name           = "pcc"
   role                = aws_iam_role.sftp_user.arn
   home_directory_type = "LOGICAL"
@@ -134,13 +146,15 @@ resource "aws_transfer_user" "pcc" {
 }
 
 resource "aws_transfer_ssh_key" "pcc" {
-  server_id = aws_transfer_server.sftp.id
-  user_name = aws_transfer_user.pcc.user_name
+  count     = local.transfer_family_resource_count
+  server_id = aws_transfer_server.sftp[0].id
+  user_name = aws_transfer_user.pcc[0].user_name
   body      = data.aws_ssm_parameter.sftp_user_pcc.value
 }
 
 resource "aws_transfer_user" "bcm" {
-  server_id           = aws_transfer_server.sftp.id
+  count               = local.transfer_family_resource_count
+  server_id           = aws_transfer_server.sftp[0].id
   user_name           = "bcm"
   role                = aws_iam_role.sftp_user.arn
   home_directory_type = "LOGICAL"
@@ -151,12 +165,13 @@ resource "aws_transfer_user" "bcm" {
 }
 
 resource "aws_transfer_ssh_key" "bcm" {
-  server_id = aws_transfer_server.sftp.id
-  user_name = aws_transfer_user.bcm.user_name
+  count     = local.transfer_family_resource_count
+  server_id = aws_transfer_server.sftp[0].id
+  user_name = aws_transfer_user.bcm[0].user_name
   body      = data.aws_ssm_parameter.sftp_user_bcm.value
 }
 
 
 output "sftp_url" {
-  value = aws_transfer_server.sftp.endpoint
+  value = local.transfer_family_resource_count == 0? null: aws_transfer_server.sftp[0].endpoint
 }
