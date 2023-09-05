@@ -2,9 +2,9 @@ locals {
   pgaudit_role_name = "rds_pgaudit"
   rds_engine = "aurora-postgresql"
   rds_engine_version = "13.8"
+  rds_engine_version_short = "13"
   parameter_group_params = {
     shared_preload_libraries = "pgaudit"
-    client_encoding    = "utf8"
     log_connections    = "1"
     log_disconnections = "1"
 
@@ -56,22 +56,16 @@ resource "aws_rds_cluster" "pgsql" {
     ]
   }
 }
-resource "postgresql_extension" "pgsql-pgaudit-extension" {
-  name = "pgaudit"
-}
 
-resource "postgresql_role" "rds_pgaudit_role" {
-  name = local.pgaudit_role_name
-}
 resource "aws_db_parameter_group" "pgsql-audit-param-group" {
   count = 1
   name = "pgsql-audit-param-group"
-  family = "${local.rds_engine}${local.rds_engine_version}"
+  family = "${local.rds_engine}${local.rds_engine_version_short}"
   // Load pgaudit extension 
   dynamic "parameter" {
     for_each = local.parameter_group_params
     content {
-      apply_method = "pending_reboot"
+      apply_method = "pending-reboot"
       name = parameter.key
       value = parameter.value
     }
