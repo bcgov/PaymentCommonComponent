@@ -1,7 +1,7 @@
 {
   "name": "@payment/backend",
-  "version": "0.0.1",
   "description": "",
+  "version": "0.0.1",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
@@ -28,7 +28,10 @@
     "typeorm:generate-migration": "yarn run typeorm migration:generate -d ./src/database/datasource.ts ./src/database/migrations/migration",
     "typeorm:create-migration": "yarn run typeorm migration:create ./src/database/migrations/migration",
     "typeorm:revert-migration": "yarn run typeorm -d ./src/database/datasource.ts migration:revert",
-    "docs": "npx @compodoc/compodoc -c compodoc.yaml"
+    "docs": "npx @compodoc/compodoc -c compodoc.yaml",
+    "version:major": "yarn version major",
+    "version:minor": "yarn version minor",
+    "version:patch": "yarn version patch"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.388.0",
