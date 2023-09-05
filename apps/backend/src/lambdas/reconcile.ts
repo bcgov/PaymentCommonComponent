@@ -56,7 +56,6 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     minDate: reconciliationMinDate,
     maxDate: reconciliationMaxDate,
   };
-  console.log({ dateRange, program, reportEnabled, byPassFileValidity });
 
   const fileCheck = async () => {
     const rule: FileIngestionRulesEntity =
@@ -86,7 +85,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const reconcile = async () => {
     const locations: NormalizedLocation[] =
       await locationService.getLocationsBySource(program);
-    console.log(dateRange);
+
     const allPosPaymentsInDates = await paymentService.findPosPayments(
       dateRange,
       locations.map((itm) => itm.location_id),
