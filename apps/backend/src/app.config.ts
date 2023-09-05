@@ -3,6 +3,7 @@ import {
   ValidationError,
   ValidationPipe,
   ValidationPipeOptions,
+  VersioningType,
 } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import {
@@ -15,8 +16,6 @@ import { AppModule } from './app.module';
 import { Documentation } from './common/documentation';
 import { ErrorExceptionFilter } from './common/error-exception.filter';
 import { SuccessResponseInterceptor } from './common/interceptors/success-response.interceptor';
-import { API_PREFIX } from './config';
-import { DatabaseService } from './database/database.service';
 import { AppLogger } from './logger/logger.service';
 import { policies } from './policies';
 import { TrimPipe } from './trim.pipe';
@@ -87,21 +86,15 @@ export async function createNestApp(): Promise<{
     app.useLogger(appLogger);
   }
   app.use(helmet(policies));
-  const seedData = app.get(DatabaseService);
-  try {
-    await seedData.seedMasterData();
-  } catch (e) {
-    app.useLogger(appLogger);
-    appLogger.log(e);
-  } finally {
-    app.close();
-  }
 
   // Validation pipe
   app.useGlobalPipes(new TrimPipe(), new ValidationPipe(validationPipeConfig));
 
-  // Api prefix api/v1/
-  app.setGlobalPrefix(API_PREFIX);
+  app.enableVersioning({
+    type: VersioningType.URI,
+    prefix: 'api/v',
+    defaultVersion: process.env.APP_VERSION?.split('.')[0] ?? '1',
+  });
 
   Documentation(app);
 

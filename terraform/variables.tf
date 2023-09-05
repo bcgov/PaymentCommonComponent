@@ -1,3 +1,5 @@
+variable "app_version" {}
+
 variable "target_env" {}
 
 variable "api_endpoint" {}

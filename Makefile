@@ -11,6 +11,9 @@ include $(ENV)
 # Project
 export PROJECT := pcc
 
+# App Version
+export APP_VERSION := $(shell cat apps/backend/package.json | jq '.version' -r)
+
 # Environment
 export ENV_NAME ?= dev
 export PCC_SFTP :=  "$(PCC_SFTP)" 
@@ -53,6 +56,7 @@ DISABLE_AUTOMATED_RECONCILIATION=true
 endif
 
 define TFVARS_DATA
+app_version = "$(APP_VERSION)"
 target_env = "$(ENV_NAME)"
 project_code = "$(PROJECT)"
 lz2_code = "$(LZ2_PROJECT)"
@@ -244,6 +248,8 @@ lint:
 # ======================================================================
 # Local Development Environment & Testing
 # ======================================================================
+version: 
+	echo $(APP_VERSION)
 
 build:
 	@docker-compose up --build -d --force-recreate
@@ -373,3 +379,17 @@ open-db-tunnel:
 	ssh-keygen -t rsa -f ssh-keypair -N ''
 	aws ec2-instance-connect send-ssh-public-key --instance-id $(shell ./bin/bastionid.sh $(ENV_NAME))  --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
 	ssh -i ssh-keypair ec2-user@$(shell ./bin/bastionid.sh $(ENV_NAME))  -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
+
+
+# ===================================
+# Versioning
+# ===================================
+
+version-major:
+	@yarn run version:major
+
+version-minor:
+	@yarn run version:minor
+
+version-patch:
+	@yarn run version:patch
