@@ -33,6 +33,12 @@ Create a .env file at the root prior to running the project
 
 use the `.env.example` to create `.env`
 
+#### Versioning
+
+Run `make verison-major` to update the version for releases - this will also update the api path
+Run `make verison-minor` to update small changes in which we do not want to update the api path
+Run `make verison-patch` to update the version after implementing fixes for bugs etc - this will not update the api path. This is used to track fixes for testing etc. 
+
 #### Running The Project Locally (Docker)
 
 Use the make commands under the `docker` section to start the project.
