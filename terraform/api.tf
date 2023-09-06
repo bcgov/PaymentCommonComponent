@@ -24,6 +24,7 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
+      APP_VERSION                   = var.app_version
       NODE_ENV                      = "production"
       RUNTIME_ENV                   = "hosted"
       APP_VERSION                   = var.app_version

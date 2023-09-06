@@ -17,6 +17,7 @@ resource "aws_lambda_function" "daily-alert" {
 
   environment {
     variables = {
+      APP_VERSION                   = var.app_version
       NODE_ENV                      = "production"
       RUNTIME_ENV                   = var.target_env
       DB_USER                       = var.db_username

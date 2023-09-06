@@ -17,6 +17,7 @@ resource "aws_lambda_function" "parser" {
 
   environment {
     variables = {
+      APP_VERSION                   = var.app_version
       NODE_ENV                      = "production"
       RUNTIME_ENV                   = var.target_env
       DB_USER                       = var.db_username
@@ -29,6 +30,7 @@ resource "aws_lambda_function" "parser" {
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
       SNS_TRIGGER_RECONCILIATION_TOPIC_ARN  = aws_sns_topic.trigger_reconciliation.arn
       DISABLE_AUTOMATED_RECONCILIATION = var.disable_automated_reconciliation
+      
     }
   }
 
