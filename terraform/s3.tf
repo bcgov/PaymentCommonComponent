@@ -138,6 +138,20 @@ resource "aws_s3_bucket" "pcc-s3-access-logs" {
   }
 }
 
+
+resource "aws_s3_bucket_ownership_controls" "pcc-s3-access-logs-ownership" {
+  bucket = aws_s3_bucket.pcc-s3-access-logs.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_acl" "pcc-s3-access-logs-acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.pcc-s3-access-logs-ownership]
+  bucket = aws_s3_bucket.pcc-s3-access-logs.id
+  acl    = "log-delivery-write"
+}
+
 resource "aws_s3_bucket_versioning" "pcc-s3-access-logs" {
   bucket = aws_s3_bucket.pcc-s3-access-logs.id
   versioning_configuration {
