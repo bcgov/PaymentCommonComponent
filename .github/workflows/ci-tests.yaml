@@ -40,7 +40,7 @@ jobs:
         run: make build
 
       - name: Run migrations
-        run: make migration-run
+        run: make migration-run-ci
 
       - name: Build and Run Test Container
         run: make run-test
