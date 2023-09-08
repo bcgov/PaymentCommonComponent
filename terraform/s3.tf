@@ -155,7 +155,7 @@ resource "aws_s3_bucket_acl" "pcc-s3-access-logs-acl" {
 resource "aws_s3_bucket_versioning" "pcc-s3-access-logs" {
   bucket = aws_s3_bucket.pcc-s3-access-logs.id
   versioning_configuration {
-    status = "Disabled"
+    status = "Enabled"
   }
 }
 
