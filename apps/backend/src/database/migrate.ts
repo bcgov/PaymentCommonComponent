@@ -42,5 +42,3 @@ export const handler = async (_event?: unknown, _context?: Context) => {
     return 'failure';
   }
 };
-
-handler();
