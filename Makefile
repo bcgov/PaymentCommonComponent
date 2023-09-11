@@ -332,7 +332,7 @@ migration-revert:
 	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:revert-migration
 
 migration-run:
-	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/migrate.ts")'
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/migrate.ts").handler()'
 	
 migration-run-ci:
 	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:run-migrations
