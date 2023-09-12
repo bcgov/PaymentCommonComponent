@@ -134,6 +134,7 @@ export class ParseService {
         'Transaction Id',
         'transaction_id'
       );
+      // TODO email?
       throw new Error(errorMessage);
     }
     return { txnFile: garmsSales, txnFileDate: fileDate };
@@ -172,13 +173,14 @@ export class ParseService {
     try {
       await validateOrReject(list);
     } catch (e: unknown) {
+      //TODO email?
       const errorMessage = this.handleValidationError(
         e,
         fileName,
         'Source File Line',
         'source_file_line'
       );
-      throw new Error(errorMessage);
+      throw new BadRequestException(errorMessage);
     }
     return {
       cashDeposits,
@@ -223,7 +225,7 @@ export class ParseService {
         'Source File Line',
         'source_file_line'
       );
-      throw new Error(errorMessage);
+      throw new BadRequestException(errorMessage);
     }
     return { posEntities, fileDate: (header as TDI34Header).settlement_date };
   }
@@ -303,6 +305,7 @@ export class ParseService {
       );
     } catch (err) {
       this.appLogger.error(err);
+      // TODO - throw/send email? In the automation flow this method is not called since we are passing the records in from the event
       throw new Error('Error checking S3 for files');
     }
   }
@@ -332,6 +335,7 @@ export class ParseService {
         await this.notificationService.getRulesForProgram(program);
 
       if (!rules) {
+        // TODO email? Do we include the message in the case of HTTP exception?
         throw new HttpException(
           `No rules established for program ${program}`,
           HttpStatus.FORBIDDEN
@@ -343,6 +347,7 @@ export class ParseService {
       );
 
       if (currentRule === undefined) {
+        // TODO email? Do we include the message in this case?
         throw new Error(`File does not reference to any programs: ${filename}`);
       }
 
@@ -355,11 +360,14 @@ export class ParseService {
         if (requiredFile !== undefined) {
           return requiredFile.fileType;
         }
+        // TODO email? Do we include the message in this case?
         throw new Error('Unknown file type: ' + filename);
       })();
       return { currentRule, fileType, programRules };
     } catch (e) {
       this.appLogger.error(e);
+      // TODO email? Do we include the message in this case?
+      // we could generate a generic email here?
       throw new Error('Error validating file');
     }
   }
