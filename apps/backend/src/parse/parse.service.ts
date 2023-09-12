@@ -228,7 +228,6 @@ export class ParseService {
     return { posEntities, fileDate: (header as TDI34Header).settlement_date };
   }
 
-  // TODO ? Split into a separate upload service
   /**
    * Gets all files
    * @returns List of uploaded files
@@ -283,8 +282,7 @@ export class ParseService {
     const allUploadedFiles: string[] = allFiles.map((f) => f.sourceFileName);
 
     const parseList = _.difference(fileList, allUploadedFiles);
-    // TODO [CCFPCM-318] Excluded LABOUR2 files that are DDF, needs implementation
-    // TODO use bucket directory to detrimine program and file type to include
+    // TODO use bucket directory to determine program and file type to include
     const finalParseList = parseList
       .filter((filename) => !filename?.includes('LABOUR2'))
       .filter((itm) => !itm.includes('archive'));
