@@ -70,7 +70,10 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
     const daily = await notificationService.getProgramDailyUploadRecord(
       rule,
-      dateRange.maxDate
+      format(
+        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1),
+        'yyyy-MM-dd'
+      )
     );
 
     const uploadedDailyFiles = daily?.files.map((itm) => itm.sourceFileType);
