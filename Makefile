@@ -41,6 +41,7 @@ export LAST_COMMIT_MESSAGE:=$(shell git log -1 --oneline --decorate=full --no-co
 export GIT_LOCAL_BRANCH?=$(shell git rev-parse --abbrev-ref HEAD)
 export GIT_LOCAL_BRANCH := $(or $(GIT_LOCAL_BRANCH),dev)
 
+
 # data 
 REPORT_JSON:=$(shell cat ./apps/backend/fixtures/lambda/report.json | jq '.' -c)
 RECONCILE_JSON:=$(shell cat ./apps/backend/fixtures/lambda/reconcile.json | jq '.' -c)
@@ -186,13 +187,17 @@ aws-upload-artifacts:
 
 # Updates lambda functions to the lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-deploy-all:
-	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function paycocoapi parser reports reconciler dailyFileCheck batch_reconciler
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function paycocoapi parser reports reconciler dailyFileCheck batch_reconciler 
+
+aws-deploy-dev-restricted-lambda:
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function clearDevData 
 
 # Updates migrator lambda function to lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-deploy-migrator:
 	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function migrator
 
 aws-build-and-deploy-all: build-backend aws-upload-artifacts aws-deploy-all
+
 aws-build-and-deploy-migrator: build-backend aws-upload-artifacts aws-deploy-migrator
 
 # ======================================================================
@@ -213,6 +218,9 @@ aws-run-migrator:
 	@rm migration-results || true
 	@aws lambda invoke --function-name migrator --payload '{}' migration-results --region ca-central-1
 	@cat migration-results | grep "success"
+
+aws-run-clear-dev-data: 
+	@aws lambda invoke --function-name clearDevData --payload '{}' --region ca-central-1
 
 aws-run-reconciler:
 	@aws lambda invoke --function-name reconciler --payload file://./apps/backend/fixtures/lambda/reconcile.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
@@ -291,13 +299,14 @@ alert:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/lambdas/dailyfilecheck.ts").handler()'
 
 clear-database:
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM transaction;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM pos_deposit;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM cash_deposit;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_matches_pos_deposit;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM file_uploaded;"
-	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM program_daily_upload;"
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/clear-dev-db.ts").handler()'
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment;"
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM transaction;"
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM pos_deposit;"
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM cash_deposit;"
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_matches_pos_deposit;"
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM file_uploaded;"
+# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM program_daily_upload;"
 	
 
 reset-status: 
@@ -382,7 +391,6 @@ open-db-tunnel:
 	ssh-keygen -t rsa -f ssh-keypair -N ''
 	aws ec2-instance-connect send-ssh-public-key --instance-id $(shell ./bin/bastionid.sh $(ENV_NAME))  --instance-os-user ec2-user --ssh-public-key file://ssh-keypair.pub
 	ssh -i ssh-keypair ec2-user@$(shell ./bin/bastionid.sh $(ENV_NAME))  -L 5454:$(DB_HOST):5432 -o ProxyCommand="aws ssm start-session --target %h --document-name AWS-StartSSHSession --parameters 'portNumber=%p'"
-
 
 # ===================================
 # Versioning
