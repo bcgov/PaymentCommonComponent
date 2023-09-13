@@ -125,6 +125,7 @@ export class ParseService {
     // Converts to DTOs strictly for validation purposes
     const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
     const list = new GarmsTransactionList(garmsSalesDTO);
+
     try {
       await validateOrReject(list);
     } catch (e: unknown) {
@@ -135,7 +136,7 @@ export class ParseService {
         'transaction_id'
       );
       // TODO email?
-      throw new Error(errorMessage);
+      throw new BadRequestException(errorMessage);
     }
     return { txnFile: garmsSales, txnFileDate: fileDate };
   }
@@ -430,12 +431,12 @@ export class ParseService {
       return savedFile;
     } catch (err) {
       this.appLogger.log('\n\n=========Errors with File Upload: =========\n');
+      // only show the custom message if it is a bad request exception
+      // otherwise we will just show the generic message generated in the notificationService
       const errorMessage =
-        err instanceof BadRequestException
-          ? `Validation Errors in file ${filename}: ${err.message}`
-          : `Validation Errors present in the file ${filename}`;
+        err instanceof BadRequestException ? `${err.message}` : ``;
 
-      this.appLogger.error({ errorMessage });
+      this.appLogger.error(errorMessage);
 
       await this.notificationService.validationAlert(
         currentRule?.program as Ministries,

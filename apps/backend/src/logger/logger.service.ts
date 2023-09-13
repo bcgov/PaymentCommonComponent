@@ -48,7 +48,7 @@ export class AppLogger implements LoggerService {
     if (error.response?.message) {
       this.logger.error(error.message, context ?? this.context);
     }
-    this.logger.error(error.message, context ?? this.context);
+    this.logger.error(e, context ?? this.context);
   }
 
   warn(message: unknown, context?: string) {
