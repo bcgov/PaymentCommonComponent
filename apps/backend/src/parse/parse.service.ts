@@ -283,7 +283,7 @@ export class ParseService {
     const allUploadedFiles: string[] = allFiles.map((f) => f.sourceFileName);
 
     const parseList = _.difference(fileList, allUploadedFiles);
-    // TODO use bucket directory to determine program and file type to include
+
     const finalParseList = parseList
       .filter((filename) => !filename?.includes('LABOUR2'))
       .filter((itm) => !itm.includes('archive'));
@@ -333,7 +333,6 @@ export class ParseService {
         await this.notificationService.getRulesForProgram(program);
 
       if (!rules) {
-        // TODO email? Do we include the message in the case of HTTP exception?
         throw new HttpException(
           `No rules established for program ${program}`,
           HttpStatus.FORBIDDEN
@@ -345,7 +344,6 @@ export class ParseService {
       );
 
       if (currentRule === undefined) {
-        // TODO email? Do we include the message in this case?
         throw new Error(`File does not reference to any programs: ${filename}`);
       }
 
@@ -358,13 +356,13 @@ export class ParseService {
         if (requiredFile !== undefined) {
           return requiredFile.fileType;
         }
-        // TODO email? Do we include the message in this case?
+
         throw new Error('Unknown file type: ' + filename);
       })();
       return { currentRule, fileType, programRules };
     } catch (e) {
       this.appLogger.error(e);
-      // TODO email? Do we include the message in this case?
+
       throw new Error('Error validating file');
     }
   }
