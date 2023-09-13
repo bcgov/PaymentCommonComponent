@@ -135,7 +135,6 @@ export class ParseService {
         'Transaction Id',
         'transaction_id'
       );
-      // TODO email?
       throw new BadRequestException(errorMessage);
     }
     return { txnFile: garmsSales, txnFileDate: fileDate };
@@ -174,7 +173,6 @@ export class ParseService {
     try {
       await validateOrReject(list);
     } catch (e: unknown) {
-      //TODO email?
       const errorMessage = this.handleValidationError(
         e,
         fileName,
@@ -306,7 +304,6 @@ export class ParseService {
       );
     } catch (err) {
       this.appLogger.error(err);
-      // TODO - throw/send email? In the automation flow this method is not called since we are passing the records in from the event
       throw new Error('Error checking S3 for files');
     }
   }
@@ -368,7 +365,6 @@ export class ParseService {
     } catch (e) {
       this.appLogger.error(e);
       // TODO email? Do we include the message in this case?
-      // we could generate a generic email here?
       throw new Error('Error validating file');
     }
   }
