@@ -89,7 +89,9 @@ export class DatabaseService {
     const awsBucketResponse = await this.s3Service.getObjectString(
       requestParams
     );
+
     const sbcLocationMaster = await csv.default().fromString(awsBucketResponse);
+
     const locationEntities = sbcLocationMaster.map(
       (loc) => new LocationEntity({ ...loc })
     );
