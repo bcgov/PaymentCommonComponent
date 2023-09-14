@@ -77,10 +77,7 @@ export class ParseService {
     errantIdColumnName: string
   ): string {
     let errorMessage = `Error parsing ${fileName}. Please ensure all rows are valid.`;
-    console.log(error, 'ERROR');
-    console.log(typeof error, 'TYPEOF ERROR');
 
-    console.log(Object.keys(error ?? {}), 'KEYS');
     if (
       Array.isArray(error) &&
       error.every((err) => err instanceof ValidationError)
@@ -113,27 +110,24 @@ export class ParseService {
     contents: string,
     fileName: string
   ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: string }> {
+    const paymentMethods = await this.paymentMethodService.getPaymentMethods();
+    // validate the filename - this must follow a specific format to be valid
+    validateSbcGarmsFileName(fileName);
+    // Creates an array of Transaction Entities
+    const fileDate = extractDateFromTXNFileName(fileName);
+
+    const garmsSales = parseGarms(
+      (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
+      fileName,
+      paymentMethods,
+      fileDate
+    );
+
+    // Converts to DTOs strictly for validation purposes
+    const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
+    const list = new GarmsTransactionList(garmsSalesDTO);
     try {
-      const paymentMethods =
-        await this.paymentMethodService.getPaymentMethods();
-      // validate the filename - this must follow a specific format to be valid
-      validateSbcGarmsFileName(fileName);
-      // Creates an array of Transaction Entities
-      const fileDate = extractDateFromTXNFileName(fileName);
-
-      const garmsSales = parseGarms(
-        (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
-        fileName,
-        paymentMethods,
-        fileDate
-      );
-
-      // Converts to DTOs strictly for validation purposes
-      const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
-      const list = new GarmsTransactionList(garmsSalesDTO);
-
       await validateOrReject(list);
-      return { txnFile: garmsSales, txnFileDate: fileDate };
     } catch (e: unknown) {
       const errorMessage = this.handleValidationError(
         e,
@@ -143,6 +137,7 @@ export class ParseService {
       );
       throw new BadRequestException(errorMessage);
     }
+    return { txnFile: garmsSales, txnFileDate: fileDate };
   }
 
   /**
@@ -157,30 +152,26 @@ export class ParseService {
     program: string,
     fileContents: Buffer
   ): Promise<{ cashDeposits: CashDepositEntity[]; fileDate: string }> {
+    const contents = Buffer.from(fileContents.toString() || '').toString();
+    const header = parseTDIHeader(FileTypes.TDI17, contents);
+
+    const parsed = parseTDI({
+      type: FileTypes.TDI17,
+      fileName,
+      program,
+      fileContents: contents,
+      header,
+    });
+
+    const tdi17Details = parsed as TDI17Details[];
+    const cashDeposits = tdi17Details.map(
+      (details) => new CashDepositEntity(details)
+    );
+    const cashDepositsDto = cashDeposits.map((c) => new CashDepositDTO(c));
+    const list = new CashDepositsListDTO(cashDepositsDto);
+
     try {
-      const contents = Buffer.from(fileContents.toString() || '').toString();
-      const header = parseTDIHeader(FileTypes.TDI17, contents);
-
-      const parsed = parseTDI({
-        type: FileTypes.TDI17,
-        fileName,
-        program,
-        fileContents: contents,
-        header,
-      });
-
-      const tdi17Details = parsed as TDI17Details[];
-      const cashDeposits = tdi17Details.map(
-        (details) => new CashDepositEntity(details)
-      );
-      const cashDepositsDto = cashDeposits.map((c) => new CashDepositDTO(c));
-      const list = new CashDepositsListDTO(cashDepositsDto);
-
       await validateOrReject(list);
-      return {
-        cashDeposits,
-        fileDate: (header as TDI17Header).to_date,
-      };
     } catch (e: unknown) {
       const errorMessage = this.handleValidationError(
         e,
@@ -190,6 +181,10 @@ export class ParseService {
       );
       throw new BadRequestException(errorMessage);
     }
+    return {
+      cashDeposits,
+      fileDate: (header as TDI17Header).to_date,
+    };
   }
 
   /**
@@ -204,26 +199,25 @@ export class ParseService {
     program: string,
     fileContents: Buffer
   ): Promise<{ posEntities: POSDepositEntity[]; fileDate: string }> {
+    const header = parseTDIHeader(FileTypes.TDI34, fileContents.toString());
+    const parsed = parseTDI({
+      type: FileTypes.TDI34,
+      fileName,
+      program,
+      fileContents: Buffer.from(fileContents.toString() || '').toString(),
+      header,
+    });
+
+    const tdi34Details = parsed as TDI34Details[];
+    const posEntities = tdi34Details.map(
+      (details) => new POSDepositEntity(details)
+    );
+
+    const posDepositsDto = posEntities.map((p) => new PosDepositDTO(p));
+    const list = new PosDepositListDTO(posDepositsDto);
+
     try {
-      const header = parseTDIHeader(FileTypes.TDI34, fileContents.toString());
-      const parsed = parseTDI({
-        type: FileTypes.TDI34,
-        fileName,
-        program,
-        fileContents: Buffer.from(fileContents.toString() || '').toString(),
-        header,
-      });
-
-      const tdi34Details = parsed as TDI34Details[];
-      const posEntities = tdi34Details.map(
-        (details) => new POSDepositEntity(details)
-      );
-      const posDepositsDto = posEntities.map((p) => new PosDepositDTO(p));
-      const list = new PosDepositListDTO(posDepositsDto);
-
       await validateOrReject(list);
-
-      return { posEntities, fileDate: (header as TDI34Header).settlement_date };
     } catch (e: unknown) {
       const errorMessage = this.handleValidationError(
         e,
@@ -231,9 +225,9 @@ export class ParseService {
         'Source File Line',
         'source_file_line'
       );
-      console.log(errorMessage, 'ERROR MESSAGE');
       throw new BadRequestException(errorMessage);
     }
+    return { posEntities, fileDate: (header as TDI34Header).settlement_date };
   }
 
   /**
@@ -432,11 +426,12 @@ export class ParseService {
       return savedFile;
     } catch (err) {
       this.appLogger.log('\n\n=========Errors with File Upload: =========\n');
-      // only show the custom message if it is a bad request exception
-      // otherwise we will just show the generic message generated in the notificationService
+      // only show the custom message if it is a BadRequestException
+      // otherwise we will just show the generic message to the user
       const errorMessage =
-        err instanceof BadRequestException ? `${err.message}` : ``;
-      console.log(errorMessage);
+        err instanceof BadRequestException
+          ? `${err.message}`
+          : `Error parsing ${filename}. Please ensure all rows are valid.`;
       this.appLogger.error(errorMessage);
 
       await this.notificationService.validationAlert(
