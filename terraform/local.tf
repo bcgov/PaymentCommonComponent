@@ -14,12 +14,3 @@ resource "aws_s3_bucket_acl" "local_development_acl" {
   bucket = aws_s3_bucket.local_development[0].id
   acl    = "private"
 }
-
-resource "aws_s3_bucket_public_access_block" "local_development" {
-  count = var.target_env == "dev" ? 1 : 0
-  bucket                  = aws_s3_bucket.local_development[0].id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
