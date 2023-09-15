@@ -34,3 +34,6 @@ sqlfile.dbml
 report_summary
 migration-results
 streamlit
+
+
+apps/backend/docs/build/*
