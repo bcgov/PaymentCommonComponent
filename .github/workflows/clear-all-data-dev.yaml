@@ -10,7 +10,8 @@ jobs:
     timeout-minutes: 10
     environment:
       name: dev
-steps:
+  
+    steps:
       - name: checkout
         uses: actions/checkout@v3
 

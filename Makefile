@@ -200,6 +200,8 @@ aws-build-and-deploy-all: build-backend aws-upload-artifacts aws-deploy-all
 
 aws-build-and-deploy-migrator: build-backend aws-upload-artifacts aws-deploy-migrator
 
+aws-build-and-deploy-aws-data-clear-lambda: build-backend aws-upload-artifacts aws-deploy-dev-restricted-lambda
+
 # ======================================================================
 # AWS Interactions
 # ======================================================================
@@ -220,7 +222,9 @@ aws-run-migrator:
 	@cat migration-results | grep "success"
 
 aws-run-clear-dev-data: 
-	@aws lambda invoke --function-name clearDevData --payload '{}' --region ca-central-1
+	@rm clear-db-results || true
+	@aws lambda invoke --function-name clearDevData --payload '{}' clear-db-results  --region ca-central-1
+	@cat clear-db-results | grep "success"
 
 aws-run-reconciler:
 	@aws lambda invoke --function-name reconciler --payload file://./apps/backend/fixtures/lambda/reconcile.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
@@ -300,14 +304,6 @@ alert:
 
 clear-database:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/clear-dev-db.ts").handler()'
-# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment;"
-# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM transaction;"
-# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM pos_deposit;"
-# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM cash_deposit;"
-# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM payment_round_four_matches_pos_deposit;"
-# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM file_uploaded;"
-# @docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DELETE FROM program_daily_upload;"
-	
 
 reset-status: 
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "update public.payment set status='PENDING', pos_deposit_match=null, cash_deposit_match=null, heuristic_match_round=null,reconciled_on=null, in_progress_on=null;"

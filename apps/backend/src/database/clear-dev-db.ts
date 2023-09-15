@@ -31,27 +31,29 @@ export const handler = async (_event?: unknown, _context?: Context) => {
 
     const runner = db.createQueryRunner();
     console.log('Deleting payment table entries...');
-    await runner.query(`DELETE FROM payment;`);
+    await runner.query(`TRUNCATE payment CASCADE;`);
     console.log('...payment table cleared.\n');
     console.log('Deleting transaction table entries...');
-    await runner.query(`DELETE FROM transaction;`);
+    await runner.query(`TRUNCATE transaction CASCADE;`);
     console.log('...transaction table cleared.\n');
     console.log('Deleting pos_deposit table entries...');
-    await runner.query(`DELETE FROM pos_deposit;`);
+    await runner.query(`TRUNCATE pos_deposit CASCADE;`);
     console.log('...pos Deposit table cleared.\n');
     console.log('Deleting cash_deposit table entries...');
-    await runner.query(`DELETE FROM cash_deposit;`);
+    await runner.query(`TRUNCATE cash_deposit CASCADE;`);
     console.log('...cash Deposit table cleared.\n');
     console.log(
       'Deleting payment_round_four_matches_pos_deposit table entries...'
     );
-    await runner.query(`DELETE FROM payment_round_four_matches_pos_deposit;`);
+    await runner.query(
+      `TRUNCATE payment_round_four_matches_pos_deposit CASCADE;`
+    );
     console.log('...payment Round Four Matches Pos Deposit table cleared.\n');
     console.log('Deleting file_uploaded table entries...');
-    await runner.query(`DELETE FROM file_uploaded;`);
+    await runner.query(`TRUNCATE file_uploaded CASCADE;`);
     console.log('...file Uploaded table cleared.\n');
     console.log('Deleting program_daily_upload table entries...');
-    await runner.query(`DELETE FROM program_daily_upload;`);
+    await runner.query(`TRUNCATE program_daily_upload CASCADE;`);
     console.log('...program Daily Upload table cleared.\n');
 
     console.log('All Tables Cleared.');
