@@ -186,6 +186,7 @@ export class NotificationService {
     }
     const program =
       ProgramTemplateName[ministry as keyof typeof ProgramTemplateName];
+
     await this.mailService.sendEmailAlertBulk(
       MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
       alertDestinations.map((ad) => ad),

@@ -34,7 +34,7 @@ export class S3ManagerService {
     const command = new ListObjectsV2Command({ Bucket: bucket });
     const response: ListObjectsV2CommandOutput = await this.s3.send(command);
     const { Contents } = response;
-    return Contents?.map((c: _Object) => c.Key);
+    return Contents?.map((c: _Object) => c.Key ?? '');
   }
 
   async getObjectString({

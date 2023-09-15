@@ -1,3 +1,4 @@
+import { BadRequestException } from '@nestjs/common';
 import Decimal from 'decimal.js';
 import { FileMetadata } from '../../common/columns';
 import { ParseArgsTDI, FileTypes } from '../../constants';
@@ -85,12 +86,12 @@ export const parseTDI = ({
       new Decimal(0)
     );
     if (parseInt(footerLine.no_of_details) !== detailsArr.length) {
-      throw new Error(
+      throw new BadRequestException(
         `TDI17 Validation failed for ${fileName}. Number of records does not match file footer.`
       );
     }
     if (!new Decimal(footerLine.deposit_amt_cdn).equals(itemTotals)) {
-      throw new Error(
+      throw new BadRequestException(
         `TDI17 Validation failed for ${fileName}. Total amount in footer does not match itemized line amounts.`
       );
     }
@@ -105,12 +106,12 @@ export const parseTDI = ({
       new Decimal(0)
     );
     if (parseInt(footerLine.no_of_detail_rcd) !== detailsArr.length) {
-      throw new Error(
+      throw new BadRequestException(
         `TDI34 Validation failed for ${fileName}. Number of records does not match file footer.`
       );
     }
     if (!new Decimal(footerLine.transaction_amt).equals(itemTotals)) {
-      throw new Error(
+      throw new BadRequestException(
         `TDI34 Validation failed for ${fileName}. Total amount in footer does not match itemized line amounts.`
       );
     }

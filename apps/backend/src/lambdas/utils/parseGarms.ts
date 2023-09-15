@@ -33,79 +33,102 @@ export const parseGarms = (
     payments: itm.payments.filter((payment) => payment.amount !== 0),
   }));
 
-  const parsedGarms = garmsData.map(
-    ({
-      sales_transaction_id,
-      sales_transaction_date,
-      fiscal_close_date,
-      void_indicator,
-      payment_total,
-      payments,
-      source,
-      misc,
-      distributions,
-    }): TransactionEntity =>
-      new TransactionEntity({
-        parsed_on: fileDate,
-        source_id: Ministries.SBC,
-        transaction_id: sales_transaction_id,
-        transaction_date: sales_transaction_date.slice(0, 10),
-        transaction_time: sales_transaction_date
-          .slice(11, 19)
-          .replaceAll('.', ':'),
-        location_id: parseInt(source.location_id),
-        total_transaction_amount: payment_total,
-        fiscal_close_date: parseFlatDateString(fiscal_close_date),
-        payments: payments.map((garmsPayment: SBCGarmsPayment) =>
-          parseSBCGarmsPayments(garmsPayment, paymentMethods)
-        ),
-        void_indicator: void_indicator === ' ',
-        migrated: true,
-        source_file_name,
-        transactionJson: new Transaction({
-          transaction_id: sales_transaction_id,
-          transaction_date: sales_transaction_date.slice(0, 10),
-          transaction_time: sales_transaction_date
-            .slice(11, 19)
-            .replaceAll('.', ':'),
-          fiscal_close_date: parseFlatDateString(fiscal_close_date),
-          payment_total: payment_total,
-          payments: payments.map((garmsPayment: SBCGarmsPayment) =>
-            parseSBCGarmsPayments(garmsPayment, paymentMethods)
-          ),
-          void_indicator: void_indicator === ' ',
-          misc: {
-            ...misc,
-          },
-          source: {
-            location_id: source?.location_id,
-            source_id: source?.source_id,
-            accepted_payment_methods: source?.accepted_payment_methods ?? [],
-          },
-          accounting: Object.values(distributions)?.[0].map(
-            (itm: SBCGarmsDistribution) =>
-              ({
-                sequence: itm.line_number,
-                details: {
-                  description: itm.line_description,
-                  code: itm.dist_client_code,
-                },
-                distributions: Object.values(distributions)?.[0].map(
-                  (itm) => new Distribution(itm)
-                ),
-              } as AccountingItem)
-          ),
-        }),
-      })
+  return garmsData.map((data: SBCGarmsJson) =>
+    parseGarmsData(data, fileDate, source_file_name, paymentMethods)
   );
-  return parsedGarms;
+};
+
+const parseGarmsData = (
+  garmsData: SBCGarmsJson,
+  fileDate: string,
+  source_file_name: string,
+  paymentMethods: PaymentMethodEntity[]
+): TransactionEntity => {
+  const {
+    sales_transaction_date,
+    sales_transaction_id,
+    fiscal_close_date,
+    payment_total,
+    payments,
+    void_indicator,
+    source,
+  } = garmsData;
+
+  return new TransactionEntity({
+    parsed_on: fileDate,
+    source_id: Ministries.SBC,
+    transaction_id: sales_transaction_id,
+    transaction_date: sales_transaction_date.slice(0, 10),
+    transaction_time: sales_transaction_date.slice(11, 19).replaceAll('.', ':'),
+    location_id: parseInt(source.location_id),
+    total_transaction_amount: payment_total,
+    fiscal_close_date: parseFlatDateString(fiscal_close_date),
+    payments: payments.map((garmsPayment: SBCGarmsPayment) =>
+      parseSBCGarmsPayments(garmsPayment, paymentMethods)
+    ),
+    void_indicator: void_indicator === ' ',
+    migrated: true,
+    source_file_name,
+    transactionJson: parseTransactionJson(garmsData, paymentMethods),
+  });
+};
+
+const parseTransactionJson = (
+  garmsData: SBCGarmsJson,
+  paymentMethods: PaymentMethodEntity[]
+) => {
+  const {
+    sales_transaction_date,
+    sales_transaction_id,
+    fiscal_close_date,
+    payment_total,
+    payments,
+    void_indicator,
+    misc,
+    source,
+    distributions,
+  } = garmsData;
+  return new Transaction({
+    transaction_id: sales_transaction_id,
+    transaction_date: sales_transaction_date?.slice(0, 10),
+    transaction_time: sales_transaction_date
+      ?.slice(11, 19)
+      .replaceAll('.', ':'),
+    fiscal_close_date: parseFlatDateString(fiscal_close_date),
+    payment_total: payment_total,
+    payments: payments?.map((garmsPayment: SBCGarmsPayment) =>
+      parseSBCGarmsPayments(garmsPayment, paymentMethods)
+    ),
+    void_indicator: void_indicator === ' ',
+    misc: {
+      ...misc,
+    },
+    source: {
+      location_id: source?.location_id,
+      source_id: source?.source_id,
+      accepted_payment_methods: source?.accepted_payment_methods ?? [],
+    },
+    accounting: Object.values(distributions)?.[0].map(
+      (itm: SBCGarmsDistribution) =>
+        ({
+          sequence: itm.line_number,
+          details: {
+            description: itm.line_description,
+            code: itm.dist_client_code,
+          },
+          distributions: Object.values(distributions)?.[0].map(
+            (itm: SBCGarmsDistribution) => new Distribution(itm)
+          ),
+        }) as AccountingItem
+    ),
+  });
 };
 
 const parseSBCGarmsPayments = (
   garmsPayment: SBCGarmsPayment,
   paymentMethods: PaymentMethodEntity[]
-): PaymentEntity =>
-  new PaymentEntity({
+): PaymentEntity => {
+  return new PaymentEntity({
     payment_method: paymentMethods.find(
       (pm: PaymentMethodEntity) =>
         pm.sbc_code === parseInt(garmsPayment.method) && pm
@@ -122,3 +145,4 @@ const parseSBCGarmsPayments = (
             .toNumber()
         : garmsPayment.amount,
   });
+};

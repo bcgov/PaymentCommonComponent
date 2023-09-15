@@ -46,9 +46,9 @@ export class AppLogger implements LoggerService {
     }
     // For handling manually crafted validation error message arrays, see 'exceptionFactory' in 'app.config.ts'
     if (error.response?.message) {
-      this.logger.error(error.message, context ?? this.context);
+      this.logger.error(error.response.message, context ?? this.context);
     }
-    this.logger.error(error.message, context ?? this.context);
+    this.logger.error(e, context ?? this.context);
   }
 
   warn(message: unknown, context?: string) {
