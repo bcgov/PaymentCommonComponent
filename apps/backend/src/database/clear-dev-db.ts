@@ -61,7 +61,6 @@ export const handler = async (_event?: unknown, _context?: Context) => {
     db.destroy();
     return 'success';
   } catch (e) {
-    console.log(e);
     console.log('Action to clear database has failed.');
     return 'failure';
   }
