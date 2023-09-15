@@ -78,6 +78,17 @@ services:
     command: server --console-address ":9001" /data
     networks:
       - pcc
+
+  docs:
+    container_name: docs
+    ports:
+      - "3001:4567"
+    volumes:
+      - ./apps/docs/source:/srv/slate/source
+    image: slatedocs/slate
+    command:
+      - serve
+
 networks:
   pcc:
     driver: bridge

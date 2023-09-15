@@ -36,4 +36,5 @@ migration-results
 streamlit
 
 
-apps/backend/docs/build/*
+apps/docs/build/*
+apps/backend/report.xlsx

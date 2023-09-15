@@ -436,5 +436,5 @@ build-docs:
 	@echo "docs: http://localhost:3001"
 
 run-docs:
-	@docker-compose -f up -d docs 
+	@docker-compose up -d docs 
 	@echo "docs: http://localhost:3001"
