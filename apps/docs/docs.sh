@@ -13,8 +13,8 @@ if [ "" = "$PKG_OK" ]; then
   fi
   npm i -g widdershins
 else
-  curl --location --request GET '[::1]:3000/api-json' > ./apps/backend/docs/api.json;
-  widdershins --omit-header --environment ./apps/backend/docs/env.json ./apps/backend/docs/api.json -o ./apps/backend/docs/source/includes/_api.md
+  curl --location --request GET '[::1]:3000/api-json' > ./apps/docs/api.json;
+  widdershins --omit-header --environment ./apps/docs/env.json ./apps/docs/api.json -o ./apps/docs/source/includes/_api.md
   
  
 fi

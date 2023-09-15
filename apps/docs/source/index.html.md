@@ -11,10 +11,11 @@ includes:
   - support
   - glossary
   - readme.md
+  - api
 
 search: true
 highlight_theme: darkula
-headingLevel: 3
+headingLevel: 1
 
 code_clipboard: true
 

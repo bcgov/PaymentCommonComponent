@@ -1,6 +1,6 @@
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="paycoco-api-docs">PayCoCo API Docs v1.0.0</h1>
+<h1 id="paycoco-api-docs">PayCoCo API Docs v0.0.1</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
@@ -8,266 +8,390 @@ Payment Common Component API Documentation
 
 Base URLs:
 
-<h1 id="paycoco-api-docs-sales-api">Sales API</h1>
+# Authentication
 
-## SalesController_saveSalesEvent
+- HTTP Authentication, scheme: basic 
 
-<a id="opIdSalesController_saveSalesEvent"></a>
+<h1 id="paycoco-api-docs-health-api">Health API</h1>
+
+## AppController_getVersion
+
+<a id="opIdAppController_getVersion"></a>
 
 > Code samples
 
-`POST /api/v1/sale`
+`GET /api/v0/version`
+
+<h3 id="appcontroller_getversion-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+basic
+</aside>
+
+## AppController_getError
+
+<a id="opIdAppController_getError"></a>
+
+> Code samples
+
+`GET /api/v0/error`
+
+<h3 id="appcontroller_geterror-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+basic
+</aside>
+
+## AppController_getHealth
+
+<a id="opIdAppController_getHealth"></a>
+
+> Code samples
+
+`GET /api/v0/health`
+
+<h3 id="appcontroller_gethealth-responses">Responses</h3>
+
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|200|[OK](https://tools.ietf.org/html/rfc7231#section-6.3.1)|none|None|
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+basic
+</aside>
+
+<h1 id="paycoco-api-docs-transaction-api">Transaction API</h1>
+
+## TransactionController_saveTransactionEvent
+
+<a id="opIdTransactionController_saveTransactionEvent"></a>
+
+> Code samples
+
+`POST /api/v0/transaction`
 
 *Post Sales Event*
 
 > Body parameter
 
 ```json
-{
-  "id": "264595a1-4775-4bfe-9b3a-358bbbb5c4f7",
-  "sale_date": "2022-10-25",
-  "journal_name": "SM J000001",
-  "ministry_alpha_identifier": "SM",
-  "total_amount": 150.5,
-  "payment_method": [
-    {
-      "amount": 100,
-      "method": "CASH"
+[
+  {
+    "transaction_id": "72cbe1da-b08e-49d4-9a87-69afd660d14b",
+    "transaction_date": "2023-01-01",
+    "transaction_time": "13.33.31.875973",
+    "fiscal_close_date": "2023-01-02",
+    "total_transaction_amount": 30.2,
+    "void_indicator": false,
+    "miscellaneous": {
+      "employee_id": "SC61350"
     },
-    {
-      "amount": 50.5,
-      "method": "POS_CREDIT"
-    }
-  ],
-  "distributions": [
-    {
-      "line_number": "00001",
-      "dist_client_code": "130",
-      "dist_resp_code": "29KGT",
-      "dist_service_line_code": "38513",
-      "dist_stob_code": "4303",
-      "dist_project_code": "29K0230",
-      "dist_location_code": "000000",
-      "dist_future_code": "0000",
-      "line_amount": 150.5,
-      "line_code": "C",
-      "line_description": "GA OFF# 00002 2022-08-05                    *900100002",
-      "gl_date": "2022-10-12",
-      "supplier_code": "xxxxxx"
+    "source": {
+      "source_id": "SBC",
+      "location_id": 61,
+      "accepted_payment_methods": [
+        "CASH",
+        "CHQ",
+        "P",
+        "M",
+        "V"
+      ]
     },
-    {
-      "line_number": "00002",
-      "dist_client_code": "074",
-      "dist_resp_code": "32L14",
-      "dist_service_line_code": "58200",
-      "dist_stob_code": "1461",
-      "dist_project_code": "3200000",
-      "dist_location_code": "000000",
-      "dist_future_code": "0000",
-      "line_amount": 150.5,
-      "line_code": "D",
-      "line_description": "GA OFF# 00014 2022-08-05",
-      "gl_date": "2022-10-12",
-      "supplier_code": "xxxxxx"
-    }
-  ]
-}
+    "payments": [
+      {
+        "amount": 20,
+        "foreign_currency_amount": 15,
+        "currency": "USD",
+        "exchange_rate": 1.34,
+        "payment_method": "CASH",
+        "payment_channel": "in-person"
+      },
+      {
+        "amount": 10.2,
+        "currency": "CAD",
+        "payment_method": "V",
+        "payment_channel": "in-person",
+        "terminal": {
+          "card_no": "5253",
+          "merchant_id": "20777441",
+          "device_id": "GA2077744108",
+          "invoice_no": ""
+        },
+        "online": {
+          "tran_id": "",
+          "order_no": ""
+        },
+        "pos": {
+          "approval_code": "ASWQD24342"
+        }
+      }
+    ],
+    "accounting": [
+      {
+        "sequence": "001",
+        "details": {
+          "code": "1234",
+          "description": "passport photocopy"
+        },
+        "distributions": [
+          {
+            "line_number": "00001",
+            "line_description": "passport photocopy",
+            "line_dollar_amount": 10,
+            "disbursment_gl_account": {
+              "dist_client_code": "074",
+              "dist_resp_code": "66020",
+              "dist_service_line_code": "44275",
+              "dist_stob_code": "1278",
+              "dist_project_code": "6600000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000",
+              "EFT": {
+                "vendor": "xxx"
+              }
+            },
+            "revenue_gl_account": {
+              "dist_client_code": "074",
+              "dist_resp_code": "66020",
+              "dist_service_line_code": "44275",
+              "dist_stob_code": "1474",
+              "dist_project_code": "6600000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000"
+            }
+          },
+          {
+            "line_number": "00002",
+            "line_description": "PST G/L            ",
+            "line_dollar_amount": 0.7,
+            "disbursment_gl_account": {
+              "dist_client_code": "022",
+              "dist_resp_code": "12345",
+              "dist_service_line_code": "66123",
+              "dist_stob_code": "4123",
+              "dist_project_code": "3200000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000"
+            },
+            "revenue_gl_account": {
+              "dist_client_code": "074",
+              "dist_resp_code": "66020",
+              "dist_service_line_code": "44275",
+              "dist_stob_code": "1474",
+              "dist_project_code": "6600000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000"
+            }
+          },
+          {
+            "line_number": "00003",
+            "line_dollar_amount": 0.5,
+            "line_description": "GST G/L            ",
+            "disbursment_gl_account": {
+              "dist_client_code": "022",
+              "dist_resp_code": "4567",
+              "dist_service_line_code": "88123",
+              "dist_stob_code": "4123",
+              "dist_project_code": "3200000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000"
+            },
+            "revenue_gl_account": {
+              "dist_client_code": "074",
+              "dist_resp_code": "66020",
+              "dist_service_line_code": "44275",
+              "dist_stob_code": "1474",
+              "dist_project_code": "6600000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000"
+            }
+          }
+        ]
+      },
+      {
+        "sequence": "002",
+        "details": {
+          "code": "1234",
+          "description": "driving lic renewal"
+        },
+        "distributions": [
+          {
+            "line_number": "00001",
+            "line_description": "driving lic renewal",
+            "line_dollar_amount": 14,
+            "disbursment_gl_account": {
+              "dist_client_code": "010",
+              "dist_resp_code": "66213",
+              "dist_service_line_code": "44275",
+              "dist_stob_code": "1278",
+              "dist_project_code": "6600000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000",
+              "EFT": {
+                "vendor": "xxx"
+              }
+            },
+            "revenue_gl_account": {
+              "dist_client_code": "074",
+              "dist_resp_code": "66020",
+              "dist_service_line_code": "44275",
+              "dist_stob_code": "1474",
+              "dist_project_code": "6600000",
+              "dist_location_code": "000000",
+              "dist_future_code": "0000",
+              "supplier_code": "000000"
+            }
+          }
+        ]
+      }
+    ]
+  }
+]
 ```
 
-<h3 id="salescontroller_savesalesevent-parameters">Parameters</h3>
+<h3 id="transactioncontroller_savetransactionevent-parameters">Parameters</h3>
 
 |Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|body|body|[SalesDTO](#schemasalesdto)|true|none|
+|body|body|any|true|none|
 
 > Example responses
 
-> 201 Response
+> default Response
 
 ```json
 {
-  "data": {}
+  "data": []
 }
 ```
 
-<h3 id="salescontroller_savesalesevent-responses">Responses</h3>
+<h3 id="transactioncontroller_savetransactionevent-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|
-|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|none|[EmptyResponse](#schemaemptyresponse)|
+|default|Default|Returns the parsed sales reconciliation data|Inline|
 
-<aside class="success">
-This operation does not require authentication
+<h3 id="transactioncontroller_savetransactionevent-responseschema">Response Schema</h3>
+
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+basic
 </aside>
 
-# Schemas
+<h1 id="paycoco-api-docs-parser-api">Parser API</h1>
 
-<h2 id="tocS_PaymentMethodDTO">PaymentMethodDTO</h2>
-<!-- backwards compatibility -->
-<a id="schemapaymentmethoddto"></a>
-<a id="schema_PaymentMethodDTO"></a>
-<a id="tocSpaymentmethoddto"></a>
-<a id="tocspaymentmethoddto"></a>
+## ParseController_uploadFile
 
-```json
-{
-  "amount": 100.5,
-  "method": "CASH"
-}
+<a id="opIdParseController_uploadFile"></a>
+
+> Code samples
+
+`POST /api/v0/parse/flat-file`
+
+> Body parameter
+
+```yaml
+program: SBC
+fileType: TDI17
+file: string
 
 ```
 
-### Properties
+<h3 id="parsecontroller_uploadfile-parameters">Parameters</h3>
 
-|Name|Type|Required|Restrictions|Description|
+|Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|amount|number|true|none|Amount paid|
-|method|string|true|none|Method Of Payment|
+|body|body|object|true|none|
+|» program|body|string|false|none|
+|» fileType|body|string|false|none|
+|» file|body|string(binary)|false|none|
 
 #### Enumerated Values
 
-|Property|Value|
+|Parameter|Value|
 |---|---|
-|method|CASH|
-|method|CHQ|
-|method|POS_CREDIT|
-|method|POS_DEBIT|
-|method|ONL_CREDIT|
-|method|ONL_DEBIT|
+|» program|SBC|
+|» program|LABOUR|
+|» fileType|TDI17|
+|» fileType|TDI34|
 
-<h2 id="tocS_DistributionDTO">DistributionDTO</h2>
-<!-- backwards compatibility -->
-<a id="schemadistributiondto"></a>
-<a id="schema_DistributionDTO"></a>
-<a id="tocSdistributiondto"></a>
-<a id="tocsdistributiondto"></a>
+<h3 id="parsecontroller_uploadfile-responses">Responses</h3>
 
-```json
-{
-  "line_number": "00001",
-  "dist_client_code": "130",
-  "dist_resp_code": "29KGT",
-  "dist_service_line_code": "38513",
-  "dist_stob_code": "4303",
-  "dist_project_code": "29KGT",
-  "dist_location_code": "000000",
-  "dist_future_code": "0000",
-  "line_amount": 50,
-  "line_code": 50,
-  "line_description": "lorem ipsum dolor sit amet",
-  "gl_date": "2019-08-24T14:15:22Z",
-  "supplier_code": "lorem ipsum dolor sit amet"
-}
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|none|None|
 
-```
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+basic
+</aside>
 
-### Properties
+## ParseController_uploadAndParseFile
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|line_number|string|true|none|Sequential 6 digit line numbers|
-|dist_client_code|string|true|none|3 character Client Number - the legal entity (Ministry, Trust, Special Account, Special Fund) and the balancing segment in the General Ledger.|
-|dist_resp_code|string|true|none|5 Character Responsibility Centre - identifies how the ministry has assigned responsibility and accountability to manage human, financial and capital resources.|
-|dist_service_line_code|string|true|none|5 Character Service Line Code -  identifies the ministry program or service at the lowest functional level desired.|
-|dist_stob_code|string|true|none|4 Character STOB (Standard Object of Expenditure) -  identifies the nature of goods and services purchased (office supplies, salaries) and the nature of payment (government transfers). Also used to classify transactions according to common characteristics such as expenses, revenue, assets, liabilities and equity.|
-|dist_project_code|string|true|none|7 Character Project Code - identifies projects or additional activity detail as defined by ministries or agencies|
-|dist_location_code|string|true|none|6 Character Location Code - (not yet implemented) defines where (the location) the benefit was received as a result of the transaction.|
-|dist_future_code|string|true|none|5 Character Future Code -  (not yet implemented) segment reserved for future business.|
-|line_amount|number|true|none|Distribution amount to the CoA|
-|line_code|string|true|none|Credit or Debit Indicator|
-|line_description|string|true|none|Free text description of the distribution|
-|gl_date|string(date-time)|true|none|none|
-|supplier_code|string|true|none|Free text description of the distribution|
+<a id="opIdParseController_uploadAndParseFile"></a>
 
-<h2 id="tocS_SalesDTO">SalesDTO</h2>
-<!-- backwards compatibility -->
-<a id="schemasalesdto"></a>
-<a id="schema_SalesDTO"></a>
-<a id="tocSsalesdto"></a>
-<a id="tocssalesdto"></a>
+> Code samples
 
-```json
-{
-  "id": "264595a1-4775-4bfe-9b3a-358bbbb5c4f7",
-  "sale_date": "2022-10-25",
-  "journal_name": "SM J000001",
-  "ministry_alpha_identifier": "SM",
-  "total_amount": 150.5,
-  "payment_method": [
-    {
-      "amount": 100,
-      "method": "CASH"
-    },
-    {
-      "amount": 50.5,
-      "method": "POS_CREDIT"
-    }
-  ],
-  "distributions": [
-    {
-      "line_number": "00001",
-      "dist_client_code": "130",
-      "dist_resp_code": "29KGT",
-      "dist_service_line_code": "38513",
-      "dist_stob_code": "4303",
-      "dist_project_code": "29K0230",
-      "dist_location_code": "000000",
-      "dist_future_code": "0000",
-      "line_amount": 150.5,
-      "line_code": "C",
-      "line_description": "GA OFF# 00002 2022-08-05                    *900100002",
-      "gl_date": "2022-10-12",
-      "supplier_code": "xxxxxx"
-    },
-    {
-      "line_number": "00002",
-      "dist_client_code": "074",
-      "dist_resp_code": "32L14",
-      "dist_service_line_code": "58200",
-      "dist_stob_code": "1461",
-      "dist_project_code": "3200000",
-      "dist_location_code": "000000",
-      "dist_future_code": "0000",
-      "line_amount": 150.5,
-      "line_code": "D",
-      "line_description": "GA OFF# 00014 2022-08-05",
-      "gl_date": "2022-10-12",
-      "supplier_code": "xxxxxx"
-    }
-  ]
-}
+`POST /api/v0/parse/upload-file`
+
+> Body parameter
+
+```yaml
+fileName: string
+fileType: TDI17
+program: SBC
+file: string
 
 ```
 
-### Properties
+<h3 id="parsecontroller_uploadandparsefile-parameters">Parameters</h3>
 
-|Name|Type|Required|Restrictions|Description|
+|Name|In|Type|Required|Description|
 |---|---|---|---|---|
-|id|string|true|none|Id|
-|sale_date|string|true|none|Sales Txn Date|
-|journal_name|string|true|none|Journal Name - Prefixed with 2 character Ministry Alpha identifier|
-|ministry_alpha_identifier|string|true|none|Ministry Alpha Identifier|
-|total_amount|number|true|none|Total Value of the Txn|
-|payment_method|[PaymentMethodDTO](#schemapaymentmethoddto)|true|none|Payment of total amount by method|
-|distributions|[DistributionDTO](#schemadistributiondto)|true|none|Distribution of funds to other ministries and program areas by GL codes|
+|body|body|object|true|none|
+|» fileName|body|string|false|none|
+|» fileType|body|string|false|none|
+|» program|body|string|false|none|
+|» file|body|string(binary)|false|none|
 
-<h2 id="tocS_EmptyResponse">EmptyResponse</h2>
-<!-- backwards compatibility -->
-<a id="schemaemptyresponse"></a>
-<a id="schema_EmptyResponse"></a>
-<a id="tocSemptyresponse"></a>
-<a id="tocsemptyresponse"></a>
+#### Enumerated Values
 
-```json
-{
-  "data": {}
-}
+|Parameter|Value|
+|---|---|
+|» fileType|TDI17|
+|» fileType|TDI34|
+|» fileType|SBC_SALES|
+|» program|SBC|
+|» program|LABOUR|
 
-```
+<h3 id="parsecontroller_uploadandparsefile-responses">Responses</h3>
 
-### Properties
+|Status|Meaning|Description|Schema|
+|---|---|---|---|
+|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|none|None|
 
-|Name|Type|Required|Restrictions|Description|
-|---|---|---|---|---|
-|data|object|true|none|This Response returns an acknowledgmenent<br>      that the request has been fulfilled.|
+<aside class="warning">
+To perform this operation, you must be authenticated by means of one of the following methods:
+basic
+</aside>
+
+# Schemas
 
