@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 10
     environment:
       name: dev
-
+  
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -21,7 +21,7 @@ jobs:
           path: ./.yarn/cache
           key: pcc-backend
           restore-keys: pcc-backend
-
+      
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
         with:
@@ -38,12 +38,9 @@ jobs:
 
       - name: Setup ENV file
         run: cp ./.config/.env.example ./.env
-
+      
       - name: Clear S3 bucket
         run: make aws-empty-s3-bucket-dev
 
-      - name: Open DB tunnel
-        run: make open-db-tunnel
-
-      - name: Clear DB
-        run: make clear-database
+      - name: Clear Database Tables 
+        run: make aws-run-clear-dev-data

@@ -54,9 +54,12 @@ jobs:
 
       - name: Run migrations
         run: make aws-run-migrator
-
+      
       - name: Deploy All
         run: make aws-deploy-all
+      
+      - name: Deploy Dev Clear DB Lambda
+        run: make aws-deploy-dev-restricted-lambda
 
   zap_scan:
     name: ZAP baseline scan
