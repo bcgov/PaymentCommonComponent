@@ -2,6 +2,16 @@ locals {
   pcc-reporting-bucket-name = "pcc-recon-reports-${var.target_env}"
   pcc-master-data-bucket-name = "pcc-master-data-${var.target_env}"
   pcc-deployments-bucket-name = "pcc-deployments-${var.target_env}"
+
+  // Buckets that should have SSL enforced, and public ACLs disabled
+  private_buckets = {for bucket in flatten([
+    aws_s3_bucket.pcc-reporting,
+    aws_s3_bucket.pcc-master-data,
+    aws_s3_bucket.pcc-deployments,
+    aws_s3_bucket.pcc-s3-access-logs,
+    aws_s3_bucket.sftp_storage,
+    var.target_env == "dev" ? [aws_s3_bucket.local_development]: []
+  ]): bucket.id => bucket}
 }
 
 
@@ -33,44 +43,9 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pcc-reporting" {
     }
   }
 }
-
 resource "aws_s3_bucket_acl" "pcc-reporting" {
   bucket = aws_s3_bucket.pcc-reporting.id
   acl    = "private"
-}
-
-resource "aws_s3_bucket_public_access_block" "pcc-reporting" {
-  bucket                  = aws_s3_bucket.pcc-reporting.id
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}
-
-resource "aws_s3_bucket_policy" "pcc-reporting" {
-  bucket = aws_s3_bucket.pcc-reporting.id
-  policy = data.aws_iam_policy_document.pcc-reporting.json
-}
-
-data "aws_iam_policy_document" "pcc-reporting" {
-  statement {
-    sid    = "EnforceSecureTransport"
-    effect = "Deny"
-    principals {
-      identifiers = ["*"]
-      type        = "*"
-    }
-    actions = ["s3:*"]
-    resources = [
-      aws_s3_bucket.pcc-reporting.arn,
-      "${aws_s3_bucket.pcc-reporting.arn}/*"
-    ]
-    condition {
-      test     = "Bool"
-      values   = ["false"]
-      variable = "aws:SecureTransport"
-    }
-  }
 }
 
 resource "aws_s3_bucket" "pcc-master-data" {
@@ -168,3 +143,43 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pcc-s3-access-log
   }
 }
 
+
+
+resource "aws_s3_bucket_policy" "enable-ssl-transport-policy" {
+  for_each = local.private_buckets
+  bucket = each.key
+  policy = data.aws_iam_policy_document.enforce-ssl-transport-policy[each.key].json
+}
+
+// Enforce SSL only for buckets
+data "aws_iam_policy_document" "enforce-ssl-transport-policy" {
+
+  for_each = local.private_buckets
+
+  statement {
+    effect = "Deny"
+    principals {
+      identifiers = ["*"]
+      type        = "*"
+    }
+    actions = ["s3:*"]
+    resources = [
+      each.value.arn,
+      "${each.value.arn}/*"
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "block-public-s3-access-policy" {
+  for_each = local.private_buckets
+  bucket                  = each.key
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
