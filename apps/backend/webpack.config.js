@@ -26,6 +26,7 @@ module.exports = function (options, webpack) {
       'src/lambdas/reconcile': './src/lambdas/reconcile.ts',
       'src/lambdas/report': './src/lambdas/report.ts',
       'src/database/migrate': './src/database/migrate.ts',
+      'src/database/clear-dev-db': './src/database/clear-dev-db.ts', 
       'src/lambda': './src/lambda.ts'
     },
     target: 'node',
