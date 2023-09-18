@@ -225,6 +225,7 @@ aws-run-clear-dev-data:
 	@touch clear-db-results || true
 	@aws lambda invoke --function-name clearDevData --payload '{}' clear-db-results  --region ca-central-1
 	@cat clear-db-results | grep "success"
+	@rm clear-db-results
 
 aws-run-reconciler:
 	@aws lambda invoke --function-name reconciler --payload file://./apps/backend/fixtures/lambda/reconcile.json --region ca-central-1 --cli-binary-format raw-in-base64-out response.txt
