@@ -222,7 +222,7 @@ aws-run-migrator:
 	@cat migration-results | grep "success"
 
 aws-run-clear-dev-data: 
-	@rm clear-db-results || true
+	@touch clear-db-results || true
 	@aws lambda invoke --function-name clearDevData --payload '{}' clear-db-results  --region ca-central-1
 	@cat clear-db-results | grep "success"
 
