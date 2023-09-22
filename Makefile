@@ -54,14 +54,14 @@ BATCH_JSON:=$(shell cat ./apps/backend/fixtures/lambda/batch.json | jq '.' -c)
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
-ifeq ($(ENV_NAME), test)
-export DISABLE_AUTOMATED_RECONCILIATION=false
-export AWS_ACCOUNT_ID=289110186100
-endif
-
 ifeq ($(ENV_NAME), dev)
 export DISABLE_AUTOMATED_RECONCILIATION=true
-export AWS_ACCOUNT_ID=279397349124 
+export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_DEV)
+endif
+
+ifeq ($(ENV_NAME), test)
+export DISABLE_AUTOMATED_RECONCILIATION=true
+export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TEST)
 endif
 
 define TFVARS_DATA
