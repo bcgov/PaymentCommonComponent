@@ -29,9 +29,11 @@ export LZ2_PROJECT = iz8ci7
 
 # Terraform Cloud backend config variables      
 define TF_BACKEND_CFG
-workspaces { name = "$(LZ2_PROJECT)-$(ENV_NAME)" }
-hostname     = "app.terraform.io"
-organization = "bcgov"
+bucket         = "terraform-remote-state-$(LZ2_PROJECT)-$(ENV_NAME)"  
+key            = ".terraform/terraform.state"       
+region         = "ca-central-1"                  
+dynamodb_table = "terraform-remote-state-lock-$(LZ2_PROJECT)"  
+encrypt        = true                              
 endef
 export TF_BACKEND_CFG
 
@@ -53,12 +55,14 @@ TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
 ifeq ($(ENV_NAME), dev)
-DISABLE_AUTOMATED_RECONCILIATION=true
+export DISABLE_AUTOMATED_RECONCILIATION=true
+export AWS_ACCOUNT_ID=279397349124 
 endif
 
 define TFVARS_DATA
 app_version = "$(APP_VERSION)"
 target_env = "$(ENV_NAME)"
+target_aws_account_id = "$(AWS_ACCOUNT_ID)"
 project_code = "$(PROJECT)"
 lz2_code = "$(LZ2_PROJECT)"
 db_username = "$(POSTGRES_USERNAME)"
@@ -96,6 +100,8 @@ check:
 # ======================================================================
 # Terraform commands
 # ======================================================================
+migrate: 
+	@terraform -chdir=$(TERRAFORM_DIR) init -migrate-state
 
 config:
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars

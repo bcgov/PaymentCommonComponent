@@ -5,14 +5,17 @@ terraform {
       version = "4.55.0"
     }
   }
-  
 
-  backend "remote" {}
+  backend "s3" {
+    bucket         = "terraform-remote-state-iz8ci7-dev"
+    key            = ".terraform/terraform.state"
+    region         = "ca-central-1"
+    dynamodb_table = "terraform-remote-state-lock-iz8ci7"
+    encrypt        = true
+
+  }
 }
 
 provider "aws" {
   region = var.region
-  assume_role {
-    role_arn = "arn:aws:iam::${var.target_aws_account_id}:role/BCGOV_${var.target_env}_Automation_Admin_Role"
-  }
 }
