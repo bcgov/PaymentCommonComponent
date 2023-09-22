@@ -1,8 +1,8 @@
 locals {
   // Disable sftp transfer server and associated resources in
   // dev and test.
-  transfer_family_disabled_envs = ["dev", "test"]
-  transfer_family_resource_count = "${contains(local.transfer_family_disabled_envs, var.target_env) == true? 0: 1}"
+  transfer_family_disabled_envs  = ["dev", "test"]
+  transfer_family_resource_count = contains(local.transfer_family_disabled_envs, var.target_env) == true ? 0 : 1
 }
 
 
@@ -173,5 +173,5 @@ resource "aws_transfer_ssh_key" "bcm" {
 
 
 output "sftp_url" {
-  value = local.transfer_family_resource_count == 0? null: aws_transfer_server.sftp[0].endpoint
+  value = local.transfer_family_resource_count == 0 ? null : aws_transfer_server.sftp[0].endpoint
 }

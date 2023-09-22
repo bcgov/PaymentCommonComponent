@@ -101,7 +101,10 @@ check:
 # Terraform commands
 # ======================================================================
 
-config:
+format:
+	@terraform -chdir=$(TERRAFORM_DIR) fmt
+
+config:format
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
 	@echo "$$TF_BACKEND_CFG" > $(TERRAFORM_DIR)/backend.hcl
 

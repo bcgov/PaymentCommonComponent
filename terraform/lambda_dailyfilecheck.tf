@@ -43,19 +43,19 @@ resource "aws_lambda_function" "daily-alert" {
 
 resource "aws_lambda_permission" "daily_alert_cloudwatch_permission" {
   function_name = aws_lambda_function.daily-alert.function_name
-  statement_id = "CloudWatchInvoke"
-  action = "lambda:InvokeFunction"
+  statement_id  = "CloudWatchInvoke"
+  action        = "lambda:InvokeFunction"
 
   source_arn = aws_cloudwatch_event_rule.daily_alert_trigger.arn
-  principal = "events.amazonaws.com"
+  principal  = "events.amazonaws.com"
 }
 
 resource "aws_cloudwatch_event_rule" "daily_alert_trigger" {
-  name = "daily"
+  name                = "daily"
   schedule_expression = "cron(0 18,21,23 * * ? *)"
 }
 
 resource "aws_cloudwatch_event_target" "invoke_daily_alert" {
   rule = aws_cloudwatch_event_rule.daily_alert_trigger.name
-  arn = aws_lambda_function.daily-alert.arn
+  arn  = aws_lambda_function.daily-alert.arn
 }

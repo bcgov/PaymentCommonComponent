@@ -76,7 +76,7 @@ resource "aws_instance" "bastion_instance" {
   associate_public_ip_address = "false"
   subnet_id                   = tolist(data.aws_subnets.app.ids)[0]
   user_data                   = file("scripts/user-data.sh")
-  
+
   metadata_options {
     http_tokens                 = "required"
     http_endpoint               = "enabled"

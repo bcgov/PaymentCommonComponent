@@ -24,7 +24,7 @@ resource "aws_lambda_function" "clearDevData" {
       DB_PASSWORD = data.aws_ssm_parameter.postgres_password.value
       DB_HOST     = aws_rds_cluster.pgsql.endpoint
       DB_NAME     = aws_rds_cluster.pgsql.database_name
-      
+
     }
   }
 
