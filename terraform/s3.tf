@@ -9,7 +9,6 @@ locals {
     aws_s3_bucket.pcc-master-data,
     aws_s3_bucket.pcc-deployments,
     aws_s3_bucket.pcc-s3-access-logs,
-    aws_s3_bucket.sftp_storage,
     var.target_env == "dev" ? [aws_s3_bucket.local_development] : []
   ]) : bucket.id => bucket }
 }

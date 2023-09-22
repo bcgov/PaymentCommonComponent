@@ -74,6 +74,11 @@ POLICY
 resource "aws_s3_bucket" "sftp_storage" {
   bucket = "pcc-integration-data-files-${var.target_env}"
 
+  tags = {
+    Name        = local.pcc-reporting-bucket-name
+    Environment = var.target_env
+  }
+
   logging {
     target_bucket = aws_s3_bucket.pcc-s3-access-logs.id
     target_prefix = "logs/pcc-integration-data-files-${var.target_env}/"
@@ -83,6 +88,28 @@ resource "aws_s3_bucket" "sftp_storage" {
 resource "aws_s3_bucket_policy" "allow_prod_to_access_other_envs" {
   bucket = aws_s3_bucket.sftp_storage.id
   policy = data.aws_iam_policy_document.allow_prod_to_access_other_envs.json
+}
+
+resource "aws_s3_bucket_ownership_controls" "pcc_data_files_ownership" {
+  bucket = aws_s3_bucket.sftp_storage.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "pcc_data_files_pb" {
+  bucket = aws_s3_bucket.sftp_storage.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+resource "aws_s3_bucket_acl" "pcc_data_files_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.pcc_data_files_ownership]
+  bucket     = aws_s3_bucket.sftp_storage.id
+  acl        = "private"
 }
 
 data "aws_iam_policy_document" "allow_prod_to_access_other_envs" {

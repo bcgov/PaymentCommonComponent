@@ -213,11 +213,15 @@ aws-build-and-deploy-aws-data-clear-lambda: build-backend aws-upload-artifacts a
 # AWS Interactions
 # ======================================================================
 
+	
+
 aws-sync-files-from-prod-to-dev:
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-dev/sbc --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-dev/bcm --acl bucket-owner-full-control
 
 aws-sync-files-from-prod-to-test:
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-dev/sbc --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-dev/bcm --acl bucket-owner-full-control
 
 aws-empty-s3-bucket-dev:
 	@aws s3 rm s3://pcc-integration-data-files-dev/bcm --recursive
