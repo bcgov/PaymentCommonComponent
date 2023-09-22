@@ -100,8 +100,6 @@ check:
 # ======================================================================
 # Terraform commands
 # ======================================================================
-migrate: 
-	@terraform -chdir=$(TERRAFORM_DIR) init -migrate-state
 
 config:
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
