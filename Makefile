@@ -60,7 +60,6 @@ export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_DEV)
 endif
 
 ifeq ($(ENV_NAME), test)
-export DISABLE_AUTOMATED_RECONCILIATION=true
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TEST)
 endif
 
