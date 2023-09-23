@@ -75,7 +75,7 @@ resource "aws_s3_bucket" "sftp_storage" {
   bucket = "pcc-integration-data-files-${var.target_env}"
 
   tags = {
-    Name        = local.pcc-reporting-bucket-name
+    name        = "pcc-integration-data-files-${var.target_env}"
     Environment = var.target_env
   }
 
@@ -90,24 +90,24 @@ resource "aws_s3_bucket_policy" "allow_prod_to_access_other_envs" {
   policy = data.aws_iam_policy_document.allow_prod_to_access_other_envs.json
 }
 
-resource "aws_s3_bucket_ownership_controls" "pcc_data_files_ownership" {
+resource "aws_s3_bucket_ownership_controls" "sftp_storage_ownership" {
   bucket = aws_s3_bucket.sftp_storage.id
   rule {
     object_ownership = "BucketOwnerPreferred"
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "pcc_data_files_pb" {
+resource "aws_s3_bucket_public_access_block" "sftp_storage_pb" {
   bucket = aws_s3_bucket.sftp_storage.id
 
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
-resource "aws_s3_bucket_acl" "pcc_data_files_acl" {
-  depends_on = [aws_s3_bucket_ownership_controls.pcc_data_files_ownership]
+resource "aws_s3_bucket_acl" "sftp_storage_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.sftp_storage_ownership]
   bucket     = aws_s3_bucket.sftp_storage.id
   acl        = "private"
 }
@@ -133,11 +133,23 @@ data "aws_iam_policy_document" "allow_prod_to_access_other_envs" {
       "${aws_s3_bucket.sftp_storage.arn}/*",
     ]
   }
-}
-
-resource "aws_s3_bucket_acl" "sftp_storage_acl" {
-  bucket = aws_s3_bucket.sftp_storage.id
-  acl    = "private"
+  statement {
+    effect = "Deny"
+    principals {
+      identifiers = ["*"]
+      type        = "*"
+    }
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.sftp_storage.arn,
+      "${aws_s3_bucket.sftp_storage.arn}/*",
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
 }
 
 resource "aws_transfer_user" "sbc" {
