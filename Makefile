@@ -220,8 +220,8 @@ aws-build-and-deploy-aws-data-clear-lambda: build-backend aws-upload-artifacts a
 	
 
 aws-sync-files-from-prod-to-dev:
-	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-dev/sbc --acl bucket-owner-full-control
 	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-dev/bcm --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-dev/sbc --acl bucket-owner-full-control
 
 aws-sync-files-from-prod-to-test:
 	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-test/sbc --acl bucket-owner-full-control
@@ -381,6 +381,8 @@ minio-ls:
 minio-rm:
 	@mc rm --recursive --force s3/pcc-integration-data-files-local
 
+minio-rm-archive:
+	@mc rm --recursive --force s3/pcc-integration-data-files-local/archive
 # ===================================
 # SFTP Data Sync
 # ===================================
