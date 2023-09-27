@@ -30,28 +30,16 @@ export class PaymentService {
     this.logger.setContext(PaymentService.name);
   }
 
-  async findPosPayments(
-    dateRange: DateRange,
-    location_ids: number[],
-    statuses: MatchStatus[] = MatchStatusAll,
-    pos_deposit_match = false
+  async findPaymentsByMinistry(
+    program: Ministries,
+    statuses: MatchStatus[] = MatchStatusAll
   ): Promise<PaymentEntity[]> {
-    const { minDate, maxDate } = dateRange;
-
     return await this.paymentRepo.find({
       where: {
         transaction: {
-          transaction_date: Raw(
-            (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
-            { minDate, maxDate }
-          ),
-          location_id: In(location_ids),
+          source_id: program,
         },
         status: In(statuses),
-        payment_method: { classification: PaymentMethodClassification.POS },
-      },
-      relations: {
-        pos_deposit_match,
       },
       order: {
         transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
@@ -182,6 +170,7 @@ export class PaymentService {
       await this.findCashPayments(dateRange, [location_id], status)
     );
   }
+
   /**
    *
    * @param location_id
@@ -207,20 +196,6 @@ export class PaymentService {
       },
     });
   }
-  /**
-   * Update payments matched on round four heuristics - calling "save" as "update" will not trigger the cascade for the many to many relations
-   * @param payments
-   * @returns
-   */
-  async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
-    await this.paymentRepo.manager.transaction(
-      async (manager) =>
-        await Promise.all(
-          payments.map((itm) => manager.save(PaymentEntity, itm))
-        )
-    );
-    return payments;
-  }
 
   /**
    * updatePaymentStatus
@@ -229,29 +204,18 @@ export class PaymentService {
    * @param payments A list of payment entities to set a new status for, with the expected heuristic round
    * @returns {PaymentEntity[]} The same list of payments passed in
    */
-  async updatePaymentStatus(
-    payments: PaymentEntity[]
-  ): Promise<PaymentEntity[]> {
-    // TODO: Wrap in a try catch
-    await this.paymentRepo.manager.transaction(async (manager) => {
-      await Promise.all(
-        payments.map((p) => {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { timestamp, ...pay } = p;
-          return manager.update(
-            PaymentEntity,
-            { id: pay.id },
-            {
-              ...pay,
-              pos_deposit_match: {
-                ...p.pos_deposit_match,
-              },
-            }
-          );
-        })
+  async updatePayments(payments: PaymentEntity[]): Promise<PaymentEntity[]> {
+    try {
+      return await this.paymentRepo.manager.transaction(
+        async (manager) =>
+          await Promise.all(
+            payments.map((itm) => manager.save(PaymentEntity, itm))
+          )
       );
-    });
-    return payments;
+    } catch (e) {
+      this.logger.error(e);
+      throw new Error();
+    }
   }
   /**
    * Find all payments for the details report - return any entities marked as matched or in progress on this day as well as any pending

@@ -6,16 +6,18 @@ import { generateLocalSNSMessage } from './helpers';
 import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
-import { NormalizedLocation } from '../constants';
+import { Ministries, PaymentMethodClassification } from '../constants';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
 import { CashReconciliationService } from '../reconciliation/cash-reconciliation.service';
+import { heuristics } from '../reconciliation/ministryHeuristics';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReportingService } from '../reporting/reporting.service';
 import { SnsManagerService } from '../sns-manager/sns-manager.service';
+import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
 
 export const handler = async (event: SNSEvent, _context?: Context) => {
@@ -49,7 +51,6 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       : event.Records[0].Sns.Message;
 
   const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
-
   const reconciliationMinDate = format(
     subBusinessDays(currentDate, numDaysToReconcile),
     'yyyy-MM-dd'
@@ -88,44 +89,75 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     }
   };
 
-  const reconcile = async () => {
-    const locations: NormalizedLocation[] =
-      await locationService.getLocationsBySource(program);
+  const locations = await locationService.getLocationsBySource(program);
 
-    const allPosPaymentsInDates = await paymentService.findPosPayments(
-      dateRange,
-      locations.map((itm) => itm.location_id),
-      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+  const reconcilePos = async (program: Ministries) => {
+    posReconciliationService.setHeuristics(heuristics[program]);
+
+    const payments = await paymentService.findPaymentsByMinistry(program, [
+      MatchStatus.PENDING,
+      MatchStatus.IN_PROGRESS,
+    ]);
+    const deposits = await posDepositService.findPosDeposits(program, [
+      MatchStatus.PENDING,
+      MatchStatus.IN_PROGRESS,
+    ]);
+
+    const posPayments = payments.filter(
+      (itm: PaymentEntity) =>
+        itm.payment_method.classification === PaymentMethodClassification.POS
     );
 
-    // Get all pending deposits whether its one day or many months
-    const allPosDepositsInDates = await posDepositService.findPosDeposits(
-      dateRange,
-      program,
-      locations.flatMap((location) => location.merchant_ids.map((id) => id)),
-      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+    for (const location of locations) {
+      posReconciliationService.setPendingPayments(
+        posPayments.filter(
+          (itm) => itm.transaction.location_id === location.location_id
+        )
+      );
+
+      posReconciliationService.setPendingDeposits(
+        deposits.filter((itm) =>
+          location.merchant_ids.includes(itm.merchant_id)
+        )
+      );
+      posReconciliationService.setHeuristicMatchRound(heuristics[program][0]);
+      posReconciliationService.setMatchedPayments([]);
+      posReconciliationService.setMatchedDeposits([]);
+
+      const reconciled = await posReconciliationService.reconcile(
+        location,
+        program
+      );
+
+      appLogger.log(reconciled);
+    }
+  };
+
+  const reconcileCash = async () => {
+    const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
+
+    const reconciliationMinDate = format(
+      subBusinessDays(currentDate, 31),
+      'yyyy-MM-dd'
     );
+
+    const dateRange = {
+      minDate: reconciliationMinDate,
+      maxDate: reconciliationMaxDate,
+    };
 
     for (const location of locations) {
       appLogger.log(
         `Pos Reconciliation: ${location.description} - ${reconciliationMaxDate}`
       );
-      await posReconciliationService.reconcileByLocation(
-        location,
-        program,
-        dateRange,
-        allPosPaymentsInDates,
-        allPosDepositsInDates
-      );
-
-      await cashReconciliationService.reconcileCashByLocation(
-        location,
-        program,
-        dateRange
-      );
+      const reconcileCash =
+        await cashReconciliationService.reconcileCashByLocation(
+          location,
+          program,
+          dateRange
+        );
+      appLogger.log(reconcileCash);
     }
-    reportEnabled && (await generateReport());
-    isLocal && (await showConsoleReport());
   };
 
   const showConsoleReport = async () => {
@@ -168,7 +200,10 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
   try {
     !byPassFileValidity && (await fileCheck());
-    await reconcile();
+    await reconcilePos(program);
+    await reconcileCash();
+    reportEnabled && (await generateReport());
+    isLocal && (await showConsoleReport());
   } catch (err) {
     appLogger.error(err);
   }

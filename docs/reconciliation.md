@@ -11,123 +11,152 @@ The goal is to simplify and automate the process that compares two set of record
 1. [POS Reconciliation](#pos-reconciliation)
 1. [Cash Reconciliation](#cash-reconciliation)
 
-## POS Reconciliation
+# POS Reconciliation
 
-Reconciliation should run daily for each SBC location. On each run it will check all dates for all locations starting from the lambdas event input “from_date”, currently 01-01-2023, up to the event lambda "to_date". It will only attempt to match “PENDING” payments and deposits. If there are no such payments, the system will skip that day.
+## Overview
 
-### POS Match Criteria
+The `PosReconciliationService` handles the reconciliation of POS (Point of Sale) payments with POS deposits. It provides methods to match payments with deposits based on location, program, date, and time using heuristics. 
 
-Payments and deposits must match 1-1 and must match on all of the following heuristics. If no match is found an exception is thrown.
+## Usage
 
-1.  Status (_pos_deposit.status_ === PENDING / _payment_status_ === PENDING)
-2.  Location (_pos_deposit.merchant_id ---> payment.transaction.location_id_)
-3.  Transaction Date (_pos_deposit transaction_date ---> payment.transaction transaction_date_)
-4.  Amount (_pos_deposit transaction_amt_ ---> _payment amount_)
-5.  Payment Method (_pos_deposit.card_vendor ---> payment.method_)
-6.  TimeDiff < 240 s diff (_pos_deposit transaction_time ---> payment.transaction transaction_time_)
-7.  TimeDiff < 24 h diff (_pos_deposit transaction_time ---> payment.transaction transaction_time_)
+### 1. Configuration
 
-#### Entities and Relationships
+Service can be set to use the appropriate heuristics for your ministry. This is done using the `setHeuristics` method.
 
-- POSDepositEntity
-  - TDI34 (pos) deposit
-  - pos_deposit table
-- TransactionEntity
-  - Transaction JSON from SBC sftp server (will come from API in the future)
-  - transaction table
-  - one transactions -> many payments
-- PaymentEntity
-  - Payment entry from the payments array of a transaction
-  - payment table
-  - one to one matching for payment row <-> pos_deposit row
-- PaymentMethodEntity
-  - Lookup table to find matching payment methods for pos
-  - pos_deposit card_vendor is the same as the payment_method method, which has a corresponding SBC garms payment_method code (numbered code)
-- LocationEntity
-  - Lookup table to find corresponding location
-  - master_location_data table
-  - pos_deposit merchant_id will match to a corresponding location_id in this table
-
-### POS Reconciliation Flow
-
-#### Reconcile Lambda
-
-#### inputs:
-
-```
-	{
-	 dateRange: {
-	  from_date: 2023-01-01, <--- stays the same (for now)
-	  to_date: today -2 <--- configurable
-	 },
-	 program: 'SBC',
-	 locations: [1,2,3...]  or []
-	}
-
+```typescript
+service.setHeuristics(ministry: Ministries): void;
 ```
 
-#### steps:
+- `ministry`: The ministry for which heuristics need to be set, represented by an enum value (e.g., `Ministries.SBC`). This determines the matching rules.
 
-1. Query for all locations.
-   - Filter by Program.
-   - Filter location_id (if provided, otherwise, all locations)
-2. Generate a list of all dates between the from_date and to_date
-3. Loop over the locations
-4. For each location, loop through the dates
-5. For each location on each date, run the POS reconciliation service
+### 2. Reconciliation
 
-### POSReconciliationService
+To perform reconciliation, you can call the `reconcile` method. This method matches pending payments with pending deposits based on the configured heuristics.
 
-#### inputs:
-
-(For each location, for each date, passed down from the reconcile lambda)
-
-```
-{
-    location: location_id,
-    date: date,
-    program: 'SBC' (this is the current default)
-}
+```typescript
+async reconcile(
+  location: NormalizedLocation,
+  pendingPayments: PaymentEntity[],
+  pendingDeposits: POSDepositEntity[],
+  currentDate: Date
+): Promise<unknown>;
 ```
 
-#### steps:
+- `location`: The location for which reconciliation is being performed, represented as a `NormalizedLocation` object.
 
-1. Query for all payments. Filter by date, location and status. Order by date, time, amount
-2. Query for all POS Deposits. Filter by date, location and status. Order by date, time, amount
-3. Loop over all deposits
-4. For each deposit, loop through the payments.
-5. **Match by:**
-   1. Status (PENDING)
-   2. Location (implicitly done by querying by location)
-   3. Date (implicitly done by querying by date)
-   4. Amount
-   5. Payment Method
-   6. TimeDiff (< 240 s diff)
-6. If Match, update the list entry for both Payments and Deposits to a be 'MATCH' in order to not attempt to match this entry again.
-7. If Match, assign the corresponding pos_deposit_match to the payment
-8. Repeat Steps 3/4/5 (increase time diff to 24 hours)
+- `pendingPayments`: An array of pending payment entities (e.g., `PaymentEntity[]`) that need to be matched with deposits.
 
-#### 🛑 Check point:
+- `pendingDeposits`: An array of pending deposit entities (e.g., `POSDepositEntity[]`) that need to be matched with payments.
 
-> after running the method(s) to match pos deposit to payment the list of deposits and the list of payments should be identical in quantity and order to the original list. The specific entries which have been matched should be altered to show a status of MATCH and have the corresponding matched id.
+- `currentDate`: The current date used for updating the progress of matching operations.
 
-10. Filter out matched for both lists
-11. Filter out unmatched for both lists
-12. Map through the unmatched lists and change the status to EXCEPTION
+### 3. Match Results
 
-#### 🛑 Check point:
+The `reconcile` method returns a promise that resolves to an object containing information about the reconciliation process. Here are some of the key properties in the result:
 
-> You should now have four lists:
-> **payments matched**: - status: MATCH - pos_deposit_match: (uuid for the corresponding deposit)
-> **payment exceptions**: - status: EXCEPTION
-> **deposits matched** - status: MATCH
-> **deposit exceptions** - status: EXCEPTION
+- `type`: The type of reconciliation (e.g., `ReconciliationType.POS`).
 
-13. Call POSDeposit service to update all MATCH status deposits
-14. Call POSDeposit service to update all EXCEPTION status deposits
-15. Call PaymentService to update all MATCH status payments
-16. Call PaymentService to update all EXCEPTION status payments
-17. Repeat steps 1-17 for each date and location
+- `location_id`: The ID of the location for which reconciliation was performed.
+
+- `total_deposits_pending`: The total number of pending deposits.
+
+- `total_payments_pending`: The total number of pending payments.
+
+- `total_matched_payments`: The total number of payments that were successfully matched.
+
+- `total_matched_deposits`: The total number of deposits that were successfully matched.
+
+- `total_payments_in_progress`: The total number of payments currently in progress.
+
+- `total_deposits_in_progress`: The total number of deposits currently in progress.
+
+- `total_payments_updated`: The total number of payments updated, including matched and in-progress payments.
+
+- `total_deposits_updated`: The total number of deposits updated, including matched and in-progress deposits.
+
+## Methods
+
+### `matchRound`
+
+This method is used internally for performing recursive matching rounds.
+
+```typescript
+matchRound(
+  payments: PaymentEntity[],
+  deposits: POSDepositEntity[],
+  round: PosHeuristicRound,
+  allMatchedPayments: PaymentEntity[],
+  allMatchedDeposits: POSDepositEntity[]
+): MatchResults;
+```
+
+- `payments`: An array of payment entities to be matched in the current round.
+
+- `deposits`: An array of deposit entities to be matched in the current round.
+
+- `round`: The current heuristic matching round.
+
+- `allMatchedPayments`: An array containing all matched payment entities from previous rounds.
+
+- `allMatchedDeposits`: An array containing all matched deposit entities from previous rounds.
+
+### `findMatchesInDictionary`
+
+This method finds matches in dictionaries based on the configured heuristics.
+
+```typescript
+findMatchesInDictionary(
+  methodAndDateDictionaries: Dictionary[],
+  round: Heuristics
+): MatchResults;
+```
+
+- `methodAndDateDictionaries`: An array of dictionaries containing payment and deposit information.
+
+- `round`: The current heuristic matching round.
+
+### `buildDictionaries`
+
+This method builds dictionaries of payments and deposits based on the current round.
+
+```typescript
+buildDictionaries(
+  payments: PaymentEntity[],
+  deposits: POSDepositEntity[],
+  round: PosHeuristicRound
+): Dictionary[];
+```
+
+- `payments`: An array of payment entities.
+
+- `deposits`: An array of deposit entities.
+
+- `round`: The current heuristic matching round.
+
+### `paymentDictionary`
+
+This method creates a dictionary of payment entities.
+
+```typescript
+paymentDictionary(payments: PaymentEntity[]): Dictionary;
+```
+
+- `payments`: An array of payment entities to be included in the dictionary.
+
+### `depositDictionary`
+
+This method creates a dictionary of deposit entities.
+
+```typescript
+depositDictionary(
+  deposits: POSDepositEntity[],
+  round: PosHeuristicRound
+): Dictionary;
+```
+
+- `deposits`: An array of deposit entities to be included in the dictionary.
+
+- `round`: The current heuristic matching round.
 
 ## Cash Reconciliation
 

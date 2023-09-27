@@ -1,8 +1,10 @@
 import Decimal from 'decimal.js';
+import { PosHeuristicRound, ReconciliationType } from './const';
 import { MatchStatus } from '../../common/const';
 import {
   DateRange,
   Ministries,
+  NormalizedLocation,
   PaymentMethodClassification,
 } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
@@ -28,7 +30,7 @@ export interface ReconciliationConfig {
 }
 
 export interface ReconciliationError {
-  error: string;
+  message: string;
 }
 
 export interface AggregatedCashPayment {
@@ -42,9 +44,55 @@ export interface AggregatedCashPayment {
 }
 
 export interface PosDepositsAmountDictionary {
-  [key: string]: PosDepositsDateDictionary;
+  [key: string]: PosDepositDictionary;
 }
 
-export interface PosDepositsDateDictionary {
-  [key: string]: POSDepositEntity[];
+export interface PosDepositDictionary {
+  [key: string]: {
+    date: string;
+    method: string;
+    deposit_amount: number;
+    deposits: POSDepositEntity[];
+  };
+}
+
+export interface PaymentDictionary {
+  [key: string]: {
+    date: string;
+    method: string;
+    payment_amount: number;
+    payments: PaymentEntity[];
+  };
+}
+
+export interface ReconcileEvent {
+  locations: NormalizedLocation[];
+  reconciliationMaxDate: string;
+  program: Ministries;
+  payments: PaymentEntity[];
+}
+
+export interface UnMatched {
+  unmatchedPayments: PaymentEntity[];
+  unmatchedDeposits: POSDepositEntity[];
+}
+export interface ReconciliationResults {
+  type: ReconciliationType;
+  location_id: number;
+  total_deposits_pending: number;
+  total_payments_pending: number;
+  total_matched_payments: number;
+  total_matched_deposits: number;
+  total_payments_in_progress: number;
+  total_deposits_in_progress: number;
+}
+/* eslint-disable @typescript-eslint/no-explicit-any */
+export interface Dictionary {
+  [key: string]: any;
+}
+
+export interface Heuristics {
+  name: PosHeuristicRound;
+  nextRound: PosHeuristicRound | null;
+  checkMatch: (...args: any) => any;
 }

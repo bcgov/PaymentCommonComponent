@@ -23,29 +23,19 @@ export class PosDepositService {
   }
 
   async findPosDeposits(
-    dateRange: DateRange,
     program: Ministries,
-    merchant_ids: number[],
-    statuses: MatchStatus[] = MatchStatusAll,
-    payment_match = false
-  ): Promise<POSDepositEntity[]> {
-    const { minDate, maxDate } = dateRange;
 
+    statuses: MatchStatus[] = MatchStatusAll
+  ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.find({
       where: {
-        transaction_date: Raw(
-          (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
-          { minDate, maxDate }
-        ),
         metadata: {
           program: program,
         },
         status: In(statuses),
-        merchant_id: In(merchant_ids),
       },
       relations: {
         payment_method: true,
-        payment_match,
       },
       // Order by needs to be in this order for matching logic.
       // We need to batch them using order to ease matches
