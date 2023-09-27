@@ -1,8 +1,8 @@
 locals {
   // Disable sftp transfer server and associated resources in
   // dev and test.
-  transfer_family_disabled_envs = ["dev", "test"]
-  transfer_family_resource_count = "${contains(local.transfer_family_disabled_envs, var.target_env) == true? 0: 1}"
+  transfer_family_disabled_envs  = ["dev", "test"]
+  transfer_family_resource_count = contains(local.transfer_family_disabled_envs, var.target_env) == true ? 0 : 1
 }
 
 
@@ -74,6 +74,11 @@ POLICY
 resource "aws_s3_bucket" "sftp_storage" {
   bucket = "pcc-integration-data-files-${var.target_env}"
 
+  tags = {
+    name        = "pcc-integration-data-files-${var.target_env}"
+    Environment = var.target_env
+  }
+
   logging {
     target_bucket = aws_s3_bucket.pcc-s3-access-logs.id
     target_prefix = "logs/pcc-integration-data-files-${var.target_env}/"
@@ -83,6 +88,28 @@ resource "aws_s3_bucket" "sftp_storage" {
 resource "aws_s3_bucket_policy" "allow_prod_to_access_other_envs" {
   bucket = aws_s3_bucket.sftp_storage.id
   policy = data.aws_iam_policy_document.allow_prod_to_access_other_envs.json
+}
+
+resource "aws_s3_bucket_ownership_controls" "sftp_storage_ownership" {
+  bucket = aws_s3_bucket.sftp_storage.id
+  rule {
+    object_ownership = "BucketOwnerPreferred"
+  }
+}
+
+resource "aws_s3_bucket_public_access_block" "sftp_storage_pb" {
+  bucket = aws_s3_bucket.sftp_storage.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+resource "aws_s3_bucket_acl" "sftp_storage_acl" {
+  depends_on = [aws_s3_bucket_ownership_controls.sftp_storage_ownership]
+  bucket     = aws_s3_bucket.sftp_storage.id
+  acl        = "private"
 }
 
 data "aws_iam_policy_document" "allow_prod_to_access_other_envs" {
@@ -106,11 +133,23 @@ data "aws_iam_policy_document" "allow_prod_to_access_other_envs" {
       "${aws_s3_bucket.sftp_storage.arn}/*",
     ]
   }
-}
-
-resource "aws_s3_bucket_acl" "sftp_storage_acl" {
-  bucket = aws_s3_bucket.sftp_storage.id
-  acl    = "private"
+  statement {
+    effect = "Deny"
+    principals {
+      identifiers = ["*"]
+      type        = "*"
+    }
+    actions = ["s3:*"]
+    resources = [
+      aws_s3_bucket.sftp_storage.arn,
+      "${aws_s3_bucket.sftp_storage.arn}/*",
+    ]
+    condition {
+      test     = "Bool"
+      values   = ["false"]
+      variable = "aws:SecureTransport"
+    }
+  }
 }
 
 resource "aws_transfer_user" "sbc" {
@@ -173,5 +212,5 @@ resource "aws_transfer_ssh_key" "bcm" {
 
 
 output "sftp_url" {
-  value = local.transfer_family_resource_count == 0? null: aws_transfer_server.sftp[0].endpoint
+  value = local.transfer_family_resource_count == 0 ? null : aws_transfer_server.sftp[0].endpoint
 }

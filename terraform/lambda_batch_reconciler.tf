@@ -17,17 +17,17 @@ resource "aws_lambda_function" "batch_reconciler" {
 
   environment {
     variables = {
-      APP_VERSION                   = var.app_version
-      NODE_ENV                      = "production"
-      RUNTIME_ENV                   = var.target_env
-      DB_USER                       = var.db_username
-      DB_PASSWORD                   = data.aws_ssm_parameter.postgres_password.value
-      DB_HOST                       = aws_rds_cluster.pgsql.endpoint
-      DB_NAME                       = aws_rds_cluster.pgsql.database_name
-      MAIL_SERVICE_KEY              = data.aws_ssm_parameter.gcnotify_key.value
-      MAIL_SERVICE_BASE_URL         = var.mail_base_url
-      MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
-      SNS_TRIGGER_RECONCILIATION_TOPIC_ARN    = aws_sns_topic.trigger_reconciliation.arn
+      APP_VERSION                          = var.app_version
+      NODE_ENV                             = "production"
+      RUNTIME_ENV                          = var.target_env
+      DB_USER                              = var.db_username
+      DB_PASSWORD                          = data.aws_ssm_parameter.postgres_password.value
+      DB_HOST                              = aws_rds_cluster.pgsql.endpoint
+      DB_NAME                              = aws_rds_cluster.pgsql.database_name
+      MAIL_SERVICE_KEY                     = data.aws_ssm_parameter.gcnotify_key.value
+      MAIL_SERVICE_BASE_URL                = var.mail_base_url
+      MAIL_SERVICE_DEFAULT_TO_EMAIL        = var.mail_default_to
+      SNS_TRIGGER_RECONCILIATION_TOPIC_ARN = aws_sns_topic.trigger_reconciliation.arn
     }
   }
 

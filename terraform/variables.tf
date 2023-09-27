@@ -22,9 +22,10 @@ variable "mail_default_to" {}
 
 variable "disable_automated_reconciliation" {
   default = false
-} 
+}
 
 variable "auth_base_url" {}
+
 variable "region" {
   default = "ca-central-1"
 }
@@ -41,7 +42,12 @@ variable "root_block_device" {
 }
 
 locals {
-  namespace = "${var.project_code}_${var.target_env}"
-  pcc_api_name = "paycocoapi"
-  db_name = "${var.project_code}-db"
+  namespace      = "${var.project_code}_${var.target_env}"
+  pcc_api_name   = "paycocoapi"
+  db_name        = "${var.project_code}-db"
+  bucket         = "terraform-remote-state-${var.lz2_code}-${var.target_env}"
+  key            = ".terraform/terraform.state"
+  region         = "ca-central-1"
+  dynamodb_table = "terraform-remote-state-lock-${var.lz2_code}"
+  encrypt        = true
 }

@@ -1,9 +1,9 @@
 resource "aws_sns_topic" "trigger_report" {
-    name = "trigger-report"
+  name = "trigger-report"
 }
 
 resource "aws_sns_topic" "trigger_reconciliation" {
-    name = "trigger_reconciliation"
+  name = "trigger_reconciliation"
 }
 
 resource "aws_sns_topic_subscription" "trigger_report_target" {

@@ -29,9 +29,11 @@ export LZ2_PROJECT = iz8ci7
 
 # Terraform Cloud backend config variables      
 define TF_BACKEND_CFG
-workspaces { name = "$(LZ2_PROJECT)-$(ENV_NAME)" }
-hostname     = "app.terraform.io"
-organization = "bcgov"
+bucket         = "terraform-remote-state-$(LZ2_PROJECT)-$(ENV_NAME)"  
+key            = ".terraform/terraform.state"       
+region         = "ca-central-1"                  
+dynamodb_table = "terraform-remote-state-lock-$(LZ2_PROJECT)"  
+encrypt        = true                              
 endef
 export TF_BACKEND_CFG
 
@@ -53,12 +55,18 @@ TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
 ifeq ($(ENV_NAME), dev)
-DISABLE_AUTOMATED_RECONCILIATION=true
+export DISABLE_AUTOMATED_RECONCILIATION=true
+export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_DEV)
+endif
+
+ifeq ($(ENV_NAME), test)
+export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TEST)
 endif
 
 define TFVARS_DATA
 app_version = "$(APP_VERSION)"
 target_env = "$(ENV_NAME)"
+target_aws_account_id = "$(AWS_ACCOUNT_ID)"
 project_code = "$(PROJECT)"
 lz2_code = "$(LZ2_PROJECT)"
 db_username = "$(POSTGRES_USERNAME)"
@@ -97,7 +105,10 @@ check:
 # Terraform commands
 # ======================================================================
 
-config:
+format:
+	@terraform -chdir=$(TERRAFORM_DIR) fmt
+
+config:format
 	@echo "$$TFVARS_DATA" > $(TERRAFORM_DIR)/.auto.tfvars
 	@echo "$$TF_BACKEND_CFG" > $(TERRAFORM_DIR)/backend.hcl
 
@@ -206,11 +217,15 @@ aws-build-and-deploy-aws-data-clear-lambda: build-backend aws-upload-artifacts a
 # AWS Interactions
 # ======================================================================
 
+	
+
 aws-sync-files-from-prod-to-dev:
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-dev --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-dev/sbc --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-dev/bcm --acl bucket-owner-full-control
 
 aws-sync-files-from-prod-to-test:
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-test --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-dev/sbc --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-dev/bcm --acl bucket-owner-full-control
 
 aws-empty-s3-bucket-dev:
 	@aws s3 rm s3://pcc-integration-data-files-dev/bcm --recursive
