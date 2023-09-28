@@ -6,6 +6,11 @@ import { TDI34Header } from './flat-files/tdi34/TDI34Header';
 import { PosHeuristicRound } from './reconciliation/types';
 import { PaymentEntity, PaymentMethodEntity } from './transaction/entities';
 
+enum FileExtensions {
+  DAT = 'DAT',
+  JSON = 'JSON"',
+}
+
 export const ALL = 'all';
 
 export enum Ministries {
@@ -80,3 +85,11 @@ export interface NormalizedLocation {
 }
 
 export const BankMerchantId = 999999999;
+
+export const SUPPORTED_FILE_EXTENSIONS: {
+  [key: string]: string[];
+} = {
+  [FileTypes.TDI17]: [FileExtensions.DAT],
+  [FileTypes.TDI34]: [FileExtensions.DAT],
+  [FileTypes.SBC_SALES]: [FileExtensions.JSON],
+};
