@@ -12,8 +12,8 @@ export const heuristics: { [key: string]: Heuristics[] } = {
       nextRound: PosHeuristicRound.TWO,
       checkMatch: (payment: PaymentEntity, deposit: POSDepositEntity) => {
         if (
-          payment.status !== MatchStatus.MATCH &&
-          deposit.status !== MatchStatus.MATCH
+          payment.status !== MatchStatus.PENDING &&
+          deposit.status !== MatchStatus.PENDING
         ) {
           return (
             payment.amount === deposit.transaction_amt &&
@@ -28,8 +28,8 @@ export const heuristics: { [key: string]: Heuristics[] } = {
       nextRound: PosHeuristicRound.THREE,
       checkMatch: (payment: PaymentEntity, deposit: POSDepositEntity) => {
         if (
-          payment.status !== MatchStatus.MATCH &&
-          deposit.status !== MatchStatus.MATCH
+          payment.status === MatchStatus.PENDING &&
+          deposit.status === MatchStatus.PENDING
         ) {
           return payment.amount === deposit.transaction_amt;
         }
@@ -42,7 +42,7 @@ export const heuristics: { [key: string]: Heuristics[] } = {
       checkMatch: (payment: PaymentEntity, deposit: POSDepositEntity) => {
         if (
           payment.status !== MatchStatus.MATCH &&
-          deposit.status !== MatchStatus.MATCH
+          deposit.status === MatchStatus.IN_PROGRESS
         ) {
           return payment.amount === deposit.transaction_amt;
         }
