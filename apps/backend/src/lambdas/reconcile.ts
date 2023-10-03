@@ -17,7 +17,6 @@ import { heuristics } from '../reconciliation/ministryHeuristics';
 import { PosReconciliationService } from '../reconciliation/pos-reconciliation.service';
 import { ReportingService } from '../reporting/reporting.service';
 import { SnsManagerService } from '../sns-manager/sns-manager.service';
-import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
 
 export const handler = async (event: SNSEvent, _context?: Context) => {
@@ -51,6 +50,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       : event.Records[0].Sns.Message;
 
   const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
+
   const reconciliationMinDate = format(
     subBusinessDays(currentDate, numDaysToReconcile),
     'yyyy-MM-dd'
@@ -92,29 +92,26 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const locations = await locationService.getLocationsBySource(program);
 
   const reconcilePos = async (program: Ministries) => {
+    const payments = await paymentService.findPaymentsByMinistryAndMethod(
+      program,
+      PaymentMethodClassification.POS,
+      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+    );
     posReconciliationService.setHeuristics(heuristics[program]);
+    posReconciliationService.setReconciliationDate(dateRange.maxDate);
+    posReconciliationService.setExceptionsDate(dateRange.maxDate);
 
-    const payments = await paymentService.findPaymentsByMinistry(program, [
-      MatchStatus.PENDING,
-      MatchStatus.IN_PROGRESS,
-    ]);
     const deposits = await posDepositService.findPosDeposits(program, [
       MatchStatus.PENDING,
       MatchStatus.IN_PROGRESS,
     ]);
 
-    const posPayments = payments.filter(
-      (itm: PaymentEntity) =>
-        itm.payment_method.classification === PaymentMethodClassification.POS
-    );
-
     for (const location of locations) {
       posReconciliationService.setPendingPayments(
-        posPayments.filter(
+        payments.filter(
           (itm) => itm.transaction.location_id === location.location_id
         )
       );
-
       posReconciliationService.setPendingDeposits(
         deposits.filter((itm) =>
           location.merchant_ids.includes(itm.merchant_id)
@@ -124,12 +121,34 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       posReconciliationService.setMatchedPayments([]);
       posReconciliationService.setMatchedDeposits([]);
 
-      const reconciled = await posReconciliationService.reconcile(
-        location,
-        program
-      );
+      const reconciled = await posReconciliationService.reconcile(location);
 
       appLogger.log(reconciled);
+      const paymentsInprogress =
+        await paymentService.findPaymentsByMinistryAndMethod(
+          program,
+          PaymentMethodClassification.POS,
+          [MatchStatus.IN_PROGRESS]
+        );
+      const depositsInprogress = await posDepositService.findPosDeposits(
+        program,
+        [MatchStatus.IN_PROGRESS]
+      );
+
+      posReconciliationService.setPendingPayments(
+        paymentsInprogress.filter(
+          (itm) => itm.transaction.location_id === location.location_id
+        )
+      );
+      posReconciliationService.setPendingDeposits(
+        depositsInprogress.filter((itm) =>
+          location.merchant_ids.includes(itm.merchant_id)
+        )
+      );
+
+      const exceptions = await posReconciliationService.setExceptions();
+
+      appLogger.log(exceptions);
     }
   };
 

@@ -30,8 +30,9 @@ export class PaymentService {
     this.logger.setContext(PaymentService.name);
   }
 
-  async findPaymentsByMinistry(
+  async findPaymentsByMinistryAndMethod(
     program: Ministries,
+    method: PaymentMethodClassification,
     statuses: MatchStatus[] = MatchStatusAll
   ): Promise<PaymentEntity[]> {
     return await this.paymentRepo.find({
@@ -40,11 +41,16 @@ export class PaymentService {
           source_id: program,
         },
         status: In(statuses),
+        payment_method: { classification: method },
       },
       order: {
         transaction: { transaction_date: 'ASC', transaction_time: 'ASC' },
         amount: 'ASC',
         payment_method: { method: 'ASC' },
+      },
+      relations: {
+        transaction: true,
+        payment_method: true,
       },
     });
   }

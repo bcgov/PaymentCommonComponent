@@ -696,7 +696,7 @@ export class ReportingService {
     qb.select('payment.status');
     qb.addSelect('COUNT(payment.status)', 'count');
     qb.leftJoin('payment.payment_method', 'payment_method');
-    qb.andWhere('payment_method.classification = :classification', {
+    qb.where('payment_method.classification = :classification', {
       classification: PaymentMethodClassification.POS,
     });
     qb.groupBy('payment.status');
