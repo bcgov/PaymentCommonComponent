@@ -8,7 +8,7 @@ import { PaymentEntity, PaymentMethodEntity } from './transaction/entities';
 
 enum FileExtensions {
   DAT = 'DAT',
-  JSON = 'JSON"',
+  JSON = 'JSON',
 }
 
 export const ALL = 'all';

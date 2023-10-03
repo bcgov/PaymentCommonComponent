@@ -66,7 +66,7 @@ export class S3ManagerService {
         },
       });
 
-      await upload.done();
+      return await upload.done();
     } catch (e) {
       console.log(e);
     }
