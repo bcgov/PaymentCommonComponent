@@ -12,8 +12,10 @@ do
             
             echo -e "\nSyncing AWS PROD TO LOCAL..."
             source $REPO_LOCATION/bin/assume.sh "prod" "local"
-            rclone sync s3:pcc-integration-data-files-prod minio:pcc-integration-data-files-local 
-	        rclone check s3:pcc-integration-data-files-prod minio:pcc-integration-data-files-local
+            rclone sync s3:pcc-integration-data-files-prod/bcm minio:pcc-integration-data-files-local/bcm 
+	        rclone check s3:pcc-integration-data-files-prod/bcm minio:pcc-integration-data-files-local/bcm
+            rclone sync s3:pcc-integration-data-files-prod/sbc minio:pcc-integration-data-files-local/sbc 
+	        rclone check s3:pcc-integration-data-files-prod/sbc minio:pcc-integration-data-files-local/sbc
             
             break
             ;;
