@@ -7,12 +7,12 @@ import {
   ClassSerializerInterceptor,
   Inject,
   HttpException,
+  BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBasicAuth, ApiBody, ApiTags } from '@nestjs/swagger';
 import { ParseService } from './parse.service';
-import { DailyAlertRO } from './ro/daily-alert.ro';
-import { FileTypes, Ministries } from '../constants';
+import { FileTypes, Ministries, SUPPORTED_FILE_EXTENSIONS } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
@@ -69,6 +69,23 @@ export class ParseController {
     @Body() body: { program: Ministries; fileType: FileTypes },
     @UploadedFile() file: Express.Multer.File
   ) {
+    const fileSplit = file.filename.split('.');
+    const fileExtension = fileSplit[fileSplit.length - 1];
+    if (
+      fileSplit.length < 2 ||
+      !SUPPORTED_FILE_EXTENSIONS[body.fileType] ||
+      !SUPPORTED_FILE_EXTENSIONS[body.fileType].includes(
+        fileExtension.toUpperCase()
+      )
+    ) {
+      throw new BadRequestException(
+        `${fileExtension} does not match supported type(s) for the metadata provided for ${
+          body.fileType
+        } files. The following extensions are accepted: ${SUPPORTED_FILE_EXTENSIONS[
+          body.fileType
+        ].join(', ')}`
+      );
+    }
     this.appLogger.log({ ...body, file });
     if (body.fileType === FileTypes.TDI34) {
       return this.parseService.parseTDICardsFile(
