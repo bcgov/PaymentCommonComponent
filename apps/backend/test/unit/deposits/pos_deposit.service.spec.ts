@@ -1,7 +1,6 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { format } from 'date-fns';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
@@ -16,7 +15,6 @@ import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { TDI34Details } from '../../../src/flat-files';
 import { parseTDI, parseTDIHeader } from '../../../src/lambdas/utils/parseTDI';
 import { LoggerModule } from '../../../src/logger/logger.module';
-import { generateLocation } from '../../mocks/const/location_mock';
 import { MockData } from '../../mocks/mocks';
 
 describe('POSDepositService', () => {
@@ -90,15 +88,8 @@ describe('POSDepositService', () => {
   describe('findPosDeposits', () => {
     it('should call find and return an array', async () => {
       const spy = jest.spyOn(service, 'findPosDeposits');
-      const location = generateLocation();
-      await service.findPosDeposits(
-        {
-          minDate: format(new Date(), 'yyyy-MM-dd'),
-          maxDate: format(new Date(), 'yyyy-MM-dd'),
-        },
-        Ministries.SBC,
-        location.merchant_ids
-      );
+
+      await service.findPosDeposits(Ministries.SBC);
       expect(spy).toBeCalledTimes(1);
       expect(repository.find).toBeCalledTimes(1);
     });

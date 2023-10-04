@@ -1,27 +1,20 @@
-import { Injectable, Inject } from '@nestjs/common';
-import {
-  differenceInBusinessDays,
-  differenceInMinutes,
-  format,
-  parse,
-  subBusinessDays,
-} from 'date-fns';
+import { Inject, Injectable } from '@nestjs/common';
+import { format, parse, subBusinessDays } from 'date-fns';
 import Decimal from 'decimal.js';
+
 import {
-  PosDepositsAmountDictionary,
-  PosDepositsDateDictionary,
+  Dictionary,
+  PaymentDictionary,
   PosHeuristicRound,
+  PosDepositDictionary,
   ReconciliationType,
+  UnMatched,
+  ReconciliationResults,
+  ReconciliationError,
+  Heuristics,
 } from './types';
 import { MatchStatus } from '../common/const';
-import { subtractBusinessDaysNoTimezone } from '../common/utils/format';
-import {
-  AggregatedDeposit,
-  AggregatedPosPayment,
-  DateRange,
-  Ministries,
-  NormalizedLocation,
-} from '../constants';
+import { NormalizedLocation } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
@@ -31,9 +24,19 @@ import { PaymentService } from '../transaction/payment.service';
 /**
  * @description Reconciliation Service for matching POS payments to POS deposits
  * @class
+ *
  */
 @Injectable()
 export class PosReconciliationService {
+  public reconciliationDate: Date;
+  public exceptionsDate: Date;
+  public heuristics: Heuristics[];
+  public heuristicMatchRound: Heuristics;
+  public matchedPayments: PaymentEntity[];
+  public matchedDeposits: POSDepositEntity[];
+  public pendingPayments: PaymentEntity[];
+  public pendingDeposits: POSDepositEntity[];
+
   /**
    * @constructor
    * @param appLogger
@@ -42,46 +45,40 @@ export class PosReconciliationService {
    */
 
   constructor(
-    @Inject(PosDepositService) private posDepositService: PosDepositService,
+    @Inject(PosDepositService) private depositService: PosDepositService,
     @Inject(PaymentService) private paymentService: PaymentService,
     @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
     this.appLogger.setContext(PosReconciliationService.name);
   }
 
-  public async reconcileByLocation(
-    location: NormalizedLocation,
-    program: Ministries,
-    dateRange: DateRange,
-    allPosPaymentsInDates: PaymentEntity[],
-    allPosDepositsInDates: POSDepositEntity[]
-  ) {
-    const locationPayments = allPosPaymentsInDates.filter(
-      (posPayment) =>
-        posPayment.transaction.location_id === location.location_id
+  setReconciliationDate(maxDate: string): void {
+    this.reconciliationDate = parse(maxDate, 'yyyy-MM-dd', new Date());
+  }
+  setExceptionsDate(maxDate: string): void {
+    this.exceptionsDate = subBusinessDays(
+      parse(maxDate, 'yyyy-MM-dd', new Date()),
+      2
     );
+  }
 
-    const locationDeposits = allPosDepositsInDates.filter((posDeposit) =>
-      location.merchant_ids.includes(posDeposit.merchant_id)
-    );
-
-    await this.reconcile(
-      location,
-      locationPayments,
-      locationDeposits,
-      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
-    );
-
-    // Set exceptions for items still PENDING or IN PROGRESS for day before maxDate
-    await this.setExceptions(
-      location,
-      program,
-      format(
-        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 2),
-        'yyyy-MM-dd'
-      ),
-      parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
-    );
+  setHeuristics(heuristics: Heuristics[]): void {
+    this.heuristics = heuristics;
+  }
+  setHeuristicMatchRound(round: Heuristics): void {
+    this.heuristicMatchRound = round;
+  }
+  setPendingPayments(payments: PaymentEntity[]): void {
+    this.pendingPayments = payments;
+  }
+  setPendingDeposits(deposits: POSDepositEntity[]): void {
+    this.pendingDeposits = deposits;
+  }
+  setMatchedPayments(payments: PaymentEntity[]): void {
+    this.matchedPayments = payments;
+  }
+  setMatchedDeposits(deposits: POSDepositEntity[]): void {
+    this.matchedDeposits = deposits;
   }
 
   /**
@@ -89,132 +86,78 @@ export class PosReconciliationService {
    * @param {LocationEntity} location
    * @param {Ministries} program
    * @param {Date} date
-   * @returns {Promise<unknown>}
+   * @returns {Promise<ReconciliationResults>}
    */
 
   public async reconcile(
-    location: NormalizedLocation,
-    pendingPayments: PaymentEntity[],
-    pendingDeposits: POSDepositEntity[],
-    currentDate: Date
-  ): Promise<unknown> {
-    if (pendingPayments.length === 0 || pendingDeposits.length === 0) {
+    location: NormalizedLocation
+  ): Promise<ReconciliationResults | ReconciliationError> {
+    if (
+      this.pendingPayments?.length === 0 ||
+      this.pendingDeposits?.length === 0
+    ) {
       return {
         message: 'No pending payments or deposits found',
       };
     }
 
-    this.appLogger.log(`Payments to be matched: ${pendingPayments.length}`);
+    this.appLogger.log(`Reconciling POS for: ${location.description}`);
 
-    this.appLogger.log(`Deposits to be matched: ${pendingDeposits.length}`);
+    this.appLogger.log(`Payments Pending: ${this.pendingPayments?.length}`);
+    this.appLogger.log(`Deposits Pending: ${this.pendingDeposits?.length}`);
 
-    const locationPosDepositsDictionary =
-      this.buildPosDepositsDictionary(pendingDeposits);
-
-    const matches: { payment: PaymentEntity; deposit: POSDepositEntity }[] = [];
-    const matchesRoundFour: {
-      payments: PaymentEntity[];
-      deposits: POSDepositEntity[];
-    }[] = [];
-
-    const roundFourMatches = (round: PosHeuristicRound) => {
-      const alreadyMatchedDeposits = matches.map((itm) => itm?.deposit);
-      const roundMatches = this.matchPosPaymentToPosDepositsRoundFour(
-        this.aggregatePayments(
-          pendingPayments
-            .filter(
-              (itm) =>
-                itm.status === MatchStatus.PENDING ||
-                itm.status === MatchStatus.IN_PROGRESS
-            )
-            .filter((itm) => itm.status !== MatchStatus.MATCH)
-        ),
-        this.buildPosDepositsDictionary(
-          this.aggregateDeposits(
-            pendingDeposits.filter(
-              (itm) =>
-                !alreadyMatchedDeposits.find((deposit) => deposit.id === itm.id)
-            )
-          ) as unknown[] as POSDepositEntity[]
-        ),
-        round,
-        currentDate
-      );
-      matchesRoundFour.push(...roundMatches);
-      this.appLogger.log(
-        `MATCHES - ROUND ${round} - ${roundMatches.length} matches`
-      );
-    };
-
-    for (const heuristic in PosHeuristicRound) {
-      if (heuristic === PosHeuristicRound.FOUR) {
-        roundFourMatches(heuristic);
-      } else {
-        const roundMatches = this.matchPosPaymentToPosDeposits(
-          pendingPayments.filter(
-            (itm) =>
-              itm.status === MatchStatus.PENDING ||
-              itm.status === MatchStatus.IN_PROGRESS
-          ),
-          locationPosDepositsDictionary,
-          PosHeuristicRound[heuristic as PosHeuristicRound],
-          currentDate
-        );
-        matches.push(...roundMatches);
-        this.appLogger.log(
-          `MATCHES - ROUND ${heuristic} - ${roundMatches.length} matches`
-        );
-      }
-    }
-    // calling save on round four matches vs update in order to insert new records on the many to many join
-    const paymentsMatchedRoundFour = await this.paymentService.updatePayments(
-      matchesRoundFour.flatMap((itm) => itm.payments)
+    const { unmatchedPayments, unmatchedDeposits } = this.filterAndSetMatch(
+      this.pendingPayments,
+      this.pendingDeposits
     );
 
-    const depositsMatchedRoundFour =
-      await this.posDepositService.updateDeposits(
-        matchesRoundFour.flatMap((itm) => itm.deposits)
-      );
+    if (
+      unmatchedPayments.length + this.matchedPayments.length !==
+      this.pendingPayments.length
+    ) {
+      throw new Error('Unmatched payments do not match pending payments');
+    }
 
-    const paymentsMatched = matches.map((itm) => itm.payment);
+    if (
+      unmatchedDeposits.length + this.matchedDeposits.length !==
+      this.pendingDeposits.length
+    ) {
+      throw new Error('Unmatched deposits do not match pending deposits');
+    }
 
-    await this.paymentService.updatePaymentStatus(paymentsMatched);
+    const paymentMatches = await this.paymentService.updatePayments(
+      this.matchedPayments ?? []
+    );
 
-    const depositsMatched = matches.map((itm) => itm.deposit);
-    await this.posDepositService.updateDepositStatus(depositsMatched);
+    const depositMatches = await this.depositService.updateDeposits(
+      this.matchedDeposits ?? []
+    );
+
+    if (paymentMatches.length !== this.matchedPayments.length) {
+      throw new Error('Error updating matched payments');
+    }
+
+    if (depositMatches.length !== this.matchedDeposits.length) {
+      throw new Error('Error updating matched deposits');
+    }
 
     const paymentsInProgress = await this.paymentService.updatePayments(
-      pendingPayments
-        .filter(
-          (itm) =>
-            !paymentsMatchedRoundFour.find((payment) => payment.id === itm.id)
-        )
-        .filter((itm) => itm.status === MatchStatus.PENDING)
-        .map((itm) => ({
+      unmatchedPayments
+        .filter((itm: PaymentEntity) => itm?.status === MatchStatus.PENDING)
+        .map((itm: PaymentEntity) => ({
           ...itm,
-          in_progress_on: currentDate,
+          in_progress_on: this.reconciliationDate,
           timestamp: itm.timestamp,
           status: MatchStatus.IN_PROGRESS,
         }))
     );
 
-    const inProgressDeposits: POSDepositEntity[] = [];
-    Object.keys(locationPosDepositsDictionary).forEach((amount) => {
-      Object.keys(locationPosDepositsDictionary[amount]).forEach((date) => {
-        inProgressDeposits.push(...locationPosDepositsDictionary[amount][date]);
-      });
-    });
-
-    const depositsInProgress = await this.posDepositService.updateDeposits(
-      inProgressDeposits
-        .filter(
-          (itm) =>
-            !depositsMatchedRoundFour.find((deposit) => deposit.id === itm.id)
-        )
-        .filter((itm) => itm.status === MatchStatus.PENDING)
-        .map((itm) => ({
+    const depositsInProgress = await this.depositService.updateDeposits(
+      unmatchedDeposits
+        .filter((itm: POSDepositEntity) => itm?.status === MatchStatus.PENDING)
+        .map((itm: POSDepositEntity) => ({
           ...itm,
-          in_progress_on: currentDate,
+          in_progress_on: this.reconciliationDate,
           timestamp: itm.timestamp,
           status: MatchStatus.IN_PROGRESS,
         }))
@@ -223,271 +166,245 @@ export class PosReconciliationService {
     return {
       type: ReconciliationType.POS,
       location_id: location.location_id,
-      total_deposits_pending: pendingDeposits.length,
-      total_payments_pending: pendingPayments.length,
-      total_matched_payments:
-        paymentsMatched.length + paymentsMatchedRoundFour.length,
-      total_matched_deposits:
-        depositsMatched.length + depositsMatchedRoundFour.length,
+      total_deposits_pending: this.pendingDeposits.length,
+      total_payments_pending: this.pendingPayments.length,
+      total_matched_payments: paymentMatches.length,
+      total_matched_deposits: depositMatches.length,
       total_payments_in_progress: paymentsInProgress.length,
       total_deposits_in_progress: depositsInProgress.length,
-      total_payments_updated:
-        paymentsMatched.length +
-        paymentsInProgress.length +
-        paymentsMatchedRoundFour.length,
-      total_deposits_updated:
-        depositsMatched.length +
-        depositsInProgress.length +
-        depositsMatchedRoundFour.length,
     };
   }
 
-  public buildPosDepositsDictionary(
+  public filterAndSetMatch(
+    payments: PaymentEntity[],
     deposits: POSDepositEntity[]
-  ): PosDepositsAmountDictionary {
-    // Put deposits into a dictionary, first layer keys are amount, second layer keys are dates
-    // This makes it more efficient to find than looping through all deposits
-    return deposits.reduce((acc: PosDepositsAmountDictionary, posDeposit) => {
-      const amount = new Decimal(posDeposit.transaction_amt)
-        .toDecimalPlaces(2)
-        .toNumber();
-      const date = posDeposit.transaction_date;
-      const paymentMethod = posDeposit.payment_method.method;
-      if (acc[amount]) {
-        if (acc[amount][`${date}-${paymentMethod}`]) {
-          acc[amount][`${date}-${paymentMethod}`].push(posDeposit);
-        } else {
-          acc[amount][`${date}-${paymentMethod}`] = [posDeposit];
-        }
+  ): UnMatched {
+    this.appLogger.log(`Match Round: ${this.heuristicMatchRound.name}`);
+    this.appLogger.log(`Payments to be matched: ${payments.length}`);
+    this.appLogger.log(`Deposits to be matched: ${deposits.length}`);
+
+    const prevMatchedPaymentsCount = this.matchedPayments.length;
+    const prevMatchedDepositsCount = this.matchedDeposits.length;
+
+    const { unmatchedPayments, unmatchedDeposits } =
+      this.findMatchesInDictionary(this.buildDictionaries(payments, deposits));
+
+    this.appLogger.log(
+      `Matched Payments round ${this.heuristicMatchRound.name}: ${
+        this.matchedPayments.length - prevMatchedPaymentsCount
+      }`
+    );
+    this.appLogger.log(
+      `Matched Deposits round ${this.heuristicMatchRound.name}: ${
+        this.matchedDeposits.length - prevMatchedDepositsCount
+      }`
+    );
+    this.appLogger.log(
+      `Remaining Unmatched Payments: ${unmatchedPayments.length}`
+    );
+    this.appLogger.log(
+      `Remaining Unmatched Deposits: ${unmatchedDeposits.length}`
+    );
+
+    if (this.heuristicMatchRound.name === PosHeuristicRound.FOUR) {
+      return {
+        unmatchedDeposits,
+        unmatchedPayments,
+      };
+    }
+
+    this.heuristicMatchRound =
+      this.heuristics[this.heuristics.indexOf(this.heuristicMatchRound) + 1];
+
+    return this.filterAndSetMatch(unmatchedPayments, unmatchedDeposits);
+  }
+
+  public findMatchesInDictionary(
+    methodAndDateDictionaries: Dictionary[]
+  ): UnMatched {
+    methodAndDateDictionaries.forEach((itm: Dictionary, index: number) => {
+      if (
+        this.heuristicMatchRound.name === PosHeuristicRound.FOUR &&
+        this.heuristicMatchRound.checkMatch(
+          itm.payment_amount,
+          itm.deposit_amount
+        )
+      ) {
+        methodAndDateDictionaries[index].payments = itm?.payments?.map(
+          (payment: PaymentEntity) => ({
+            ...payment,
+            status: MatchStatus.MATCH,
+            heuristic_match_round: this.heuristicMatchRound.name,
+            reconciled_on: this.reconciliationDate,
+            round_four_matches: itm.deposits,
+          })
+        );
+        methodAndDateDictionaries[index].deposits = itm?.deposits?.map(
+          (deposit: POSDepositEntity) => ({
+            ...deposit,
+            status: MatchStatus.MATCH,
+            heuristic_match_round: this.heuristicMatchRound.name,
+            reconciled_on: this.reconciliationDate,
+            round_four_matches: itm.payments,
+          })
+        );
       } else {
-        acc[amount] = {
-          [`${date}-${paymentMethod}`]: [posDeposit],
+        itm.payments?.forEach((payment: PaymentEntity, pindex: number) => {
+          const deposit = itm?.deposits?.find((deposit: POSDepositEntity) =>
+            this.heuristicMatchRound.checkMatch(payment, deposit)
+          );
+          if (deposit) {
+            methodAndDateDictionaries[index].payments[pindex] = {
+              ...payment,
+              status: MatchStatus.MATCH,
+              heuristic_match_round: this.heuristicMatchRound.name,
+              reconciled_on: this.reconciliationDate,
+              pos_deposit_match: deposit,
+            };
+
+            methodAndDateDictionaries[index].deposits[
+              methodAndDateDictionaries[index]?.deposits.indexOf(deposit)
+            ] = {
+              ...deposit,
+              status: MatchStatus.MATCH,
+              heuristic_match_round: this.heuristicMatchRound.name,
+              reconciled_on: this.reconciliationDate,
+            };
+          }
+        });
+      }
+    });
+
+    const payments = methodAndDateDictionaries
+      .flatMap(
+        (itm: Dictionary) =>
+          itm?.payments?.filter((itm: PaymentEntity) => itm !== undefined)
+      )
+      ?.filter((itm) => itm);
+
+    const deposits = methodAndDateDictionaries
+      .flatMap(
+        (itm: Dictionary) =>
+          itm?.deposits?.filter((itm: POSDepositEntity) => itm !== undefined)
+      )
+      ?.filter((itm) => itm);
+    const matchedPayments =
+      payments.filter(
+        (itm: PaymentEntity) => itm?.status === MatchStatus.MATCH
+      ) ?? [];
+
+    this.matchedPayments.push(...matchedPayments);
+
+    const matchedDeposits =
+      deposits.filter(
+        (itm: POSDepositEntity) => itm?.status === MatchStatus.MATCH
+      ) ?? [];
+
+    this.matchedDeposits.push(...matchedDeposits);
+    return {
+      unmatchedPayments:
+        payments?.filter(
+          (itm: PaymentEntity) => itm?.status !== MatchStatus.MATCH
+        ) ?? [],
+      unmatchedDeposits:
+        deposits?.filter(
+          (itm: POSDepositEntity) => itm?.status !== MatchStatus.MATCH
+        ) ?? [],
+    };
+  }
+  /**
+   * Build a dictionary of payments and deposits based on the round
+   * @param payments
+   * @param deposits
+   * @param round
+   * @returns
+   */
+  public buildDictionaries(
+    payments: PaymentEntity[],
+    deposits: POSDepositEntity[]
+  ): Dictionary[] {
+    const paymentDictionary = this.paymentDictionary(payments);
+    const depositDictionary = this.depositDictionary(
+      deposits,
+      this.heuristicMatchRound.name
+    );
+
+    const keys = Array.from(
+      new Set([
+        ...Object.keys(paymentDictionary),
+        ...Object.keys(depositDictionary),
+      ])
+    );
+
+    return keys?.map((itm) => ({
+      ...paymentDictionary[itm],
+      ...depositDictionary[itm],
+    }));
+  }
+
+  /**
+   * Create a dictionary of the payments
+   * @param payments
+   * @returns
+   */
+  public paymentDictionary(payments: PaymentEntity[]): Dictionary {
+    return payments.reduce((acc: PaymentDictionary, itm: PaymentEntity) => {
+      const key = `${itm?.transaction?.transaction_date}-${itm?.payment_method?.method}`;
+      if (!acc[key]) {
+        acc[key] = {
+          date: itm?.transaction?.transaction_date,
+          method: itm?.payment_method?.method,
+          payment_amount: 0,
+          payments: [],
         };
       }
+      acc[key].payment_amount = new Decimal(acc[key].payment_amount)
+        .plus(new Decimal(itm?.amount ?? 0))
+        .toNumber();
+      acc[key].payments.push(itm);
+
       return acc;
     }, {});
   }
-
-  public matchPosPaymentToPosDeposits(
-    payments: PaymentEntity[],
-    locationDeposits: PosDepositsAmountDictionary,
-    posHeuristicRound: PosHeuristicRound,
-    currentDate: Date
-  ): { payment: PaymentEntity; deposit: POSDepositEntity }[] {
-    const matches: { payment: PaymentEntity; deposit: POSDepositEntity }[] = [];
-    for (const [pindex, payment] of payments.entries()) {
-      // find amount
-      const depositsWithAmount: PosDepositsDateDictionary | null =
-        locationDeposits[new Decimal(payment.amount).toNumber()];
-      const paymentMethod = payment.payment_method.method;
-      if (depositsWithAmount) {
-        // if amount found, find time
-        const dateToFind = payment.transaction.transaction_date;
-        const dayBeforeDateToFind = subtractBusinessDaysNoTimezone(
-          dateToFind,
-          1
-        );
-        let deposits: POSDepositEntity[] | null =
-          depositsWithAmount[`${dateToFind}-${paymentMethod}`];
-        if (!deposits?.length) {
-          // For round three, a deposit can be one business day apart from the payment
-          // Could be the day before, or the day after, so we search those days for the amount
-          if (posHeuristicRound === PosHeuristicRound.THREE) {
-            deposits =
-              depositsWithAmount[`${dayBeforeDateToFind}-${paymentMethod}`];
-          }
-        }
-        if (deposits?.length) {
-          // In case there are multiple deposits of the same amount in a single day
-          const dIndex = deposits.findIndex(
-            (dpst) =>
-              dpst.status !== MatchStatus.MATCH &&
-              this.verifyMethod(payment, dpst) &&
-              this.verifyTimeMatch(payment, dpst, posHeuristicRound)
-          );
-          if (dIndex > -1) {
-            // Match found!
-            const deposit = deposits.splice(dIndex, 1)[0];
-            payments[pindex].status = MatchStatus.MATCH;
-            matches.push({
-              payment: {
-                ...payment,
-                status: MatchStatus.MATCH,
-                timestamp: payment.timestamp,
-                reconciled_on: currentDate,
-                heuristic_match_round: posHeuristicRound,
-                pos_deposit_match: {
-                  ...deposit,
-                  heuristic_match_round: posHeuristicRound,
-                  timestamp: deposit.timestamp,
-                  status: MatchStatus.MATCH,
-                },
-              },
-              deposit: {
-                ...deposit,
-                reconciled_on: currentDate,
-                heuristic_match_round: posHeuristicRound,
-                status: MatchStatus.MATCH,
-                timestamp: deposit.timestamp,
-              },
-            });
-            // Pull it out of the dictionary
-            if (deposits.length) {
-              if (posHeuristicRound === PosHeuristicRound.THREE) {
-                depositsWithAmount[dayBeforeDateToFind] = deposits;
-              } else {
-                depositsWithAmount[dateToFind] = deposits;
-              }
-            } else {
-              if (posHeuristicRound === PosHeuristicRound.THREE) {
-                delete depositsWithAmount[dayBeforeDateToFind];
-              } else {
-                delete depositsWithAmount[dateToFind];
-              }
-            }
-          }
-        }
-      }
-    }
-    return matches;
-  }
   /**
-   * round four matching based on aggregated payments and deposits by date and method
-   * @param payments
-   * @param locationDeposits
-   * @param posHeuristicRound
+   * Create a dictionary of the deposits
+   * @param deposits
+   * @param round
    * @returns
    */
-  public matchPosPaymentToPosDepositsRoundFour(
-    aggregatedPayments: AggregatedPosPayment[],
-    aggregatedLocationDeposits: PosDepositsAmountDictionary,
-    posHeuristicRound: PosHeuristicRound,
-    currentDate: Date
-  ): { payments: PaymentEntity[]; deposits: POSDepositEntity[] }[] {
-    const matches: {
-      payments: PaymentEntity[];
-      deposits: POSDepositEntity[];
-    }[] = [];
-    for (const [pindex, payment] of aggregatedPayments.entries()) {
-      // find amount
-      const depositsWithAmount: PosDepositsDateDictionary | null =
-        aggregatedLocationDeposits[new Decimal(payment.amount).toNumber()];
-      const paymentMethod = payment.payment_method.method;
-      if (depositsWithAmount) {
-        // if amount found, find time
-        const dateToFind = payment.transaction.transaction_date;
-        const deposits: POSDepositEntity[] | null =
-          depositsWithAmount[`${dateToFind}-${paymentMethod}`];
-        if (deposits?.length) {
-          // In case there are multiple deposits of the same amount in a single day
-          const dIndex = deposits.findIndex(
-            (dpst) =>
-              dpst.status !== MatchStatus.MATCH &&
-              this.verifyRoundFour(
-                payment,
-                dpst as unknown as AggregatedDeposit
+  public depositDictionary(
+    deposits: POSDepositEntity[],
+    round: PosHeuristicRound
+  ): Dictionary {
+    return deposits.reduce(
+      (acc: PosDepositDictionary, itm: POSDepositEntity) => {
+        const dateKey =
+          round === PosHeuristicRound.THREE
+            ? format(
+                subBusinessDays(
+                  parse(itm.transaction_date, 'yyyy-MM-dd', new Date()),
+                  1
+                ),
+                'yyyy-MM-dd'
               )
-          );
-          if (dIndex > -1) {
-            // Match found!
-            const deposit = deposits.splice(
-              dIndex,
-              1
-            )[0] as unknown as AggregatedDeposit;
-            aggregatedPayments[pindex].status = MatchStatus.MATCH;
-            aggregatedPayments[pindex].payments = aggregatedPayments[
-              pindex
-            ].payments.map((itm) => ({
-              ...itm,
-              status: MatchStatus.MATCH,
-              timestamp: itm.timestamp,
-            }));
-            matches.push({
-              payments: payment.payments.map((itm: PaymentEntity) => ({
-                ...itm,
-                status: MatchStatus.MATCH,
-                timestamp: itm.timestamp,
-                heuristic_match_round: posHeuristicRound,
-                round_four_matches: deposit.deposits,
-                reconciled_on: currentDate,
-              })),
-              deposits: deposit.deposits.map((itm) => ({
-                ...itm,
-                status: MatchStatus.MATCH,
-                timestamp: itm.timestamp,
-                heuristic_match_round: posHeuristicRound,
-                reconciled_on: currentDate,
-              })),
-            });
-
-            // Pull it out of the dictionary
-            if (deposits.length) {
-              depositsWithAmount[dateToFind] = deposits;
-            } else {
-              delete depositsWithAmount[dateToFind];
-              // delete from parent dictionary?
-            }
-          }
+            : itm.transaction_date;
+        const key = `${dateKey}-${itm?.payment_method?.method}`;
+        if (!acc[key]) {
+          acc[key] = {
+            date: dateKey,
+            method: itm?.payment_method?.method,
+            deposit_amount: 0,
+            deposits: [],
+          };
         }
-      }
-    }
-    return matches;
-  }
-  /**
-   * check the payment and deposit are the same method
-   * @param {PaymentEntity} payment
-   * @param {POSDepositEntity} deposit
-   * @returns {boolean}
-   */
+        acc[key].deposit_amount = new Decimal(acc[key].deposit_amount)
+          .plus(new Decimal(itm.transaction_amt))
+          .toNumber();
+        acc[key].deposits.push(itm);
 
-  public verifyMethod(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity
-  ): boolean {
-    return payment.payment_method.method === deposit.payment_method.method;
-  }
-  /**
-   * date/time match on first three heuristic rounds
-   * @param {PaymentEntity} payment
-   * @param {POSDepositEntity} deposit
-   * @param {PosHeuristicRound} posHeuristicRound
-   * @returns {boolean}
-   */
-  public verifyTimeMatch(
-    payment: PaymentEntity,
-    deposit: POSDepositEntity,
-    heuristicRound: PosHeuristicRound
-  ): boolean {
-    if (heuristicRound === PosHeuristicRound.ONE) {
-      return (
-        Math.abs(differenceInMinutes(payment.timestamp, deposit.timestamp)) <= 5
-      );
-    } else if (heuristicRound === PosHeuristicRound.TWO) {
-      return payment.transaction.transaction_date === deposit.transaction_date;
-    } else if (heuristicRound === PosHeuristicRound.THREE) {
-      return (
-        Math.abs(
-          differenceInBusinessDays(payment.timestamp, deposit.timestamp)
-        ) <= 2
-      );
-    } else return false;
-  }
-
-  /**
-   * Check the required fields for a round four match
-   * @param payment
-   * @param deposit
-   * @returns
-   */
-  public verifyRoundFour(
-    payment: AggregatedPosPayment,
-    deposit: AggregatedDeposit
-  ): boolean {
-    return (
-      payment.transaction.transaction_date === deposit.transaction_date &&
-      payment.payment_method.method === deposit.payment_method.method &&
-      payment.status !== MatchStatus.MATCH &&
-      deposit.status !== MatchStatus.MATCH
+        return acc;
+      },
+      {}
     );
   }
   /**
@@ -497,53 +414,36 @@ export class PosReconciliationService {
    * @param date
    * @returns
    */
-  public async setExceptions(
-    location: NormalizedLocation,
-    program: Ministries,
-    exceptionsDate: string,
-    currentDate: Date
-  ): Promise<unknown> {
-    this.appLogger.log(
-      `Exceptions POS: ${exceptionsDate} - ${location.description} - ${location.location_id}`
-    );
-
-    const inProgressPayments =
-      await this.paymentService.findPosPaymentExceptions(
-        exceptionsDate,
-        location.location_id
-      );
-
-    const inProgressDeposits =
-      await this.posDepositService.findPOSDepositsExceptions(
-        exceptionsDate,
-        location.merchant_ids,
-        program
-      );
-
-    if (inProgressPayments.length === 0 && inProgressDeposits.length === 0) {
+  public async setExceptions(): Promise<unknown> {
+    if (
+      this.pendingPayments.length === 0 &&
+      this.pendingDeposits.length === 0
+    ) {
       return {
         message: 'No pending payments or deposits found',
       };
     }
 
-    const updatedPayments = inProgressPayments.map((itm) => ({
+    const updatedPayments = this.pendingPayments.map((itm) => ({
       ...itm,
       timestamp: itm.timestamp,
-      reconciled_on: currentDate,
+      reconciled_on: this.reconciliationDate,
       status: MatchStatus.EXCEPTION,
     }));
-    const paymentExceptions = await this.paymentService.updatePaymentStatus(
+    const paymentExceptions = await this.paymentService.updatePayments(
       updatedPayments // TO EXCEPTION
     );
 
-    const updatedDeposits = inProgressDeposits.map((itm) => ({
-      ...itm,
-      timestamp: itm.timestamp,
-      reconciled_on: currentDate,
-      status: MatchStatus.EXCEPTION,
-    }));
+    const updatedDeposits = this.pendingDeposits.map(
+      (itm: POSDepositEntity) => ({
+        ...itm,
+        timestamp: itm.timestamp,
+        reconciled_on: this.reconciliationDate,
+        status: MatchStatus.EXCEPTION,
+      })
+    );
 
-    const depositExceptions = await this.posDepositService.updateDepositStatus(
+    const depositExceptions = await this.depositService.updateDepositStatus(
       updatedDeposits // TO EXCEPTION
     );
 
@@ -551,72 +451,5 @@ export class PosReconciliationService {
       depositExceptions: depositExceptions.length,
       paymentExceptions: paymentExceptions.length,
     };
-  }
-  /**
-   * Aggregate payments by date and payment method for heuristic round four
-   * @param payments
-   * @returns
-   */
-  public aggregatePayments(payments: PaymentEntity[]): AggregatedPosPayment[] {
-    const aggPayments = payments.reduce(
-      (acc: { [key: string]: AggregatedPosPayment }, itm: PaymentEntity) => {
-        const key = `${itm.transaction.transaction_date}-${itm.payment_method.method}`;
-        if (!acc[key]) {
-          acc[key] = {
-            transaction: {
-              transaction_date: itm.transaction.transaction_date,
-            },
-            amount: new Decimal(0),
-            status: itm.status,
-            payment_method: itm.payment_method,
-            heuristic_match_round: undefined,
-            round_four_matches: [],
-            payments: [],
-          };
-        }
-        acc[key].amount = acc[key].amount.plus(itm.amount);
-        acc[key].payments.push(itm);
-
-        return acc;
-      },
-      {}
-    );
-
-    const aggregatedPayments: AggregatedPosPayment[] =
-      Object.values(aggPayments);
-
-    return aggregatedPayments;
-  }
-  /**
-   * Aggregate deposits by date and method for heuristic round four
-   * @param deposits
-   * @returns
-   */
-  public aggregateDeposits(deposits: POSDepositEntity[]): AggregatedDeposit[] {
-    const aggDeposits = deposits.reduce(
-      (acc: { [key: string]: AggregatedDeposit }, itm: POSDepositEntity) => {
-        const key = `${itm.transaction_date}-${itm.payment_method.method}`;
-        if (!acc[key]) {
-          acc[key] = {
-            transaction_amt: new Decimal(0),
-            payment_method: itm.payment_method,
-            status: itm.status,
-            transaction_date: itm.transaction_date,
-            heuristic_match_round: undefined,
-            deposits: [],
-          };
-        }
-        acc[key].transaction_amt = acc[key].transaction_amt.plus(
-          itm.transaction_amt
-        );
-        acc[key].deposits.push(itm);
-        return acc;
-      },
-      {}
-    );
-
-    const aggregatedDeposits: AggregatedDeposit[] = Object.values(aggDeposits);
-
-    return aggregatedDeposits;
   }
 }
