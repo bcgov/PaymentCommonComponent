@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBasicAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { S3ManagerService } from 'src/s3-manager/s3-manager.service';
 import { FileTypes, Ministries, SUPPORTED_FILE_EXTENSIONS } from '../constants';
 import { AppLogger } from '../logger/logger.service';
+import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
 @Controller('parse')
 @ApiBasicAuth()
@@ -84,7 +84,6 @@ export class ParseController {
         Body: file.buffer,
         ContentType: fileExtension,
       });
-      console.log(res);
       return {
         status: res?.$metadata.httpStatusCode,
       };
