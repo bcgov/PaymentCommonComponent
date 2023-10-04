@@ -185,7 +185,7 @@ describe('service', () => {
             .filter(
               (itm) => itm.heuristic_match_round === PosHeuristicRound.TWO
             )
-            .find((deposit) => deposit.id === itm?.pos_deposit_match?.id);
+            .find((deposit) => deposit === itm?.pos_deposit_match);
           if (deposit) {
             expect(
               timeBetweenMatchedPaymentAndDeposit(itm, deposit!)
