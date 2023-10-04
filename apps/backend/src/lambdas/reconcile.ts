@@ -32,7 +32,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const notificationService = app.get(NotificationService);
   const snsService = app.get(SnsManagerService);
   const reportingService = app.get(ReportingService);
-  const numDaysToReconcile = 31;
+  const numDaysToReconcile = 7;
 
   const isLocal = process.env.RUNTIME_ENV === 'local';
 
@@ -49,17 +49,17 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
 
-  const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
-
-  const reconciliationMinDate = format(
-    subBusinessDays(currentDate, numDaysToReconcile),
+  const currentDate = format(
+    subBusinessDays(parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date()), 1),
     'yyyy-MM-dd'
   );
-
-  const dateRange = {
-    minDate: reconciliationMinDate,
-    maxDate: reconciliationMaxDate,
-  };
+  const reconciliationMinDate = format(
+    subBusinessDays(
+      parse(currentDate, 'yyyy-MM-dd', new Date()),
+      numDaysToReconcile
+    ),
+    'yyyy-MM-dd'
+  );
 
   const fileCheck = async () => {
     const rule: FileIngestionRulesEntity =
@@ -72,7 +72,10 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     const daily = await notificationService.getProgramDailyUploadRecord(
       rule,
       format(
-        subBusinessDays(parse(dateRange.maxDate, 'yyyy-MM-dd', new Date()), 1),
+        subBusinessDays(
+          parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date()),
+          1
+        ),
         'yyyy-MM-dd'
       )
     );
@@ -84,7 +87,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       !requiredDailyFiles.every((file) => uploadedDailyFiles?.includes(file))
     ) {
       throw new Error(
-        `Incomplete dataset for this date ${dateRange.maxDate}. Please check the uploaded files.`
+        `Incomplete dataset for this date ${reconciliationMaxDate}. Please check the uploaded files.`
       );
     }
   };
@@ -94,17 +97,18 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const reconcilePos = async (program: Ministries) => {
     const payments = await paymentService.findPaymentsByMinistryAndMethod(
       program,
+      currentDate,
       PaymentMethodClassification.POS,
       [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
     );
     posReconciliationService.setHeuristics(heuristics[program]);
-    posReconciliationService.setReconciliationDate(dateRange.maxDate);
-    posReconciliationService.setExceptionsDate(dateRange.maxDate);
+    posReconciliationService.setReconciliationDate(reconciliationMaxDate);
 
-    const deposits = await posDepositService.findPosDeposits(program, [
-      MatchStatus.PENDING,
-      MatchStatus.IN_PROGRESS,
-    ]);
+    const deposits = await posDepositService.findPosDeposits(
+      program,
+      currentDate,
+      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+    );
 
     for (const location of locations) {
       posReconciliationService.setPendingPayments(
@@ -124,17 +128,24 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       const reconciled = await posReconciliationService.reconcile(location);
 
       appLogger.log(reconciled);
-      const paymentsInprogress =
-        await paymentService.findPaymentsByMinistryAndMethod(
-          program,
-          PaymentMethodClassification.POS,
-          [MatchStatus.IN_PROGRESS]
-        );
-      const depositsInprogress = await posDepositService.findPosDeposits(
+    }
+  };
+  const findPosExceptions = async () => {
+    posReconciliationService.setExceptionsDate(currentDate);
+
+    const paymentsInprogress =
+      await paymentService.findPaymentsByMinistryAndMethod(
         program,
+        format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
+        PaymentMethodClassification.POS,
         [MatchStatus.IN_PROGRESS]
       );
-
+    const depositsInprogress = await posDepositService.findPosDeposits(
+      program,
+      format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
+      [MatchStatus.IN_PROGRESS]
+    );
+    for (const location of locations) {
       posReconciliationService.setPendingPayments(
         paymentsInprogress.filter(
           (itm) => itm.transaction.location_id === location.location_id
@@ -153,13 +164,6 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   };
 
   const reconcileCash = async () => {
-    const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
-
-    const reconciliationMinDate = format(
-      subBusinessDays(currentDate, 31),
-      'yyyy-MM-dd'
-    );
-
     const dateRange = {
       minDate: reconciliationMinDate,
       maxDate: reconciliationMaxDate,
@@ -220,6 +224,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   try {
     !byPassFileValidity && (await fileCheck());
     await reconcilePos(program);
+    await findPosExceptions();
     await reconcileCash();
     reportEnabled && (await generateReport());
     isLocal && (await showConsoleReport());

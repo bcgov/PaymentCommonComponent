@@ -324,10 +324,7 @@ export class PosReconciliationService {
     deposits: POSDepositEntity[]
   ): Dictionary[] {
     const paymentDictionary = this.paymentDictionary(payments);
-    const depositDictionary = this.depositDictionary(
-      deposits,
-      this.heuristicMatchRound.name
-    );
+    const depositDictionary = this.depositDictionary(deposits);
 
     const keys = Array.from(
       new Set([
@@ -349,10 +346,24 @@ export class PosReconciliationService {
    */
   public paymentDictionary(payments: PaymentEntity[]): Dictionary {
     return payments.reduce((acc: PaymentDictionary, itm: PaymentEntity) => {
-      const key = `${itm?.transaction?.transaction_date}-${itm?.payment_method?.method}`;
+      const dateKey =
+        this.heuristicMatchRound.name === PosHeuristicRound.THREE
+          ? format(
+              subBusinessDays(
+                parse(
+                  itm?.transaction?.transaction_date,
+                  'yyyy-MM-dd',
+                  new Date()
+                ),
+                1
+              ),
+              'yyyy-MM-dd'
+            )
+          : itm?.transaction?.transaction_date;
+      const key = `${dateKey}-${itm?.payment_method?.method}`;
       if (!acc[key]) {
         acc[key] = {
-          date: itm?.transaction?.transaction_date,
+          date: dateKey,
           method: itm?.payment_method?.method,
           payment_amount: 0,
           payments: [],
@@ -372,22 +383,10 @@ export class PosReconciliationService {
    * @param round
    * @returns
    */
-  public depositDictionary(
-    deposits: POSDepositEntity[],
-    round: PosHeuristicRound
-  ): Dictionary {
+  public depositDictionary(deposits: POSDepositEntity[]): Dictionary {
     return deposits.reduce(
       (acc: PosDepositDictionary, itm: POSDepositEntity) => {
-        const dateKey =
-          round === PosHeuristicRound.THREE
-            ? format(
-                subBusinessDays(
-                  parse(itm.transaction_date, 'yyyy-MM-dd', new Date()),
-                  1
-                ),
-                'yyyy-MM-dd'
-              )
-            : itm.transaction_date;
+        const dateKey = itm.transaction_date;
         const key = `${dateKey}-${itm?.payment_method?.method}`;
         if (!acc[key]) {
           acc[key] = {

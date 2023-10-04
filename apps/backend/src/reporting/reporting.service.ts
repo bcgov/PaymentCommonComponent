@@ -24,10 +24,8 @@ import {
   NormalizedLocation,
   PaymentMethodClassification,
 } from '../constants';
-import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { PosDepositService } from '../deposits/pos-deposit.service';
 import { ExcelExportService } from '../excelexport/excelexport.service';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
@@ -36,10 +34,6 @@ export class ReportingService {
   constructor(
     @InjectRepository(POSDepositEntity)
     private posDepositRepo: Repository<POSDepositEntity>,
-    @Inject(CashDepositService)
-    private cashDepositService: CashDepositService,
-    @Inject(PosDepositService)
-    private posDepositService: PosDepositService,
     @InjectRepository(PaymentEntity)
     private paymentRepo: Repository<PaymentEntity>,
     @Inject(ExcelExportService)
