@@ -11,13 +11,9 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBasicAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { ParseService } from './parse.service';
 import { FileTypes, Ministries, SUPPORTED_FILE_EXTENSIONS } from '../constants';
-import { CashDepositService } from '../deposits/cash-deposit.service';
-import { PosDepositService } from '../deposits/pos-deposit.service';
 import { AppLogger } from '../logger/logger.service';
-import { NotificationService } from '../notification/notification.service';
-import { TransactionService } from '../transaction/transaction.service';
+import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
 @Controller('parse')
 @ApiBasicAuth()
@@ -25,22 +21,14 @@ import { TransactionService } from '../transaction/transaction.service';
 @UseInterceptors(ClassSerializerInterceptor)
 export class ParseController {
   constructor(
-    @Inject(ParseService)
-    private readonly parseService: ParseService,
-    @Inject(NotificationService)
-    private readonly alertService: NotificationService,
-    @Inject(TransactionService)
-    private readonly transactionService: TransactionService,
-    @Inject(CashDepositService)
-    private readonly cashDepositService: CashDepositService,
-    @Inject(PosDepositService)
-    private readonly posDepositService: PosDepositService,
+    @Inject(S3ManagerService)
+    private readonly s3: S3ManagerService,
     @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
     this.appLogger.setContext(ParseController.name);
   }
 
-  @Post('flat-file')
+  @Post('upload')
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -54,7 +42,7 @@ export class ParseController {
         },
         fileType: {
           type: 'string',
-          enum: ['TDI17', 'TDI34'],
+          enum: ['TDI17', 'TDI34', 'SBC_SALES'],
           nullable: false,
         },
         file: {
@@ -65,11 +53,12 @@ export class ParseController {
     },
   })
   @UseInterceptors(FileInterceptor('file'))
-  uploadFile(
+  async uploadFile(
     @Body() body: { program: Ministries; fileType: FileTypes },
     @UploadedFile() file: Express.Multer.File
   ) {
-    const fileSplit = file.filename.split('.');
+    const fileSplit = file.originalname.split('.');
+
     const fileExtension = fileSplit[fileSplit.length - 1];
     if (
       fileSplit.length < 2 ||
@@ -86,60 +75,21 @@ export class ParseController {
         ].join(', ')}`
       );
     }
-    this.appLogger.log({ ...body, file });
-    if (body.fileType === FileTypes.TDI34) {
-      return this.parseService.parseTDICardsFile(
-        file.filename,
-        Ministries.LABOUR,
-        Buffer.from(file.buffer)
-      );
-    } else {
-      return this.parseService.parseTDICashFile(
-        file.filename,
-        Ministries.LABOUR,
-        Buffer.from(file.buffer)
-      );
+    // TO DO - restructure s3and use enum for the proper keys
+    const key = FileTypes.SBC_SALES === body.fileType ? 'sbc' : 'bcm';
+    try {
+      const res = await this.s3.upload({
+        Bucket: `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
+        Key: key,
+        Body: file.buffer,
+        ContentType: fileExtension,
+      });
+      return {
+        status: res?.$metadata.httpStatusCode,
+      };
+    } catch (err) {
+      this.appLogger.error(err);
+      throw new HttpException('Error uploading file to S3', 500);
     }
-  }
-
-  @Post('upload-file')
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        fileName: {
-          type: 'string',
-          nullable: false,
-        },
-        fileType: {
-          type: 'string',
-          enum: ['TDI17', 'TDI34', 'SBC_SALES'],
-          nullable: false,
-        },
-        program: {
-          type: 'string',
-          enum: ['SBC', 'LABOUR'],
-          nullable: false,
-        },
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadAndParseFile(
-    @Body() body: { fileName: string; fileType: FileTypes; program: string },
-    /* eslint-disable-next-line @typescript-eslint/no-unused-vars */
-    @UploadedFile() _file: Express.Multer.File
-  ) {
-    const { fileName, fileType, program } = body;
-
-    this.appLogger.log(`Parsing ${fileName} - ${fileType} for ${program}`);
-
-    //TODO call parse service to process file event
-    throw new HttpException('Not Implemented', 501);
   }
 }
