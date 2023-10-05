@@ -1,5 +1,4 @@
 import { differenceInMinutes } from 'date-fns';
-import Decimal from 'decimal.js';
 import { Heuristics, PosHeuristicRound } from './types';
 import { MatchStatus } from '../common/const';
 import { Ministries } from '../constants';
@@ -15,15 +14,7 @@ export const heuristics: { [key: string]: Heuristics[] } = {
         return (
           payment.status !== MatchStatus.MATCH &&
           deposit.status !== MatchStatus.MATCH &&
-          new Decimal(
-            payment.amount > 0 ? payment.amount : payment.amount * -1
-          ).sub(
-            new Decimal(
-              deposit.transaction_amt > 0
-                ? deposit.transaction_amt
-                : deposit.transaction_amt * -1
-            )
-          ) === new Decimal(0) &&
+          payment.amount === deposit.transaction_amt &&
           Math.abs(differenceInMinutes(payment.timestamp, deposit.timestamp)) <=
             5
         );
@@ -37,15 +28,7 @@ export const heuristics: { [key: string]: Heuristics[] } = {
         return (
           payment.status !== MatchStatus.MATCH &&
           deposit.status !== MatchStatus.MATCH &&
-          new Decimal(
-            payment.amount > 0 ? payment.amount : payment.amount * -1
-          ).sub(
-            new Decimal(
-              deposit.transaction_amt > 0
-                ? deposit.transaction_amt
-                : deposit.transaction_amt * -1
-            )
-          ) === new Decimal(0)
+          payment.amount === deposit.transaction_amt
         );
       },
     },
@@ -56,15 +39,7 @@ export const heuristics: { [key: string]: Heuristics[] } = {
         return (
           deposit.status !== MatchStatus.MATCH &&
           payment.status !== MatchStatus.MATCH &&
-          new Decimal(
-            payment.amount > 0 ? payment.amount : payment.amount * -1
-          ).sub(
-            new Decimal(
-              deposit.transaction_amt > 0
-                ? deposit.transaction_amt
-                : deposit.transaction_amt * -1
-            )
-          ) === new Decimal(0)
+          payment.amount === deposit.transaction_amt
         );
       },
     },

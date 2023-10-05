@@ -376,10 +376,12 @@ minio-init:
 
 
 minio-ls: 
-	@mc ls s3/pcc-integration-data-files-local
+	@mc ls s3/pcc-integration-data-files-local/bcm
+	@mc ls s3/pcc-integration-data-files-local/sbc
 
 minio-rm:
-	@mc rm --recursive --force s3/pcc-integration-data-files-local
+	@mc rm --recursive --force s3/pcc-integration-data-files-local/bcm
+	@mc rm --recursive --force s3/pcc-integration-data-files-local/sbc
 
 minio-rm-archive:
 	@mc rm --recursive --force s3/pcc-integration-data-files-local/archive
