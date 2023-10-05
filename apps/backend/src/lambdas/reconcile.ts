@@ -6,7 +6,12 @@ import { generateLocalSNSMessage } from './helpers';
 import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
 import { MatchStatus } from '../common/const';
-import { Ministries, PaymentMethodClassification } from '../constants';
+import {
+  DateRange,
+  Ministries,
+  NormalizedLocation,
+  PaymentMethodClassification,
+} from '../constants';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
@@ -60,7 +65,10 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     ),
     'yyyy-MM-dd'
   );
-
+  const dateRange = {
+    minDate: reconciliationMinDate,
+    maxDate: reconciliationMaxDate,
+  };
   const fileCheck = async () => {
     const rule: FileIngestionRulesEntity =
       await notificationService.getRulesForProgram('SBC');
@@ -93,95 +101,6 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   };
 
   const locations = await locationService.getLocationsBySource(program);
-
-  const reconcilePos = async (program: Ministries) => {
-    const payments = await paymentService.findPaymentsByMinistryAndMethod(
-      program,
-      currentDate,
-      PaymentMethodClassification.POS,
-      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
-    );
-    posReconciliationService.setHeuristics(heuristics[program]);
-    posReconciliationService.setReconciliationDate(reconciliationMaxDate);
-
-    const deposits = await posDepositService.findPosDeposits(
-      program,
-      currentDate,
-      [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
-    );
-
-    for (const location of locations) {
-      posReconciliationService.setPendingPayments(
-        payments.filter(
-          (itm) => itm.transaction.location_id === location.location_id
-        )
-      );
-      posReconciliationService.setPendingDeposits(
-        deposits.filter((itm) =>
-          location.merchant_ids.includes(itm.merchant_id)
-        )
-      );
-      posReconciliationService.setHeuristicMatchRound(heuristics[program][0]);
-      posReconciliationService.setMatchedPayments([]);
-      posReconciliationService.setMatchedDeposits([]);
-
-      const reconciled = await posReconciliationService.reconcile(location);
-
-      appLogger.log(reconciled);
-    }
-  };
-  const findPosExceptions = async () => {
-    posReconciliationService.setExceptionsDate(currentDate);
-
-    const paymentsInprogress =
-      await paymentService.findPaymentsByMinistryAndMethod(
-        program,
-        format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
-        PaymentMethodClassification.POS,
-        [MatchStatus.IN_PROGRESS]
-      );
-    const depositsInprogress = await posDepositService.findPosDeposits(
-      program,
-      format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
-      [MatchStatus.IN_PROGRESS]
-    );
-    for (const location of locations) {
-      posReconciliationService.setPendingPayments(
-        paymentsInprogress.filter(
-          (itm) => itm.transaction.location_id === location.location_id
-        )
-      );
-      posReconciliationService.setPendingDeposits(
-        depositsInprogress.filter((itm) =>
-          location.merchant_ids.includes(itm.merchant_id)
-        )
-      );
-
-      const exceptions = await posReconciliationService.setExceptions();
-
-      appLogger.log(exceptions);
-    }
-  };
-
-  const reconcileCash = async () => {
-    const dateRange = {
-      minDate: reconciliationMinDate,
-      maxDate: reconciliationMaxDate,
-    };
-
-    for (const location of locations) {
-      appLogger.log(
-        `Pos Reconciliation: ${location.description} - ${reconciliationMaxDate}`
-      );
-      const reconcileCash =
-        await cashReconciliationService.reconcileCashByLocation(
-          location,
-          program,
-          dateRange
-        );
-      appLogger.log(reconcileCash);
-    }
-  };
 
   const showConsoleReport = async () => {
     const posReport = await reportingService.reportPosMatchSummaryByDate();
@@ -223,12 +142,139 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
   try {
     !byPassFileValidity && (await fileCheck());
-    await reconcilePos(program);
-    await findPosExceptions();
-    await reconcileCash();
+    await reconcilePos(
+      posReconciliationService,
+      currentDate,
+      paymentService,
+      locations,
+      program,
+      posDepositService,
+      appLogger
+    );
+    await findPosExceptions(
+      posReconciliationService,
+      currentDate,
+      paymentService,
+      locations,
+      program,
+      posDepositService,
+      appLogger
+    );
+    await reconcileCash(
+      dateRange,
+      locations,
+      cashReconciliationService,
+      program,
+      appLogger
+    );
     reportEnabled && (await generateReport());
     isLocal && (await showConsoleReport());
   } catch (err) {
     appLogger.error(err);
+  }
+};
+
+const findPosExceptions = async (
+  posReconciliationService: PosReconciliationService,
+  currentDate: string,
+  paymentService: PaymentService,
+  locations: NormalizedLocation[],
+  program: Ministries,
+  posDepositService: PosDepositService,
+  appLogger: AppLogger
+) => {
+  posReconciliationService.setExceptionsDate(currentDate);
+
+  const paymentsInprogress =
+    await paymentService.findPaymentsByMinistryAndMethod(
+      program,
+      format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
+      PaymentMethodClassification.POS,
+      [MatchStatus.IN_PROGRESS]
+    );
+  const depositsInprogress = await posDepositService.findPosDeposits(
+    program,
+    format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
+    [MatchStatus.IN_PROGRESS]
+  );
+  for (const location of locations) {
+    posReconciliationService.setPendingPayments(
+      paymentsInprogress.filter(
+        (itm) => itm.transaction.location_id === location.location_id
+      )
+    );
+    posReconciliationService.setPendingDeposits(
+      depositsInprogress.filter((itm) =>
+        location.merchant_ids.includes(itm.merchant_id)
+      )
+    );
+
+    const exceptions = await posReconciliationService.setExceptions();
+
+    appLogger.log(exceptions);
+  }
+};
+
+const reconcilePos = async (
+  posReconciliationService: PosReconciliationService,
+  currentDate: string,
+  paymentService: PaymentService,
+  locations: NormalizedLocation[],
+  program: Ministries,
+  posDepositService: PosDepositService,
+  appLogger: AppLogger
+) => {
+  const payments = await paymentService.findPaymentsByMinistryAndMethod(
+    program,
+    currentDate,
+    PaymentMethodClassification.POS,
+    [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+  );
+  posReconciliationService.setHeuristics(heuristics[program]);
+  posReconciliationService.setReconciliationDate(currentDate);
+
+  const deposits = await posDepositService.findPosDeposits(
+    program,
+    currentDate,
+    [MatchStatus.PENDING, MatchStatus.IN_PROGRESS]
+  );
+
+  for (const location of locations) {
+    posReconciliationService.setPendingPayments(
+      payments.filter(
+        (itm) => itm.transaction.location_id === location.location_id
+      )
+    );
+    posReconciliationService.setPendingDeposits(
+      deposits.filter((itm) => location.merchant_ids.includes(itm.merchant_id))
+    );
+    posReconciliationService.setHeuristicMatchRound(heuristics[program][0]);
+    posReconciliationService.setMatchedPayments([]);
+    posReconciliationService.setMatchedDeposits([]);
+
+    const reconciled = await posReconciliationService.reconcile(location);
+
+    appLogger.log(reconciled);
+  }
+};
+
+const reconcileCash = async (
+  dateRange: DateRange,
+  locations: NormalizedLocation[],
+  cashReconciliationService: CashReconciliationService,
+  program: Ministries,
+  appLogger: AppLogger
+) => {
+  for (const location of locations) {
+    appLogger.log(
+      `Pos Reconciliation: ${location.description} - ${dateRange.maxDate}`
+    );
+    const reconcileCash =
+      await cashReconciliationService.reconcileCashByLocation(
+        location,
+        program,
+        dateRange
+      );
+    appLogger.log(reconcileCash);
   }
 };
