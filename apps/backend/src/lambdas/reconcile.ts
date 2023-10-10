@@ -173,48 +173,19 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     appLogger.error(err);
   }
 };
-
-const findPosExceptions = async (
-  posReconciliationService: PosReconciliationService,
-  currentDate: string,
-  paymentService: PaymentService,
-  locations: NormalizedLocation[],
-  program: Ministries,
-  posDepositService: PosDepositService,
-  appLogger: AppLogger
-) => {
-  posReconciliationService.setExceptionsDate(currentDate);
-
-  const paymentsInprogress =
-    await paymentService.findPaymentsByMinistryAndMethod(
-      program,
-      format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
-      PaymentMethodClassification.POS,
-      [MatchStatus.IN_PROGRESS]
-    );
-  const depositsInprogress = await posDepositService.findPosDeposits(
-    program,
-    format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
-    [MatchStatus.IN_PROGRESS]
-  );
-  for (const location of locations) {
-    posReconciliationService.setPendingPayments(
-      paymentsInprogress.filter(
-        (itm) => itm.transaction.location_id === location.location_id
-      )
-    );
-    posReconciliationService.setPendingDeposits(
-      depositsInprogress.filter((itm) =>
-        location.merchant_ids.includes(itm.merchant_id)
-      )
-    );
-
-    const exceptions = await posReconciliationService.setExceptions();
-
-    appLogger.log(exceptions);
-  }
-};
-
+/**
+ * Find the payments and deposits for a given ministry up to the max date
+ * Initialize the pos-reconciliation service with the payments, deposits, and ministry specific heuristics
+ * Iterate the locations and reconcile each location based on the heursitic rules that are set
+ *
+ * @param posReconciliationService
+ * @param currentDate
+ * @param paymentService
+ * @param locations
+ * @param program
+ * @param posDepositService
+ * @param appLogger
+ */
 const reconcilePos = async (
   posReconciliationService: PosReconciliationService,
   currentDate: string,
@@ -257,7 +228,68 @@ const reconcilePos = async (
     appLogger.log(reconciled);
   }
 };
+/**
+ * Find the payments and deposits for a given ministry which are in progress where the txn date is -2 bus days from the current date that we are reconciling for
+ * Initialize the pos-reconciliation service with the payments, deposits, and ministry specific heuristics
+ * Iterate the locations and set these as exceptions
+ *
+ * @param posReconciliationService
+ * @param currentDate
+ * @param paymentService
+ * @param locations
+ * @param program
+ * @param posDepositService
+ * @param appLogger
+ */
+const findPosExceptions = async (
+  posReconciliationService: PosReconciliationService,
+  currentDate: string,
+  paymentService: PaymentService,
+  locations: NormalizedLocation[],
+  program: Ministries,
+  posDepositService: PosDepositService,
+  appLogger: AppLogger
+) => {
+  posReconciliationService.setExceptionsDate(currentDate);
 
+  const paymentsInprogress =
+    await paymentService.findPaymentsByMinistryAndMethod(
+      program,
+      format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
+      PaymentMethodClassification.POS,
+      [MatchStatus.IN_PROGRESS]
+    );
+  const depositsInprogress = await posDepositService.findPosDeposits(
+    program,
+    format(posReconciliationService.exceptionsDate, 'yyyy-MM-dd'),
+    [MatchStatus.IN_PROGRESS]
+  );
+  for (const location of locations) {
+    posReconciliationService.setPendingPayments(
+      paymentsInprogress.filter(
+        (itm) => itm.transaction.location_id === location.location_id
+      )
+    );
+    posReconciliationService.setPendingDeposits(
+      depositsInprogress.filter((itm) =>
+        location.merchant_ids.includes(itm.merchant_id)
+      )
+    );
+
+    const exceptions = await posReconciliationService.setExceptions();
+
+    appLogger.log(exceptions);
+  }
+};
+
+/**
+ * Iterate over the locations for a given ministry and reconcile cash
+ * @param dateRange
+ * @param locations
+ * @param cashReconciliationService
+ * @param program
+ * @param appLogger
+ */
 const reconcileCash = async (
   dateRange: DateRange,
   locations: NormalizedLocation[],
@@ -267,7 +299,7 @@ const reconcileCash = async (
 ) => {
   for (const location of locations) {
     appLogger.log(
-      `Pos Reconciliation: ${location.description} - ${dateRange.maxDate}`
+      `Cash Reconciliation: ${location.description} - ${dateRange.maxDate}`
     );
     const reconcileCash =
       await cashReconciliationService.reconcileCashByLocation(

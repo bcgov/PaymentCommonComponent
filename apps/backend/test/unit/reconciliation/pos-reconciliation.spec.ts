@@ -79,7 +79,6 @@ describe('service', () => {
       expect(notmatchedDeposits.length + service.matchedDeposits.length).toBe(
         service.pendingDeposits.length
       );
-      console.log(service.matchedDeposits.length, 'matchedPayments');
     });
 
     it('should have set the status to MATCH', () => {

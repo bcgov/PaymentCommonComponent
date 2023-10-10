@@ -223,31 +223,32 @@ export class PosReconciliationService {
     methodAndDateDictionaries: Dictionary[]
   ): UnMatched {
     methodAndDateDictionaries.forEach((itm: Dictionary, index: number) => {
-      if (
-        this.heuristicMatchRound.name === PosHeuristicRound.FOUR &&
-        this.heuristicMatchRound.checkMatch(
-          itm.payment_amount,
-          itm.deposit_amount
-        )
-      ) {
-        methodAndDateDictionaries[index].payments = itm?.payments?.map(
-          (payment: PaymentEntity) => ({
-            ...payment,
-            status: MatchStatus.MATCH,
-            heuristic_match_round: this.heuristicMatchRound.name,
-            reconciled_on: this.reconciliationDate,
-            round_four_matches: itm.deposits,
-          })
-        );
-        methodAndDateDictionaries[index].deposits = itm?.deposits?.map(
-          (deposit: POSDepositEntity) => ({
-            ...deposit,
-            status: MatchStatus.MATCH,
-            heuristic_match_round: this.heuristicMatchRound.name,
-            reconciled_on: this.reconciliationDate,
-            round_four_matches: itm.payments,
-          })
-        );
+      if (this.heuristicMatchRound.name === PosHeuristicRound.FOUR) {
+        if (
+          this.heuristicMatchRound.checkMatch(
+            itm.payment_amount ?? new Decimal(0),
+            itm.deposit_amount ?? new Decimal(0)
+          )
+        ) {
+          methodAndDateDictionaries[index].payments = itm?.payments?.map(
+            (payment: PaymentEntity) => ({
+              ...payment,
+              status: MatchStatus.MATCH,
+              heuristic_match_round: this.heuristicMatchRound.name,
+              reconciled_on: this.reconciliationDate,
+              round_four_matches: itm.deposits,
+            })
+          );
+          methodAndDateDictionaries[index].deposits = itm?.deposits?.map(
+            (deposit: POSDepositEntity) => ({
+              ...deposit,
+              status: MatchStatus.MATCH,
+              heuristic_match_round: this.heuristicMatchRound.name,
+              reconciled_on: this.reconciliationDate,
+              round_four_matches: itm.payments,
+            })
+          );
+        }
       } else {
         itm.payments?.forEach((payment: PaymentEntity, pindex: number) => {
           const deposit = itm?.deposits?.find((deposit: POSDepositEntity) =>
@@ -365,13 +366,14 @@ export class PosReconciliationService {
         acc[key] = {
           date: dateKey,
           method: itm?.payment_method?.method,
-          payment_amount: 0,
+          payment_amount: new Decimal(0),
           payments: [],
         };
       }
-      acc[key].payment_amount = new Decimal(acc[key].payment_amount)
-        .plus(new Decimal(itm?.amount ?? 0))
-        .toNumber();
+      acc[key].payment_amount = new Decimal(acc[key].payment_amount).plus(
+        new Decimal(itm?.amount ?? 0)
+      );
+
       acc[key].payments.push(itm);
 
       return acc;
@@ -392,13 +394,13 @@ export class PosReconciliationService {
           acc[key] = {
             date: dateKey,
             method: itm?.payment_method?.method,
-            deposit_amount: 0,
+            deposit_amount: new Decimal(0),
             deposits: [],
           };
         }
-        acc[key].deposit_amount = new Decimal(acc[key].deposit_amount)
-          .plus(new Decimal(itm.transaction_amt))
-          .toNumber();
+        acc[key].deposit_amount = new Decimal(acc[key].deposit_amount).plus(
+          new Decimal(itm.transaction_amt)
+        );
         acc[key].deposits.push(itm);
 
         return acc;

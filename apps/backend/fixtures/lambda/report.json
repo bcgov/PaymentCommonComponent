@@ -4,7 +4,7 @@
       "Sns": {
         "Message": {
           "period": {
-            "from": "2023-09-12",
+            "from": "2023-09-01",
             "to": "2023-09-30"
           },
           "program": "SBC"

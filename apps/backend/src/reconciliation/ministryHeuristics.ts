@@ -1,4 +1,5 @@
 import { differenceInMinutes } from 'date-fns';
+import Decimal from 'decimal.js';
 import { Heuristics, PosHeuristicRound } from './types';
 import { MatchStatus } from '../common/const';
 import { Ministries } from '../constants';
@@ -46,8 +47,8 @@ export const heuristics: { [key: string]: Heuristics[] } = {
     {
       name: PosHeuristicRound.FOUR,
       nextRound: null,
-      checkMatch: (payment_amount: number, deposit_amount: number) => {
-        return payment_amount === deposit_amount;
+      checkMatch: (payment_amount: Decimal, deposit_amount: Decimal) => {
+        return payment_amount.toNumber() === deposit_amount.toNumber();
       },
     },
   ],

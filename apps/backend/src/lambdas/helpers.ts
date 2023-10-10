@@ -1,4 +1,5 @@
 import { SNSEvent } from 'aws-lambda/trigger/sns';
+import { format, parse } from 'date-fns';
 
 /**
  * Extract the file date from the file name
@@ -60,3 +61,8 @@ export const generateLocalSNSMessage = (message: unknown): SNSEvent => {
     ],
   };
 };
+
+export const parseDate = (date: string): Date =>
+  parse(date, 'yyyy-MM-dd', new Date());
+
+export const formatDate = (date: Date): string => format(date, 'yyyy-MM-dd');
