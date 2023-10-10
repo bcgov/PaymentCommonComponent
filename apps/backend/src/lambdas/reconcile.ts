@@ -37,7 +37,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const notificationService = app.get(NotificationService);
   const snsService = app.get(SnsManagerService);
   const reportingService = app.get(ReportingService);
-  const numDaysToReconcile = 14;
+  const numDaysToReconcile = 30;
 
   const isLocal = process.env.RUNTIME_ENV === 'local';
 
