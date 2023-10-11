@@ -1,6 +1,7 @@
 import { createMock } from '@golevelup/ts-jest';
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { format } from 'date-fns';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
@@ -89,7 +90,10 @@ describe('POSDepositService', () => {
     it('should call find and return an array', async () => {
       const spy = jest.spyOn(service, 'findPosDeposits');
 
-      await service.findPosDeposits(Ministries.SBC);
+      await service.findPosDeposits(
+        Ministries.SBC,
+        format(new Date(), 'yyyy-MM-dd')
+      );
       expect(spy).toBeCalledTimes(1);
       expect(repository.find).toBeCalledTimes(1);
     });

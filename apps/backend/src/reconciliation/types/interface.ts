@@ -51,7 +51,7 @@ export interface PosDepositDictionary {
   [key: string]: {
     date: string;
     method: string;
-    deposit_amount: number;
+    deposit_amount: Decimal;
     deposits: POSDepositEntity[];
   };
 }
@@ -60,7 +60,7 @@ export interface PaymentDictionary {
   [key: string]: {
     date: string;
     method: string;
-    payment_amount: number;
+    payment_amount: Decimal;
     payments: PaymentEntity[];
   };
 }

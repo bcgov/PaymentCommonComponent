@@ -1,20 +1,24 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { format, parse, addBusinessDays, subBusinessDays } from 'date-fns';
-import { Between, In, LessThan, Raw, Repository } from 'typeorm';
+import {
+  Between,
+  In,
+  LessThan,
+  LessThanOrEqual,
+  Raw,
+  Repository,
+} from 'typeorm';
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries, NormalizedLocation } from '../constants';
 import { LocationEntity } from '../location/entities';
-import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
 export class PosDepositService {
   constructor(
-    @Inject(LocationService)
-    private locationService: LocationService,
     @InjectRepository(POSDepositEntity)
     private posDepositRepo: Repository<POSDepositEntity>,
     @Inject(AppLogger) private readonly appLogger: AppLogger
@@ -24,11 +28,12 @@ export class PosDepositService {
 
   async findPosDeposits(
     program: Ministries,
-
+    date: string,
     statuses: MatchStatus[] = MatchStatusAll
   ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.find({
       where: {
+        transaction_date: LessThanOrEqual(date),
         metadata: {
           program: program,
         },

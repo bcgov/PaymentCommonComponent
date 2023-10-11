@@ -1,4 +1,5 @@
-import { differenceInSeconds } from 'date-fns';
+import { differenceInMinutes } from 'date-fns';
+import Decimal from 'decimal.js';
 import { Heuristics, PosHeuristicRound } from './types';
 import { MatchStatus } from '../common/const';
 import { Ministries } from '../constants';
@@ -11,15 +12,13 @@ export const heuristics: { [key: string]: Heuristics[] } = {
       name: PosHeuristicRound.ONE,
       nextRound: PosHeuristicRound.TWO,
       checkMatch: (payment: PaymentEntity, deposit: POSDepositEntity) => {
-        if (
-          payment.status !== MatchStatus.PENDING &&
-          deposit.status !== MatchStatus.PENDING
-        ) {
-          return (
-            payment.amount === deposit.transaction_amt &&
-            differenceInSeconds(payment.timestamp, deposit.timestamp) < 240
-          );
-        }
+        return (
+          payment.status !== MatchStatus.MATCH &&
+          deposit.status !== MatchStatus.MATCH &&
+          payment.amount === deposit.transaction_amt &&
+          Math.abs(differenceInMinutes(payment.timestamp, deposit.timestamp)) <=
+            5
+        );
       },
     },
 
@@ -27,33 +26,29 @@ export const heuristics: { [key: string]: Heuristics[] } = {
       name: PosHeuristicRound.TWO,
       nextRound: PosHeuristicRound.THREE,
       checkMatch: (payment: PaymentEntity, deposit: POSDepositEntity) => {
-        if (
-          payment.status === MatchStatus.PENDING &&
-          deposit.status === MatchStatus.PENDING
-        ) {
-          return payment.amount === deposit.transaction_amt;
-        }
+        return (
+          payment.status !== MatchStatus.MATCH &&
+          deposit.status !== MatchStatus.MATCH &&
+          payment.amount === deposit.transaction_amt
+        );
       },
     },
-
     {
       name: PosHeuristicRound.THREE,
       nextRound: PosHeuristicRound.FOUR,
       checkMatch: (payment: PaymentEntity, deposit: POSDepositEntity) => {
-        if (
+        return (
+          deposit.status !== MatchStatus.MATCH &&
           payment.status !== MatchStatus.MATCH &&
-          deposit.status === MatchStatus.IN_PROGRESS
-        ) {
-          return payment.amount === deposit.transaction_amt;
-        }
+          payment.amount === deposit.transaction_amt
+        );
       },
     },
-
     {
       name: PosHeuristicRound.FOUR,
       nextRound: null,
-      checkMatch: (payment_amount: number, deposit_amount: number) => {
-        return payment_amount === deposit_amount;
+      checkMatch: (payment_amount: Decimal, deposit_amount: Decimal) => {
+        return payment_amount.toNumber() === deposit_amount.toNumber();
       },
     },
   ],

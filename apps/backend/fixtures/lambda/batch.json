@@ -1,9 +1,9 @@
 {
   "period": {
-    "from": "2023-06-01",
+    "from": "2023-08-01",
     "to": ""
   },
   "program": "SBC",
   "reportEnabled": false,
-  "byPassFileValidity": false
+  "byPassFileValidity": true
 }

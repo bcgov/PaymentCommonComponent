@@ -32,6 +32,7 @@ export class PaymentService {
 
   async findPaymentsByMinistryAndMethod(
     program: Ministries,
+    date: string,
     method: PaymentMethodClassification,
     statuses: MatchStatus[] = MatchStatusAll
   ): Promise<PaymentEntity[]> {
@@ -39,6 +40,7 @@ export class PaymentService {
       where: {
         transaction: {
           source_id: program,
+          transaction_date: LessThanOrEqual(date),
         },
         status: In(statuses),
         payment_method: { classification: method },

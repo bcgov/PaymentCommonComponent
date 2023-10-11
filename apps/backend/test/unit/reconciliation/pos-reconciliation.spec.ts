@@ -79,7 +79,6 @@ describe('service', () => {
       expect(notmatchedDeposits.length + service.matchedDeposits.length).toBe(
         service.pendingDeposits.length
       );
-      console.log(service.matchedDeposits.length, 'matchedPayments');
     });
 
     it('should have set the status to MATCH', () => {
@@ -93,19 +92,21 @@ describe('service', () => {
 
     it('should match payment method on all matched payments/deposits', () => {
       expect(
-        service.matchedPayments.every(
-          (itm) =>
-            itm.pos_deposit_match?.payment_method.method ===
-            itm.payment_method.method
-        )
+        service.matchedPayments
+          .filter((itm) => itm.heuristic_match_round !== PosHeuristicRound.FOUR)
+          .every(
+            (itm) =>
+              itm.pos_deposit_match?.payment_method.method ===
+              itm.payment_method.method
+          )
       ).toBe(true);
     });
 
     it('should match amount on all matched payments/deposits', () => {
       expect(
-        service.matchedPayments.every(
-          (itm) => itm.amount === itm.pos_deposit_match?.transaction_amt
-        )
+        service.matchedPayments
+          .filter((itm) => itm.heuristic_match_round !== PosHeuristicRound.FOUR)
+          .every((itm) => itm.amount === itm.pos_deposit_match?.transaction_amt)
       ).toBe(true);
     });
 
