@@ -14,9 +14,9 @@ import {
   Heuristics,
 } from './types';
 import { MatchStatus } from '../common/const';
-import { NormalizedLocation } from '../constants';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { LocationEntity } from '../location/entities/location.entity';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
@@ -90,7 +90,7 @@ export class PosReconciliationService {
    */
 
   public async reconcile(
-    location: NormalizedLocation
+    location: LocationEntity
   ): Promise<ReconciliationResults | ReconciliationError> {
     if (
       this.pendingPayments?.length === 0 ||
@@ -361,7 +361,7 @@ export class PosReconciliationService {
               'yyyy-MM-dd'
             )
           : itm?.transaction?.transaction_date;
-      const key = `${dateKey}-${itm?.payment_method?.method}`;
+      const key = `${itm.transaction.location.location_id}-${dateKey}-${itm?.payment_method?.method}`;
       if (!acc[key]) {
         acc[key] = {
           date: dateKey,

@@ -70,7 +70,7 @@ export class CashDepositService {
     const depositStatus = statuses ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
+        location: { pt_location_id },
         metadata: { program: program },
         deposit_date,
         status: In(depositStatus),
@@ -94,7 +94,7 @@ export class CashDepositService {
     const deposits: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
         metadata: { program },
-        pt_location_id,
+        location: { pt_location_id },
       },
       order: {
         deposit_date: order,
@@ -137,7 +137,7 @@ export class CashDepositService {
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
+        location: { pt_location_id },
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: MatchStatus.IN_PROGRESS,
@@ -171,7 +171,7 @@ export class CashDepositService {
             maxDate,
           }
         ),
-        pt_location_id: In(pt_location_ids),
+        location: { pt_location_id: In(pt_location_ids) },
       },
       order: {
         deposit_date: 'ASC',
@@ -207,7 +207,7 @@ export class CashDepositService {
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
       },
       order: {
-        pt_location_id: 'ASC',
+        location: { pt_location_id: 'ASC' },
         reconciled_on: 'ASC',
         deposit_amt_cdn: 'ASC',
         status: 'ASC',
@@ -223,7 +223,7 @@ export class CashDepositService {
         status: MatchStatus.IN_PROGRESS,
       },
       order: {
-        pt_location_id: 'ASC',
+        location: { pt_location_id: 'ASC' },
         in_progress_on: 'ASC',
         deposit_amt_cdn: 'ASC',
       },
@@ -242,7 +242,7 @@ export class CashDepositService {
         status: MatchStatus.PENDING,
       },
       order: {
-        pt_location_id: 'ASC',
+        location: { pt_location_id: 'ASC' },
         deposit_amt_cdn: 'ASC',
       },
       relations: {

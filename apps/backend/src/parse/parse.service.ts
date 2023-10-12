@@ -31,6 +31,7 @@ import {
 } from '../lambdas/helpers';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../lambdas/utils/parseTDI';
+import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../notification/entities/program-daily-upload.entity';
@@ -57,6 +58,8 @@ export class ParseService {
     private readonly transactionService: TransactionService,
     @Inject(NotificationService)
     private readonly notificationService: NotificationService,
+    @Inject(LocationService)
+    private readonly locationService: LocationService,
     @InjectRepository(FileUploadedEntity)
     private uploadedRepo: Repository<FileUploadedEntity>
   ) {
@@ -111,6 +114,7 @@ export class ParseService {
     fileName: string
   ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: string }> {
     const paymentMethods = await this.paymentMethodService.getPaymentMethods();
+    const locations = await this.locationService.findAll();
     // validate the filename - this must follow a specific format to be valid
     validateSbcGarmsFileName(fileName);
     // Creates an array of Transaction Entities
@@ -120,6 +124,7 @@ export class ParseService {
       (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
       fileName,
       paymentMethods,
+      locations,
       fileDate
     );
 

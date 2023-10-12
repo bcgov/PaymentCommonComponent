@@ -4,7 +4,6 @@ import { MatchStatus } from '../../common/const';
 import {
   DateRange,
   Ministries,
-  NormalizedLocation,
   PaymentMethodClassification,
 } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
@@ -66,7 +65,7 @@ export interface PaymentDictionary {
 }
 
 export interface ReconcileEvent {
-  locations: NormalizedLocation[];
+  locations: LocationEntity[];
   reconciliationMaxDate: string;
   program: Ministries;
   payments: PaymentEntity[];

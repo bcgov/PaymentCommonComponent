@@ -1,7 +1,7 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('master_location_data')
-export class LocationEntity {
+export class MasterDataLocationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -44,7 +44,7 @@ export class LocationEntity {
   @Column({ type: 'int4', nullable: false })
   merchant_id: number;
 
-  constructor(data: Partial<LocationEntity>) {
+  constructor(data: Partial<MasterDataLocationEntity>) {
     Object.assign(this, data);
   }
 }

@@ -3,7 +3,8 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as csv from 'csvtojson';
 import { masterData } from './const';
 import { FileTypes } from '../constants';
-import { LocationEntity } from '../location/entities';
+import { MasterDataLocationEntity } from '../location/entities';
+import { LocationEntity } from '../location/entities/location.entity';
 import { LocationService } from '../location/location.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
@@ -24,6 +25,9 @@ export class DatabaseService {
   ) {}
 
   async seedMasterData() {
+    const masterLocations: MasterDataLocationEntity[] =
+      await this.locationService.findAllMasterLocationsData();
+
     const locations: LocationEntity[] = await this.locationService.findAll();
 
     const paymentMethods: PaymentMethodEntity[] =
@@ -35,13 +39,16 @@ export class DatabaseService {
     if (rules.length === 0) {
       await this.seedFileIngestionRules();
     }
+    if (paymentMethods.length === 0) {
+      await this.seedPaymentMethods();
+    }
+
+    if (masterLocations.length === 0) {
+      await this.seedMasterData();
+    }
 
     if (locations.length === 0) {
       await this.seedLocations();
-    }
-
-    if (paymentMethods.length === 0) {
-      await this.seedPaymentMethods();
     }
   }
 
@@ -79,8 +86,7 @@ export class DatabaseService {
 
     await this.notificationService.createRulesForProgram(rules);
   }
-
-  async seedLocations() {
+  async seedMasterLocationData() {
     const requestParams: GetObjectCommandInput = {
       Bucket: masterData.Bucket,
       Key: `${masterData.Key}/${masterData.LocationsCSV}`,
@@ -89,11 +95,20 @@ export class DatabaseService {
     const awsBucketResponse = await this.s3Service.getObjectString(
       requestParams
     );
-    const sbcLocationMaster = await csv.default().fromString(awsBucketResponse);
-    const locationEntities = sbcLocationMaster.map(
-      (loc) => new LocationEntity({ ...loc })
+    const locationMaster = await csv.default().fromString(awsBucketResponse);
+    const locationEntities = locationMaster.map(
+      (loc) => new MasterDataLocationEntity({ ...loc })
     );
     await this.locationService.createLocations(locationEntities);
+  }
+
+  async seedLocations(): Promise<void> {
+    const locs = this.locationService.normalizeLocations(
+      await this.locationService.findAllMasterLocationsData(),
+      await this.paymentMethodService.getPaymentMethods()
+    );
+
+    await this.locationService.createNormalizedLocation(locs);
   }
 
   async seedPaymentMethods() {

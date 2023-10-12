@@ -71,7 +71,7 @@ export class PaymentService {
       where: {
         transaction: {
           transaction_date: LessThan(maxDate),
-          location_id,
+          location: { location_id },
         },
         status: MatchStatus.IN_PROGRESS,
         payment_method: { classification: PaymentMethodClassification.POS },
@@ -102,7 +102,7 @@ export class PaymentService {
             fiscal_close_date: payment.transaction.fiscal_close_date,
             amount: new Decimal(0),
             payments: [],
-            location_id: payment.transaction.location_id,
+            location_id: payment.transaction.location.location_id,
             cash_deposit_match: undefined,
           };
         }
@@ -139,7 +139,7 @@ export class PaymentService {
         payment_method: { classification: PaymentMethodClassification.CASH },
         status: In(statuses),
         transaction: {
-          location_id: In(location_ids),
+          location: { location_id: In(location_ids) },
           fiscal_close_date: Raw(
             (alias) => `${alias} >= :minDate AND ${alias} <= :maxDate`,
             {
@@ -194,7 +194,7 @@ export class PaymentService {
         payment_method: { classification: PaymentMethodClassification.CASH },
         status: MatchStatus.IN_PROGRESS,
         transaction: {
-          location_id: location_id,
+          location: { location_id },
           fiscal_close_date: LessThanOrEqual(pastDueDepositDate),
         },
       },
@@ -256,7 +256,7 @@ export class PaymentService {
         payment_method: { classification },
       },
       order: {
-        transaction: { location_id: 'ASC' },
+        transaction: { location: { location_id: 'ASC' } },
         reconciled_on: 'ASC',
         amount: 'ASC',
         status: 'ASC',
@@ -280,7 +280,7 @@ export class PaymentService {
         payment_method: { classification },
       },
       order: {
-        transaction: { location_id: 'ASC' },
+        transaction: { location: { location_id: 'ASC' } },
         in_progress_on: 'ASC',
         amount: 'ASC',
       },
@@ -299,7 +299,10 @@ export class PaymentService {
         },
       },
       order: {
-        transaction: { location_id: 'ASC', transaction_date: 'ASC' },
+        transaction: {
+          location: { location_id: 'ASC' },
+          transaction_date: 'ASC',
+        },
         amount: 'ASC',
       },
     });

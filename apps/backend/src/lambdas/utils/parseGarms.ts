@@ -1,6 +1,7 @@
 import Decimal from 'decimal.js';
 import { parseFlatDateString } from '../../common/utils/format';
 import { Ministries } from '../../constants';
+import { LocationEntity } from '../../location/entities';
 import { TransactionEntity, PaymentEntity } from '../../transaction/entities';
 import { PaymentMethodEntity } from '../../transaction/entities/payment-method.entity';
 import {
@@ -26,6 +27,7 @@ export const parseGarms = (
   garmsJson: SBCGarmsJson[],
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[],
+  locations: LocationEntity[],
   fileDate: string
 ): TransactionEntity[] => {
   const garmsData = garmsJson.map((itm) => ({
@@ -34,7 +36,7 @@ export const parseGarms = (
   }));
 
   return garmsData.map((data: SBCGarmsJson) =>
-    parseGarmsData(data, fileDate, source_file_name, paymentMethods)
+    parseGarmsData(data, fileDate, source_file_name, paymentMethods, locations)
   );
 };
 
@@ -42,7 +44,8 @@ const parseGarmsData = (
   garmsData: SBCGarmsJson,
   fileDate: string,
   source_file_name: string,
-  paymentMethods: PaymentMethodEntity[]
+  paymentMethods: PaymentMethodEntity[],
+  locations: LocationEntity[]
 ): TransactionEntity => {
   const {
     sales_transaction_date,
@@ -60,7 +63,9 @@ const parseGarmsData = (
     transaction_id: sales_transaction_id,
     transaction_date: sales_transaction_date.slice(0, 10),
     transaction_time: sales_transaction_date.slice(11, 19).replaceAll('.', ':'),
-    location_id: parseInt(source.location_id),
+    location: locations.find(
+      (itm) => itm.location_id === parseInt(source.location_id)
+    ),
     total_transaction_amount: payment_total,
     fiscal_close_date: parseFlatDateString(fiscal_close_date),
     payments: payments.map((garmsPayment: SBCGarmsPayment) =>

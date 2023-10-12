@@ -12,7 +12,7 @@ import {
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
-import { DateRange, Ministries, NormalizedLocation } from '../constants';
+import { DateRange, Ministries } from '../constants';
 import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 
@@ -78,14 +78,14 @@ export class PosDepositService {
       where: {
         transaction_date: LessThan(date),
         status: MatchStatus.IN_PROGRESS,
-        merchant_id: In(merchant_ids),
+        merchant: { merchant_id: In(merchant_ids) },
         metadata: { program },
       },
     });
   }
 
   async findPOSBySettlementDate(
-    locations: NormalizedLocation[],
+    locations: LocationEntity[],
     program: Ministries,
     dateRange: DateRange
   ) {
@@ -104,7 +104,7 @@ export class PosDepositService {
     );
     qb.where({
       metadata: { program },
-      merchant_id: In(locations.flatMap((l) => l.merchant_ids)),
+      merchant: { merchant_id: In(locations.flatMap((l) => l.merchant_ids)) },
       settlement_date: Raw(
         (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
         { minDate, maxDate }
@@ -212,7 +212,7 @@ export class PosDepositService {
         payment_match: true,
       },
       order: {
-        merchant_id: 'ASC',
+        merchant: { merchant_id: 'ASC' },
         reconciled_on: 'ASC',
         transaction_amt: 'ASC',
         status: 'ASC',
@@ -228,7 +228,7 @@ export class PosDepositService {
         status: MatchStatus.IN_PROGRESS,
       },
       order: {
-        merchant_id: 'ASC',
+        merchant: { merchant_id: 'ASC' },
         in_progress_on: 'ASC',
         transaction_amt: 'ASC',
       },
@@ -244,7 +244,7 @@ export class PosDepositService {
         status: MatchStatus.PENDING,
       },
       order: {
-        merchant_id: 'ASC',
+        merchant: { merchant_id: 'ASC' },
         transaction_amt: 'ASC',
       },
     });

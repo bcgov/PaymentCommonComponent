@@ -11,14 +11,14 @@ import {
   DateRange,
   FileTypes,
   Ministries,
-  NormalizedLocation,
+  LocationEntity,
 } from '../../src/constants';
 import { PaymentMethodClassification } from '../../src/constants';
 import { AggregatedCashPayment } from '../../src/reconciliation/types';
 import { PaymentEntity } from '../../src/transaction/entities';
 
 export class MockData {
-  public location: NormalizedLocation;
+  public location: LocationEntity;
   public dateRange: DateRange;
   public program: Ministries;
   public paymentsMock: PaymentMock[];

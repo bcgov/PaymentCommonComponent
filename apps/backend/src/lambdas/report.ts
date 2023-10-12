@@ -2,10 +2,10 @@ import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
 import { format, getMonth, getYear, parse } from 'date-fns';
+import { LocationEntity } from 'src/location/entities';
 import { AppModule } from '../app.module';
 import {
   PaymentMethodClassification,
-  NormalizedLocation,
   DateRange,
   Ministries,
 } from '../constants';
@@ -164,7 +164,7 @@ const getPageThreeDeposits = async (
   app: INestApplicationContext,
   dateRange: DateRange,
   program: Ministries,
-  locations: NormalizedLocation[]
+  locations: LocationEntity[]
 ): Promise<{
   pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] };
   pageThreeDepositDates: DateRange;

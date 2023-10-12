@@ -7,9 +7,11 @@ import {
   Column,
   PrimaryColumn,
   CreateDateColumn,
+  OneToOne,
 } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
+import { LocationEntity } from '../../location/entities';
 import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 
 @Entity('transaction')
@@ -45,9 +47,6 @@ export class TransactionEntity {
   @Column('varchar', { length: 10 })
   source_id: string;
 
-  @Column({ type: 'int4' })
-  location_id: number;
-
   @Column({ type: 'jsonb', nullable: false })
   transactionJson?: Transaction;
 
@@ -62,6 +61,10 @@ export class TransactionEntity {
     cascade: true,
   })
   payments: Relation<PaymentEntity[]>;
+
+  @JoinColumn()
+  @OneToOne(() => LocationEntity, (location) => location.location_id)
+  location: LocationEntity;
 
   @ManyToOne(() => FileUploadedEntity, { nullable: true })
   @JoinColumn({ name: 'file_uploaded' })
