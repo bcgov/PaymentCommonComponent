@@ -139,7 +139,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     !byPassFileValidity && (await fileCheck());
     await reconcilePos(
       posReconciliationService,
-      currentDate,
+      reconciliationMaxDate,
       paymentService,
       locations,
       program,
@@ -148,7 +148,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     );
     await findPosExceptions(
       posReconciliationService,
-      currentDate,
+      reconciliationMaxDate,
       paymentService,
       locations,
       program,
