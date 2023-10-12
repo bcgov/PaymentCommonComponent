@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { SNSEvent } from 'aws-lambda/trigger/sns';
-import { format, parse, subBusinessDays } from 'date-fns';
+import { format, parse, subBusinessDays, subDays } from 'date-fns';
 import { generateLocalSNSMessage } from './helpers';
 import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
@@ -51,7 +51,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
 
   const reconciliationMinDate = format(
-    subBusinessDays(currentDate, numDaysToReconcile),
+    subDays(currentDate, numDaysToReconcile),
     'yyyy-MM-dd'
   );
 
