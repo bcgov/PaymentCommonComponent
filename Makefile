@@ -15,7 +15,7 @@ export PROJECT := pcc
 export APP_VERSION := $(shell cat apps/backend/package.json | jq '.version' -r)
 
 # Environment
-export ENV_NAME ?= dev
+export ENV_NAME ?= test
 export PCC_SFTP :=  "$(PCC_SFTP)" 
 export BCM_SFTP :=  "$(BCM_SFTP)"
 export POSTGRES_USERNAME := $(AWS_POSTGRES_USERNAME)
