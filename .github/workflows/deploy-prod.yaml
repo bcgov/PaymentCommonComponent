@@ -54,4 +54,4 @@ jobs:
         run: make aws-run-migrator
 
       - name: Deploy All
-        run: aws-deploy-all
+        run: make aws-deploy-all
