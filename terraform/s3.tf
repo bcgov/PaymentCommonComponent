@@ -42,10 +42,6 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "pcc-reporting" {
     }
   }
 }
-resource "aws_s3_bucket_acl" "pcc-reporting" {
-  bucket = aws_s3_bucket.pcc-reporting.id
-  acl    = "private"
-}
 
 resource "aws_s3_bucket" "pcc-master-data" {
   bucket = local.pcc-master-data-bucket-name
