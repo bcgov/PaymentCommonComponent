@@ -63,6 +63,10 @@ ifeq ($(ENV_NAME), test)
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TEST)
 endif
 
+ifeq ($(ENV_NAME), prod)
+export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_PROD)
+endif
+
 define TFVARS_DATA
 app_version = "$(APP_VERSION)"
 target_env = "$(ENV_NAME)"

@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { SNSEvent } from 'aws-lambda/trigger/sns';
-import { format, parse, subBusinessDays } from 'date-fns';
+import { format, parse, subBusinessDays, subDays } from 'date-fns';
 import { generateLocalSNSMessage } from './helpers';
 import { handler as reportHandler } from './report';
 import { AppModule } from '../app.module';
@@ -54,15 +54,10 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
       ? await JSON.parse(event.Records[0].Sns.Message)
       : event.Records[0].Sns.Message;
 
-  const currentDate = format(
-    subBusinessDays(parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date()), 1),
-    'yyyy-MM-dd'
-  );
+  const currentDate = parse(reconciliationMaxDate, 'yyyy-MM-dd', new Date());
+
   const reconciliationMinDate = format(
-    subBusinessDays(
-      parse(currentDate, 'yyyy-MM-dd', new Date()),
-      numDaysToReconcile
-    ),
+    subDays(currentDate, numDaysToReconcile),
     'yyyy-MM-dd'
   );
   const dateRange = {
@@ -144,7 +139,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     !byPassFileValidity && (await fileCheck());
     await reconcilePos(
       posReconciliationService,
-      currentDate,
+      reconciliationMaxDate,
       paymentService,
       locations,
       program,
@@ -153,7 +148,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     );
     await findPosExceptions(
       posReconciliationService,
-      currentDate,
+      reconciliationMaxDate,
       paymentService,
       locations,
       program,
