@@ -17,6 +17,10 @@ export enum Ministries {
   SBC = 'SBC',
   LABOUR = 'LABOUR',
 }
+export enum DataSource {
+  SBC = 'sbc',
+  BCM = 'bcm',
+}
 
 export enum FileTypes {
   TDI17 = 'TDI17',

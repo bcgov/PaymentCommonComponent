@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { FileUploadedEntity } from './entities/file-uploaded.entity';
 import { ParseController } from './parse.controller';
 import { ParseService } from './parse.service';
+import { UploadService } from './upload.service';
 import { DepositModule } from '../deposits/deposit.module';
 import { LoggerModule } from '../logger/logger.module';
 import { NotificationModule } from '../notification/notification.module';
@@ -23,7 +24,7 @@ import { TransactionModule } from '../transaction/transaction.module';
     TypeOrmModule.forFeature([FileUploadedEntity]),
   ],
   controllers: [ParseController],
-  providers: [ParseService, Logger],
+  providers: [ParseService, UploadService, Logger],
   exports: [TypeOrmModule],
 })
 export class ParseModule {}
