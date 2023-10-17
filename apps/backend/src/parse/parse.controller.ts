@@ -6,14 +6,18 @@ import {
   Controller,
   ClassSerializerInterceptor,
   Inject,
-  HttpException,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiConsumes, ApiBasicAuth, ApiBody, ApiTags } from '@nestjs/swagger';
-import { FileTypes, Ministries, SUPPORTED_FILE_EXTENSIONS } from '../constants';
+import { UploadService } from './upload.service';
+import {
+  DataSource,
+  FileTypes,
+  Ministries,
+  SUPPORTED_FILE_EXTENSIONS,
+} from '../constants';
 import { AppLogger } from '../logger/logger.service';
-import { S3ManagerService } from '../s3-manager/s3-manager.service';
 
 @Controller('parse')
 @ApiBasicAuth()
@@ -21,14 +25,15 @@ import { S3ManagerService } from '../s3-manager/s3-manager.service';
 @UseInterceptors(ClassSerializerInterceptor)
 export class ParseController {
   constructor(
-    @Inject(S3ManagerService)
-    private readonly s3: S3ManagerService,
+    @Inject(UploadService)
+    private uploadService: UploadService,
     @Inject(AppLogger) private readonly appLogger: AppLogger
   ) {
     this.appLogger.setContext(ParseController.name);
   }
 
   @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
   @UseInterceptors(ClassSerializerInterceptor)
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -38,6 +43,11 @@ export class ParseController {
         program: {
           type: 'string',
           enum: ['SBC', 'LABOUR'],
+          nullable: false,
+        },
+        source: {
+          type: 'string',
+          enum: ['bcm', 'sbc'],
           nullable: false,
         },
         fileType: {
@@ -52,10 +62,14 @@ export class ParseController {
       },
     },
   })
-  @UseInterceptors(FileInterceptor('file'))
   async uploadFile(
-    @Body() body: { program: Ministries; fileType: FileTypes },
-    @UploadedFile() file: Express.Multer.File
+    @UploadedFile() file: Express.Multer.File,
+    @Body()
+    body: {
+      program: Ministries;
+      source: DataSource;
+      fileType: FileTypes;
+    }
   ) {
     const fileSplit = file.originalname.split('.');
 
@@ -75,21 +89,12 @@ export class ParseController {
         ].join(', ')}`
       );
     }
-    // TO DO - restructure s3and use enum for the proper keys
-    const key = FileTypes.SBC_SALES === body.fileType ? 'sbc' : 'bcm';
-    try {
-      const res = await this.s3.upload({
-        Bucket: `pcc-integration-data-files-${process.env.RUNTIME_ENV}`,
-        Key: key,
-        Body: file.buffer,
-        ContentType: fileExtension,
-      });
-      return {
-        status: res?.$metadata.httpStatusCode,
-      };
-    } catch (err) {
-      this.appLogger.error(err);
-      throw new HttpException('Error uploading file to S3', 500);
-    }
+
+    return await this.uploadService.saveS3(
+      file.originalname,
+      body.source,
+      file.mimetype,
+      file.buffer
+    );
   }
 }
