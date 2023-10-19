@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1697741812886 implements MigrationInterface {
-  name = 'Migration1697741812886';
+export class LocationMigration1697742885047 implements MigrationInterface {
+  name = 'LocationMigration1697742885047';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -17,10 +17,16 @@ export class Migration1697741812886 implements MigrationInterface {
       `CREATE UNIQUE INDEX "location_merchant_idx" ON "location_merchant" ("id", "source_id", "location") `
     );
     await queryRunner.query(
-      `CREATE TABLE "location" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "source_id" character varying(15) NOT NULL, "location_id" integer NOT NULL, "method" character varying(15), "pt_location_id" integer, "description" character varying(255) NOT NULL, "program_code" character varying(10) NOT NULL, "program_desc" character varying(255) NOT NULL, "ministry_client" character varying(3) NOT NULL, "resp_code" character varying(5) NOT NULL, "service_line_code" character varying(5) NOT NULL, "stob_code" character varying(4) NOT NULL, "project_code" character varying(7) NOT NULL, "merchant_id" integer, CONSTRAINT "UQ_346127033e9c6ca7ffa2df9ecbf" UNIQUE ("location_id", "source_id"), CONSTRAINT "PK_876d7bdba03c72251ec4c2dc827" PRIMARY KEY ("id"))`
+      `CREATE TABLE "location" ("source_id" character varying(15) NOT NULL, "location_id" integer NOT NULL, "description" character varying(255) NOT NULL, "program_code" character varying(10) NOT NULL, "program_desc" character varying(255) NOT NULL, "ministry_client" character varying(3) NOT NULL, "resp_code" character varying(5) NOT NULL, "service_line_code" character varying(5) NOT NULL, "stob_code" character varying(4) NOT NULL, "project_code" character varying(7) NOT NULL, CONSTRAINT "UQ_346127033e9c6ca7ffa2df9ecbf" UNIQUE ("location_id", "source_id"), CONSTRAINT "PK_346127033e9c6ca7ffa2df9ecbf" PRIMARY KEY ("source_id", "location_id"))`
     );
     await queryRunner.query(
       `CREATE UNIQUE INDEX "location_source_idx" ON "location" ("location_id", "source_id") `
+    );
+    await queryRunner.query(
+      `ALTER TABLE "master_location_data" DROP CONSTRAINT "PK_cba6dfaafb30f4e7fe0572acb73"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "master_location_data" ADD CONSTRAINT "PK_f2c6d2b1367b207377c873ce43d" PRIMARY KEY ("source_id", "location_id", "id")`
     );
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "method" DROP NOT NULL`
@@ -29,7 +35,7 @@ export class Migration1697741812886 implements MigrationInterface {
       `ALTER TABLE "master_location_data" ALTER COLUMN "merchant_id" DROP NOT NULL`
     );
     await queryRunner.query(
-      `ALTER TABLE "transaction" DROP COLUMN "source_id"`
+      `ALTER TABLE "transaction" ALTER COLUMN "source_id" TYPE character varying(15) USING "source_id"::"character varying(15)"`
     );
     await queryRunner.query(
       `ALTER TABLE "transaction" ADD "source_id" character varying(15)`
@@ -96,6 +102,12 @@ export class Migration1697741812886 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "method" SET NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "master_location_data" DROP CONSTRAINT "PK_f2c6d2b1367b207377c873ce43d"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "master_location_data" ADD CONSTRAINT "PK_cba6dfaafb30f4e7fe0572acb73" PRIMARY KEY ("id")`
     );
     await queryRunner.query(`DROP INDEX "public"."location_source_idx"`);
     await queryRunner.query(`DROP TABLE "location"`);

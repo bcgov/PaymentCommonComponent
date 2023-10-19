@@ -1,18 +1,12 @@
-import {
-  Entity,
-  Unique,
-  OneToMany,
-  Relation,
-  Index,
-} from 'typeorm';
+import { Entity, Unique, OneToMany, Relation, Index } from 'typeorm';
+import { BaseLocationEntity } from './base-location.entity';
 import { BankLocationEntity } from './location_bank.entity';
 import { MerchantLocationEntity } from './location_merchant.entity';
-import { MasterLocationEntity } from './master-location-data.entity';
 
 @Entity('location')
 @Unique(['location_id', 'source_id'])
 @Index('location_source_idx', ['location_id', 'source_id'], { unique: true })
-export class LocationEntity extends MasterLocationEntity {
+export class LocationEntity extends BaseLocationEntity {
   @OneToMany(() => BankLocationEntity, (bank) => bank.location, {
     cascade: true,
   })
