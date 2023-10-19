@@ -115,18 +115,22 @@ export class DatabaseService {
 
   async seedMinistryLocations(program: Ministries) {
     const locations = await this.locationService.findAll();
-    const stubLocation98 = new MasterLocationEntity({
+    const stubLocation98 = {
+      id: `${Ministries.SBC}_98`,
       source_id: Ministries.SBC,
       location_id: 98,
-      description: 'unknown',
+      description: 'unk',
+      method: 'Bank',
       program_code: 0,
-      program_desc: 'unknown',
+      program_desc: 'unk',
       ministry_client: 0,
-      resp_code: 'unknown',
+      resp_code: 'unk',
       service_line_code: 0,
       stob_code: 0,
       project_code: 0,
-    });
+      merchant_id: 0,
+      pt_location_id: 0,
+    };
 
     await this.locationService.seedMinistryLocations(
       [...locations, stubLocation98].filter((itm) => itm.source_id === program),
