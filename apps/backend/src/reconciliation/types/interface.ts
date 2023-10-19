@@ -2,30 +2,15 @@ import Decimal from 'decimal.js';
 import { PosHeuristicRound, ReconciliationType } from './const';
 import { MatchStatus } from '../../common/const';
 import {
-  DateRange,
-  Ministries,
   PaymentMethodClassification,
 } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
-import { MasterLocationEntity, LocationEntity } from '../../location/entities';
 import { PaymentEntity } from '../../transaction/entities';
-
-export interface PosPaymentPosDepositPair {
-  payment: PaymentEntity;
-  deposit: POSDepositEntity;
-}
 
 export interface PosExceptions {
   paymentExceptions: PaymentEntity[] | [];
   depositExceptions: POSDepositEntity[] | [];
-}
-
-export interface ReconciliationConfig {
-  location: MasterLocationEntity;
-  program: Ministries;
-  dateRange?: DateRange;
-  date: string;
 }
 
 export interface ReconciliationError {
@@ -62,13 +47,6 @@ export interface PaymentDictionary {
     payment_amount: Decimal;
     payments: PaymentEntity[];
   };
-}
-
-export interface ReconcileEvent {
-  locations: LocationEntity[];
-  reconciliationMaxDate: string;
-  program: Ministries;
-  payments: PaymentEntity[];
 }
 
 export interface UnMatched {

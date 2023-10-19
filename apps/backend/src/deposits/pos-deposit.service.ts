@@ -13,7 +13,7 @@ import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
-import { LocationEntity } from '../location/entities';
+import { LocationEntity, MerchantLocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
@@ -97,14 +97,14 @@ export class PosDepositService {
     qb.addSelect('payment_method', 'payment_method');
     qb.addSelect('SUM(transaction_amt)::numeric(10,2)', 'transaction_amt');
     qb.addSelect('merchant_id');
-    // qb.leftJoin(
-    //   MerchantLocationEntity,
-    //   'location_merchant',
-    //   'location_merchant.merchant_id = pos_deposit.merchant.merchant_id AND master_merchant_data.method = pos_deposit.payment_method'
-    // );
+    qb.leftJoin(
+      MerchantLocationEntity,
+      'location_merchant',
+      'location_merchant.merchant_id = pos_deposit.merchant.merchant_id AND master_merchant_data.method = pos_deposit.payment_method'
+    );
     qb.where({
       metadata: { program },
-      // merchant_id: In(merchants.flatMap((l) => l.merchants)),
+      merchant_id: In(merchants.flatMap((l) => l.merchants)),
       settlement_date: Raw(
         (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
         { minDate, maxDate }

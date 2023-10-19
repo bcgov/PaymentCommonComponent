@@ -6,7 +6,7 @@ import fs from 'fs';
 import path, { join } from 'path';
 import { validationPipeConfig } from '../../src/app.config';
 import { AppModule } from '../../src/app.module';
-import { FileTypes } from '../../src/constants';
+import { BankMerchantId, FileTypes, Ministries } from '../../src/constants';
 import { CashDepositService } from '../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../src/deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../src/deposits/entities/pos-deposit.entity';
@@ -19,6 +19,8 @@ import { parseTDI, parseTDIHeader } from '../../src/lambdas/utils/parseTDI';
 import {
   MasterLocationEntity,
   LocationEntity,
+  MerchantLocationEntity,
+  BankLocationEntity,
 } from '../../src/location/entities';
 import { ILocation } from '../../src/location/interface/location.interface';
 import { TransactionEntity } from '../../src/transaction/entities';
@@ -32,7 +34,7 @@ describe('Reconciliation Service (e2e)', () => {
   let app: INestApplication;
   let paymentMethodRepo: Repository<PaymentMethodEntity>;
   let ministryLocationRepo: Repository<LocationEntity>;
-  let locationRepo: Repository<MasterLocationEntity>;
+  let masterLocationRepo: Repository<MasterLocationEntity>;
   let posDepositService: PosDepositService;
   let cashDepositService: CashDepositService;
   let transService: TransactionService;
@@ -50,7 +52,7 @@ describe('Reconciliation Service (e2e)', () => {
     cashDepositService = module.get(CashDepositService);
     posDepositService = module.get(PosDepositService);
     transService = module.get(TransactionService);
-    locationRepo = module.get('MasterLocationEntityRepository');
+    masterLocationRepo = module.get('MasterLocationEntityRepository');
     paymentMethodRepo = module.get('PaymentMethodEntityRepository');
   });
   it('creates location table', async () => {
@@ -62,11 +64,66 @@ describe('Reconciliation Service (e2e)', () => {
       .default()
       .fromFile(sbcLocationsMasterDataFile)) as ILocation[];
 
-    const locationEntities = sbcLocationMaster.map((loc) => {
+    const baseLocationEntities = sbcLocationMaster.map((loc) => {
       return new MasterLocationEntity({ ...loc });
     });
 
-    await locationRepo.save(locationEntities);
+    const baseLocations = await masterLocationRepo.save(baseLocationEntities);
+
+    const locationEntityList = baseLocations
+      .filter((itm) => itm.source_id === Ministries.SBC)
+      .reduce(
+        (
+          acc: { [key: string]: Partial<LocationEntity> },
+          itm: MasterLocationEntity
+        ) => {
+          const key = `${itm.location_id}${itm.source_id}`;
+          if (!acc[key]) {
+            acc[key] = {
+              source_id: itm.source_id,
+              location_id: itm.location_id,
+              program_code: itm.program_code,
+              program_desc: itm.program_desc,
+              ministry_client: itm.ministry_client,
+              resp_code: itm.resp_code,
+              service_line_code: itm.service_line_code,
+              stob_code: itm.stob_code,
+              project_code: itm.project_code,
+              banks: [],
+              merchants: [],
+              description: '',
+            };
+          }
+
+          itm.merchant_id !== BankMerchantId &&
+            !acc[key].merchants?.find(
+              (merch) => merch.merchant_id === itm.merchant_id
+            ) &&
+            acc[key].merchants?.push(
+              new MerchantLocationEntity({ merchant_id: itm.merchant_id })
+            );
+
+          !acc[key].banks?.find(
+            (pt) => pt.pt_location_id === itm.pt_location_id
+          ) &&
+            acc[key].banks?.push(
+              new BankLocationEntity({ pt_location_id: itm.pt_location_id })
+            );
+
+          acc[key].description = baseLocations.find(
+            (loc) =>
+              loc.location_id === itm.location_id && loc.method === 'Bank'
+          )!.description;
+
+          return acc;
+        },
+        {}
+      );
+    await ministryLocationRepo.save(
+      ministryLocationRepo.create(
+        Object.values(locationEntityList).map((itm) => new LocationEntity(itm))
+      )
+    );
   });
   it('creates payment method table', async () => {
     const paymentMethodMasterFile = path.resolve(

@@ -40,11 +40,12 @@ export class LocationService {
     });
   }
 
-  public async seedMinistryLocations(program: string) {
-    const locations = await this.locationRepo.find({
-      where: { source_id: program },
-    });
-
+  public async seedMinistryLocations(
+    locations: MasterLocationEntity[],
+    program: Ministries
+  ) {
+    // master location data list contains multiple rows for each location_id
+    // split into location table (FK to transaction table), location_merchant table (FK to location_id && pos-deposit), and location_bank table (FK to location_id && cash_deposit)
     const LocationEntityList = locations.reduce(
       (
         acc: { [key: string]: Partial<LocationEntity> },

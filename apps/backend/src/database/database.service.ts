@@ -55,7 +55,9 @@ export class DatabaseService {
         );
       // if not, seed the location table
       if (ministryLocations.length === 0) {
-        await this.seedMinistryLocations(rule.program);
+        await this.seedMinistryLocations(
+          Ministries[rule.program as keyof typeof Ministries]
+        );
       }
     }
   }
@@ -111,8 +113,13 @@ export class DatabaseService {
     await this.locationService.createLocations(locationEntities);
   }
 
-  async seedMinistryLocations(program: string) {
-    await this.locationService.seedMinistryLocations(program);
+  async seedMinistryLocations(program: Ministries) {
+    const locations = await this.locationService.findAll();
+
+    await this.locationService.seedMinistryLocations(
+      locations.filter((itm) => itm.source_id === program),
+      program
+    );
   }
 
   async seedPaymentMethods() {

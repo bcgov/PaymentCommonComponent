@@ -66,7 +66,6 @@ const parseGarmsData = (
     transaction_id: sales_transaction_id,
     transaction_date: sales_transaction_date.slice(0, 10),
     transaction_time: sales_transaction_date.slice(11, 19).replaceAll('.', ':'),
-    // location_id: parseInt(source.location_id),
     total_transaction_amount: payment_total,
     fiscal_close_date: parseFlatDateString(fiscal_close_date),
     payments: payments.map((garmsPayment: SBCGarmsPayment) =>

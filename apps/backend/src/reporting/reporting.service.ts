@@ -427,7 +427,11 @@ export class ReportingService {
 
     const cashDeposits: CasReport[] = cashDepositsResults
       .filter((itm) => itm.deposit_amt_cdn.toString() !== '0.00')
-      // .sort((a, b) => a.location.location.location_id - b.location.pt_location_id)
+      .sort(
+        (a, b) =>
+          a.pt_location_id.location.location_id -
+          b.pt_location_id.location.location_id
+      )
       .map(
         (itm) =>
           new CasReport(
@@ -442,7 +446,11 @@ export class ReportingService {
       );
     const posCasDeposits: CasReport[] = posDeposits
       .filter((itm) => itm.transaction_amt.toString() !== '0.00')
-      // .sort((a, b) => a.location.merchant_id_id - b.location.merchant_id_id)
+      .sort(
+        (a, b) =>
+          a.merchant_id.location.location_id -
+          b.merchant_id.location.location_id
+      )
       .map(
         (itm) =>
           new CasReport(

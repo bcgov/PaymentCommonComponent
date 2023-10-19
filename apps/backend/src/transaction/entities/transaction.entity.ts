@@ -43,12 +43,6 @@ export class TransactionEntity {
   @Column({ type: 'boolean', default: false })
   void_indicator: boolean;
 
-  // @Column('varchar', { length: 10 })
-  // source_id: string;
-
-  // @Column({ type: 'int4' })
-  // location_id: number;
-
   @ManyToOne(() => LocationEntity)
   @JoinColumn({ name: 'location_id', referencedColumnName: 'location_id' })
   @JoinColumn({ name: 'source_id', referencedColumnName: 'source_id' })

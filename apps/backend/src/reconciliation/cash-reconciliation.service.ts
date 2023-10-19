@@ -43,8 +43,8 @@ export class CashReconciliationService {
     const deposits: CashDepositEntity[] =
       await this.cashDepositService.findCashDepositExceptions(
         exceptionsDate,
-        program
-        // location
+        program,
+        location
       );
 
     const paymentExceptions: PaymentEntity[] =

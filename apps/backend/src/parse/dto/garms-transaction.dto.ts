@@ -59,11 +59,6 @@ export class GarmsTransactionDTO {
   @IsBoolean()
   void_indicator?: boolean = false;
 
-  // @ApiProperty({ description: 'Program Source ID', example: 'SBC' })
-  // @IsString()
-  // @IsNotEmpty()
-  // source_id!: string;
-
   @ApiProperty({
     description: 'Location',
     example: { source_id: 'SBC', location_id: 1 },
