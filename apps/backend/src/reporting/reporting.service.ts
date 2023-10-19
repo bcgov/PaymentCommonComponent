@@ -373,9 +373,7 @@ export class ReportingService {
     const paymentsReport = [...posPayments, ...cashPayments].map(
       (itm) =>
         new PaymentDetailsReport(
-          locations.find(
-            (item) => item.location_id === itm.transaction.location.location_id
-          )!,
+          locations.find((location) => location === itm.transaction.location)!,
           itm
         )
     );
@@ -384,8 +382,7 @@ export class ReportingService {
       (itm) =>
         new CashDepositDetailsReport(
           locations.find(
-            (item) =>
-              item.location_id === itm.pt_location_id.location.location_id
+            (location) => location === itm.pt_location_id.location
           )!,
           itm
         )
@@ -393,9 +390,7 @@ export class ReportingService {
     const posDepositReport = posDeposits.map(
       (itm) =>
         new POSDepositDetailsReport(
-          locations.find(
-            (item) => item.location_id === itm.merchant_id.location.location_id
-          )!,
+          locations.find((location) => location === itm.merchant_id.location)!,
           itm
         )
     );
@@ -439,8 +434,7 @@ export class ReportingService {
             itm.deposit_date,
             itm.deposit_amt_cdn,
             locations.find(
-              (loc) =>
-                loc.location_id === itm.pt_location_id.location.location_id
+              (loc) => loc === itm.pt_location_id.location
             ) as LocationEntity
           )
       );
@@ -458,7 +452,7 @@ export class ReportingService {
             itm.settlement_date,
             parseFloat(itm.transaction_amt.toString()),
             locations.find(
-              (loc) => loc.location_id === itm.merchant_id.location.location_id
+              (loc) => loc === itm.merchant_id.location
             ) as LocationEntity
           )
       );

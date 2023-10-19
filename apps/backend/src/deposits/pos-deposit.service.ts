@@ -85,7 +85,7 @@ export class PosDepositService {
   }
 
   async findPOSBySettlementDate(
-    merchants: LocationEntity[],
+    locations: LocationEntity[],
     program: Ministries,
     dateRange: DateRange
   ) {
@@ -100,11 +100,11 @@ export class PosDepositService {
     qb.leftJoin(
       MerchantLocationEntity,
       'location_merchant',
-      'location_merchant.merchant_id = pos_deposit.merchant.merchant_id AND master_merchant_data.method = pos_deposit.payment_method'
+      'location_merchant = pos_deposit.merchant'
     );
     qb.where({
       metadata: { program },
-      merchant_id: In(merchants.flatMap((l) => l.merchants)),
+      merchant_id: { location: In(locations) },
       settlement_date: Raw(
         (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
         { minDate, maxDate }

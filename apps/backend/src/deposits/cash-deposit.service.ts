@@ -71,7 +71,7 @@ export class CashDepositService {
     const depositStatus = statuses ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id: In(location.banks.map((bank) => bank.pt_location_id)),
+        pt_location_id: { location },
         metadata: { program: program },
         deposit_date,
         status: In(depositStatus),
@@ -95,7 +95,7 @@ export class CashDepositService {
     const deposits: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
         metadata: { program },
-        pt_location_id: In(location.banks.map((bank) => bank.pt_location_id)),
+        pt_location_id: { location },
       },
       order: {
         deposit_date: order,
@@ -138,7 +138,7 @@ export class CashDepositService {
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id: In(location.banks.map((bank) => bank.pt_location_id)),
+        pt_location_id: { location },
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: MatchStatus.IN_PROGRESS,
@@ -173,11 +173,7 @@ export class CashDepositService {
           }
         ),
         pt_location_id: {
-          pt_location_id: In(
-            locations.flatMap((itm) =>
-              itm.banks.map((bank) => bank.pt_location_id)
-            )
-          ),
+          location: In(locations),
         },
       },
       order: {
@@ -230,7 +226,7 @@ export class CashDepositService {
         status: MatchStatus.IN_PROGRESS,
       },
       order: {
-        // location: { pt_location_id: 'ASC' },
+        pt_location_id: { location: 'ASC' },
         in_progress_on: 'ASC',
         deposit_amt_cdn: 'ASC',
       },

@@ -207,14 +207,10 @@ const reconcilePos = async (
 
   for (const location of locations) {
     posReconciliationService.setPendingPayments(
-      payments.filter(
-        (itm) => itm.transaction.location.location_id === location.location_id
-      )
+      payments.filter((itm) => itm.transaction.location === location)
     );
     posReconciliationService.setPendingDeposits(
-      deposits.filter(
-        (itm) => location.location_id === itm.merchant_id.location.location_id
-      )
+      deposits.filter((itm) => location === itm.merchant_id.location)
     );
     posReconciliationService.setHeuristicMatchRound(heuristics[program][0]);
     posReconciliationService.setMatchedPayments([]);
@@ -263,14 +259,10 @@ const findPosExceptions = async (
   );
   for (const location of locations) {
     posReconciliationService.setPendingPayments(
-      paymentsInprogress.filter(
-        (itm) => itm.transaction.location.location_id === location.location_id
-      )
+      paymentsInprogress.filter((itm) => itm.transaction.location === location)
     );
     posReconciliationService.setPendingDeposits(
-      depositsInprogress.filter(
-        (itm) => location.location_id === itm.merchant_id.location.location_id
-      )
+      depositsInprogress.filter((itm) => location === itm.merchant_id.location)
     );
 
     const exceptions = await posReconciliationService.setExceptions();
