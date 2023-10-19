@@ -58,8 +58,6 @@ services:
     volumes:
       - ./apps/backend:/apps/backend
       - ./node_modules:/node_modules
-      - ./apps/backend/src/docs:/apps/backend/src/docs
-      - ./apps/backend/compodoc.yaml:/apps/backend/compodoc.yaml
       - compodoc:/apps/backend/src/docs
     depends_on:
       - db
