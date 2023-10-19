@@ -210,7 +210,7 @@ export class CashDepositService {
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
       },
       order: {
-        pt_location_id: { pt_location_id: 'ASC' },
+        pt_location_id: { id: 'ASC' },
         reconciled_on: 'ASC',
         deposit_amt_cdn: 'ASC',
         status: 'ASC',
@@ -245,7 +245,7 @@ export class CashDepositService {
         status: MatchStatus.PENDING,
       },
       order: {
-        pt_location_id: { pt_location_id: 'ASC' },
+        pt_location_id: { id: 'ASC' },
         deposit_amt_cdn: 'ASC',
       },
       relations: {

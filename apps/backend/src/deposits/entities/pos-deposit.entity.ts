@@ -92,11 +92,11 @@ export class POSDepositEntity {
   )
   payment_match?: Relation<PaymentEntity>;
 
-  @ManyToOne(() => MerchantLocationEntity, (pd) => pd.merchant_id, {
+  @ManyToOne(() => MerchantLocationEntity, (pd) => pd.id, {
     eager: true,
     cascade: false,
   })
-  @JoinColumn({ name: 'merchant_id', referencedColumnName: 'merchant_id' })
+  @JoinColumn({ name: 'merchant_id', referencedColumnName: 'id' })
   merchant_id: Relation<MerchantLocationEntity>;
 
   constructor(data?: TDI34Details) {

@@ -78,7 +78,7 @@ export class PosDepositService {
       where: {
         transaction_date: LessThan(date),
         status: MatchStatus.IN_PROGRESS,
-        merchant_id: { merchant_id: In(merchant_ids) },
+        merchant_id: { id: In(merchant_ids) },
         metadata: { program },
       },
     });
@@ -212,7 +212,7 @@ export class PosDepositService {
         payment_match: true,
       },
       order: {
-        merchant_id: { merchant_id: 'ASC' },
+        merchant_id: { id: 'ASC' },
         reconciled_on: 'ASC',
         transaction_amt: 'ASC',
         status: 'ASC',
@@ -228,7 +228,7 @@ export class PosDepositService {
         status: MatchStatus.IN_PROGRESS,
       },
       order: {
-        merchant_id: { merchant_id: 'ASC' },
+        merchant_id: { id: 'ASC' },
         in_progress_on: 'ASC',
         transaction_amt: 'ASC',
       },
@@ -244,7 +244,7 @@ export class PosDepositService {
         status: MatchStatus.PENDING,
       },
       order: {
-        merchant_id: { merchant_id: 'ASC' },
+        merchant_id: { id: 'ASC' },
         transaction_amt: 'ASC',
       },
     });

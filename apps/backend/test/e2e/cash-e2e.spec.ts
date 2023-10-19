@@ -98,17 +98,15 @@ describe('Reconciliation Service (e2e)', () => {
 
           itm.merchant_id !== BankMerchantId &&
             !acc[key].merchants?.find(
-              (merch) => merch.merchant_id === itm.merchant_id
+              (merch) => merch.id === itm.merchant_id
             ) &&
             acc[key].merchants?.push(
-              new MerchantLocationEntity({ merchant_id: itm.merchant_id })
+              new MerchantLocationEntity({ id: itm.merchant_id })
             );
 
-          !acc[key].banks?.find(
-            (pt) => pt.pt_location_id === itm.pt_location_id
-          ) &&
+          !acc[key].banks?.find((pt) => pt.id === itm.pt_location_id) &&
             acc[key].banks?.push(
-              new BankLocationEntity({ pt_location_id: itm.pt_location_id })
+              new BankLocationEntity({ id: itm.pt_location_id })
             );
 
           acc[key].description = baseLocations.find(

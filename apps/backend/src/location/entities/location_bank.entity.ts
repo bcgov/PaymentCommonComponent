@@ -10,11 +10,11 @@ import {
 import { LocationEntity } from './location.entity';
 
 @Entity('location_bank')
-@Unique('pt_location_id', ['pt_location_id', 'location'])
-@Index('id_location_idx', ['pt_location_id', 'location'], { unique: true })
+@Unique('id', ['id', 'location'])
+@Index('id_location_idx', ['id', 'location'], { unique: true })
 export class BankLocationEntity {
   @PrimaryColumn({ unique: true })
-  pt_location_id: number;
+  id: number;
 
   @ManyToOne(() => LocationEntity, (location) => location.banks)
   @JoinColumn({ name: 'location', referencedColumnName: 'location_id' })

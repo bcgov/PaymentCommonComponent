@@ -98,13 +98,13 @@ export class CashDepositEntity {
   @Column({ name: 'file_uploaded', nullable: true })
   fileUploadedEntityId?: string;
 
-  @ManyToOne(() => BankLocationEntity, (pd) => pd.pt_location_id, {
+  @ManyToOne(() => BankLocationEntity, (pd) => pd.id, {
     eager: true,
     cascade: false,
   })
   @JoinColumn({
     name: 'pt_location_id',
-    referencedColumnName: 'pt_location_id',
+    referencedColumnName: 'id',
   })
   pt_location_id: Relation<BankLocationEntity>;
 
