@@ -1,6 +1,6 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { BaseLocationEntity } from './base-location.entity';
 import { LocationEntity } from './location.entity';
+import { BaseLocationEntity } from './location_base';
 
 @Entity('master_location_data')
 export class MasterLocationEntity extends BaseLocationEntity {

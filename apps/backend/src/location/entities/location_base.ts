@@ -2,7 +2,7 @@ import { Column, PrimaryColumn } from 'typeorm';
 import { LocationEntity } from './location.entity';
 
 export class BaseLocationEntity {
-  @PrimaryColumn('varchar', { length: 15, nullable: false })
+  @PrimaryColumn('varchar', { length: 10, nullable: false })
   source_id: string;
 
   @PrimaryColumn({ type: 'int4', nullable: false })

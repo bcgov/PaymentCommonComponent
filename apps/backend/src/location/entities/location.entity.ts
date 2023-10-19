@@ -1,6 +1,6 @@
 import { Entity, Unique, OneToMany, Relation, Index } from 'typeorm';
-import { BaseLocationEntity } from './base-location.entity';
 import { BankLocationEntity } from './location_bank.entity';
+import { BaseLocationEntity } from './location_base';
 import { MerchantLocationEntity } from './location_merchant.entity';
 
 @Entity('location')
