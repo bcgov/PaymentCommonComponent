@@ -102,7 +102,10 @@ export class CashDepositEntity {
     eager: true,
     cascade: false,
   })
-  @JoinColumn({ name: 'location_bank', referencedColumnName: 'pt_location_id' })
+  @JoinColumn({
+    name: 'pt_location_id',
+    referencedColumnName: 'pt_location_id',
+  })
   pt_location_id: Relation<BankLocationEntity>;
 
   constructor(data?: TDI17Details) {

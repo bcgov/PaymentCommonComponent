@@ -71,7 +71,7 @@ export class CashDepositService {
     const depositStatus = statuses ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
-        // location,
+        pt_location_id: In(location.banks.map((bank) => bank.pt_location_id)),
         metadata: { program: program },
         deposit_date,
         status: In(depositStatus),
@@ -95,7 +95,7 @@ export class CashDepositService {
     const deposits: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
         metadata: { program },
-        // location,
+        pt_location_id: In(location.banks.map((bank) => bank.pt_location_id)),
       },
       order: {
         deposit_date: order,
@@ -133,12 +133,12 @@ export class CashDepositService {
 
   async findCashDepositExceptions(
     date: string,
-    program: Ministries
-    // location: LocationEntity
+    program: Ministries,
+    location: LocationEntity
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       where: {
-        // bank,
+        pt_location_id: In(location.banks.map((bank) => bank.pt_location_id)),
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: MatchStatus.IN_PROGRESS,
@@ -172,7 +172,13 @@ export class CashDepositService {
             maxDate,
           }
         ),
-        // location: { id: In(locations.map((loc) => loc.id))},
+        pt_location_id: {
+          pt_location_id: In(
+            locations.flatMap((itm) =>
+              itm.banks.map((bank) => bank.pt_location_id)
+            )
+          ),
+        },
       },
       order: {
         deposit_date: 'ASC',
@@ -208,7 +214,7 @@ export class CashDepositService {
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
       },
       order: {
-        // location: { pt_location_id: 'ASC' },
+        pt_location_id: { pt_location_id: 'ASC' },
         reconciled_on: 'ASC',
         deposit_amt_cdn: 'ASC',
         status: 'ASC',
@@ -243,7 +249,7 @@ export class CashDepositService {
         status: MatchStatus.PENDING,
       },
       order: {
-        // location: { pt_location_id: 'ASC' },
+        pt_location_id: { pt_location_id: 'ASC' },
         deposit_amt_cdn: 'ASC',
       },
       relations: {

@@ -46,12 +46,14 @@ export class DatabaseService {
 
     const programRules: FileIngestionRulesEntity[] =
       await this.notificationService.getAllRules();
-
+    // Get the list of current clients from the programRules table
     for (const rule of programRules) {
+      // check each client to see if the location table has been seeded
       const ministryLocations =
         await this.locationService.findMinistryLocations(
           Ministries[rule.program as unknown as keyof typeof Ministries]
         );
+      // if not, seed the location table
       if (ministryLocations.length === 0) {
         await this.seedMinistryLocations(rule.program);
       }
