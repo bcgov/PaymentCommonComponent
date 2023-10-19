@@ -4,7 +4,7 @@ import {
   MerchantLocationEntity,
 } from '../../../src/location/entities';
 
-export const locations: LocationEntity[] = [
+const baseLocations = [
   {
     source_id: 'SBC',
     location_id: 61,
@@ -5187,8 +5187,16 @@ export const locations: LocationEntity[] = [
   },
 ];
 
-/*eslint-disable */
+// /*eslint-disable */
+// export const bankLocations: BankLocationEntity[] = Array.from(
+//   new Set(locations.flatMap((itm) => itm.banks.map(bank => ({...bank, location: itm}))))
+// )
+// export const ministryMerchantLocations: MerchantLocationEntity[] = Array.from(
+//   new Set(locations.flatMap((itm) => itm.merchants.map(merch => ({...merch, location: itm}))))
+// );
 
-export const ministryMerchantLocations: MerchantLocationEntity[] = Array.from(
-  new Set(locations.flatMap((itm) => itm.merchants))
-);
+export const locations: LocationEntity[] = baseLocations.map((itm) => ({
+  ...itm,
+  banks: itm.banks.map((bank) => ({ ...bank, location: itm })),
+  merchants: itm.merchants.map((merch) => ({ ...merch, location: itm })),
+}));

@@ -53,6 +53,7 @@ describe('Reconciliation Service (e2e)', () => {
     posDepositService = module.get(PosDepositService);
     transService = module.get(TransactionService);
     masterLocationRepo = module.get('MasterLocationEntityRepository');
+    ministryLocationRepo = module.get('LocationEntityRepository');
     paymentMethodRepo = module.get('PaymentMethodEntityRepository');
   });
   it('creates location table', async () => {
