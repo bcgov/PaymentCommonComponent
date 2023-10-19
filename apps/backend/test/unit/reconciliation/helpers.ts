@@ -30,7 +30,7 @@ export const aggregatePayments = (
         acc[key] = {
           status: payment.status,
           classification: payment.payment_method.classification,
-          location_id: payment.transaction.location_id,
+          location_id: payment.transaction.location.location_id,
           fiscal_close_date: payment.transaction.fiscal_close_date,
           amount: new Decimal(0),
           payments: [],

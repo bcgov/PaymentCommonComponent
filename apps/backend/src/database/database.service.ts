@@ -2,8 +2,8 @@ import { GetObjectCommandInput } from '@aws-sdk/client-s3';
 import { Inject, Injectable } from '@nestjs/common';
 import * as csv from 'csvtojson';
 import { masterData } from './const';
-import { FileTypes } from '../constants';
-import { LocationEntity } from '../location/entities';
+import { FileTypes, Ministries } from '../constants';
+import { MasterLocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
@@ -24,7 +24,8 @@ export class DatabaseService {
   ) {}
 
   async seedMasterData() {
-    const locations: LocationEntity[] = await this.locationService.findAll();
+    const locations: MasterLocationEntity[] =
+      await this.locationService.findAll();
 
     const paymentMethods: PaymentMethodEntity[] =
       await this.paymentMethodService.getPaymentMethods();
@@ -39,9 +40,21 @@ export class DatabaseService {
     if (locations.length === 0) {
       await this.seedLocations();
     }
-
     if (paymentMethods.length === 0) {
       await this.seedPaymentMethods();
+    }
+
+    const programRules: FileIngestionRulesEntity[] =
+      await this.notificationService.getAllRules();
+
+    for (const rule of programRules) {
+      const ministryLocations =
+        await this.locationService.findMinistryLocations(
+          Ministries[rule.program as unknown as keyof typeof Ministries]
+        );
+      if (ministryLocations.length === 0) {
+        await this.seedMinistryLocations(rule.program);
+      }
     }
   }
 
@@ -91,9 +104,13 @@ export class DatabaseService {
     );
     const sbcLocationMaster = await csv.default().fromString(awsBucketResponse);
     const locationEntities = sbcLocationMaster.map(
-      (loc) => new LocationEntity({ ...loc })
+      (loc) => new MasterLocationEntity({ ...loc })
     );
     await this.locationService.createLocations(locationEntities);
+  }
+
+  async seedMinistryLocations(program: string) {
+    await this.locationService.seedMinistryLocations(program);
   }
 
   async seedPaymentMethods() {

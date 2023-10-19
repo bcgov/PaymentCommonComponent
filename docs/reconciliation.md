@@ -35,14 +35,14 @@ To perform reconciliation, you can call the `reconcile` method. This method matc
 
 ```typescript
 async reconcile(
-  location: NormalizedLocation,
+  location: LocationEntity,
   pendingPayments: PaymentEntity[],
   pendingDeposits: POSDepositEntity[],
   currentDate: Date
 ): Promise<unknown>;
 ```
 
-- `location`: The location for which reconciliation is being performed, represented as a `NormalizedLocation` object.
+- `location`: The location for which reconciliation is being performed, represented as a `LocationEntity` object.
 
 - `pendingPayments`: An array of pending payment entities (e.g., `PaymentEntity[]`) that need to be matched with deposits.
 
@@ -184,7 +184,7 @@ Payments and deposits match many -> 1 and so the corresponding payments are foun
   - Payment entry from the payments array of a transaction
   - payment table
   - aggregate of payment rows match to one cash_deposit row
-- LocationEntity
+- MasterLocationEntity
   - Lookup table to find corresponding location
   - master_location_data table
   - cash_deposit pt_location_id will match to a corresponding location_id in this table

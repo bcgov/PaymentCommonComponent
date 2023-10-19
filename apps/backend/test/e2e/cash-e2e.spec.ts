@@ -16,7 +16,10 @@ import { TDI34Details } from '../../src/flat-files/tdi34/TDI34Details';
 import { extractDateFromTXNFileName } from '../../src/lambdas/helpers';
 import { parseGarms } from '../../src/lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../../src/lambdas/utils/parseTDI';
-import { LocationEntity } from '../../src/location/entities';
+import {
+  MasterLocationEntity,
+  LocationEntity,
+} from '../../src/location/entities';
 import { ILocation } from '../../src/location/interface/location.interface';
 import { TransactionEntity } from '../../src/transaction/entities';
 import { PaymentMethodEntity } from '../../src/transaction/entities/payment-method.entity';
@@ -28,7 +31,8 @@ import { TrimPipe } from '../../src/trim.pipe';
 describe('Reconciliation Service (e2e)', () => {
   let app: INestApplication;
   let paymentMethodRepo: Repository<PaymentMethodEntity>;
-  let locationRepo: Repository<LocationEntity>;
+  let ministryLocationRepo: Repository<LocationEntity>;
+  let locationRepo: Repository<MasterLocationEntity>;
   let posDepositService: PosDepositService;
   let cashDepositService: CashDepositService;
   let transService: TransactionService;
@@ -46,7 +50,7 @@ describe('Reconciliation Service (e2e)', () => {
     cashDepositService = module.get(CashDepositService);
     posDepositService = module.get(PosDepositService);
     transService = module.get(TransactionService);
-    locationRepo = module.get('LocationEntityRepository');
+    locationRepo = module.get('MasterLocationEntityRepository');
     paymentMethodRepo = module.get('PaymentMethodEntityRepository');
   });
   it('creates location table', async () => {
@@ -59,7 +63,7 @@ describe('Reconciliation Service (e2e)', () => {
       .fromFile(sbcLocationsMasterDataFile)) as ILocation[];
 
     const locationEntities = sbcLocationMaster.map((loc) => {
-      return new LocationEntity({ ...loc });
+      return new MasterLocationEntity({ ...loc });
     });
 
     await locationRepo.save(locationEntities);
@@ -128,6 +132,7 @@ describe('Reconciliation Service (e2e)', () => {
 
   it('parses and inserts payment data', async () => {
     const paymentMethods = await paymentMethodRepo.find();
+    const locations = await ministryLocationRepo.find();
     const contents = fs.readFileSync(
       join(__dirname, '../fixtures/SBC_SALES_2023_03_08_23_17_53.JSON'),
       'utf8'
@@ -136,7 +141,8 @@ describe('Reconciliation Service (e2e)', () => {
       (await JSON.parse(contents)) as SBCGarmsJson[],
       'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
       paymentMethods,
-      extractDateFromTXNFileName('sbc/SBC_SALES_2023_03_08_23_17_53.JSON')
+      extractDateFromTXNFileName('sbc/SBC_SALES_2023_03_08_23_17_53.JSON'),
+      locations.filter((itm) => itm.source_id === 'SBC')
     );
     await transService.saveTransactions(parsedGarmsFile);
   }, 12000);

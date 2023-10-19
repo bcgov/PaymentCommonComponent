@@ -1,11 +1,24 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { LocationEntity } from './entities/master-location-data.entity';
+import {
+  MasterLocationEntity,
+  LocationEntity,
+  BankLocationEntity,
+  MerchantLocationEntity,
+} from './entities';
 import { LocationService } from './location.service';
 import { LoggerModule } from '../logger/logger.module';
 
 @Module({
-  imports: [LoggerModule, TypeOrmModule.forFeature([LocationEntity])],
+  imports: [
+    LoggerModule,
+    TypeOrmModule.forFeature([
+      MasterLocationEntity,
+      LocationEntity,
+      BankLocationEntity,
+      MerchantLocationEntity,
+    ]),
+  ],
   providers: [LocationService],
   exports: [LocationService, TypeOrmModule],
 })
