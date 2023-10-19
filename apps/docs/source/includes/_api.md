@@ -1,6 +1,6 @@
 <!-- Generator: Widdershins v4.0.1 -->
 
-<h1 id="paycoco-api-docs">PayCoCo API Docs v0.0.1</h1>
+<h1 id="paycoco-api-docs">PayCoCo API Docs v1.0.0</h1>
 
 > Scroll down for code samples, example requests and responses. Select a language for code samples from the tabs above or the mobile navigation menu.
 
@@ -20,7 +20,7 @@ Base URLs:
 
 > Code samples
 
-`GET /api/v0/version`
+`GET /api/v1/version`
 
 <h3 id="appcontroller_getversion-responses">Responses</h3>
 
@@ -39,7 +39,7 @@ basic
 
 > Code samples
 
-`GET /api/v0/error`
+`GET /api/v1/error`
 
 <h3 id="appcontroller_geterror-responses">Responses</h3>
 
@@ -58,7 +58,7 @@ basic
 
 > Code samples
 
-`GET /api/v0/health`
+`GET /api/v1/health`
 
 <h3 id="appcontroller_gethealth-responses">Responses</h3>
 
@@ -79,7 +79,7 @@ basic
 
 > Code samples
 
-`POST /api/v0/transaction`
+`POST /api/v1/transaction`
 
 *Post Sales Event*
 
@@ -304,12 +304,13 @@ basic
 
 > Code samples
 
-`POST /api/v0/parse/flat-file`
+`POST /api/v1/parse/upload`
 
 > Body parameter
 
 ```yaml
 program: SBC
+source: bcm
 fileType: TDI17
 file: string
 
@@ -321,6 +322,7 @@ file: string
 |---|---|---|---|---|
 |body|body|object|true|none|
 |» program|body|string|false|none|
+|» source|body|string|false|none|
 |» fileType|body|string|false|none|
 |» file|body|string(binary)|false|none|
 
@@ -330,59 +332,13 @@ file: string
 |---|---|
 |» program|SBC|
 |» program|LABOUR|
-|» fileType|TDI17|
-|» fileType|TDI34|
-
-<h3 id="parsecontroller_uploadfile-responses">Responses</h3>
-
-|Status|Meaning|Description|Schema|
-|---|---|---|---|
-|201|[Created](https://tools.ietf.org/html/rfc7231#section-6.3.2)|none|None|
-
-<aside class="warning">
-To perform this operation, you must be authenticated by means of one of the following methods:
-basic
-</aside>
-
-## ParseController_uploadAndParseFile
-
-<a id="opIdParseController_uploadAndParseFile"></a>
-
-> Code samples
-
-`POST /api/v0/parse/upload-file`
-
-> Body parameter
-
-```yaml
-fileName: string
-fileType: TDI17
-program: SBC
-file: string
-
-```
-
-<h3 id="parsecontroller_uploadandparsefile-parameters">Parameters</h3>
-
-|Name|In|Type|Required|Description|
-|---|---|---|---|---|
-|body|body|object|true|none|
-|» fileName|body|string|false|none|
-|» fileType|body|string|false|none|
-|» program|body|string|false|none|
-|» file|body|string(binary)|false|none|
-
-#### Enumerated Values
-
-|Parameter|Value|
-|---|---|
+|» source|bcm|
+|» source|sbc|
 |» fileType|TDI17|
 |» fileType|TDI34|
 |» fileType|SBC_SALES|
-|» program|SBC|
-|» program|LABOUR|
 
-<h3 id="parsecontroller_uploadandparsefile-responses">Responses</h3>
+<h3 id="parsecontroller_uploadfile-responses">Responses</h3>
 
 |Status|Meaning|Description|Schema|
 |---|---|---|---|

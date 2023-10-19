@@ -342,8 +342,6 @@ drop:
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "DROP SCHEMA public CASCADE;"
 	@docker exec -it $(PROJECT)-db psql -U postgres -d pcc  -c "CREATE SCHEMA public;"
 
-dev-docs:
-	@docker exec -it $(PROJECT)-backend yarn run compodoc
 	
 
 # ===================================
@@ -429,7 +427,7 @@ version-patch:
 
 
 # ===================================
-# Documentation 
+# Project Documentation 
 # ===================================
 
 update-docs:
@@ -443,3 +441,13 @@ build-docs:
 run-docs:
 	@docker-compose up -d docs 
 	@echo "docs: http://localhost:3001"
+
+
+# ===================================
+# Developer Documentation 
+# ===================================
+
+dev-docs:
+	@echo "Wait for 1 minute, then visit: http://localhost:8081"
+	@docker exec -it $(PROJECT)-backend yarn run compodoc
+	

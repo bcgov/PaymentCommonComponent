@@ -28,7 +28,7 @@
     "typeorm:generate-migration": "yarn run typeorm migration:generate -d ./src/database/datasource.ts ./src/database/migrations/migration",
     "typeorm:create-migration": "yarn run typeorm migration:create ./src/database/migrations/migration",
     "typeorm:revert-migration": "yarn run typeorm -d ./src/database/datasource.ts migration:revert",
-    "docs": "npx @compodoc/compodoc -c compodoc.yaml",
+    "docs": "npx @compodoc/compodoc -o -c compodoc.yaml",
     "version:major": "yarn version major",
     "version:minor": "yarn version minor",
     "version:patch": "yarn version patch"
@@ -66,7 +66,7 @@
     "winston": "3.10.0"
   },
   "devDependencies": {
-    "@compodoc/compodoc": "1.1.21",
+    "@compodoc/compodoc": "1.1.22",
     "@faker-js/faker": "8.0.2",
     "@golevelup/ts-jest": "0.4.0",
     "@nestjs/cli": "10.1.11",
