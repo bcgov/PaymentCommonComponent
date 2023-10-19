@@ -46,7 +46,7 @@ export class LocationService {
   ) {
     // master location data list contains multiple rows for each location_id
     // split into location table (FK to transaction table), location_merchant table (FK to location_id && pos-deposit), and location_bank table (FK to location_id && cash_deposit)
-    const LocationEntityList = locations.reduce(
+    const locationEntityList = locations.reduce(
       (
         acc: { [key: string]: Partial<LocationEntity> },
         itm: MasterLocationEntity
@@ -94,7 +94,7 @@ export class LocationService {
     );
     await this.ministryLocationRepo.save(
       this.ministryLocationRepo.create(
-        Object.values(LocationEntityList).map((itm) => new LocationEntity(itm))
+        Object.values(locationEntityList).map((itm) => new LocationEntity(itm))
       )
     );
   }
