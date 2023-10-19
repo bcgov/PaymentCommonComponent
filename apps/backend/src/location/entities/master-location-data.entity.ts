@@ -1,4 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { LocationEntity } from './location.entity';
 
 @Entity('master_location_data')
 export class MasterLocationEntity {
@@ -11,7 +12,7 @@ export class MasterLocationEntity {
   @Column({ type: 'int4', nullable: false })
   location_id: number;
 
-  @Column('varchar', { length: 15, nullable: false })
+  @Column('varchar', { length: 15, nullable: true })
   method: string;
 
   @Column({ type: 'int4', nullable: true })
@@ -41,10 +42,10 @@ export class MasterLocationEntity {
   @Column('varchar', { length: 7, nullable: false })
   project_code: number;
 
-  @Column({ type: 'int4', nullable: false })
+  @Column({ type: 'int4', nullable: true })
   merchant_id: number;
 
-  constructor(data: Partial<MasterLocationEntity>) {
+  constructor(data: Partial<LocationEntity>) {
     Object.assign(this, data);
   }
 }
