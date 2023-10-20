@@ -35,7 +35,7 @@ There is also an alerting and notification lambda which notifies users if data f
     - [Developer Documentation](#developer-documentation)
     - [Project Documentation](#project-documentation)
     - [Database Documentation](#database-documentation)
-7. [Tools and Support](#tools-and-support)
+7. [Support](#tools-and-support)
     - [Communication](#communication)
     - [Development Tools](#development-tools)
     - [Secrets and Keys](#secrets-and-keys)
