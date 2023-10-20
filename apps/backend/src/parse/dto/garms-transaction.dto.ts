@@ -63,6 +63,7 @@ export class GarmsTransactionDTO {
     description: 'Location',
     example: { source_id: 'SBC', location_id: 1 },
   })
+  @IsNotEmpty()
   location!: LocationEntity;
 
   @ApiProperty({ description: 'TransactionJSON', type: Transaction })

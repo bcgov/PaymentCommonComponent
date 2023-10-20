@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1697822444170 implements MigrationInterface {
-  name = 'Migration1697822444170';
+export class Migration1697824654091 implements MigrationInterface {
+  name = 'LocationMigration1697824654091';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -34,15 +34,11 @@ export class Migration1697822444170 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ADD CONSTRAINT "PK_348c73a6bafffc0fb2bf0d4884d" PRIMARY KEY ("id", "location_id")`
     );
-    // await queryRunner.query(`ALTER TABLE "master_location_data" DROP COLUMN "source_id"`);
-    await queryRunner.query(
-      `ALTER TABLE "master_location_data" ALTER COLUMN "source_id" TYPE character varying(10) USING "source_id"::"varchar"`
-    );
     await queryRunner.query(
       `ALTER TABLE "master_location_data" DROP CONSTRAINT "PK_348c73a6bafffc0fb2bf0d4884d"`
     );
     await queryRunner.query(
-      `ALTER TABLE "master_location_data" ADD CONSTRAINT "PK_f2c6d2b1367b207377c873ce43d" PRIMARY KEY ("id", "location_id", "source_id")`
+      `ALTER TABLE "master_location_data" ALTER COLUMN "source_id" TYPE character varying(10) USING "source_id"::"varchar"`
     );
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "method" DROP NOT NULL`
@@ -71,15 +67,6 @@ export class Migration1697822444170 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "cash_deposit" DROP CONSTRAINT "FK_71b298e334812703ac318c4f255"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "pos_deposit" DROP CONSTRAINT "FK_aa767c22d7fad98e532a3ff344f"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" DROP CONSTRAINT "FK_48140a4e95790e677ba9459d11f"`
-    );
     await queryRunner.query(
       `ALTER TABLE "location_merchant" DROP CONSTRAINT "FK_b87ce3ff7ef49fe37473a2b0d36"`
     );

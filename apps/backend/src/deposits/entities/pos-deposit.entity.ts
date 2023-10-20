@@ -92,10 +92,7 @@ export class POSDepositEntity {
   )
   payment_match?: Relation<PaymentEntity>;
 
-  @ManyToOne(() => MerchantLocationEntity, (pd) => pd.id, {
-    eager: true,
-    cascade: false,
-  })
+  @ManyToOne(() => MerchantLocationEntity, (pd) => pd.id)
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'id' })
   merchant_id: Relation<MerchantLocationEntity>;
 
