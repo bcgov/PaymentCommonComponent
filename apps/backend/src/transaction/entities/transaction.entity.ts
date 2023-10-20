@@ -43,7 +43,7 @@ export class TransactionEntity {
   @Column({ type: 'boolean', default: false })
   void_indicator: boolean;
 
-  @ManyToOne(() => LocationEntity)
+  @ManyToOne(() => LocationEntity, { nullable: true })
   @JoinColumn({ name: 'location_id', referencedColumnName: 'location_id' })
   @JoinColumn({ name: 'source_id', referencedColumnName: 'source_id' })
   location: LocationEntity;
