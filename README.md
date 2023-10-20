@@ -1,5 +1,5 @@
 # DROP - Discrepancy Report on Payments
-[![Lifecycle:Stable](https://img.shields.io/badge/Lifecycle-Stable-97ca00)](<Redirect-URL>)
+[![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](<Redirect-URL>)
 
 DROP automates the manual process of finding and reporting discrepancies between line-of-business Ministry transactions and the Provincial Treasury's bank and cash management deposit files. 
 
