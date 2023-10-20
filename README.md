@@ -237,21 +237,24 @@ make report
 
 #### File Parsing
 
--
--
+- Files are pushed to sftp and transfered to S3 which triggers a lambda to parse the data into the db. 
+- Files may also be directly dropped into the S3 bucket.
+- Amazon SNS is used to trigger the reconciliation lambda
 
 #### Data Reconciliation
 
-- 
-- 
+- Lambda searches for discrepencies in the data and updates the "status" of each row item. 
+- After this process has completed another lambda is triggered to generate and output a report to another S3 bucket. 
+
 
 #### Reporting
 
-- 
-- 
+- Daily report is triggered by the Reconciliation Lambda/SNS
+- Report is generated and uploaded to the S3 bucket
+
 
 #### Notifications
-
+- Notifies users if data files are missing, or if there are errors in the files during parsing. 
 - For notifications, we are using GC Notify. The key can be found in the AWS Parameter Store.
 - The API documentation for GC Notify sits [here](https://documentation.notification.canada.ca/en/).
 
@@ -311,7 +314,6 @@ make build
 ```bash
 make dev-docs
 ```
-View them [here](http://localhost:8081) 
 The docs are a work in progress. Configuration options can be found [here](https://compodoc.app/guides/options.html).
 
 #### Project Documentation
@@ -324,7 +326,7 @@ make build
 ```bash
 make build-docs
 ```
-View them [here](http://localhost:3001) 
+
 
 #### Database Documentation
 - [Database Documentation](https://dbdocs.io/chelsea-EYDS/bcpcc)
