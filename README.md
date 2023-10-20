@@ -19,25 +19,26 @@ There is also an alerting and notification lambda which notifies users if data f
 
 1. [Tech](#tech)
 2. [Setup](#setup)
-    a. [Requirements](#requirements)
-    b. [Environment Variables](#environment-variables)
-    b. [Tools](#tools)
-    c. [Yarn](#yarn)
-    d. [Node](#node)
+    - [Tools Check](#tools-check)
+    - [AWS Minio Credentials](#aws-minio-credentials)
+    - [AWS Minio Config](#aws-minio-config)
+    - [rclone Config](#rclone-config)
+    - [Environment Variables](#environment-variables)
+    - [Yarn](#yarn)
 3. [Running The Project](#running-the-project) 
-    a. [Docker](#docker)
-    b. [Database](#database)
-    c. [Lambdas](#lambdas)
+    - [Docker](#docker)
+    - [Database](#database)
+    - [Lambdas](#lambdas)
 4. [Features](#features)
 5. [Tests](#tests) 
 6. [Documentation](#documentation)
-    a. [Developer Documentation](#developer-documentation)
-    b. [Project Documentation](#project-documentation)
-    c. [Database Documentation](#database-documentation)
+    - [Developer Documentation](#developer-documentation)
+    - [Project Documentation](#project-documentation)
+    - [Database Documentation](#database-documentation)
 7. [Tools and Support](#tools-and-support)
-    a. [Communication](#communication)
-    b. [Development Tools](#development-tools)
-    c. [Secrets and Keys](#secrets-and-keys)
+    - [Communication](#communication)
+    - [Development Tools](#development-tools)
+    - [Secrets and Keys](#secrets-and-keys)
     
 
 ## Tech
@@ -52,7 +53,7 @@ There is also an alerting and notification lambda which notifies users if data f
 
 ## Setup
 
-#### Development Tools
+#### Tools Check
 
 Run this command to automatically check for the required prereqs or consult the list below:
 ```bash
@@ -72,10 +73,13 @@ make check
 - nestjs-cli
 - rclone
 
-#### Requirements
+#### AWS Minio Credentials
+Generate or update aws-pcc and minio credentials:
+```bash
+cp .config/credentials.example ~/.aws/credentials 
+```
 
-To run the project for development, the following is bare requirement:
-- aws configuration for aws-pcc and minio [Example](./.config/credentials.example)
+Example:
         
         [pcc-aws]
         aws_access_key_id = <KEY>
@@ -85,7 +89,30 @@ To run the project for development, the following is bare requirement:
         aws_access_key_id = <KEY>
         aws_secret_access_key = <SECRET>
 
-- rclone configuration [Example](./.config/rclone.conf.example)
+#### AWS Minio Config
+Generate or update aws config: 
+```bash
+cp .config/config.example ~/.aws/config 
+```
+Example: 
+
+        [profile pcc-aws]
+        region = ca-central-1
+        output = json
+
+        [profile minio]
+        region = ca-central-1
+        output = json
+
+#### rclone Config
+
+Generate rclone.conf:
+
+```bash
+cp .config/rclone.conf.example ~/.config/rclone/rclone.conf 
+```
+
+Example:
         
         [s3]
         type = s3
@@ -102,60 +129,13 @@ To run the project for development, the following is bare requirement:
 
 #### Environment Variables
 
-- env file configuration:
+To generate the .env file run:
+```bash
+cp .config/.env.example .env
+```
+[Example](https://github.com/bcgov/PaymentCommonComponent/blob/CCFPCM-642/.config/.env.example)
 
-        ######################
-        # Project
-        ######################
-        PROJECT=pcc
-
-        ######################
-        # SFTP
-        ######################
-        BCM_SFTP=
-
-        ######################
-        # Local Database
-        ######################
-        DB_HOST=localhost
-        DB_NAME=pcc
-        DB_USER=postgres
-        DB_PASSWORD=postgres
-        DB_ROOT_PASSWORD=postgres
-        DB_PORT=5432
-
-        ######################
-        # AWS Postgres
-        ######################
-        AWS_POSTGRES_USERNAME=
-
-        ######################
-        # DB Tunnel
-        ######################
-
-        DB_HOST_DEV=
-        DB_HOST_PROD=
-        DB_HOST_TEST=
-        BASTION_INSTANCE_ID_DEV=
-        BASTION_INSTANCE_ID_PROD=
-        BASTION_INSTANCE_ID_TEST=
-
-        NODE_ENV=local
-        RUNTIME_ENV=local
-
-        API_URL=http://localhost:3000/api
-
-        MAIL_SERVICE_BASE_URL=https://api.notification.canada.ca
-        MAIL_SERVICE_KEY=
-        MAIL_SERVICE_DEFAULT_TO_EMAIL=test.account@mailinator.com
-        AUTH_BASE_URL=https://dev.loginproxy.gov.bc.ca/auth/realms/apigw
-        AWS_REGION=ca-central-1
-        DISABLE_AUTOMATED_RECONCILIATION=false
-        AWS_ENDPOINT='http://minio:9000'
-        SNS_TRIGGER_REPORT_TOPIC_ARN=
-        SNS_TRIGGER_RECONCILIATION_TOPIC_ARN=
-        AWS_ACCOUNT_ID_DEV=
-        AWS_ACCOUNT_ID_TEST=
+Contact the team to fill in any missing variables
 
 
 #### Yarn
@@ -206,7 +186,7 @@ Parse data into the db:
 make parse
 ```
 
-#### Lambdas
+### Lambdas
 This application is consists of several separate lambdas which are connected together through various triggers on aws in production. To run and test the individual lambdas locally you can run the following commands: 
 
 #### Migrate
@@ -272,7 +252,7 @@ Run `make verison-minor` to update small changes in which we do not want to upda
 Run `make verison-patch` to update the version after implementing fixes for bugs etc - this will not update the api path. This is used to track fixes for testing etc. 
 
 
-## Running Tests
+## Tests
 
 Build the test container:
 ```bash
