@@ -13,12 +13,13 @@ jobs:
     concurrency: ci-${{ github.ref }}-tools
     environment:
       name: tools
-    steps:
-      - uses: actions/checkout@v3
-        name: checkout
 
-      - uses: actions/cache@v3
-        name: Cache yarn
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache yarn
+        uses: actions/cache@v3
         with:
           path: ./.yarn/cache
           key: pcc-backend-tools
@@ -44,12 +45,15 @@ jobs:
       - name: Build
         run: make build-backend
 
-      - name: Deploy Migrations
+      - name: Upload build artifacts
+        run: make aws-upload-artifacts
+      
+      - name: Deploy migrations
         run: make aws-deploy-migrator
 
-      - name: Run Migrations
+      - name: Run migrations
         run: make aws-run-migrator
 
-      - name: Deploy All
-        run: aws-deploy-all
+      - name: Deploy all
+        run: make aws-deploy-all
 
