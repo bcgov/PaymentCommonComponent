@@ -7,6 +7,8 @@ ROLE_ARN=""
 
 if [[ $ENV == "dev" ]]; then
     ROLE_ARN="arn:aws:iam::279397349124:role/PBMMOps-BCGOV_dev_Project_Role_CI_Role"
+elif [[ $ENV == "tools" ]]; then
+    ROLE_ARN="arn:aws:iam::307961689092:role/PBMMOps-BCGOV_tools_Project_Role_CI_Role"
 elif [[ $ENV == "test" ]]; then
     ROLE_ARN="arn:aws:iam::289110186100:role/PBMMOps-BCGOV_test_Project_Role_CI_Role"
 elif [[ $ENV == "prod" ]]; then
