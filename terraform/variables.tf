@@ -46,7 +46,7 @@ locals {
   pcc_api_name   = "paycocoapi"
   db_name        = "${var.project_code}-db"
   bucket         = "terraform-remote-state-${var.lz2_code}-${var.target_env}"
-  key            = ".terraform/terraform.tfstate"
+  key            = ".terraform/terraform.state"
   region         = "ca-central-1"
   dynamodb_table = "terraform-remote-state-lock-${var.lz2_code}"
   encrypt        = true
