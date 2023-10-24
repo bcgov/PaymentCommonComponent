@@ -1,5 +1,6 @@
 name: Deployment - TOOLS
 on:
+  workflow_dispatch:
   push:
     tags:
       - tools
