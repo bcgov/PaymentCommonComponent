@@ -11,7 +11,7 @@ import {
 export interface ITDI34Details extends IFixedWidthRecord<ITDI34Details> {
   metadata: unknown;
   rcd_type: number;
-  merchant_id: string;
+  merchant: string;
   terminal_no: string;
   fill1: string;
   payment_method: string;
@@ -53,12 +53,12 @@ export class TDI34Details
   }
 
   @Column({ start: 1, width: 8, format: { type: DataType.Integer } })
-  public get merchant_id() {
-    return this.resource.merchant_id;
+  public get merchant() {
+    return this.resource.merchant;
   }
 
-  public set merchant_id(data) {
-    this.resource.merchant_id = data;
+  public set merchant(data) {
+    this.resource.merchant = data;
   }
 
   @Column({ start: 9, width: 12 })

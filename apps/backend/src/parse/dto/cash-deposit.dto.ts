@@ -23,10 +23,10 @@ export class CashDepositDTO {
   @IsNotEmpty()
   deposit_date!: string;
 
-  @ApiProperty({ description: 'Pt Location Id', example: '29999' })
+  @ApiProperty({ description: 'Bank Location Id', example: '29999' })
   @IsNumber()
   @IsNotEmpty()
-  pt_location_id!: number;
+  bank!: number;
 
   @ApiProperty({ description: 'Deposit time', example: '162600' })
   @IsNumberString()

@@ -104,10 +104,8 @@ describe('Reconciliation Service (e2e)', () => {
               new MerchantLocationEntity({ id: itm.merchant_id })
             );
 
-          !acc[key].banks?.find((pt) => pt.id === itm.pt_location_id) &&
-            acc[key].banks?.push(
-              new BankLocationEntity({ id: itm.pt_location_id })
-            );
+          !acc[key].banks?.find((pt) => pt.id === itm.bank) &&
+            acc[key].banks?.push(new BankLocationEntity({ id: itm.bank }));
 
           acc[key].description = baseLocations.find(
             (loc) =>

@@ -16,7 +16,7 @@ export class PosDepositDTO {
 
   @ApiProperty({ description: 'Merchant ID', example: '22099999' })
   @IsNumber()
-  merchant_id!: string;
+  merchant!: string;
 
   @ApiProperty({ description: 'Card Id', example: '***************5368' })
   @IsString()

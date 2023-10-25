@@ -1,9 +1,15 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1698266118132 implements MigrationInterface {
-  name = 'Migration1698266118132';
+export class Migration1698268884767 implements MigrationInterface {
+  name = 'Migration1698268884767';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(
+      `ALTER TABLE "pos_deposit" RENAME COLUMN "merchant_id" TO "merchant"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "cash_deposit" RENAME COLUMN "pt_location_id" TO "bank"`
+    );
     await queryRunner.query(
       `CREATE TABLE "location_bank" ("id" integer NOT NULL, "location" uuid, CONSTRAINT "id" UNIQUE ("id", "location"), CONSTRAINT "PK_eeba479525aaefa12e7f3b3be68" PRIMARY KEY ("id"))`
     );
@@ -31,12 +37,23 @@ export class Migration1698266118132 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "merchant_id" DROP NOT NULL`
     );
-
     await queryRunner.query(
-      `ALTER TABLE "pos_deposit" ALTER COLUMN "merchant_id" DROP NOT NULL`
+      `ALTER TABLE "transaction" DROP COLUMN "location_id"`
     );
     await queryRunner.query(
-      `ALTER TABLE "cash_deposit" ALTER COLUMN "pt_location_id" DROP NOT NULL`
+      `ALTER TABLE "transaction" ADD "location_id" uuid NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" DROP COLUMN "source_id"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" ADD "source_id" integer NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "pos_deposit" ALTER COLUMN "merchant" DROP NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "cash_deposit" ALTER COLUMN "bank" DROP NOT NULL`
     );
     await queryRunner.query(
       `ALTER TABLE "location_bank" ADD CONSTRAINT "FK_97f65ebeda56712afd907d46bbe" FOREIGN KEY ("location") REFERENCES "location"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
@@ -54,12 +71,23 @@ export class Migration1698266118132 implements MigrationInterface {
       `ALTER TABLE "location_bank" DROP CONSTRAINT "FK_97f65ebeda56712afd907d46bbe"`
     );
     await queryRunner.query(
-      `ALTER TABLE "cash_deposit" ALTER COLUMN "pt_location_id" SET NOT NULL`
+      `ALTER TABLE "cash_deposit" ALTER COLUMN "bank" SET NOT NULL`
     );
     await queryRunner.query(
-      `ALTER TABLE "pos_deposit" ALTER COLUMN "merchant_id" SET NOT NULL`
+      `ALTER TABLE "pos_deposit" ALTER COLUMN "merchant" SET NOT NULL`
     );
-
+    await queryRunner.query(
+      `ALTER TABLE "transaction" DROP COLUMN "source_id"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" ADD "source_id" character varying(10) NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" DROP COLUMN "location_id"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" ADD "location_id" integer NOT NULL`
+    );
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "merchant_id" SET NOT NULL`
     );
@@ -78,5 +106,11 @@ export class Migration1698266118132 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE "location_merchant"`);
     await queryRunner.query(`DROP INDEX "public"."id_location_idx"`);
     await queryRunner.query(`DROP TABLE "location_bank"`);
+    await queryRunner.query(
+      `ALTER TABLE "cash_deposit" RENAME COLUMN "bank" TO "pt_location_id"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "pos_deposit" RENAME COLUMN "merchant" TO "merchant_id"`
+    );
   }
 }

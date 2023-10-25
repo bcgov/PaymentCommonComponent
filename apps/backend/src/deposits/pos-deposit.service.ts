@@ -71,14 +71,14 @@ export class PosDepositService {
    */
   async findPOSDepositsExceptions(
     date: string,
-    merchant_ids: number[],
+    merchants: number[],
     program: Ministries
   ): Promise<POSDepositEntity[]> {
     return await this.posDepositRepo.find({
       where: {
         transaction_date: LessThan(date),
         status: MatchStatus.IN_PROGRESS,
-        merchant_id: { id: In(merchant_ids) },
+        merchant: { id: In(merchants) },
         metadata: { program },
       },
     });
@@ -96,7 +96,7 @@ export class PosDepositService {
     qb.select(['settlement_date::date']);
     qb.addSelect('payment_method', 'payment_method');
     qb.addSelect('SUM(transaction_amt)::numeric(10,2)', 'transaction_amt');
-    qb.addSelect('merchant_id');
+    qb.addSelect('merchant');
     qb.leftJoin(
       MerchantEntity,
       'location_merchant',
@@ -104,7 +104,7 @@ export class PosDepositService {
     );
     qb.where({
       metadata: { program },
-      merchant_id: { location: In(locations) },
+      merchant: { location: In(locations) },
       settlement_date: Raw(
         (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
         { minDate, maxDate }
@@ -114,8 +114,8 @@ export class PosDepositService {
     qb.groupBy('settlement_date');
     qb.addGroupBy('terminal_no');
     qb.addGroupBy('payment_method');
-    qb.addGroupBy('merchant_id');
-    qb.addGroupBy('master_merchant_data.merchant_id');
+    qb.addGroupBy('merchant');
+    qb.addGroupBy('master_merchant_data.merchant');
     qb.orderBy({
       settlement_date: 'ASC',
       transaction_amt: 'ASC',
@@ -125,7 +125,7 @@ export class PosDepositService {
     const deposits = await qb.getRawMany();
     return deposits.map((d) => ({
       ...d,
-      merchant_id: d.merchant_id,
+      merchant: d.merchant,
       settlement_date: format(new Date(d.settlement_date), 'yyyy-MM-dd'),
     }));
   }
@@ -212,7 +212,7 @@ export class PosDepositService {
         payment_match: true,
       },
       order: {
-        merchant_id: { id: 'ASC' },
+        merchant: { id: 'ASC' },
         reconciled_on: 'ASC',
         transaction_amt: 'ASC',
         status: 'ASC',
@@ -228,7 +228,7 @@ export class PosDepositService {
         status: MatchStatus.IN_PROGRESS,
       },
       order: {
-        merchant_id: { id: 'ASC' },
+        merchant: { id: 'ASC' },
         in_progress_on: 'ASC',
         transaction_amt: 'ASC',
       },
@@ -244,7 +244,7 @@ export class PosDepositService {
         status: MatchStatus.PENDING,
       },
       order: {
-        merchant_id: { id: 'ASC' },
+        merchant: { id: 'ASC' },
         transaction_amt: 'ASC',
       },
     });

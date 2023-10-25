@@ -93,8 +93,8 @@ export class POSDepositEntity {
   payment_match?: Relation<PaymentEntity>;
 
   @ManyToOne(() => MerchantEntity)
-  @JoinColumn({ name: 'merchant_id', referencedColumnName: 'id' })
-  merchant_id: Relation<MerchantEntity>;
+  @JoinColumn({ name: 'merchant', referencedColumnName: 'id' })
+  merchant: Relation<MerchantEntity>;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

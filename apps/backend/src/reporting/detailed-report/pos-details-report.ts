@@ -25,7 +25,7 @@ export class POSDepositDetailsReport extends DetailsReport {
       .toDecimalPlaces(2)
       .toNumber();
     this.currency = 'CAD';
-    this.merchant_id = deposit.merchant_id.id;
+    this.merchant_id = deposit.merchant.id;
     this.terminal_no = deposit.terminal_no;
     this.card_id = deposit.card_id;
     this.transaction_code = deposit.transaction_code;

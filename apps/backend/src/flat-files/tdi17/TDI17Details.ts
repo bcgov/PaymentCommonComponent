@@ -13,7 +13,7 @@ export interface ITDI17Details extends IFixedWidthRecord<ITDI17Details> {
   ministry_no: string;
   program_code: string;
   deposit_date: string;
-  pt_location_id: number;
+  bank: number;
   deposit_time: string;
   seq_no: string;
   location_desc: string;
@@ -82,13 +82,13 @@ export class TDI17Details
     this.resource.deposit_date = data;
   }
 
-  public set pt_location_id(data: number) {
-    this.resource.pt_location_id = data;
+  public set bank(data: number) {
+    this.resource.bank = data;
   }
 
   @Column({ start: 15, width: 5, format: { type: DataType.Integer } })
-  public get pt_location_id(): number {
-    return this.resource.pt_location_id;
+  public get bank(): number {
+    return this.resource.bank;
   }
 
   @Column({ start: 20, width: 4, format: { type: DataType.Time } })

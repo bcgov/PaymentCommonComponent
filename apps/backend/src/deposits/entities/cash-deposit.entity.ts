@@ -100,10 +100,10 @@ export class CashDepositEntity {
 
   @ManyToOne(() => BankLocationEntity)
   @JoinColumn({
-    name: 'pt_location_id',
+    name: 'bank',
     referencedColumnName: 'id',
   })
-  pt_location_id: Relation<BankLocationEntity>;
+  bank: Relation<BankLocationEntity>;
 
   constructor(data?: TDI17Details) {
     Object.assign(this, data?.resource);
