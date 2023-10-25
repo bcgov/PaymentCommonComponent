@@ -98,7 +98,7 @@ export class CashDepositEntity {
   @Column({ name: 'file_uploaded', nullable: true })
   fileUploadedEntityId?: string;
 
-  @ManyToOne(() => BankLocationEntity)
+  @ManyToOne(() => BankLocationEntity, { nullable: false })
   @JoinColumn({
     name: 'bank',
     referencedColumnName: 'id',

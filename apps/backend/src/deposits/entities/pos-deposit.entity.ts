@@ -92,7 +92,7 @@ export class POSDepositEntity {
   )
   payment_match?: Relation<PaymentEntity>;
 
-  @ManyToOne(() => MerchantEntity)
+  @ManyToOne(() => MerchantEntity, { nullable: false })
   @JoinColumn({ name: 'merchant', referencedColumnName: 'id' })
   merchant: Relation<MerchantEntity>;
 

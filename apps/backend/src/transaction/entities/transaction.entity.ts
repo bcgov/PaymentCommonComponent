@@ -43,15 +43,15 @@ export class TransactionEntity {
   @Column({ type: 'boolean', default: false })
   void_indicator: boolean;
 
-  @ManyToOne(() => LocationEntity)
-  @JoinColumn({ name: 'location_id', referencedColumnName: 'id' })
+  @ManyToOne(() => LocationEntity, { nullable: false })
+  @JoinColumn({ name: 'location', referencedColumnName: 'id' })
   location: LocationEntity;
 
-  @Column()
-  location_id: number;
+  @Column('varchar', { length: 10 })
+  source_id: string;
 
-  @Column()
-  source_id: number;
+  @Column({ type: 'int4', nullable: false })
+  location_id: number;
 
   @Column({ type: 'jsonb', nullable: false })
   transactionJson?: Transaction;

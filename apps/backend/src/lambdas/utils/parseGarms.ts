@@ -62,7 +62,9 @@ const parseGarmsData = (
       (itm) =>
         itm.source_id === source.source_id &&
         itm.location_id === parseInt(source.location_id)
-    )!,
+    ),
+    source_id: source.source_id,
+    location_id: parseInt(source.location_id),
     transaction_id: sales_transaction_id,
     transaction_date: sales_transaction_date.slice(0, 10),
     transaction_time: sales_transaction_date.slice(11, 19).replaceAll('.', ':'),
