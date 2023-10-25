@@ -1,4 +1,3 @@
-import { LocationEntity, MerchantLocationEntity } from 'src/location/entities';
 import { CashDepositMock } from './classes/cash_deposit_mock';
 import { PaymentMock } from './classes/payment_mock';
 import { POSDepositMock } from './classes/pos_deposit_mock';
@@ -10,6 +9,7 @@ import { aggregatePayments } from '../unit/reconciliation/helpers';
 import { MatchStatus } from '../../src/common/const';
 import { DateRange, FileTypes, Ministries } from '../../src/constants';
 import { PaymentMethodClassification } from '../../src/constants';
+import { LocationEntity, MerchantEntity } from '../../src/location/entities';
 import { AggregatedCashPayment } from '../../src/reconciliation/types';
 import { PaymentEntity } from '../../src/transaction/entities';
 
@@ -58,7 +58,7 @@ export class MockData {
     return payments.flatMap(
       (payment: PaymentMock) =>
         new POSDepositMock(
-          this.location as unknown as MerchantLocationEntity,
+          this.location as unknown as MerchantEntity,
           generateMetadataMock(FileTypes.TDI34),
           payment,
           this.status

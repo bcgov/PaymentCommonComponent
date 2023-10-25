@@ -19,10 +19,10 @@ import { parseTDI, parseTDIHeader } from '../../src/lambdas/utils/parseTDI';
 import {
   MasterLocationEntity,
   LocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
   BankLocationEntity,
 } from '../../src/location/entities';
-import { ILocation } from '../../src/location/interface/location.interface';
+import { ILocation } from '../../src/location/interface';
 import { TransactionEntity } from '../../src/transaction/entities';
 import { PaymentMethodEntity } from '../../src/transaction/entities/payment-method.entity';
 import { SBCGarmsJson } from '../../src/transaction/interface';
@@ -101,11 +101,13 @@ describe('Reconciliation Service (e2e)', () => {
               (merch) => merch.id === itm.merchant_id
             ) &&
             acc[key].merchants?.push(
-              new MerchantLocationEntity({ id: itm.merchant_id })
+              new MerchantEntity({ id: itm.merchant_id })
             );
 
-          !acc[key].banks?.find((pt) => pt.id === itm.bank) &&
-            acc[key].banks?.push(new BankLocationEntity({ id: itm.bank }));
+          !acc[key].banks?.find((pt) => pt.id === itm.pt_location_id) &&
+            acc[key].banks?.push(
+              new BankLocationEntity({ id: itm.pt_location_id })
+            );
 
           acc[key].description = baseLocations.find(
             (loc) =>

@@ -19,7 +19,7 @@ export class CashDepositMock extends CashDepositEntity {
     this.deposit_date = dateRange.maxDate;
     this.metadata = metadata;
     this.deposit_amt_cdn = amount;
-    this.pt_location_id = location;
+    this.bank = location;
     this.status = status ?? faker.helpers.arrayElement(MatchStatusAll);
   }
 }

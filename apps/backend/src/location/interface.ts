@@ -1,7 +1,3 @@
-export enum LocationMethod {
-  Bank = 'Bank',
-  POS = 'POS',
-}
 export interface ILocation {
   location_id: number;
   type: string;

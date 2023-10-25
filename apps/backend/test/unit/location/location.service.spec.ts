@@ -7,7 +7,7 @@ import {
   MasterLocationEntity,
   LocationEntity,
   BankLocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
 } from '../../../src/location/entities';
 import { LocationService } from '../../../src/location/location.service';
 import { LoggerModule } from '../../../src/logger/logger.module';
@@ -34,7 +34,7 @@ describe('LocationService', () => {
           },
         },
         {
-          provide: getRepositoryToken(MerchantLocationEntity),
+          provide: getRepositoryToken(MerchantEntity),
           useValue: {
             find: jest.fn(),
           },

@@ -1,7 +1,7 @@
 import {
   BankLocationEntity,
   LocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
 } from '../../../src/location/entities';
 
 const baseLocations = [
@@ -18,7 +18,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591041 })],
+    merchants: [new MerchantEntity({ id: 23591041 })],
   },
   {
     id: '1239je90',
@@ -33,7 +33,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591645 })],
+    merchants: [new MerchantEntity({ id: 23591645 })],
   },
   {
     id: '1239je90',
@@ -48,7 +48,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591066 })],
+    merchants: [new MerchantEntity({ id: 23591066 })],
   },
   {
     id: '1239je90',
@@ -63,7 +63,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591074 })],
+    merchants: [new MerchantEntity({ id: 23591074 })],
   },
   {
     id: '1239je90',
@@ -78,7 +78,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591082 })],
+    merchants: [new MerchantEntity({ id: 23591082 })],
   },
   {
     id: '1239je90',
@@ -93,7 +93,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 28624979 })],
+    merchants: [new MerchantEntity({ id: 28624979 })],
   },
   {
     id: '1239je90',
@@ -108,7 +108,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591090 })],
+    merchants: [new MerchantEntity({ id: 23591090 })],
   },
   {
     id: '1239je90',
@@ -123,7 +123,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591116 })],
+    merchants: [new MerchantEntity({ id: 23591116 })],
   },
   {
     id: '1239je90',
@@ -138,7 +138,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591124 })],
+    merchants: [new MerchantEntity({ id: 23591124 })],
   },
   {
     id: '1239je90',
@@ -153,7 +153,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591132 })],
+    merchants: [new MerchantEntity({ id: 23591132 })],
   },
   {
     id: '1239je90',
@@ -168,7 +168,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591157 })],
+    merchants: [new MerchantEntity({ id: 23591157 })],
   },
   {
     id: '1239je90',
@@ -183,7 +183,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591173 })],
+    merchants: [new MerchantEntity({ id: 23591173 })],
   },
   {
     id: '1239je90',
@@ -198,7 +198,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591199 })],
+    merchants: [new MerchantEntity({ id: 23591199 })],
   },
   {
     id: '1239je90',
@@ -213,7 +213,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591207 })],
+    merchants: [new MerchantEntity({ id: 23591207 })],
   },
   {
     id: '1239je90',
@@ -228,7 +228,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591363 })],
+    merchants: [new MerchantEntity({ id: 23591363 })],
   },
   {
     id: '1239je90',
@@ -243,7 +243,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591371 })],
+    merchants: [new MerchantEntity({ id: 23591371 })],
   },
   {
     id: '1239je90',
@@ -258,7 +258,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591389 })],
+    merchants: [new MerchantEntity({ id: 23591389 })],
   },
   {
     id: '1239je90',
@@ -273,7 +273,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591397 })],
+    merchants: [new MerchantEntity({ id: 23591397 })],
   },
   {
     id: '1239je90',
@@ -288,7 +288,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591413 })],
+    merchants: [new MerchantEntity({ id: 23591413 })],
   },
   {
     id: '1239je90',
@@ -303,7 +303,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591587 })],
+    merchants: [new MerchantEntity({ id: 23591587 })],
   },
   {
     id: '1239je90',
@@ -318,7 +318,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591595 })],
+    merchants: [new MerchantEntity({ id: 23591595 })],
   },
   {
     id: '1239je90',
@@ -333,7 +333,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591603 })],
+    merchants: [new MerchantEntity({ id: 23591603 })],
   },
   {
     id: '1239je90',
@@ -348,7 +348,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591629 })],
+    merchants: [new MerchantEntity({ id: 23591629 })],
   },
   {
     id: '1239je90',
@@ -363,7 +363,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591637 })],
+    merchants: [new MerchantEntity({ id: 23591637 })],
   },
   {
     id: '1239je90',
@@ -378,7 +378,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591660 })],
+    merchants: [new MerchantEntity({ id: 23591660 })],
   },
   {
     id: '1239je90',
@@ -393,7 +393,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23591835 })],
+    merchants: [new MerchantEntity({ id: 23591835 })],
   },
   {
     id: '1239je90',
@@ -408,7 +408,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592072 })],
+    merchants: [new MerchantEntity({ id: 23592072 })],
   },
   {
     id: '1239je90',
@@ -423,7 +423,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592098 })],
+    merchants: [new MerchantEntity({ id: 23592098 })],
   },
   {
     id: '1239je90',
@@ -438,7 +438,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592114 })],
+    merchants: [new MerchantEntity({ id: 23592114 })],
   },
   {
     id: '1239je90',
@@ -453,7 +453,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592122 })],
+    merchants: [new MerchantEntity({ id: 23592122 })],
   },
   {
     id: '1239je90',
@@ -468,7 +468,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592155 })],
+    merchants: [new MerchantEntity({ id: 23592155 })],
   },
   {
     id: '1239je90',
@@ -483,7 +483,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592189 })],
+    merchants: [new MerchantEntity({ id: 23592189 })],
   },
   {
     id: '1239je90',
@@ -498,7 +498,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592205 })],
+    merchants: [new MerchantEntity({ id: 23592205 })],
   },
   {
     id: '1239je90',
@@ -513,7 +513,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592247 })],
+    merchants: [new MerchantEntity({ id: 23592247 })],
   },
   {
     id: '1239je90',
@@ -528,7 +528,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592262 })],
+    merchants: [new MerchantEntity({ id: 23592262 })],
   },
   {
     id: '1239je90',
@@ -543,7 +543,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592270 })],
+    merchants: [new MerchantEntity({ id: 23592270 })],
   },
   {
     id: '1239je90',
@@ -558,7 +558,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592288 })],
+    merchants: [new MerchantEntity({ id: 23592288 })],
   },
   {
     id: '1239je90',
@@ -573,7 +573,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592296 })],
+    merchants: [new MerchantEntity({ id: 23592296 })],
   },
   {
     id: '1239je90',
@@ -588,7 +588,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592304 })],
+    merchants: [new MerchantEntity({ id: 23592304 })],
   },
   {
     id: '1239je90',
@@ -603,7 +603,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592312 })],
+    merchants: [new MerchantEntity({ id: 23592312 })],
   },
   {
     id: '1239je90',
@@ -618,7 +618,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592320 })],
+    merchants: [new MerchantEntity({ id: 23592320 })],
   },
   {
     id: '1239je90',
@@ -633,7 +633,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592338 })],
+    merchants: [new MerchantEntity({ id: 23592338 })],
   },
   {
     id: '1239je90',
@@ -648,7 +648,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592346 })],
+    merchants: [new MerchantEntity({ id: 23592346 })],
   },
   {
     id: '1239je90',
@@ -663,7 +663,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592353 })],
+    merchants: [new MerchantEntity({ id: 23592353 })],
   },
   {
     id: '1239je90',
@@ -678,7 +678,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592361 })],
+    merchants: [new MerchantEntity({ id: 23592361 })],
   },
   {
     id: '1239je90',
@@ -693,7 +693,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592379 })],
+    merchants: [new MerchantEntity({ id: 23592379 })],
   },
   {
     id: '1239je90',
@@ -708,7 +708,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592387 })],
+    merchants: [new MerchantEntity({ id: 23592387 })],
   },
   {
     id: '1239je90',
@@ -723,7 +723,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592395 })],
+    merchants: [new MerchantEntity({ id: 23592395 })],
   },
   {
     id: '1239je90',
@@ -738,7 +738,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592403 })],
+    merchants: [new MerchantEntity({ id: 23592403 })],
   },
   {
     id: '1239je90',
@@ -753,7 +753,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592411 })],
+    merchants: [new MerchantEntity({ id: 23592411 })],
   },
   {
     id: '1239je90',
@@ -768,7 +768,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592429 })],
+    merchants: [new MerchantEntity({ id: 23592429 })],
   },
   {
     id: '1239je90',
@@ -783,7 +783,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592437 })],
+    merchants: [new MerchantEntity({ id: 23592437 })],
   },
   {
     id: '1239je90',
@@ -798,7 +798,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592445 })],
+    merchants: [new MerchantEntity({ id: 23592445 })],
   },
   {
     id: '1239je90',
@@ -813,7 +813,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592452 })],
+    merchants: [new MerchantEntity({ id: 23592452 })],
   },
   {
     id: '1239je90',
@@ -828,7 +828,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592460 })],
+    merchants: [new MerchantEntity({ id: 23592460 })],
   },
   {
     id: '1239je90',
@@ -843,7 +843,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592478 })],
+    merchants: [new MerchantEntity({ id: 23592478 })],
   },
   {
     id: '1239je90',
@@ -858,7 +858,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592486 })],
+    merchants: [new MerchantEntity({ id: 23592486 })],
   },
   {
     id: '1239je90',
@@ -873,7 +873,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592494 })],
+    merchants: [new MerchantEntity({ id: 23592494 })],
   },
   {
     id: '1239je90',
@@ -888,7 +888,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592502 })],
+    merchants: [new MerchantEntity({ id: 23592502 })],
   },
   {
     id: '1239je90',
@@ -903,7 +903,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592510 })],
+    merchants: [new MerchantEntity({ id: 23592510 })],
   },
   {
     id: '1239je90',
@@ -918,7 +918,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592528 })],
+    merchants: [new MerchantEntity({ id: 23592528 })],
   },
   {
     id: '1239je90',
@@ -933,7 +933,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23759473 })],
+    merchants: [new MerchantEntity({ id: 23759473 })],
   },
   {
     id: '1239je90',
@@ -948,7 +948,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23592536 })],
+    merchants: [new MerchantEntity({ id: 23592536 })],
   },
   {
     id: '1239je90',
@@ -963,7 +963,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 93683283 })],
+    merchants: [new MerchantEntity({ id: 93683283 })],
   },
   {
     id: '1239je90',
@@ -978,7 +978,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 93683143 })],
+    merchants: [new MerchantEntity({ id: 93683143 })],
   },
   {
     id: '1239je90',
@@ -993,7 +993,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 93683267 })],
+    merchants: [new MerchantEntity({ id: 93683267 })],
   },
   {
     id: '1239je90',
@@ -1008,7 +1008,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 93683176 })],
+    merchants: [new MerchantEntity({ id: 93683176 })],
   },
   {
     id: '1239je90',
@@ -1023,7 +1023,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 93683275 })],
+    merchants: [new MerchantEntity({ id: 93683275 })],
   },
   {
     id: '1239je90',
@@ -1038,7 +1038,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 93683184 })],
+    merchants: [new MerchantEntity({ id: 93683184 })],
   },
   {
     id: '1239je90',
@@ -1053,7 +1053,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 93683226 })],
+    merchants: [new MerchantEntity({ id: 93683226 })],
   },
   {
     id: 'asdlasdk0',
@@ -1068,7 +1068,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 25276773 })],
+    merchants: [new MerchantEntity({ id: 25276773 })],
   },
   {
     id: 'asdlasdk0',
@@ -1083,7 +1083,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 29266051 })],
+    merchants: [new MerchantEntity({ id: 29266051 })],
   },
   {
     id: 'asdlasdk0',
@@ -1098,7 +1098,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 91226713 })],
+    merchants: [new MerchantEntity({ id: 91226713 })],
   },
   {
     id: 'asdlasdk0',
@@ -1113,7 +1113,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 91226721 })],
+    merchants: [new MerchantEntity({ id: 91226721 })],
   },
   {
     id: '1239je90',
@@ -1128,7 +1128,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1143,7 +1143,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1158,7 +1158,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1173,7 +1173,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1188,7 +1188,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1203,7 +1203,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1218,7 +1218,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1233,7 +1233,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1248,7 +1248,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1263,7 +1263,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1278,7 +1278,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1293,7 +1293,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1308,7 +1308,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1323,7 +1323,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1338,7 +1338,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1353,7 +1353,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1368,7 +1368,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1383,7 +1383,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1398,7 +1398,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1413,7 +1413,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1428,7 +1428,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1443,7 +1443,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1458,7 +1458,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1473,7 +1473,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1488,7 +1488,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1503,7 +1503,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1518,7 +1518,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1533,7 +1533,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1548,7 +1548,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1563,7 +1563,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1578,7 +1578,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1593,7 +1593,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1608,7 +1608,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1623,7 +1623,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1638,7 +1638,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1653,7 +1653,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1668,7 +1668,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1683,7 +1683,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1698,7 +1698,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1713,7 +1713,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1728,7 +1728,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1743,7 +1743,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1758,7 +1758,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1773,7 +1773,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1788,7 +1788,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1803,7 +1803,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1818,7 +1818,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1833,7 +1833,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1848,7 +1848,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1863,7 +1863,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1878,7 +1878,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1893,7 +1893,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1908,7 +1908,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1923,7 +1923,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1938,7 +1938,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1953,7 +1953,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1968,7 +1968,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1983,7 +1983,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -1998,7 +1998,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2013,7 +2013,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2028,7 +2028,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2043,7 +2043,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2058,7 +2058,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2073,7 +2073,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2088,7 +2088,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2103,7 +2103,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2118,7 +2118,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2133,7 +2133,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2148,7 +2148,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2163,7 +2163,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: 'asdlasdk0',
@@ -2178,7 +2178,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: 'asdlasdk0',
@@ -2193,7 +2193,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 99999999 })],
+    merchants: [new MerchantEntity({ id: 99999999 })],
   },
   {
     id: '1239je90',
@@ -2208,7 +2208,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054353 })],
+    merchants: [new MerchantEntity({ id: 22054353 })],
   },
   {
     id: '1239je90',
@@ -2223,7 +2223,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043448 })],
+    merchants: [new MerchantEntity({ id: 22043448 })],
   },
   {
     id: '1239je90',
@@ -2238,7 +2238,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054387 })],
+    merchants: [new MerchantEntity({ id: 22054387 })],
   },
   {
     id: '1239je90',
@@ -2253,7 +2253,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054486 })],
+    merchants: [new MerchantEntity({ id: 22054486 })],
   },
   {
     id: '1239je90',
@@ -2268,7 +2268,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054577 })],
+    merchants: [new MerchantEntity({ id: 22054577 })],
   },
   {
     id: '1239je90',
@@ -2283,7 +2283,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23684779 })],
+    merchants: [new MerchantEntity({ id: 23684779 })],
   },
   {
     id: '1239je90',
@@ -2298,7 +2298,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042705 })],
+    merchants: [new MerchantEntity({ id: 22042705 })],
   },
   {
     id: '1239je90',
@@ -2313,7 +2313,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042747 })],
+    merchants: [new MerchantEntity({ id: 22042747 })],
   },
   {
     id: '1239je90',
@@ -2328,7 +2328,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042754 })],
+    merchants: [new MerchantEntity({ id: 22042754 })],
   },
   {
     id: '1239je90',
@@ -2343,7 +2343,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042796 })],
+    merchants: [new MerchantEntity({ id: 22042796 })],
   },
   {
     id: '1239je90',
@@ -2358,7 +2358,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042820 })],
+    merchants: [new MerchantEntity({ id: 22042820 })],
   },
   {
     id: '1239je90',
@@ -2373,7 +2373,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042838 })],
+    merchants: [new MerchantEntity({ id: 22042838 })],
   },
   {
     id: '1239je90',
@@ -2388,7 +2388,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042887 })],
+    merchants: [new MerchantEntity({ id: 22042887 })],
   },
   {
     id: '1239je90',
@@ -2403,7 +2403,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043067 })],
+    merchants: [new MerchantEntity({ id: 22043067 })],
   },
   {
     id: '1239je90',
@@ -2418,7 +2418,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043083 })],
+    merchants: [new MerchantEntity({ id: 22043083 })],
   },
   {
     id: '1239je90',
@@ -2433,7 +2433,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043141 })],
+    merchants: [new MerchantEntity({ id: 22043141 })],
   },
   {
     id: '1239je90',
@@ -2448,7 +2448,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043182 })],
+    merchants: [new MerchantEntity({ id: 22043182 })],
   },
   {
     id: '1239je90',
@@ -2463,7 +2463,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043208 })],
+    merchants: [new MerchantEntity({ id: 22043208 })],
   },
   {
     id: '1239je90',
@@ -2478,7 +2478,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043281 })],
+    merchants: [new MerchantEntity({ id: 22043281 })],
   },
   {
     id: '1239je90',
@@ -2493,7 +2493,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043315 })],
+    merchants: [new MerchantEntity({ id: 22043315 })],
   },
   {
     id: '1239je90',
@@ -2508,7 +2508,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043372 })],
+    merchants: [new MerchantEntity({ id: 22043372 })],
   },
   {
     id: '1239je90',
@@ -2523,7 +2523,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043380 })],
+    merchants: [new MerchantEntity({ id: 22043380 })],
   },
   {
     id: '1239je90',
@@ -2538,7 +2538,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043406 })],
+    merchants: [new MerchantEntity({ id: 22043406 })],
   },
   {
     id: '1239je90',
@@ -2553,7 +2553,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043430 })],
+    merchants: [new MerchantEntity({ id: 22043430 })],
   },
   {
     id: '1239je90',
@@ -2568,7 +2568,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043463 })],
+    merchants: [new MerchantEntity({ id: 22043463 })],
   },
   {
     id: '1239je90',
@@ -2583,7 +2583,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043505 })],
+    merchants: [new MerchantEntity({ id: 22043505 })],
   },
   {
     id: '1239je90',
@@ -2598,7 +2598,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043539 })],
+    merchants: [new MerchantEntity({ id: 22043539 })],
   },
   {
     id: '1239je90',
@@ -2613,7 +2613,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043547 })],
+    merchants: [new MerchantEntity({ id: 22043547 })],
   },
   {
     id: '1239je90',
@@ -2628,7 +2628,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22455675 })],
+    merchants: [new MerchantEntity({ id: 22455675 })],
   },
   {
     id: '1239je90',
@@ -2643,7 +2643,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043562 })],
+    merchants: [new MerchantEntity({ id: 22043562 })],
   },
   {
     id: '1239je90',
@@ -2658,7 +2658,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043596 })],
+    merchants: [new MerchantEntity({ id: 22043596 })],
   },
   {
     id: '1239je90',
@@ -2673,7 +2673,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043604 })],
+    merchants: [new MerchantEntity({ id: 22043604 })],
   },
   {
     id: '1239je90',
@@ -2688,7 +2688,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043620 })],
+    merchants: [new MerchantEntity({ id: 22043620 })],
   },
   {
     id: '1239je90',
@@ -2703,7 +2703,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 20803999 })],
+    merchants: [new MerchantEntity({ id: 20803999 })],
   },
   {
     id: '1239je90',
@@ -2718,7 +2718,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043646 })],
+    merchants: [new MerchantEntity({ id: 22043646 })],
   },
   {
     id: '1239je90',
@@ -2733,7 +2733,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043653 })],
+    merchants: [new MerchantEntity({ id: 22043653 })],
   },
   {
     id: '1239je90',
@@ -2748,7 +2748,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043661 })],
+    merchants: [new MerchantEntity({ id: 22043661 })],
   },
   {
     id: '1239je90',
@@ -2763,7 +2763,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043679 })],
+    merchants: [new MerchantEntity({ id: 22043679 })],
   },
   {
     id: '1239je90',
@@ -2778,7 +2778,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043703 })],
+    merchants: [new MerchantEntity({ id: 22043703 })],
   },
   {
     id: '1239je90',
@@ -2793,7 +2793,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043745 })],
+    merchants: [new MerchantEntity({ id: 22043745 })],
   },
   {
     id: '1239je90',
@@ -2808,7 +2808,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043810 })],
+    merchants: [new MerchantEntity({ id: 22043810 })],
   },
   {
     id: '1239je90',
@@ -2823,7 +2823,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043828 })],
+    merchants: [new MerchantEntity({ id: 22043828 })],
   },
   {
     id: '1239je90',
@@ -2838,7 +2838,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043836 })],
+    merchants: [new MerchantEntity({ id: 22043836 })],
   },
   {
     id: '1239je90',
@@ -2853,7 +2853,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043893 })],
+    merchants: [new MerchantEntity({ id: 22043893 })],
   },
   {
     id: '1239je90',
@@ -2868,7 +2868,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043919 })],
+    merchants: [new MerchantEntity({ id: 22043919 })],
   },
   {
     id: '1239je90',
@@ -2883,7 +2883,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043984 })],
+    merchants: [new MerchantEntity({ id: 22043984 })],
   },
   {
     id: '1239je90',
@@ -2898,7 +2898,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044008 })],
+    merchants: [new MerchantEntity({ id: 22044008 })],
   },
   {
     id: '1239je90',
@@ -2913,7 +2913,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044164 })],
+    merchants: [new MerchantEntity({ id: 22044164 })],
   },
   {
     id: '1239je90',
@@ -2928,7 +2928,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044230 })],
+    merchants: [new MerchantEntity({ id: 22044230 })],
   },
   {
     id: '1239je90',
@@ -2943,7 +2943,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044255 })],
+    merchants: [new MerchantEntity({ id: 22044255 })],
   },
   {
     id: '1239je90',
@@ -2958,7 +2958,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044297 })],
+    merchants: [new MerchantEntity({ id: 22044297 })],
   },
   {
     id: '1239je90',
@@ -2973,7 +2973,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044305 })],
+    merchants: [new MerchantEntity({ id: 22044305 })],
   },
   {
     id: '1239je90',
@@ -2988,7 +2988,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044313 })],
+    merchants: [new MerchantEntity({ id: 22044313 })],
   },
   {
     id: '1239je90',
@@ -3003,7 +3003,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044362 })],
+    merchants: [new MerchantEntity({ id: 22044362 })],
   },
   {
     id: '1239je90',
@@ -3018,7 +3018,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044412 })],
+    merchants: [new MerchantEntity({ id: 22044412 })],
   },
   {
     id: '1239je90',
@@ -3033,7 +3033,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044438 })],
+    merchants: [new MerchantEntity({ id: 22044438 })],
   },
   {
     id: '1239je90',
@@ -3048,7 +3048,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044545 })],
+    merchants: [new MerchantEntity({ id: 22044545 })],
   },
   {
     id: '1239je90',
@@ -3063,7 +3063,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044628 })],
+    merchants: [new MerchantEntity({ id: 22044628 })],
   },
   {
     id: '1239je90',
@@ -3078,7 +3078,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044701 })],
+    merchants: [new MerchantEntity({ id: 22044701 })],
   },
   {
     id: '1239je90',
@@ -3093,7 +3093,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044750 })],
+    merchants: [new MerchantEntity({ id: 22044750 })],
   },
   {
     id: '1239je90',
@@ -3108,7 +3108,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044859 })],
+    merchants: [new MerchantEntity({ id: 22044859 })],
   },
   {
     id: '1239je90',
@@ -3123,7 +3123,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 20777441 })],
+    merchants: [new MerchantEntity({ id: 20777441 })],
   },
   {
     id: '1239je90',
@@ -3138,7 +3138,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044933 })],
+    merchants: [new MerchantEntity({ id: 22044933 })],
   },
   {
     id: '1239je90',
@@ -3153,7 +3153,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103846 })],
+    merchants: [new MerchantEntity({ id: 24103846 })],
   },
   {
     id: '1239je90',
@@ -3168,7 +3168,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103838 })],
+    merchants: [new MerchantEntity({ id: 24103838 })],
   },
   {
     id: '1239je90',
@@ -3183,7 +3183,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103895 })],
+    merchants: [new MerchantEntity({ id: 24103895 })],
   },
   {
     id: '1239je90',
@@ -3198,7 +3198,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103879 })],
+    merchants: [new MerchantEntity({ id: 24103879 })],
   },
   {
     id: '1239je90',
@@ -3213,7 +3213,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103861 })],
+    merchants: [new MerchantEntity({ id: 24103861 })],
   },
   {
     id: '1239je90',
@@ -3228,7 +3228,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103853 })],
+    merchants: [new MerchantEntity({ id: 24103853 })],
   },
   {
     id: '1239je90',
@@ -3243,7 +3243,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103887 })],
+    merchants: [new MerchantEntity({ id: 24103887 })],
   },
   {
     id: '1239je90',
@@ -3258,7 +3258,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054353 })],
+    merchants: [new MerchantEntity({ id: 22054353 })],
   },
   {
     id: '1239je90',
@@ -3273,7 +3273,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043448 })],
+    merchants: [new MerchantEntity({ id: 22043448 })],
   },
   {
     id: '1239je90',
@@ -3288,7 +3288,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054387 })],
+    merchants: [new MerchantEntity({ id: 22054387 })],
   },
   {
     id: '1239je90',
@@ -3303,7 +3303,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054486 })],
+    merchants: [new MerchantEntity({ id: 22054486 })],
   },
   {
     id: '1239je90',
@@ -3318,7 +3318,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054577 })],
+    merchants: [new MerchantEntity({ id: 22054577 })],
   },
   {
     id: '1239je90',
@@ -3333,7 +3333,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23684779 })],
+    merchants: [new MerchantEntity({ id: 23684779 })],
   },
   {
     id: '1239je90',
@@ -3348,7 +3348,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042705 })],
+    merchants: [new MerchantEntity({ id: 22042705 })],
   },
   {
     id: '1239je90',
@@ -3363,7 +3363,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042747 })],
+    merchants: [new MerchantEntity({ id: 22042747 })],
   },
   {
     id: '1239je90',
@@ -3378,7 +3378,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042754 })],
+    merchants: [new MerchantEntity({ id: 22042754 })],
   },
   {
     id: '1239je90',
@@ -3393,7 +3393,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042796 })],
+    merchants: [new MerchantEntity({ id: 22042796 })],
   },
   {
     id: '1239je90',
@@ -3408,7 +3408,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042820 })],
+    merchants: [new MerchantEntity({ id: 22042820 })],
   },
   {
     id: '1239je90',
@@ -3423,7 +3423,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042838 })],
+    merchants: [new MerchantEntity({ id: 22042838 })],
   },
   {
     id: '1239je90',
@@ -3438,7 +3438,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042887 })],
+    merchants: [new MerchantEntity({ id: 22042887 })],
   },
   {
     id: '1239je90',
@@ -3453,7 +3453,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043067 })],
+    merchants: [new MerchantEntity({ id: 22043067 })],
   },
   {
     id: '1239je90',
@@ -3468,7 +3468,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043083 })],
+    merchants: [new MerchantEntity({ id: 22043083 })],
   },
   {
     id: '1239je90',
@@ -3483,7 +3483,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043141 })],
+    merchants: [new MerchantEntity({ id: 22043141 })],
   },
   {
     id: '1239je90',
@@ -3498,7 +3498,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043182 })],
+    merchants: [new MerchantEntity({ id: 22043182 })],
   },
   {
     id: '1239je90',
@@ -3513,7 +3513,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043208 })],
+    merchants: [new MerchantEntity({ id: 22043208 })],
   },
   {
     id: '1239je90',
@@ -3528,7 +3528,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043281 })],
+    merchants: [new MerchantEntity({ id: 22043281 })],
   },
   {
     id: '1239je90',
@@ -3543,7 +3543,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043315 })],
+    merchants: [new MerchantEntity({ id: 22043315 })],
   },
   {
     id: '1239je90',
@@ -3558,7 +3558,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043372 })],
+    merchants: [new MerchantEntity({ id: 22043372 })],
   },
   {
     id: '1239je90',
@@ -3573,7 +3573,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043380 })],
+    merchants: [new MerchantEntity({ id: 22043380 })],
   },
   {
     id: '1239je90',
@@ -3588,7 +3588,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043406 })],
+    merchants: [new MerchantEntity({ id: 22043406 })],
   },
   {
     id: '1239je90',
@@ -3603,7 +3603,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043430 })],
+    merchants: [new MerchantEntity({ id: 22043430 })],
   },
   {
     id: '1239je90',
@@ -3618,7 +3618,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043463 })],
+    merchants: [new MerchantEntity({ id: 22043463 })],
   },
   {
     id: '1239je90',
@@ -3633,7 +3633,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043505 })],
+    merchants: [new MerchantEntity({ id: 22043505 })],
   },
   {
     id: '1239je90',
@@ -3648,7 +3648,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043539 })],
+    merchants: [new MerchantEntity({ id: 22043539 })],
   },
   {
     id: '1239je90',
@@ -3663,7 +3663,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043547 })],
+    merchants: [new MerchantEntity({ id: 22043547 })],
   },
   {
     id: '1239je90',
@@ -3678,7 +3678,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22455675 })],
+    merchants: [new MerchantEntity({ id: 22455675 })],
   },
   {
     id: '1239je90',
@@ -3693,7 +3693,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043562 })],
+    merchants: [new MerchantEntity({ id: 22043562 })],
   },
   {
     id: '1239je90',
@@ -3708,7 +3708,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043596 })],
+    merchants: [new MerchantEntity({ id: 22043596 })],
   },
   {
     id: '1239je90',
@@ -3723,7 +3723,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043604 })],
+    merchants: [new MerchantEntity({ id: 22043604 })],
   },
   {
     id: '1239je90',
@@ -3738,7 +3738,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043620 })],
+    merchants: [new MerchantEntity({ id: 22043620 })],
   },
   {
     id: '1239je90',
@@ -3753,7 +3753,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 20803999 })],
+    merchants: [new MerchantEntity({ id: 20803999 })],
   },
   {
     id: '1239je90',
@@ -3768,7 +3768,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043646 })],
+    merchants: [new MerchantEntity({ id: 22043646 })],
   },
   {
     id: '1239je90',
@@ -3783,7 +3783,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043653 })],
+    merchants: [new MerchantEntity({ id: 22043653 })],
   },
   {
     id: '1239je90',
@@ -3798,7 +3798,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043661 })],
+    merchants: [new MerchantEntity({ id: 22043661 })],
   },
   {
     id: '1239je90',
@@ -3813,7 +3813,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043679 })],
+    merchants: [new MerchantEntity({ id: 22043679 })],
   },
   {
     id: '1239je90',
@@ -3828,7 +3828,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043703 })],
+    merchants: [new MerchantEntity({ id: 22043703 })],
   },
   {
     id: '1239je90',
@@ -3843,7 +3843,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043745 })],
+    merchants: [new MerchantEntity({ id: 22043745 })],
   },
   {
     id: '1239je90',
@@ -3858,7 +3858,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043810 })],
+    merchants: [new MerchantEntity({ id: 22043810 })],
   },
   {
     id: '1239je90',
@@ -3873,7 +3873,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043828 })],
+    merchants: [new MerchantEntity({ id: 22043828 })],
   },
   {
     id: '1239je90',
@@ -3888,7 +3888,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043836 })],
+    merchants: [new MerchantEntity({ id: 22043836 })],
   },
   {
     id: '1239je90',
@@ -3903,7 +3903,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043893 })],
+    merchants: [new MerchantEntity({ id: 22043893 })],
   },
   {
     id: '1239je90',
@@ -3918,7 +3918,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043919 })],
+    merchants: [new MerchantEntity({ id: 22043919 })],
   },
   {
     id: '1239je90',
@@ -3933,7 +3933,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043984 })],
+    merchants: [new MerchantEntity({ id: 22043984 })],
   },
   {
     id: '1239je90',
@@ -3948,7 +3948,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044008 })],
+    merchants: [new MerchantEntity({ id: 22044008 })],
   },
   {
     id: '1239je90',
@@ -3963,7 +3963,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044164 })],
+    merchants: [new MerchantEntity({ id: 22044164 })],
   },
   {
     id: '1239je90',
@@ -3978,7 +3978,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044230 })],
+    merchants: [new MerchantEntity({ id: 22044230 })],
   },
   {
     id: '1239je90',
@@ -3993,7 +3993,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044255 })],
+    merchants: [new MerchantEntity({ id: 22044255 })],
   },
   {
     id: '1239je90',
@@ -4008,7 +4008,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044297 })],
+    merchants: [new MerchantEntity({ id: 22044297 })],
   },
   {
     id: '1239je90',
@@ -4023,7 +4023,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044305 })],
+    merchants: [new MerchantEntity({ id: 22044305 })],
   },
   {
     id: '1239je90',
@@ -4038,7 +4038,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044313 })],
+    merchants: [new MerchantEntity({ id: 22044313 })],
   },
   {
     id: '1239je90',
@@ -4053,7 +4053,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044362 })],
+    merchants: [new MerchantEntity({ id: 22044362 })],
   },
   {
     id: '1239je90',
@@ -4068,7 +4068,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044412 })],
+    merchants: [new MerchantEntity({ id: 22044412 })],
   },
   {
     id: '1239je90',
@@ -4083,7 +4083,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044438 })],
+    merchants: [new MerchantEntity({ id: 22044438 })],
   },
   {
     id: '1239je90',
@@ -4098,7 +4098,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044545 })],
+    merchants: [new MerchantEntity({ id: 22044545 })],
   },
   {
     id: '1239je90',
@@ -4113,7 +4113,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044628 })],
+    merchants: [new MerchantEntity({ id: 22044628 })],
   },
   {
     id: '1239je90',
@@ -4128,7 +4128,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044701 })],
+    merchants: [new MerchantEntity({ id: 22044701 })],
   },
   {
     id: '1239je90',
@@ -4143,7 +4143,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044750 })],
+    merchants: [new MerchantEntity({ id: 22044750 })],
   },
   {
     id: '1239je90',
@@ -4158,7 +4158,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044859 })],
+    merchants: [new MerchantEntity({ id: 22044859 })],
   },
   {
     id: '1239je90',
@@ -4173,7 +4173,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 20777441 })],
+    merchants: [new MerchantEntity({ id: 20777441 })],
   },
   {
     id: '1239je90',
@@ -4188,7 +4188,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044933 })],
+    merchants: [new MerchantEntity({ id: 22044933 })],
   },
   {
     id: '1239je90',
@@ -4203,7 +4203,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103846 })],
+    merchants: [new MerchantEntity({ id: 24103846 })],
   },
   {
     id: '1239je90',
@@ -4218,7 +4218,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103838 })],
+    merchants: [new MerchantEntity({ id: 24103838 })],
   },
   {
     id: '1239je90',
@@ -4233,7 +4233,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103895 })],
+    merchants: [new MerchantEntity({ id: 24103895 })],
   },
   {
     id: '1239je90',
@@ -4248,7 +4248,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103879 })],
+    merchants: [new MerchantEntity({ id: 24103879 })],
   },
   {
     id: '1239je90',
@@ -4263,7 +4263,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103853 })],
+    merchants: [new MerchantEntity({ id: 24103853 })],
   },
   {
     id: '1239je90',
@@ -4278,7 +4278,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103887 })],
+    merchants: [new MerchantEntity({ id: 24103887 })],
   },
   {
     id: 'asdlasdk0',
@@ -4293,7 +4293,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23302208 })],
+    merchants: [new MerchantEntity({ id: 23302208 })],
   },
   {
     id: 'asdlasdk0',
@@ -4308,7 +4308,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23700609 })],
+    merchants: [new MerchantEntity({ id: 23700609 })],
   },
   {
     id: 'asdlasdk0',
@@ -4323,7 +4323,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956607 })],
+    merchants: [new MerchantEntity({ id: 23956607 })],
   },
   {
     id: 'asdlasdk0',
@@ -4338,7 +4338,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956599 })],
+    merchants: [new MerchantEntity({ id: 23956599 })],
   },
   {
     id: 'asdlasdk0',
@@ -4353,7 +4353,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23700609 })],
+    merchants: [new MerchantEntity({ id: 23700609 })],
   },
   {
     id: 'asdlasdk0',
@@ -4368,7 +4368,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956607 })],
+    merchants: [new MerchantEntity({ id: 23956607 })],
   },
   {
     id: 'asdlasdk0',
@@ -4383,7 +4383,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956599 })],
+    merchants: [new MerchantEntity({ id: 23956599 })],
   },
   {
     id: '1239je90',
@@ -4398,7 +4398,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054353 })],
+    merchants: [new MerchantEntity({ id: 22054353 })],
   },
   {
     id: '1239je90',
@@ -4413,7 +4413,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043448 })],
+    merchants: [new MerchantEntity({ id: 22043448 })],
   },
   {
     id: '1239je90',
@@ -4428,7 +4428,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054387 })],
+    merchants: [new MerchantEntity({ id: 22054387 })],
   },
   {
     id: '1239je90',
@@ -4443,7 +4443,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054486 })],
+    merchants: [new MerchantEntity({ id: 22054486 })],
   },
   {
     id: '1239je90',
@@ -4458,7 +4458,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22054577 })],
+    merchants: [new MerchantEntity({ id: 22054577 })],
   },
   {
     id: '1239je90',
@@ -4473,7 +4473,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23684779 })],
+    merchants: [new MerchantEntity({ id: 23684779 })],
   },
   {
     id: '1239je90',
@@ -4488,7 +4488,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042705 })],
+    merchants: [new MerchantEntity({ id: 22042705 })],
   },
   {
     id: '1239je90',
@@ -4503,7 +4503,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042747 })],
+    merchants: [new MerchantEntity({ id: 22042747 })],
   },
   {
     id: '1239je90',
@@ -4518,7 +4518,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042754 })],
+    merchants: [new MerchantEntity({ id: 22042754 })],
   },
   {
     id: '1239je90',
@@ -4533,7 +4533,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042796 })],
+    merchants: [new MerchantEntity({ id: 22042796 })],
   },
   {
     id: '1239je90',
@@ -4548,7 +4548,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042820 })],
+    merchants: [new MerchantEntity({ id: 22042820 })],
   },
   {
     id: '1239je90',
@@ -4563,7 +4563,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042838 })],
+    merchants: [new MerchantEntity({ id: 22042838 })],
   },
   {
     id: '1239je90',
@@ -4578,7 +4578,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22042887 })],
+    merchants: [new MerchantEntity({ id: 22042887 })],
   },
   {
     id: '1239je90',
@@ -4593,7 +4593,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043067 })],
+    merchants: [new MerchantEntity({ id: 22043067 })],
   },
   {
     id: '1239je90',
@@ -4608,7 +4608,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043083 })],
+    merchants: [new MerchantEntity({ id: 22043083 })],
   },
   {
     id: '1239je90',
@@ -4623,7 +4623,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043141 })],
+    merchants: [new MerchantEntity({ id: 22043141 })],
   },
   {
     id: '1239je90',
@@ -4638,7 +4638,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043182 })],
+    merchants: [new MerchantEntity({ id: 22043182 })],
   },
   {
     id: '1239je90',
@@ -4653,7 +4653,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043208 })],
+    merchants: [new MerchantEntity({ id: 22043208 })],
   },
   {
     id: '1239je90',
@@ -4668,7 +4668,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043281 })],
+    merchants: [new MerchantEntity({ id: 22043281 })],
   },
   {
     id: '1239je90',
@@ -4683,7 +4683,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043315 })],
+    merchants: [new MerchantEntity({ id: 22043315 })],
   },
   {
     id: '1239je90',
@@ -4698,7 +4698,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043372 })],
+    merchants: [new MerchantEntity({ id: 22043372 })],
   },
   {
     id: '1239je90',
@@ -4713,7 +4713,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043380 })],
+    merchants: [new MerchantEntity({ id: 22043380 })],
   },
   {
     id: '1239je90',
@@ -4728,7 +4728,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043406 })],
+    merchants: [new MerchantEntity({ id: 22043406 })],
   },
   {
     id: '1239je90',
@@ -4743,7 +4743,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043430 })],
+    merchants: [new MerchantEntity({ id: 22043430 })],
   },
   {
     id: '1239je90',
@@ -4758,7 +4758,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043463 })],
+    merchants: [new MerchantEntity({ id: 22043463 })],
   },
   {
     id: '1239je90',
@@ -4773,7 +4773,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043505 })],
+    merchants: [new MerchantEntity({ id: 22043505 })],
   },
   {
     id: '1239je90',
@@ -4788,7 +4788,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043539 })],
+    merchants: [new MerchantEntity({ id: 22043539 })],
   },
   {
     id: '1239je90',
@@ -4803,7 +4803,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043547 })],
+    merchants: [new MerchantEntity({ id: 22043547 })],
   },
   {
     id: '1239je90',
@@ -4818,7 +4818,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22455675 })],
+    merchants: [new MerchantEntity({ id: 22455675 })],
   },
   {
     id: '1239je90',
@@ -4833,7 +4833,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043562 })],
+    merchants: [new MerchantEntity({ id: 22043562 })],
   },
   {
     id: '1239je90',
@@ -4848,7 +4848,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043596 })],
+    merchants: [new MerchantEntity({ id: 22043596 })],
   },
   {
     id: '1239je90',
@@ -4863,7 +4863,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043604 })],
+    merchants: [new MerchantEntity({ id: 22043604 })],
   },
   {
     id: '1239je90',
@@ -4878,7 +4878,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043620 })],
+    merchants: [new MerchantEntity({ id: 22043620 })],
   },
   {
     id: '1239je90',
@@ -4893,7 +4893,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 20803999 })],
+    merchants: [new MerchantEntity({ id: 20803999 })],
   },
   {
     id: '1239je90',
@@ -4908,7 +4908,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043646 })],
+    merchants: [new MerchantEntity({ id: 22043646 })],
   },
   {
     id: '1239je90',
@@ -4923,7 +4923,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043653 })],
+    merchants: [new MerchantEntity({ id: 22043653 })],
   },
   {
     id: '1239je90',
@@ -4938,7 +4938,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043661 })],
+    merchants: [new MerchantEntity({ id: 22043661 })],
   },
   {
     id: '1239je90',
@@ -4953,7 +4953,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043679 })],
+    merchants: [new MerchantEntity({ id: 22043679 })],
   },
   {
     id: '1239je90',
@@ -4968,7 +4968,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043703 })],
+    merchants: [new MerchantEntity({ id: 22043703 })],
   },
   {
     id: '1239je90',
@@ -4983,7 +4983,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043745 })],
+    merchants: [new MerchantEntity({ id: 22043745 })],
   },
   {
     id: '1239je90',
@@ -4998,7 +4998,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043810 })],
+    merchants: [new MerchantEntity({ id: 22043810 })],
   },
   {
     id: '1239je90',
@@ -5013,7 +5013,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043828 })],
+    merchants: [new MerchantEntity({ id: 22043828 })],
   },
   {
     id: '1239je90',
@@ -5028,7 +5028,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043836 })],
+    merchants: [new MerchantEntity({ id: 22043836 })],
   },
   {
     id: '1239je90',
@@ -5043,7 +5043,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043893 })],
+    merchants: [new MerchantEntity({ id: 22043893 })],
   },
   {
     id: '1239je90',
@@ -5058,7 +5058,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043919 })],
+    merchants: [new MerchantEntity({ id: 22043919 })],
   },
   {
     id: '1239je90',
@@ -5073,7 +5073,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22043984 })],
+    merchants: [new MerchantEntity({ id: 22043984 })],
   },
   {
     id: '1239je90',
@@ -5088,7 +5088,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044008 })],
+    merchants: [new MerchantEntity({ id: 22044008 })],
   },
   {
     id: '1239je90',
@@ -5103,7 +5103,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044164 })],
+    merchants: [new MerchantEntity({ id: 22044164 })],
   },
   {
     id: '1239je90',
@@ -5118,7 +5118,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044230 })],
+    merchants: [new MerchantEntity({ id: 22044230 })],
   },
   {
     id: '1239je90',
@@ -5133,7 +5133,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044255 })],
+    merchants: [new MerchantEntity({ id: 22044255 })],
   },
   {
     id: '1239je90',
@@ -5148,7 +5148,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044297 })],
+    merchants: [new MerchantEntity({ id: 22044297 })],
   },
   {
     id: '1239je90',
@@ -5163,7 +5163,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044305 })],
+    merchants: [new MerchantEntity({ id: 22044305 })],
   },
   {
     id: '1239je90',
@@ -5178,7 +5178,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044313 })],
+    merchants: [new MerchantEntity({ id: 22044313 })],
   },
   {
     id: '1239je90',
@@ -5193,7 +5193,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044362 })],
+    merchants: [new MerchantEntity({ id: 22044362 })],
   },
   {
     id: '1239je90',
@@ -5208,7 +5208,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044412 })],
+    merchants: [new MerchantEntity({ id: 22044412 })],
   },
   {
     id: '1239je90',
@@ -5223,7 +5223,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044438 })],
+    merchants: [new MerchantEntity({ id: 22044438 })],
   },
   {
     id: '1239je90',
@@ -5238,7 +5238,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044545 })],
+    merchants: [new MerchantEntity({ id: 22044545 })],
   },
   {
     id: '1239je90',
@@ -5253,7 +5253,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044628 })],
+    merchants: [new MerchantEntity({ id: 22044628 })],
   },
   {
     id: '1239je90',
@@ -5268,7 +5268,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044701 })],
+    merchants: [new MerchantEntity({ id: 22044701 })],
   },
   {
     id: '1239je90',
@@ -5283,7 +5283,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044750 })],
+    merchants: [new MerchantEntity({ id: 22044750 })],
   },
   {
     id: '1239je90',
@@ -5298,7 +5298,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044859 })],
+    merchants: [new MerchantEntity({ id: 22044859 })],
   },
   {
     id: '1239je90',
@@ -5313,7 +5313,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 20777441 })],
+    merchants: [new MerchantEntity({ id: 20777441 })],
   },
   {
     id: '1239je90',
@@ -5328,7 +5328,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 22044933 })],
+    merchants: [new MerchantEntity({ id: 22044933 })],
   },
   {
     id: '1239je90',
@@ -5343,7 +5343,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103846 })],
+    merchants: [new MerchantEntity({ id: 24103846 })],
   },
   {
     id: '1239je90',
@@ -5358,7 +5358,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103838 })],
+    merchants: [new MerchantEntity({ id: 24103838 })],
   },
   {
     id: '1239je90',
@@ -5373,7 +5373,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103895 })],
+    merchants: [new MerchantEntity({ id: 24103895 })],
   },
   {
     id: '1239je90',
@@ -5388,7 +5388,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103879 })],
+    merchants: [new MerchantEntity({ id: 24103879 })],
   },
   {
     id: '1239je90',
@@ -5403,7 +5403,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103861 })],
+    merchants: [new MerchantEntity({ id: 24103861 })],
   },
   {
     id: '1239je90',
@@ -5418,7 +5418,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103861 })],
+    merchants: [new MerchantEntity({ id: 24103861 })],
   },
   {
     id: '1239je90',
@@ -5433,7 +5433,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103853 })],
+    merchants: [new MerchantEntity({ id: 24103853 })],
   },
   {
     id: '1239je90',
@@ -5448,7 +5448,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 24103887 })],
+    merchants: [new MerchantEntity({ id: 24103887 })],
   },
   {
     id: 'asdlasdk0',
@@ -5463,7 +5463,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23700609 })],
+    merchants: [new MerchantEntity({ id: 23700609 })],
   },
   {
     id: 'asdlasdk0',
@@ -5478,7 +5478,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956607 })],
+    merchants: [new MerchantEntity({ id: 23956607 })],
   },
   {
     id: 'asdlasdk0',
@@ -5493,7 +5493,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956599 })],
+    merchants: [new MerchantEntity({ id: 23956599 })],
   },
   {
     id: 'asdlasdk0',
@@ -5508,7 +5508,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23302208 })],
+    merchants: [new MerchantEntity({ id: 23302208 })],
   },
   {
     id: 'asdlasdk0',
@@ -5523,7 +5523,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23700609 })],
+    merchants: [new MerchantEntity({ id: 23700609 })],
   },
   {
     id: 'asdlasdk0',
@@ -5538,7 +5538,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956607 })],
+    merchants: [new MerchantEntity({ id: 23956607 })],
   },
   {
     id: 'asdlasdk0',
@@ -5553,7 +5553,7 @@ const baseLocations = [
     service_line_code: 0,
     stob_code: 0,
     project_code: 0,
-    merchants: [new MerchantLocationEntity({ id: 23956599 })],
+    merchants: [new MerchantEntity({ id: 23956599 })],
   },
 ];
 

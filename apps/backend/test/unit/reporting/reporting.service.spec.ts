@@ -14,7 +14,7 @@ import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.e
 import {
   BankLocationEntity,
   LocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
 } from '../../../src/location/entities';
 import { LoggerModule } from '../../../src/logger/logger.module';
 import { ReportingService } from '../../../src/reporting/reporting.service';
@@ -70,7 +70,7 @@ describe('ReportingService', () => {
           useValue: mockedRepo,
         },
         {
-          provide: getRepositoryToken(MerchantLocationEntity),
+          provide: getRepositoryToken(MerchantEntity),
           useValue: mockedRepo,
         },
         {

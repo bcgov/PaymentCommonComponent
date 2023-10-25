@@ -107,7 +107,7 @@ describe('CashDepositService', () => {
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: { location },
+          bank: { location },
           metadata: { program },
           deposit_date: depositDate.maxDate,
           status: In(status),
@@ -140,7 +140,7 @@ describe('CashDepositService', () => {
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: { location },
+          bank: { location },
           metadata: { program },
           deposit_date: depositDate,
           status: innerFunctionExpectedStatusParams,
@@ -190,7 +190,7 @@ describe('CashDepositService', () => {
 
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: { location },
+          bank: { location },
           metadata: { program: program },
           deposit_date: LessThanOrEqual(dates.minDate),
           status: MatchStatus.IN_PROGRESS,

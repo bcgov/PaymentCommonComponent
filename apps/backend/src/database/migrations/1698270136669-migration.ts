@@ -28,9 +28,7 @@ export class Migration1698270136669 implements MigrationInterface {
     await queryRunner.query(
       `CREATE UNIQUE INDEX "location_source_idx" ON "location" ("location_id", "source_id") `
     );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ADD "location" uuid NOT NULL`
-    );
+    await queryRunner.query(`ALTER TABLE "transaction" ADD "location" uuid`);
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "source_id" TYPE character varying(10) USING "source_id"::"varchar"`
     );
