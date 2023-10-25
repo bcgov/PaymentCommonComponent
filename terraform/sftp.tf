@@ -1,7 +1,7 @@
 locals {
   // Disable sftp transfer server and associated resources in
-  // dev and test.
-  transfer_family_disabled_envs  = ["dev", "test"]
+  // dev and test and tools.
+  transfer_family_disabled_envs  = ["dev", "test", "tools"]
   transfer_family_resource_count = contains(local.transfer_family_disabled_envs, var.target_env) == true ? 0 : 1
 }
 

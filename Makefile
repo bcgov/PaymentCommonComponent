@@ -54,6 +54,11 @@ BATCH_JSON:=$(shell cat ./apps/backend/fixtures/lambda/batch.json | jq '.' -c)
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
+ifeq ($(ENV_NAME), tools)
+export DISABLE_AUTOMATED_RECONCILIATION=true
+export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TOOLS)
+endif
+
 ifeq ($(ENV_NAME), dev)
 export DISABLE_AUTOMATED_RECONCILIATION=true
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_DEV)
@@ -87,6 +92,10 @@ export TFVARS_DATA
 APP_SRC_BUCKET = ${PROJECT}-deployments-${ENV_NAME}
 
 # Set Vars based on ENV 
+ifeq ($(ENV_NAME), tools)
+DB_HOST = $(DB_HOST_TOOLS)
+endif
+
 ifeq ($(ENV_NAME), dev) 
 DB_HOST = $(DB_HOST_DEV)
 endif
@@ -147,6 +156,10 @@ tag-dev:
 tag-test:
 	@git tag -fa test -m "Deploy test: $(git rev-parse --abbrev-ref HEAD)"
 	@git push --force origin refs/tags/test:refs/tags/test
+
+tag-tools:
+	@git tag -fa tools -m "Deploy tools: $(git rev-parse --abbrev-ref HEAD)"
+	@git push --force origin refs/tags/tools:refs/tags/tools
 
 tag-prod:
 ifndef version
@@ -230,6 +243,9 @@ aws-sync-files-from-prod-to-dev:
 aws-sync-files-from-prod-to-test:
 	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-test/sbc --acl bucket-owner-full-control
 	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-test/bcm --acl bucket-owner-full-control
+
+aws-sync-files-from-prod-to-tools:
+	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-tools --acl bucket-owner-full-control
 
 aws-empty-s3-bucket-dev:
 	@aws s3 rm s3://pcc-integration-data-files-dev/bcm --recursive

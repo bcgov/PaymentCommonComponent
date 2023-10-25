@@ -1,0 +1,60 @@
+name: Deployment - TOOLS
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - tools
+env:
+  ENV_NAME: tools
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency: ci-${{ github.ref }}-tools
+    environment:
+      name: tools
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Cache yarn
+        uses: actions/cache@v3
+        with:
+          path: ./.yarn/cache
+          key: pcc-backend-tools
+          restore-keys: pcc-backend-tools
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-skip-session-tagging: true
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY_ID }}
+          aws-region: ca-central-1
+          role-to-assume: ${{ secrets.AWS_SA_ROLE_ARN }}
+          role-duration-seconds: 900
+          role-session-name: ci-tools-deployment
+
+      - name: Install dependencies
+        run: yarn
+
+      - name: Setup ENV file
+        run: cp ./.config/.env.example ./.env
+
+      - name: Build
+        run: make build-backend
+
+      - name: Upload build artifacts
+        run: make aws-upload-artifacts
+      
+      - name: Deploy migrations
+        run: make aws-deploy-migrator
+
+      - name: Run migrations
+        run: make aws-run-migrator
+
+      - name: Deploy all
+        run: make aws-deploy-all
+
