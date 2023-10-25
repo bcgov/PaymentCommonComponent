@@ -31,18 +31,7 @@ export class Migration1698266118132 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "merchant_id" DROP NOT NULL`
     );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" DROP COLUMN "location_id"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ADD "location_id" uuid NOT NULL`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" DROP COLUMN "source_id"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ADD "source_id" integer NOT NULL`
-    );
+
     await queryRunner.query(
       `ALTER TABLE "pos_deposit" ALTER COLUMN "merchant_id" DROP NOT NULL`
     );
@@ -55,27 +44,9 @@ export class Migration1698266118132 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "location_merchant" ADD CONSTRAINT "FK_9c1f8d6a86dd85962087d7f5dd3" FOREIGN KEY ("location") REFERENCES "location"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ADD CONSTRAINT "FK_d061d8640452321021c858dad2f" FOREIGN KEY ("location_id") REFERENCES "location"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "pos_deposit" ADD CONSTRAINT "FK_aa767c22d7fad98e532a3ff344f" FOREIGN KEY ("merchant_id") REFERENCES "location_merchant"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "cash_deposit" ADD CONSTRAINT "FK_71b298e334812703ac318c4f255" FOREIGN KEY ("pt_location_id") REFERENCES "location_bank"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
-    );
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(
-      `ALTER TABLE "cash_deposit" DROP CONSTRAINT "FK_71b298e334812703ac318c4f255"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "pos_deposit" DROP CONSTRAINT "FK_aa767c22d7fad98e532a3ff344f"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" DROP CONSTRAINT "FK_d061d8640452321021c858dad2f"`
-    );
     await queryRunner.query(
       `ALTER TABLE "location_merchant" DROP CONSTRAINT "FK_9c1f8d6a86dd85962087d7f5dd3"`
     );
@@ -88,18 +59,7 @@ export class Migration1698266118132 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "pos_deposit" ALTER COLUMN "merchant_id" SET NOT NULL`
     );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" DROP COLUMN "source_id"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ADD "source_id" character varying(10) NOT NULL`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" DROP COLUMN "location_id"`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ADD "location_id" integer NOT NULL`
-    );
+
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "merchant_id" SET NOT NULL`
     );
