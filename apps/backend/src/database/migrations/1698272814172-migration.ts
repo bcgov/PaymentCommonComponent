@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1698270136669 implements MigrationInterface {
-  name = 'Migration1698270136669';
+export class Migration1698272814172 implements MigrationInterface {
+  name = 'Migration1698272814172';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -36,6 +36,12 @@ export class Migration1698270136669 implements MigrationInterface {
       `ALTER TABLE "master_location_data" ALTER COLUMN "pt_location_id" SET NOT NULL`
     );
     await queryRunner.query(
+      `ALTER TABLE "transaction" ALTER COLUMN "source_id" DROP NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" ALTER COLUMN "location_id" DROP NOT NULL`
+    );
+    await queryRunner.query(
       `ALTER TABLE "location_bank" ADD CONSTRAINT "FK_97f65ebeda56712afd907d46bbe" FOREIGN KEY ("location") REFERENCES "location"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
     await queryRunner.query(
@@ -49,6 +55,12 @@ export class Migration1698270136669 implements MigrationInterface {
     );
     await queryRunner.query(
       `ALTER TABLE "location_bank" DROP CONSTRAINT "FK_97f65ebeda56712afd907d46bbe"`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" ALTER COLUMN "location_id" SET NOT NULL`
+    );
+    await queryRunner.query(
+      `ALTER TABLE "transaction" ALTER COLUMN "source_id" SET NOT NULL`
     );
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "pt_location_id" DROP NOT NULL`

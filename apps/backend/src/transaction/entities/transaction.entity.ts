@@ -44,14 +44,12 @@ export class TransactionEntity {
   void_indicator: boolean;
 
   @ManyToOne(() => LocationEntity)
-  @JoinColumn({ name: 'location', referencedColumnName: 'id' })
+  @JoinColumn([
+    { name: 'location', referencedColumnName: 'id' },
+    { name: 'source_id', referencedColumnName: 'source_id' },
+    { referencedColumnName: 'location_id', name: 'location_id' },
+  ])
   location: LocationEntity;
-
-  @Column('varchar', { length: 10 })
-  source_id: string;
-
-  @Column({ type: 'int4', nullable: false })
-  location_id: number;
 
   @Column({ type: 'jsonb', nullable: false })
   transactionJson?: Transaction;
