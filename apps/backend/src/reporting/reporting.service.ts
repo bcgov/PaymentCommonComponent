@@ -373,7 +373,9 @@ export class ReportingService {
     const paymentsReport = [...posPayments, ...cashPayments].map(
       (itm) =>
         new PaymentDetailsReport(
-          locations.find((location) => location === itm.transaction.location)!,
+          locations.find(
+            (location) => location.id === itm.transaction.location.id
+          )!,
           itm
         )
     );
@@ -382,7 +384,7 @@ export class ReportingService {
       (itm) =>
         new CashDepositDetailsReport(
           locations.find(
-            (location) => location === itm.pt_location_id.location
+            (location) => location.id === itm.pt_location_id.location.id
           )!,
           itm
         )
@@ -390,7 +392,9 @@ export class ReportingService {
     const posDepositReport = posDeposits.map(
       (itm) =>
         new POSDepositDetailsReport(
-          locations.find((location) => location === itm.merchant_id.location)!,
+          locations.find(
+            (location) => location.id === itm.merchant_id.location.id
+          )!,
           itm
         )
     );
