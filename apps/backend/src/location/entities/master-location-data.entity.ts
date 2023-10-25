@@ -1,9 +1,9 @@
 import { Column, Entity } from 'typeorm';
 import { LocationEntity } from './location.entity';
-import { BaseLocationEntity } from './location_base';
+import { SourceEntity } from './location_base';
 
 @Entity('master_location_data')
-export class MasterLocationEntity extends BaseLocationEntity {
+export class MasterLocationEntity extends SourceEntity {
   @Column('varchar', { length: 15, nullable: true })
   method: string;
 

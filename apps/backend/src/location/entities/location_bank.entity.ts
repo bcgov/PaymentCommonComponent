@@ -17,8 +17,7 @@ export class BankLocationEntity {
   id: number;
 
   @ManyToOne(() => LocationEntity, (location) => location.banks)
-  @JoinColumn({ name: 'location', referencedColumnName: 'location_id' })
-  @JoinColumn({ name: 'source_id', referencedColumnName: 'source_id' })
+  @JoinColumn({ name: 'location', referencedColumnName: 'id' })
   location: Relation<LocationEntity>;
 
   constructor(data?: Partial<BankLocationEntity>) {

@@ -13,7 +13,7 @@ import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
-import { MerchantLocationEntity } from '../../location/entities';
+import { MerchantEntity } from '../../location/entities';
 import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PosHeuristicRound } from '../../reconciliation/types/const';
 import { PaymentEntity, PaymentMethodEntity } from '../../transaction/entities';
@@ -92,9 +92,9 @@ export class POSDepositEntity {
   )
   payment_match?: Relation<PaymentEntity>;
 
-  @ManyToOne(() => MerchantLocationEntity)
+  @ManyToOne(() => MerchantEntity)
   @JoinColumn({ name: 'merchant_id', referencedColumnName: 'id' })
-  merchant_id: Relation<MerchantLocationEntity>;
+  merchant_id: Relation<MerchantEntity>;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

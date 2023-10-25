@@ -5,7 +5,7 @@ import {
   MasterLocationEntity,
   BankLocationEntity,
   LocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
 } from './entities';
 import { Ministries, BankMerchantId } from '../constants';
 
@@ -18,8 +18,8 @@ export class LocationService {
     private ministryLocationRepo: Repository<LocationEntity>,
     @InjectRepository(BankLocationEntity)
     private bankLocationRepo: Repository<BankLocationEntity>,
-    @InjectRepository(MerchantLocationEntity)
-    private merchantLocationRepo: Repository<MerchantLocationEntity>
+    @InjectRepository(MerchantEntity)
+    private merchantLocationRepo: Repository<MerchantEntity>
   ) {}
 
   public async findAll(): Promise<MasterLocationEntity[]> {
@@ -28,7 +28,7 @@ export class LocationService {
   public async findBanks(): Promise<BankLocationEntity[]> {
     return await this.bankLocationRepo.find();
   }
-  public async findMerchants(): Promise<MerchantLocationEntity[]> {
+  public async findMerchants(): Promise<MerchantEntity[]> {
     return await this.merchantLocationRepo.find();
   }
   public async findMinistryLocations(
@@ -73,9 +73,7 @@ export class LocationService {
 
         itm.merchant_id !== BankMerchantId &&
           !acc[key].merchants?.find((merch) => merch.id === itm.merchant_id) &&
-          acc[key].merchants?.push(
-            new MerchantLocationEntity({ id: itm.merchant_id })
-          );
+          acc[key].merchants?.push(new MerchantEntity({ id: itm.merchant_id }));
 
         !acc[key].banks?.find((pt) => pt.id === itm.pt_location_id) &&
           acc[key].banks?.push(

@@ -4,7 +4,7 @@ import {
   MasterLocationEntity,
   LocationEntity,
   BankLocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
 } from './entities';
 import { LocationService } from './location.service';
 import { LoggerModule } from '../logger/logger.module';
@@ -16,7 +16,7 @@ import { LoggerModule } from '../logger/logger.module';
       MasterLocationEntity,
       LocationEntity,
       BankLocationEntity,
-      MerchantLocationEntity,
+      MerchantEntity,
     ]),
   ],
   providers: [LocationService],

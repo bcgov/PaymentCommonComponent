@@ -1,14 +1,14 @@
-import { Column, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, PrimaryGeneratedColumn } from 'typeorm';
 import { LocationEntity } from './location.entity';
 
-export class BaseLocationEntity {
+export class SourceEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @PrimaryColumn('varchar', { length: 10, nullable: false })
+  @Column('varchar', { length: 10, nullable: false })
   source_id: string;
 
-  @PrimaryColumn({ type: 'int4', nullable: false })
+  @Column({ type: 'int4', nullable: false })
   location_id: number;
 
   @Column('varchar', { length: 255, nullable: false })

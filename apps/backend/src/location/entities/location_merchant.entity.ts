@@ -12,16 +12,15 @@ import { LocationEntity } from './location.entity';
 @Entity('location_merchant')
 @Unique(['id', 'location'])
 @Index('location_merchant_idx', ['id', 'location'], { unique: true })
-export class MerchantLocationEntity {
+export class MerchantEntity {
   @PrimaryColumn({ unique: true })
   id: number;
 
   @ManyToOne(() => LocationEntity, (location) => location.merchants)
-  @JoinColumn({ name: 'location', referencedColumnName: 'location_id' })
-  @JoinColumn({ name: 'source_id', referencedColumnName: 'source_id' })
+  @JoinColumn({ name: 'location', referencedColumnName: 'id' })
   location: Relation<LocationEntity>;
 
-  constructor(data?: Partial<MerchantLocationEntity>) {
+  constructor(data?: Partial<MerchantEntity>) {
     Object.assign(this, data);
   }
 }

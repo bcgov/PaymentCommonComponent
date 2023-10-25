@@ -1,21 +1,21 @@
 import { Entity, Unique, OneToMany, Relation, Index } from 'typeorm';
 import { BankLocationEntity } from './location_bank.entity';
-import { BaseLocationEntity } from './location_base';
-import { MerchantLocationEntity } from './location_merchant.entity';
+import { SourceEntity } from './location_base';
+import { MerchantEntity } from './location_merchant.entity';
 
 @Entity('location')
 @Unique(['location_id', 'source_id'])
 @Index('location_source_idx', ['location_id', 'source_id'], { unique: true })
-export class LocationEntity extends BaseLocationEntity {
+export class LocationEntity extends SourceEntity {
   @OneToMany(() => BankLocationEntity, (bank) => bank.location, {
     cascade: true,
   })
   banks: Relation<BankLocationEntity[]>;
 
-  @OneToMany(() => MerchantLocationEntity, (merchant) => merchant.location, {
+  @OneToMany(() => MerchantEntity, (merchant) => merchant.location, {
     cascade: true,
   })
-  merchants: Relation<MerchantLocationEntity[]>;
+  merchants: Relation<MerchantEntity[]>;
 
   constructor(data: Partial<LocationEntity>) {
     super(data);

@@ -13,7 +13,7 @@ import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
-import { LocationEntity, MerchantLocationEntity } from '../location/entities';
+import { LocationEntity, MerchantEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
@@ -98,7 +98,7 @@ export class PosDepositService {
     qb.addSelect('SUM(transaction_amt)::numeric(10,2)', 'transaction_amt');
     qb.addSelect('merchant_id');
     qb.leftJoin(
-      MerchantLocationEntity,
+      MerchantEntity,
       'location_merchant',
       'location_merchant = pos_deposit.merchant'
     );

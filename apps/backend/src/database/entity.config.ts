@@ -4,7 +4,7 @@ import {
   MasterLocationEntity,
   BankLocationEntity,
   LocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
 } from '../location/entities';
 import { AlertDestinationEntity } from '../notification/entities/alert-destination.entity';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
@@ -26,7 +26,7 @@ export const entities = [
   MasterLocationEntity,
   LocationEntity,
   BankLocationEntity,
-  MerchantLocationEntity,
+  MerchantEntity,
   FileUploadedEntity,
   ProgramDailyUploadEntity,
   FileIngestionRulesEntity,
