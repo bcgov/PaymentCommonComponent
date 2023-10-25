@@ -1,7 +1,10 @@
-import { Column, PrimaryColumn } from 'typeorm';
+import { Column, PrimaryColumn, PrimaryGeneratedColumn } from 'typeorm';
 import { LocationEntity } from './location.entity';
 
 export class BaseLocationEntity {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
   @PrimaryColumn('varchar', { length: 10, nullable: false })
   source_id: string;
 

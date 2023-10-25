@@ -1,12 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { LocationEntity } from './location.entity';
 import { BaseLocationEntity } from './location_base';
 
 @Entity('master_location_data')
 export class MasterLocationEntity extends BaseLocationEntity {
-  @PrimaryGeneratedColumn('uuid')
-  id: string;
-
   @Column('varchar', { length: 15, nullable: true })
   method: string;
 

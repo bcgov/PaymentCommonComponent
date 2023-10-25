@@ -207,10 +207,10 @@ const reconcilePos = async (
 
   for (const location of locations) {
     posReconciliationService.setPendingPayments(
-      payments.filter((itm) => itm.transaction.location === location)
+      payments.filter((itm) => itm.transaction.location.id === location.id)
     );
     posReconciliationService.setPendingDeposits(
-      deposits.filter((itm) => location === itm.merchant_id.location)
+      deposits.filter((itm) => itm.merchant_id.location.id === location.id)
     );
     posReconciliationService.setHeuristicMatchRound(heuristics[program][0]);
     posReconciliationService.setMatchedPayments([]);

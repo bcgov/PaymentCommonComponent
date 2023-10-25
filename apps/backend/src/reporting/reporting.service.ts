@@ -261,17 +261,17 @@ export class ReportingService {
     locations.forEach((location) => {
       const paymentsByLocation = [...posPayments, ...cashPayments].filter(
         (itm) =>
-          itm.transaction.location.location_id === location.location_id &&
+          itm.transaction.location.id === location.id &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const cashDepositsByLocation = cashDeposits.filter(
         (itm) =>
-          itm.pt_location_id.location.location_id === location.location_id &&
+          itm.pt_location_id.location.id === location.id &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const posDepositsByLocation = posDeposits.filter(
         (itm) =>
-          itm.merchant_id.location.location_id === location.location_id &&
+          itm.merchant_id.location.id === location.id &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const depositsByLocation = [
