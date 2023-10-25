@@ -5187,14 +5187,6 @@ const baseLocations = [
   },
 ];
 
-// /*eslint-disable */
-// export const bankLocations: BankLocationEntity[] = Array.from(
-//   new Set(locations.flatMap((itm) => itm.banks.map(bank => ({...bank, location: itm}))))
-// )
-// export const ministryMerchantLocations: MerchantLocationEntity[] = Array.from(
-//   new Set(locations.flatMap((itm) => itm.merchants.map(merch => ({...merch, location: itm}))))
-// );
-
 export const locations: LocationEntity[] = baseLocations.map((itm) => ({
   ...itm,
   banks: itm.banks.map((bank) => ({ ...bank, location: itm })),

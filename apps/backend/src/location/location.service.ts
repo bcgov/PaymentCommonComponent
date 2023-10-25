@@ -39,13 +39,15 @@ export class LocationService {
       relations: ['banks', 'merchants'],
     });
   }
-
+  /**
+   * Splits the masterlocation data table in three tables: location, bank, and merchant
+   * @param locations
+   * @param program
+   */
   public async seedMinistryLocations(
     locations: MasterLocationEntity[],
     program: Ministries
   ) {
-    // master location data list contains multiple rows for each location_id
-    // split into location table (FK to transaction table), location_merchant table (FK to location_id && pos-deposit), and location_bank table (FK to location_id && cash_deposit)
     const locationEntityList = locations.reduce(
       (
         acc: { [key: string]: Partial<LocationEntity> },

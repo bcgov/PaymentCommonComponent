@@ -22,7 +22,9 @@ export class DatabaseService {
     @Inject(PaymentMethodService)
     private readonly paymentMethodService: PaymentMethodService
   ) {}
-
+  /**
+   * We rely on "master" data to join our txn/deposit table in order to match
+   */
   async seedMasterData() {
     const locations: MasterLocationEntity[] =
       await this.locationService.findAll();
@@ -65,7 +67,9 @@ export class DatabaseService {
   public transformCSV(file: string): unknown {
     return csv.default().fromString(file.toString());
   }
-
+  /**
+   * Seed the file ingestion rules to indicate which programs require which files
+   */
   async seedFileIngestionRules() {
     const requiredCashFiles = new ProgramRequiredFileEntity();
     requiredCashFiles.filename = 'F08TDI17';
@@ -97,6 +101,9 @@ export class DatabaseService {
     await this.notificationService.createRulesForProgram(rules);
   }
 
+  /**
+   * Seed the master locations from a CSV file of the location data
+   */
   async seedLocations() {
     const requestParams: GetObjectCommandInput = {
       Bucket: masterData.Bucket,
@@ -113,8 +120,16 @@ export class DatabaseService {
     await this.locationService.createLocations(locationEntities);
   }
 
+  /**
+   * First, seed the "master location" table
+   * Then, seed the location, merchant location table,
+   * and bank location table
+   * together these are a normalized verison of the master location table
+   * @param program
+   */
   async seedMinistryLocations(program: Ministries) {
     const locations = await this.locationService.findAll();
+    // hardcoded stub for a missing location
     const stubLocation98 = {
       id: `${Ministries.SBC}_98`,
       source_id: Ministries.SBC,
@@ -137,7 +152,9 @@ export class DatabaseService {
       program
     );
   }
-
+  /**
+   * Seed the payment methods from a CSV file of the payment method data
+   */
   async seedPaymentMethods() {
     const requestParams: GetObjectCommandInput = {
       Bucket: masterData.Bucket,
