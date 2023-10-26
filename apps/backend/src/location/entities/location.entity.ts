@@ -4,7 +4,7 @@ import { SourceEntity } from './location_base';
 import { MerchantEntity } from './location_merchant.entity';
 
 @Entity('location')
-@Unique(['location_id', 'source_id'])
+@Unique(['id', 'location_id', 'source_id'])
 @Index('location_source_idx', ['location_id', 'source_id'], { unique: true })
 export class LocationEntity extends SourceEntity {
   @OneToMany(() => BankLocationEntity, (bank) => bank.location, {
