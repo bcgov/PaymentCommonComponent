@@ -25,9 +25,15 @@ export class Migration1698272814172 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE "location" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "source_id" character varying(10) NOT NULL, "location_id" integer NOT NULL, "description" character varying(255) NOT NULL, "program_code" character varying(10) NOT NULL, "program_desc" character varying(255) NOT NULL, "ministry_client" character varying(3) NOT NULL, "resp_code" character varying(5) NOT NULL, "service_line_code" character varying(5) NOT NULL, "stob_code" character varying(4) NOT NULL, "project_code" character varying(7) NOT NULL, CONSTRAINT "UQ_346127033e9c6ca7ffa2df9ecbf" UNIQUE ("location_id", "source_id"), CONSTRAINT "PK_876d7bdba03c72251ec4c2dc827" PRIMARY KEY ("id"))`
     );
+
     await queryRunner.query(
-      `CREATE UNIQUE INDEX "location_source_idx" ON "location" ("id", "location_id", "source_id") `
+      `CREATE UNIQUE INDEX "location_source_idx" ON "location" ("location_id", "source_id") `
     );
+
+    await queryRunner.query(
+      `ALTER TABLE "location" ADD CONSTRAINT "UQ_62c907775331b5aa98ec8daf7dd" UNIQUE ("location_id", "source_id")`
+    );
+
     await queryRunner.query(`ALTER TABLE "transaction" ADD "location" uuid`);
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "source_id" TYPE character varying(10) USING "source_id"::"varchar"`
@@ -35,12 +41,7 @@ export class Migration1698272814172 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "master_location_data" ALTER COLUMN "pt_location_id" SET NOT NULL`
     );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ALTER COLUMN "source_id" DROP NOT NULL`
-    );
-    await queryRunner.query(
-      `ALTER TABLE "transaction" ALTER COLUMN "location_id" DROP NOT NULL`
-    );
+
     await queryRunner.query(
       `ALTER TABLE "location_bank" ADD CONSTRAINT "FK_97f65ebeda56712afd907d46bbe" FOREIGN KEY ("location") REFERENCES "location"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
