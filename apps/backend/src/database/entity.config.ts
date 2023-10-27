@@ -1,6 +1,11 @@
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
-import { LocationEntity } from '../location/entities';
+import {
+  MasterLocationEntity,
+  BankLocationEntity,
+  LocationEntity,
+  MerchantEntity,
+} from '../location/entities';
 import { AlertDestinationEntity } from '../notification/entities/alert-destination.entity';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../notification/entities/program-daily-upload.entity';
@@ -18,7 +23,10 @@ export const entities = [
   TransactionEntity,
   POSDepositEntity,
   CashDepositEntity,
+  MasterLocationEntity,
   LocationEntity,
+  BankLocationEntity,
+  MerchantEntity,
   FileUploadedEntity,
   ProgramDailyUploadEntity,
   FileIngestionRulesEntity,

@@ -2,7 +2,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 23591116,
+    "merchant": 23591116,
     "terminal_no": "GA2204274706",
     "fill1": "",
     "card_vendor": "AX",
@@ -28,7 +28,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 23592312,
+    "merchant": 23592312,
     "terminal_no": "GA2204374504",
     "fill1": "",
     "card_vendor": "AX",
@@ -54,7 +54,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 23592361,
+    "merchant": 23592361,
     "terminal_no": "TM2204391901",
     "fill1": "",
     "card_vendor": "AX",
@@ -80,7 +80,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 23592437,
+    "merchant": 23592437,
     "terminal_no": "GA2204430504",
     "fill1": "",
     "card_vendor": "AX",
@@ -106,7 +106,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22054577,
+    "merchant": 22054577,
     "terminal_no": "GA2205457701",
     "fill1": "",
     "card_vendor": "M",
@@ -132,7 +132,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22054577,
+    "merchant": 22054577,
     "terminal_no": "GA2205457701",
     "fill1": "",
     "card_vendor": "M",
@@ -158,7 +158,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22054577,
+    "merchant": 22054577,
     "terminal_no": "GA2205457701",
     "fill1": "",
     "card_vendor": "M",
@@ -184,7 +184,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274704",
     "fill1": "",
     "card_vendor": "M",
@@ -210,7 +210,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274702",
     "fill1": "",
     "card_vendor": "M",
@@ -236,7 +236,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274702",
     "fill1": "",
     "card_vendor": "M",
@@ -262,7 +262,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "TM2204274701",
     "fill1": "",
     "card_vendor": "M",
@@ -288,7 +288,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274701",
     "fill1": "",
     "card_vendor": "M",
@@ -314,7 +314,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "TM2204274701",
     "fill1": "",
     "card_vendor": "M",
@@ -340,7 +340,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274701",
     "fill1": "",
     "card_vendor": "M",
@@ -366,7 +366,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274702",
     "fill1": "",
     "card_vendor": "M",
@@ -392,7 +392,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274706",
     "fill1": "",
     "card_vendor": "M",
@@ -418,7 +418,7 @@
   {
     "resourceType": "TDI34Details",
     "rcd_type": 2,
-    "merchant_id": 22042747,
+    "merchant": 22042747,
     "terminal_no": "GA2204274703",
     "fill1": "",
     "card_vendor": "M",
