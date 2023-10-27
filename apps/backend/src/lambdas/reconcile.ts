@@ -9,10 +9,10 @@ import { MatchStatus } from '../common/const';
 import {
   DateRange,
   Ministries,
-  NormalizedLocation,
   PaymentMethodClassification,
 } from '../constants';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { LocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
@@ -95,7 +95,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     }
   };
 
-  const locations = await locationService.getLocationsBySource(program);
+  const locations = await locationService.findMinistryLocations(program);
 
   const showConsoleReport = async () => {
     const posReport = await reportingService.reportPosMatchSummaryByDate();
@@ -185,7 +185,7 @@ const reconcilePos = async (
   posReconciliationService: PosReconciliationService,
   currentDate: string,
   paymentService: PaymentService,
-  locations: NormalizedLocation[],
+  locations: LocationEntity[],
   program: Ministries,
   posDepositService: PosDepositService,
   appLogger: AppLogger
@@ -207,12 +207,10 @@ const reconcilePos = async (
 
   for (const location of locations) {
     posReconciliationService.setPendingPayments(
-      payments.filter(
-        (itm) => itm.transaction.location_id === location.location_id
-      )
+      payments.filter((itm) => itm.transaction.location.id === location.id)
     );
     posReconciliationService.setPendingDeposits(
-      deposits.filter((itm) => location.merchant_ids.includes(itm.merchant_id))
+      deposits.filter((itm) => itm.merchant.location.id === location.id)
     );
     posReconciliationService.setHeuristicMatchRound(heuristics[program][0]);
     posReconciliationService.setMatchedPayments([]);
@@ -240,7 +238,7 @@ const findPosExceptions = async (
   posReconciliationService: PosReconciliationService,
   currentDate: string,
   paymentService: PaymentService,
-  locations: NormalizedLocation[],
+  locations: LocationEntity[],
   program: Ministries,
   posDepositService: PosDepositService,
   appLogger: AppLogger
@@ -262,12 +260,12 @@ const findPosExceptions = async (
   for (const location of locations) {
     posReconciliationService.setPendingPayments(
       paymentsInprogress.filter(
-        (itm) => itm.transaction.location_id === location.location_id
+        (itm) => itm.transaction.location.id === location.id
       )
     );
     posReconciliationService.setPendingDeposits(
-      depositsInprogress.filter((itm) =>
-        location.merchant_ids.includes(itm.merchant_id)
+      depositsInprogress.filter(
+        (itm) => location.id === itm.merchant.location.id
       )
     );
 
@@ -287,7 +285,7 @@ const findPosExceptions = async (
  */
 const reconcileCash = async (
   dateRange: DateRange,
-  locations: NormalizedLocation[],
+  locations: LocationEntity[],
   cashReconciliationService: CashReconciliationService,
   program: Ministries,
   appLogger: AppLogger

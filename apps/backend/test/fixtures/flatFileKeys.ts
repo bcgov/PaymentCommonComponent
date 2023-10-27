@@ -1,7 +1,7 @@
 export const tdi34Keys = [
   'resourceType',
   'rcd_type',
-  'merchant_id',
+  'merchant',
   'terminal_no',
   'fill1',
   'card_vendor',
@@ -63,7 +63,7 @@ export const ddfKeys = [
   'unknown',
   'worldline_transaction_id',
   'client_transaction_id',
-  'merchant_id',
+  'merchant',
   'filler4',
   'filler5',
   'metadata',

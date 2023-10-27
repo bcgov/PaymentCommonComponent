@@ -5,10 +5,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
-import { FileTypes } from '../../../src/constants';
+import { FileTypes, Ministries } from '../../../src/constants';
 
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
+import { LocationService } from '../../../src/location/location.service';
 import { LoggerModule } from '../../../src/logger/logger.module';
 import { FileIngestionRulesEntity } from '../../../src/notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../../../src/notification/entities/program-daily-upload.entity';
@@ -62,6 +63,10 @@ describe('ParseService', () => {
         {
           provide: TransactionService,
           useValue: createMock<TransactionService>(),
+        },
+        {
+          provide: LocationService,
+          useValue: createMock<LocationService>(),
         },
         {
           provide: MailService,
@@ -172,11 +177,13 @@ describe('ParseService', () => {
       const transactionFile = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/garms.json')
       );
+
       expect(
         (
           await service.parseGarmsFile(
             transactionFile.toString(),
-            'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
+            'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+            Ministries.SBC
           )
         ).txnFile[0].total_transaction_amount
       ).toEqual(100);
@@ -189,7 +196,8 @@ describe('ParseService', () => {
       expect(
         service.parseGarmsFile(
           transactionFile.toString(),
-          'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
+          'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+          Ministries.SBC
         )
       ).rejects.toThrow();
     });

@@ -13,6 +13,7 @@ import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
+import { MerchantEntity } from '../../location/entities';
 import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PosHeuristicRound } from '../../reconciliation/types/const';
 import { PaymentEntity, PaymentMethodEntity } from '../../transaction/entities';
@@ -36,9 +37,6 @@ export class POSDepositEntity {
 
   @Column({ enum: FileTypes, default: FileTypes.TDI34 })
   source_file_type: FileTypes;
-
-  @Column({ type: 'int4' })
-  merchant_id: number;
 
   @Column('varchar', { length: 19 })
   card_id: string;
@@ -65,7 +63,7 @@ export class POSDepositEntity {
   @Column({ nullable: true })
   transaction_code: number;
 
-  @ManyToOne(() => PaymentMethodEntity, (pd) => pd.method, {
+  @ManyToOne(() => PaymentMethodEntity, {
     eager: true,
     cascade: false,
   })
@@ -93,6 +91,10 @@ export class POSDepositEntity {
     { nullable: true }
   )
   payment_match?: Relation<PaymentEntity>;
+
+  @ManyToOne(() => MerchantEntity, { nullable: false })
+  @JoinColumn({ name: 'merchant', referencedColumnName: 'id' })
+  merchant: Relation<MerchantEntity>;
 
   constructor(data?: TDI34Details) {
     Object.assign(this, data?.resource);

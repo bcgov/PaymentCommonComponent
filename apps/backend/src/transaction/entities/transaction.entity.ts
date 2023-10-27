@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
+import { LocationEntity } from '../../location/entities';
 import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 
 @Entity('transaction')
@@ -42,11 +43,12 @@ export class TransactionEntity {
   @Column({ type: 'boolean', default: false })
   void_indicator: boolean;
 
-  @Column('varchar', { length: 10 })
-  source_id: string;
-
-  @Column({ type: 'int4' })
-  location_id: number;
+  @ManyToOne(() => LocationEntity)
+  @JoinColumn([
+    { name: 'location_id', referencedColumnName: 'location_id' },
+    { name: 'source_id', referencedColumnName: 'source_id' },
+  ])
+  location: LocationEntity;
 
   @Column({ type: 'jsonb', nullable: false })
   transactionJson?: Transaction;

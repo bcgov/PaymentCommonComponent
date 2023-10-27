@@ -2,8 +2,9 @@ import { faker } from '@faker-js/faker';
 import { format } from 'date-fns';
 import { PaymentMock } from './payment_mock';
 import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
-import { Ministries, NormalizedLocation } from '../../../src/constants';
+import { Ministries } from '../../../src/constants';
 import { DateRange } from '../../../src/constants';
+import { LocationEntity } from '../../../src/location/entities';
 import { TransactionEntity } from '../../../src/transaction/entities';
 
 /*eslint-disable */
@@ -11,7 +12,7 @@ export class TransactionMock extends TransactionEntity {
   constructor(
     dateRange: DateRange,
     program: Ministries,
-    location: NormalizedLocation,
+    location: LocationEntity,
     payments: PaymentMock[]
   ) {
     super();
@@ -24,8 +25,7 @@ export class TransactionMock extends TransactionEntity {
       }),
       'yyyy-MM-dd'
     );
-    this.source_id = program;
-    this.location_id = location.location_id;
+    this.location = location;
     this.transaction_date = dateRange.maxDate;
     this.transaction_time = `${faker.number.int({
       min: 0,

@@ -5,12 +5,6 @@ export class BaseLocationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Column('varchar', { length: 15, nullable: false })
-  source_id: string;
-
-  @Column({ type: 'int4', nullable: false })
-  location_id: number;
-
   @Column('varchar', { length: 255, nullable: false })
   description: string;
 

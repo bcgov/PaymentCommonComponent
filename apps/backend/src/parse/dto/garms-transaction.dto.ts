@@ -1,7 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
-  ArrayMinSize,
   IsArray,
   IsBoolean,
   IsDateString,
@@ -10,11 +9,10 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Validate,
   ValidateNested,
 } from 'class-validator';
 import { GarmsPaymentDTO } from './garms-payment.dto';
-import { ArePaymentMethodsValid } from '../../transaction/decorators/arePaymentMethodsValid';
+import { LocationEntity } from '../../location/entities';
 import { TransactionEntity } from '../../transaction/entities/transaction.entity';
 import { Transaction } from '../../transaction/interface/transaction.interface';
 
@@ -61,15 +59,12 @@ export class GarmsTransactionDTO {
   @IsBoolean()
   void_indicator?: boolean = false;
 
-  @ApiProperty({ description: 'Program Source ID', example: 'SBC' })
-  @IsString()
+  @ApiProperty({
+    description: 'Location',
+    example: { source_id: 'SBC', location_id: 1 },
+  })
   @IsNotEmpty()
-  source_id!: string;
-
-  @ApiProperty({ description: 'Location ID', example: '99' })
-  @IsNumber()
-  @IsNotEmpty()
-  location_id!: number;
+  location!: LocationEntity;
 
   @ApiProperty({ description: 'TransactionJSON', type: Transaction })
   transactionJson: Transaction;

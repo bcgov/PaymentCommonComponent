@@ -15,6 +15,7 @@ import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
 import { TDI17Details } from '../../../src/flat-files';
 import { parseTDI, parseTDIHeader } from '../../../src/lambdas/utils/parseTDI';
+import { LocationEntity } from '../../../src/location/entities';
 import { generateDateRange } from '../../mocks/const/date_range_mock';
 import { generateLocation } from '../../mocks/const/location_mock';
 import { MockData } from '../../mocks/mocks';
@@ -91,7 +92,7 @@ describe('CashDepositService', () => {
     it('should call repository.find with the correct query parameters passed in from calling findcashDepositsByDate', async () => {
       const program = Ministries.SBC;
       const depositDate = generateDateRange();
-      const location = generateLocation();
+      const location = generateLocation() as unknown as LocationEntity;
       const status = [MatchStatus.PENDING, MatchStatus.IN_PROGRESS];
 
       jest.spyOn(repository, 'find');
@@ -99,14 +100,14 @@ describe('CashDepositService', () => {
       await service.findCashDepositsByDate(
         program,
         depositDate.maxDate,
-        location.pt_location_id,
+        location,
         status
       );
 
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: location.pt_location_id,
+          bank: { location },
           metadata: { program },
           deposit_date: depositDate.maxDate,
           status: In(status),
@@ -133,13 +134,13 @@ describe('CashDepositService', () => {
       await service.findCashDepositsByDate(
         functionParams.program,
         functionParams.depositDate,
-        functionParams.location.pt_location_id
+        functionParams.location
       );
 
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: location.pt_location_id,
+          bank: { location },
           metadata: { program },
           deposit_date: depositDate,
           status: innerFunctionExpectedStatusParams,
@@ -155,7 +156,7 @@ describe('CashDepositService', () => {
 
       const data = new MockData(PaymentMethodClassification.CASH);
       const mockCashData = data.depositsMock as CashDepositEntity[];
-
+      console.log(mockCashData);
       const spy = jest.spyOn(service, 'updateDeposits');
 
       service.updateDeposit = jest.fn();
@@ -183,17 +184,13 @@ describe('CashDepositService', () => {
 
       jest.spyOn(service, 'findCashDepositExceptions');
 
-      await service.findCashDepositExceptions(
-        dates.minDate,
-        program,
-        location.pt_location_id
-      );
+      await service.findCashDepositExceptions(dates.minDate, program, location);
 
       expect(repository.find).toHaveBeenCalledTimes(1);
 
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: location.pt_location_id,
+          bank: { location },
           metadata: { program: program },
           deposit_date: LessThanOrEqual(dates.minDate),
           status: MatchStatus.IN_PROGRESS,

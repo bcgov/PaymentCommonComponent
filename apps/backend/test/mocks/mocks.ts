@@ -7,18 +7,14 @@ import { generateMetadataMock } from './const/file_metadata_mock';
 import { generateLocation } from './const/location_mock';
 import { aggregatePayments } from '../unit/reconciliation/helpers';
 import { MatchStatus } from '../../src/common/const';
-import {
-  DateRange,
-  FileTypes,
-  Ministries,
-  NormalizedLocation,
-} from '../../src/constants';
+import { DateRange, FileTypes, Ministries } from '../../src/constants';
 import { PaymentMethodClassification } from '../../src/constants';
+import { LocationEntity, MerchantEntity } from '../../src/location/entities';
 import { AggregatedCashPayment } from '../../src/reconciliation/types';
 import { PaymentEntity } from '../../src/transaction/entities';
 
 export class MockData {
-  public location: NormalizedLocation;
+  public location: LocationEntity;
   public dateRange: DateRange;
   public program: Ministries;
   public paymentsMock: PaymentMock[];
@@ -48,7 +44,7 @@ export class MockData {
       cashDeposits.push(
         new CashDepositMock(
           this.dateRange,
-          this.location,
+          this.location.banks[0],
           generateMetadataMock(FileTypes.TDI17),
           payment.amount.toNumber(),
           this.status
@@ -62,7 +58,7 @@ export class MockData {
     return payments.flatMap(
       (payment: PaymentMock) =>
         new POSDepositMock(
-          this.location,
+          this.location as unknown as MerchantEntity,
           generateMetadataMock(FileTypes.TDI34),
           payment,
           this.status

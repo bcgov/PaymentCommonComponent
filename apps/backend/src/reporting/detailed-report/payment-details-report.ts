@@ -1,13 +1,13 @@
 import { parse } from 'date-fns';
 import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
-import { NormalizedLocation } from '../../constants';
+import { LocationEntity } from '../../location/entities';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
 export class PaymentDetailsReport extends DetailsReport {
   /*eslint-disable */
 
-  constructor(location: NormalizedLocation, payment: PaymentEntity) {
+  constructor(location: LocationEntity, payment: PaymentEntity) {
     super(location);
     this.source_file = 'Transaction (LOB)';
     this.reconciliation_status = payment.status;

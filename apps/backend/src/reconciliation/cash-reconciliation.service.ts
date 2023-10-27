@@ -4,9 +4,10 @@ import Decimal from 'decimal.js';
 import { FindOptionsOrderValue } from 'typeorm';
 import { ReconciliationType, AggregatedCashPayment } from './types';
 import { MatchStatus } from '../common/const';
-import { DateRange, Ministries, NormalizedLocation } from '../constants';
+import { DateRange, Ministries } from '../constants';
 import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
@@ -28,7 +29,7 @@ export class CashReconciliationService {
    */
 
   public async setExceptions(
-    location: NormalizedLocation,
+    location: LocationEntity,
     program: Ministries,
     exceptionsDate: string,
     currentDate: Date
@@ -43,7 +44,7 @@ export class CashReconciliationService {
       await this.cashDepositService.findCashDepositExceptions(
         exceptionsDate,
         program,
-        location.pt_location_id
+        location
       );
 
     const paymentExceptions: PaymentEntity[] =
@@ -72,7 +73,7 @@ export class CashReconciliationService {
   }
 
   public async reconcileCashByLocation(
-    location: NormalizedLocation,
+    location: LocationEntity,
     program: Ministries,
     dateRange: DateRange
   ) {
@@ -81,7 +82,7 @@ export class CashReconciliationService {
     const allCashDepositDatesPerLocation =
       await this.cashDepositService.findAllCashDepositDatesPerLocation(
         program,
-        location.pt_location_id,
+        location,
         order
       );
 
@@ -213,7 +214,7 @@ export class CashReconciliationService {
    * @returns
    */
   public async reconcileCash(
-    location: NormalizedLocation,
+    location: LocationEntity,
     program: Ministries,
     dateRange: DateRange,
     currentDate: Date
@@ -222,7 +223,7 @@ export class CashReconciliationService {
       await this.cashDepositService.findCashDepositsByDate(
         program,
         dateRange.maxDate,
-        location.pt_location_id,
+        location,
         [MatchStatus.IN_PROGRESS, MatchStatus.PENDING]
       );
 

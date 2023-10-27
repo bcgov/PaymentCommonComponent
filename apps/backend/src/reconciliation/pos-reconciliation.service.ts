@@ -14,9 +14,10 @@ import {
   Heuristics,
 } from './types';
 import { MatchStatus } from '../common/const';
-import { NormalizedLocation } from '../constants';
+
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { LocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities/payment.entity';
 import { PaymentService } from '../transaction/payment.service';
@@ -83,14 +84,14 @@ export class PosReconciliationService {
 
   /**
    * Match POS payments to POS deposits on location, program, date and time based heuristics
-   * @param {LocationEntity} location
+   * @param {MasterLocationEntity} location
    * @param {Ministries} program
    * @param {Date} date
    * @returns {Promise<ReconciliationResults>}
    */
 
   public async reconcile(
-    location: NormalizedLocation
+    location: LocationEntity
   ): Promise<ReconciliationResults | ReconciliationError> {
     if (
       this.pendingPayments?.length === 0 ||

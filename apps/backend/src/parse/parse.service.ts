@@ -31,6 +31,7 @@ import {
 } from '../lambdas/helpers';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../lambdas/utils/parseTDI';
+import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../notification/entities/program-daily-upload.entity';
@@ -53,6 +54,8 @@ export class ParseService {
     private readonly posDepositService: PosDepositService,
     @Inject(CashDepositService)
     private readonly cashDepositService: CashDepositService,
+    @Inject(LocationService)
+    private readonly locationService: LocationService,
     @Inject(TransactionService)
     private readonly transactionService: TransactionService,
     @Inject(NotificationService)
@@ -108,9 +111,11 @@ export class ParseService {
    */
   async parseGarmsFile(
     contents: string,
-    fileName: string
+    fileName: string,
+    program: Ministries
   ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: string }> {
     const paymentMethods = await this.paymentMethodService.getPaymentMethods();
+    const locations = await this.locationService.findMinistryLocations(program);
     // validate the filename - this must follow a specific format to be valid
     validateSbcGarmsFileName(fileName);
     // Creates an array of Transaction Entities
@@ -120,7 +125,8 @@ export class ParseService {
       (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
       fileName,
       paymentMethods,
-      fileDate
+      fileDate,
+      locations
     );
 
     // Converts to DTOs strictly for validation purposes
@@ -515,7 +521,7 @@ export class ParseService {
    */
   async parseAndSaveFile(
     fileName: string,
-    program: string,
+    program: Ministries,
     fileType: FileTypes,
     buffer: Buffer,
     rules: FileIngestionRulesEntity
@@ -529,7 +535,8 @@ export class ParseService {
 
       const { txnFile, txnFileDate } = await this.parseGarmsFile(
         contents,
-        fileName
+        fileName,
+        program
       );
 
       const fileToSave = await this.saveFileUploaded({

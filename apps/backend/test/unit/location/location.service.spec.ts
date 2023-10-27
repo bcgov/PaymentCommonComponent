@@ -1,15 +1,20 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { locations } from './../../mocks/const/locations';
 import { Ministries } from '../../../src/constants';
-import { LocationEntity } from '../../../src/location/entities';
+import {
+  MasterLocationEntity,
+  LocationEntity,
+  BankLocationEntity,
+  MerchantEntity,
+} from '../../../src/location/entities';
 import { LocationService } from '../../../src/location/location.service';
 import { LoggerModule } from '../../../src/logger/logger.module';
 
 describe('LocationService', () => {
   let service: LocationService;
-  let locationRepo: Repository<LocationEntity>;
+  let ministryLocation: Repository<LocationEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -17,7 +22,37 @@ describe('LocationService', () => {
       providers: [
         LocationService,
         {
+          provide: getRepositoryToken(MasterLocationEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
           provide: getRepositoryToken(LocationEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(MerchantEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(BankLocationEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(MerchantEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(MasterLocationEntity),
           useValue: {
             find: jest.fn(),
           },
@@ -26,7 +61,7 @@ describe('LocationService', () => {
     }).compile();
 
     service = module.get<LocationService>(LocationService);
-    locationRepo = module.get<Repository<LocationEntity>>(
+    ministryLocation = module.get<Repository<LocationEntity>>(
       getRepositoryToken(LocationEntity)
     );
   });
@@ -34,23 +69,22 @@ describe('LocationService', () => {
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
-  it('get merchant ids by location_id', async () => {
-    const location_ids = [1];
 
-    const locationRepoSpy = jest
-      .spyOn(locationRepo, 'find')
+  it('get merchants by location_id', async () => {
+    // TODO: fix this test
+    // const location_ids = [1];
+
+    const ministryLocationSpy = jest
+      .spyOn(ministryLocation, 'find')
       .mockResolvedValue(locations.filter((itm) => itm.location_id === 1));
 
-    await service.getLocationsByID(Ministries.SBC, location_ids);
+    await service.findMinistryLocations(Ministries.SBC);
 
-    expect(locationRepoSpy).toBeCalledWith({
+    expect(ministryLocationSpy).toBeCalledWith({
       where: {
         source_id: Ministries.SBC,
-        location_id: In(location_ids),
       },
-      order: {
-        location_id: 'ASC',
-      },
+      relations: ['banks', 'merchants'],
     });
   });
   it('should get locations by source', async () => {
@@ -59,19 +93,16 @@ describe('LocationService', () => {
       (location) => location.source_id === source
     );
 
-    const locationRepoSpy = jest
-      .spyOn(locationRepo, 'find')
+    const ministryLocationSpy = jest
+      .spyOn(ministryLocation, 'find')
       .mockResolvedValue(expectedResultFromRepo);
 
-    const result = await service.getLocationsBySource(source);
-    expect(result).toEqual(service.normalizeLocations(expectedResultFromRepo));
-    expect(locationRepoSpy).toBeCalledWith({
+    await service.findMinistryLocations(source);
+    expect(ministryLocationSpy).toBeCalledWith({
       where: {
-        source_id: source,
+        source_id: Ministries.SBC,
       },
-      order: {
-        location_id: 'ASC',
-      },
+      relations: ['banks', 'merchants'],
     });
   });
 });

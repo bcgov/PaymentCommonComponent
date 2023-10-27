@@ -34,3 +34,4 @@ sqlfile.dbml
 report_summary
 migration-results
 streamlit
+.vscode
