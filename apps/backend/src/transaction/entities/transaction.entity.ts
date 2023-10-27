@@ -21,12 +21,6 @@ export class TransactionEntity {
   @CreateDateColumn()
   created_at: Date;
 
-  @Column('varchar', { length: 10 })
-  source_id: string;
-
-  @Column({ type: 'int4' })
-  location_id: number;
-
   @Column({ nullable: true, type: 'date' })
   parsed_on: string;
 
@@ -50,7 +44,10 @@ export class TransactionEntity {
   void_indicator: boolean;
 
   @ManyToOne(() => LocationEntity)
-  @JoinColumn([{ name: 'location', referencedColumnName: 'id' }])
+  @JoinColumn([
+    { name: 'location_id', referencedColumnName: 'location_id' },
+    { name: 'source_id', referencedColumnName: 'source_id' },
+  ])
   location: LocationEntity;
 
   @Column({ type: 'jsonb', nullable: false })
