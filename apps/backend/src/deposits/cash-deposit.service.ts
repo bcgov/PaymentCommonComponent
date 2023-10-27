@@ -64,13 +64,13 @@ export class CashDepositService {
   async findCashDepositsByDate(
     program: Ministries,
     deposit_date: string,
-    pt_location_id: number,
+    bank: number,
     statuses?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
     const depositStatus = statuses ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
+        bank: { id: bank },
         metadata: { program: program },
         deposit_date,
         status: In(depositStatus),
@@ -83,18 +83,18 @@ export class CashDepositService {
   /**
    * Find all cash deposit dates for a particular location
    * @param program
-   * @param pt_location_id
+   * @param bank
    * @returns
    */
   async findAllCashDepositDatesPerLocation(
     program: Ministries,
-    pt_location_id: number,
+    bank: number,
     order: FindOptionsOrderValue
   ): Promise<string[]> {
     const deposits: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
         metadata: { program },
-        pt_location_id,
+        bank: { id: bank },
       },
       order: {
         deposit_date: order,
@@ -133,11 +133,11 @@ export class CashDepositService {
   async findCashDepositExceptions(
     date: string,
     program: Ministries,
-    pt_location_id: number
+    bank: number
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
+        bank: { id: bank },
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: MatchStatus.IN_PROGRESS,
@@ -152,7 +152,7 @@ export class CashDepositService {
    * @returns
    */
   async findCashDepositsForPageThreeReport(
-    pt_location_ids: number[],
+    banks: number[],
     program: Ministries,
     dateRange: DateRange,
     statuses?: MatchStatus[]
@@ -171,7 +171,7 @@ export class CashDepositService {
             maxDate,
           }
         ),
-        pt_location_id: In(pt_location_ids),
+        bank: In(banks),
       },
       order: {
         deposit_date: 'ASC',
@@ -207,7 +207,7 @@ export class CashDepositService {
         status: In([MatchStatus.EXCEPTION, MatchStatus.MATCH]),
       },
       order: {
-        pt_location_id: 'ASC',
+        bank: 'ASC',
         reconciled_on: 'ASC',
         deposit_amt_cdn: 'ASC',
         status: 'ASC',
@@ -223,7 +223,7 @@ export class CashDepositService {
         status: MatchStatus.IN_PROGRESS,
       },
       order: {
-        pt_location_id: 'ASC',
+        bank: 'ASC',
         in_progress_on: 'ASC',
         deposit_amt_cdn: 'ASC',
       },
@@ -242,7 +242,7 @@ export class CashDepositService {
         status: MatchStatus.PENDING,
       },
       order: {
-        pt_location_id: 'ASC',
+        bank: 'ASC',
         deposit_amt_cdn: 'ASC',
       },
       relations: {

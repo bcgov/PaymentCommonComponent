@@ -261,17 +261,17 @@ export class ReportingService {
     locations.forEach((location) => {
       const paymentsByLocation = [...posPayments, ...cashPayments].filter(
         (itm) =>
-          itm.transaction.location_id === location.location_id &&
+          itm.transaction.location.location_id === location.location_id &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const cashDepositsByLocation = cashDeposits.filter(
         (itm) =>
-          itm.pt_location_id === location.pt_location_id &&
+          itm.bank.id === location.pt_location_id &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const posDepositsByLocation = posDeposits.filter(
         (itm) =>
-          location.merchant_ids.includes(itm.merchant_id) &&
+          location.merchant_ids.includes(itm.merchant_id.id) &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const depositsByLocation = [
@@ -374,7 +374,7 @@ export class ReportingService {
       (itm) =>
         new PaymentDetailsReport(
           locations.find(
-            (item) => item.location_id === itm.transaction.location_id
+            (item) => item.location_id === itm.transaction.location.location_id
           )!,
           itm
         )
@@ -383,7 +383,7 @@ export class ReportingService {
     const cashDepositReport = cashDeposits.map(
       (itm) =>
         new CashDepositDetailsReport(
-          locations.find((item) => item.pt_location_id === itm.pt_location_id)!,
+          locations.find((item) => item.pt_location_id === itm.bank.id)!,
           itm
         )
     );
@@ -391,7 +391,7 @@ export class ReportingService {
       (itm) =>
         new POSDepositDetailsReport(
           locations.find((item) =>
-            item.merchant_ids.includes(itm.merchant_id)
+            item.merchant_ids.includes(itm.merchant_id.id)
           )!,
           itm
         )
@@ -424,7 +424,7 @@ export class ReportingService {
 
     const cashDeposits: CasReport[] = cashDepositsResults
       .filter((itm) => itm.deposit_amt_cdn.toString() !== '0.00')
-      .sort((a, b) => a.pt_location_id - b.pt_location_id)
+      .sort((a, b) => a.bank.id - b.bank.id)
       .map(
         (itm) =>
           new CasReport(
@@ -432,13 +432,13 @@ export class ReportingService {
             itm.deposit_date,
             itm.deposit_amt_cdn,
             locations.find(
-              (loc) => loc.pt_location_id === itm.pt_location_id
+              (loc) => loc.pt_location_id === itm.bank.id
             ) as NormalizedLocation
           )
       );
     const posCasDeposits: CasReport[] = posDeposits
       .filter((itm) => itm.transaction_amt.toString() !== '0.00')
-      .sort((a, b) => a.merchant_id - b.merchant_id)
+      .sort((a, b) => a.merchant_id.id - b.merchant_id.id)
       .map(
         (itm) =>
           new CasReport(
@@ -446,7 +446,7 @@ export class ReportingService {
             itm.settlement_date,
             parseFloat(itm.transaction_amt.toString()),
             locations.find(
-              (loc) => loc.location_id === itm.merchant_id
+              (loc) => loc.location_id === itm.merchant_id.id
             ) as NormalizedLocation
           )
       );

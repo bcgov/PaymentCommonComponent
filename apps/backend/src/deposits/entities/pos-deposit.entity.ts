@@ -13,6 +13,7 @@ import { FileMetadata } from '../../common/columns';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI34Details } from '../../flat-files';
+import { MerchantEntity } from '../../location/entities';
 import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PosHeuristicRound } from '../../reconciliation/types/const';
 import { PaymentEntity, PaymentMethodEntity } from '../../transaction/entities';
@@ -37,8 +38,9 @@ export class POSDepositEntity {
   @Column({ enum: FileTypes, default: FileTypes.TDI34 })
   source_file_type: FileTypes;
 
-  @Column({ type: 'int4' })
-  merchant_id: number;
+  @ManyToOne(() => MerchantEntity)
+  @JoinColumn({ name: 'merchant', referencedColumnName: 'id' })
+  merchant_id: MerchantEntity;
 
   @Column('varchar', { length: 19 })
   card_id: string;

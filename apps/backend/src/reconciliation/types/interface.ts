@@ -36,7 +36,7 @@ export interface ReconciliationError {
 export interface AggregatedCashPayment {
   status: MatchStatus;
   fiscal_close_date: string;
-  location_id: number;
+  location: number;
   amount: Decimal;
   classification: PaymentMethodClassification;
   cash_deposit_match?: CashDepositEntity;
