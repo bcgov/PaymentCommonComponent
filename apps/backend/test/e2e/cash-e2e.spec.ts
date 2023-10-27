@@ -16,7 +16,9 @@ import { TDI34Details } from '../../src/flat-files/tdi34/TDI34Details';
 import { extractDateFromTXNFileName } from '../../src/lambdas/helpers';
 import { parseGarms } from '../../src/lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../../src/lambdas/utils/parseTDI';
-import { LocationEntity } from '../../src/location/entities';
+import {
+  MasterLocationEntity,
+} from '../../src/location/entities';
 import { ILocation } from '../../src/location/interface/location.interface';
 import { TransactionEntity } from '../../src/transaction/entities';
 import { PaymentMethodEntity } from '../../src/transaction/entities/payment-method.entity';
@@ -28,7 +30,7 @@ import { TrimPipe } from '../../src/trim.pipe';
 describe('Reconciliation Service (e2e)', () => {
   let app: INestApplication;
   let paymentMethodRepo: Repository<PaymentMethodEntity>;
-  let locationRepo: Repository<LocationEntity>;
+  let locationRepo: Repository<MasterLocationEntity>;
   let posDepositService: PosDepositService;
   let cashDepositService: CashDepositService;
   let transService: TransactionService;
@@ -46,9 +48,10 @@ describe('Reconciliation Service (e2e)', () => {
     cashDepositService = module.get(CashDepositService);
     posDepositService = module.get(PosDepositService);
     transService = module.get(TransactionService);
-    locationRepo = module.get('LocationEntityRepository');
+    locationRepo = module.get('MasterLocationEntityRepository');
     paymentMethodRepo = module.get('PaymentMethodEntityRepository');
   });
+
   it('creates location table', async () => {
     const sbcLocationsMasterDataFile = path.resolve(
       __dirname,
@@ -59,7 +62,7 @@ describe('Reconciliation Service (e2e)', () => {
       .fromFile(sbcLocationsMasterDataFile)) as ILocation[];
 
     const locationEntities = sbcLocationMaster.map((loc) => {
-      return new LocationEntity({ ...loc });
+      return new MasterLocationEntity({ ...loc });
     });
 
     await locationRepo.save(locationEntities);

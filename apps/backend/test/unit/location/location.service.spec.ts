@@ -3,13 +3,18 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { locations } from './../../mocks/const/locations';
 import { Ministries } from '../../../src/constants';
-import { LocationEntity } from '../../../src/location/entities';
+import {
+  BankLocationEntity,
+  LocationEntity,
+  MasterLocationEntity,
+  MerchantEntity,
+} from '../../../src/location/entities';
 import { LocationService } from '../../../src/location/location.service';
 import { LoggerModule } from '../../../src/logger/logger.module';
 
 describe('LocationService', () => {
   let service: LocationService;
-  let locationRepo: Repository<LocationEntity>;
+  let locationRepo: Repository<MasterLocationEntity>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -17,7 +22,25 @@ describe('LocationService', () => {
       providers: [
         LocationService,
         {
+          provide: getRepositoryToken(MasterLocationEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
           provide: getRepositoryToken(LocationEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(MerchantEntity),
+          useValue: {
+            find: jest.fn(),
+          },
+        },
+        {
+          provide: getRepositoryToken(BankLocationEntity),
           useValue: {
             find: jest.fn(),
           },
@@ -26,8 +49,8 @@ describe('LocationService', () => {
     }).compile();
 
     service = module.get<LocationService>(LocationService);
-    locationRepo = module.get<Repository<LocationEntity>>(
-      getRepositoryToken(LocationEntity)
+    locationRepo = module.get<Repository<MasterLocationEntity>>(
+      getRepositoryToken(MasterLocationEntity)
     );
   });
 

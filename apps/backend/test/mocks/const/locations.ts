@@ -1,7 +1,7 @@
 import { NormalizedLocation } from '../../../src/constants';
-import { LocationEntity } from '../../../src/location/entities/master-location-data.entity';
+import { MasterLocationEntity } from '../../../src/location/entities/master-location-data.entity';
 
-export const locations: LocationEntity[] = [
+export const locations: MasterLocationEntity[] = [
   {
     id: '50d4b3f7-1bc8-4329-9dfc-18dc77b05a8c',
     source_id: 'SBC',
