@@ -13,8 +13,5 @@ export class LocationEntity extends BaseLocationEntity {
   @Column({ type: 'int4', nullable: false })
   merchant_id: number;
 
-  constructor(data: Partial<LocationEntity>) {
-    super(data);
-    Object.assign(this, data);
-  }
+  
 }

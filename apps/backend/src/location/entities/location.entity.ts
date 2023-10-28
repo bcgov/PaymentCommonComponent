@@ -7,6 +7,7 @@ import { BankLocationEntity, MerchantEntity } from '.';
 @Index('location_source_idx', ['id', 'location_id', 'source_id'], {
   unique: true,
 })
+//TODO rename
 export class MinistryLocationEntity extends BaseLocationEntity {
   @OneToMany(() => BankLocationEntity, (bank) => bank.location, {
     cascade: true,
@@ -18,8 +19,5 @@ export class MinistryLocationEntity extends BaseLocationEntity {
   })
   merchants: Relation<MerchantEntity[]>;
 
-  constructor(data: Partial<MinistryLocationEntity>) {
-    super(data);
-    Object.assign(this, data);
-  }
+
 }

@@ -11,6 +11,11 @@ import { S3ManagerService } from './../../../src/s3-manager/s3-manager.service';
 import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
 import { PaymentService } from './../../../src/transaction/payment.service';
 import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import {
+  BankLocationEntity,
+  MerchantEntity,
+  MinistryLocationEntity,
+} from '../../../src/location/entities';
 import { LoggerModule } from '../../../src/logger/logger.module';
 import { ReportingService } from '../../../src/reporting/reporting.service';
 import { PaymentMethodEntity } from '../../../src/transaction/entities';
@@ -57,7 +62,19 @@ describe('ReportingService', () => {
           useValue: mockedRepo,
         },
         {
+          provide: getRepositoryToken(MinistryLocationEntity),
+          useValue: mockedRepo,
+        },
+        {
           provide: getRepositoryToken(LocationEntity),
+          useValue: mockedRepo,
+        },
+        {
+          provide: getRepositoryToken(BankLocationEntity),
+          useValue: mockedRepo,
+        },
+        {
+          provide: getRepositoryToken(MerchantEntity),
           useValue: mockedRepo,
         },
       ],

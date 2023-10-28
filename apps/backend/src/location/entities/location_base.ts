@@ -1,5 +1,5 @@
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
-import { LocationEntity } from './location.entity';
+
 
 export class BaseLocationEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -35,7 +35,4 @@ export class BaseLocationEntity {
   @Column('varchar', { length: 7, nullable: false })
   project_code: number;
 
-  constructor(data: Partial<LocationEntity>) {
-    Object.assign(this, data);
-  }
 }
