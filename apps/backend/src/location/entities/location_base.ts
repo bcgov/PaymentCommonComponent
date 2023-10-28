@@ -1,6 +1,5 @@
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
 
-
 export class BaseLocationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;

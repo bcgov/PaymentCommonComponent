@@ -3,7 +3,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as csv from 'csvtojson';
 import { masterData } from './const';
 import { FileTypes, Ministries } from '../constants';
-import { LocationEntity } from '../location/entities';
+import { MasterLocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
@@ -26,7 +26,8 @@ export class DatabaseService {
    * We rely on "master" data to join our txn/deposit table in order to match
    */
   async seedMasterData() {
-    const locations: LocationEntity[] = await this.locationService.findAll();
+    const locations: MasterLocationEntity[] =
+      await this.locationService.findAll();
 
     const paymentMethods: PaymentMethodEntity[] =
       await this.paymentMethodService.getPaymentMethods();
@@ -113,7 +114,9 @@ export class DatabaseService {
       requestParams
     );
     const sbcLocationMaster = await csv.default().fromString(awsBucketResponse);
-    const locationEntities = sbcLocationMaster.map((loc) => ({ ...loc }));
+    const locationEntities = sbcLocationMaster.map(
+      (loc) => new MasterLocationEntity({ ...loc })
+    );
     await this.locationService.createLocations(locationEntities);
   }
 
