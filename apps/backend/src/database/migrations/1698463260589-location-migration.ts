@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1698443371402 implements MigrationInterface {
-  name = 'Migration1698443371402';
+export class Migration1698463260589 implements MigrationInterface {
+  name = 'Migration1698463260589';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -16,7 +16,6 @@ export class Migration1698443371402 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE "location_bank" ("id" integer NOT NULL, "location" uuid, CONSTRAINT "PK_eeba479525aaefa12e7f3b3be68" PRIMARY KEY ("id"))`
     );
-
     await queryRunner.query(
       `ALTER TABLE "location_merchant" ADD CONSTRAINT "FK_9c1f8d6a86dd85962087d7f5dd3" FOREIGN KEY ("location") REFERENCES "location"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
     );
@@ -32,7 +31,6 @@ export class Migration1698443371402 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "location_merchant" DROP CONSTRAINT "FK_9c1f8d6a86dd85962087d7f5dd3"`
     );
-
     await queryRunner.query(`DROP TABLE "location_bank"`);
     await queryRunner.query(`DROP TABLE "location_merchant"`);
     await queryRunner.query(`DROP INDEX "public"."location_source_idx"`);
