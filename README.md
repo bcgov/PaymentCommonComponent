@@ -3,7 +3,7 @@
 
 DROP automates the manual process of finding and reporting discrepancies between line-of-business Ministry transactions and the Provincial Treasury's bank and cash management deposit files. 
 
-Transaction data from Ministry sales represents one half of the data and is received via STFP.
+Payment-transaction data from the line-of-business represents one half of the data and is received via STFP.
 
 Deposit data from Provincial Treasury of the Province of British Columbia is also obtained via sftp and comes in three formats:
 - TDI34 files - In person POS Transactions
@@ -54,11 +54,15 @@ There is also an alerting and notification lambda which notifies users if data f
 ## Setup
 
 #### Tools Check
-
 Run this command to automatically check for the required prereqs or consult the list below:
 ```bash
 make check
 ```
+These tools can be install using [homebrew](https://brew.sh/):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
 
 - docker 
 - docker-compose
@@ -72,6 +76,8 @@ make check
 - minio
 - nestjs-cli
 - rclone
+
+
 
 #### AWS Minio Credentials
 Generate or update aws-pcc and minio credentials:
