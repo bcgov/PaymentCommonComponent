@@ -4,12 +4,14 @@ import { MatchStatus } from '../../common/const';
 import {
   DateRange,
   Ministries,
-  NormalizedLocation,
   PaymentMethodClassification,
 } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
-import { LocationEntity } from '../../location/entities';
+import {
+  MasterLocationEntity,
+  MinistryLocationEntity,
+} from '../../location/entities';
 import { PaymentEntity } from '../../transaction/entities';
 
 export interface PosPaymentPosDepositPair {
@@ -23,7 +25,7 @@ export interface PosExceptions {
 }
 
 export interface ReconciliationConfig {
-  location: LocationEntity;
+  location: MasterLocationEntity;
   program: Ministries;
   dateRange?: DateRange;
   date: string;
@@ -66,7 +68,7 @@ export interface PaymentDictionary {
 }
 
 export interface ReconcileEvent {
-  locations: NormalizedLocation[];
+  locations: MinistryLocationEntity[];
   reconciliationMaxDate: string;
   program: Ministries;
   payments: PaymentEntity[];

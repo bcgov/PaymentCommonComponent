@@ -12,8 +12,11 @@ import {
 import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
-import { DateRange, Ministries, NormalizedLocation } from '../constants';
-import { LocationEntity } from '../location/entities';
+import { DateRange, Ministries } from '../constants';
+import {
+  MasterLocationEntity,
+  MinistryLocationEntity,
+} from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
@@ -85,7 +88,7 @@ export class PosDepositService {
   }
 
   async findPOSBySettlementDate(
-    locations: NormalizedLocation[],
+    locations: MinistryLocationEntity[],
     program: Ministries,
     dateRange: DateRange
   ) {
@@ -98,13 +101,15 @@ export class PosDepositService {
     qb.addSelect('SUM(transaction_amt)::numeric(10,2)', 'transaction_amt');
     qb.addSelect('location_id');
     qb.leftJoin(
-      LocationEntity,
+      MasterLocationEntity,
       'master_location_data',
       'master_location_data.merchant_id = pos_deposit.merchant_id AND master_location_data.method = pos_deposit.payment_method'
     );
     qb.where({
       metadata: { program },
-      merchant_id: In(locations.flatMap((l) => l.merchant_ids)),
+      merchant_id: In(
+        locations.flatMap((l) => l.merchants.map((itm) => itm.merchant_id))
+      ),
       settlement_date: Raw(
         (alias) => `${alias} >= :minDate::date and ${alias} <= :maxDate::date`,
         { minDate, maxDate }
@@ -249,5 +254,9 @@ export class PosDepositService {
       },
     });
     return [...reconciled, ...in_progress, ...pending];
+  }
+
+  async findWithNullLocation() {
+    return await this.posDepositRepo.find({ where: { merchant: undefined } });
   }
 }

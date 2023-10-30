@@ -1,14 +1,12 @@
 import { parse } from 'date-fns';
 import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
-import {
-  NormalizedLocation,
-  PaymentMethodClassification,
-} from '../../constants';
+import { PaymentMethodClassification } from '../../constants';
 import { POSDepositEntity } from '../../deposits/entities/pos-deposit.entity';
+import { MinistryLocationEntity } from '../../location/entities';
 
 export class POSDepositDetailsReport extends DetailsReport {
-  constructor(location: NormalizedLocation, deposit: POSDepositEntity) {
+  constructor(location: MinistryLocationEntity, deposit: POSDepositEntity) {
     super(location);
     this.source_file = 'POS (TDI 34)';
     this.reconciled_date = deposit.reconciled_on ?? deposit.reconciled_on;

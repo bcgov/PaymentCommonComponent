@@ -33,5 +33,4 @@ export class BaseLocationEntity {
 
   @Column('varchar', { length: 7, nullable: false })
   project_code: number;
-
 }

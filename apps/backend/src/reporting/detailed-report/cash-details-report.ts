@@ -1,14 +1,12 @@
 import { parse } from 'date-fns';
 import Decimal from 'decimal.js';
 import { DetailsReport } from './details-report';
-import {
-  NormalizedLocation,
-  PaymentMethodClassification,
-} from '../../constants';
+import { PaymentMethodClassification } from '../../constants';
 import { CashDepositEntity } from '../../deposits/entities/cash-deposit.entity';
+import { MinistryLocationEntity } from '../../location/entities';
 
 export class CashDepositDetailsReport extends DetailsReport {
-  constructor(location: NormalizedLocation, deposit: CashDepositEntity) {
+  constructor(location: MinistryLocationEntity, deposit: CashDepositEntity) {
     super(location);
     this.source_file = 'Cash/Chq (TDI 17)';
     this.reconciliation_status = deposit.status;

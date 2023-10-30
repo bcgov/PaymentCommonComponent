@@ -7,6 +7,7 @@ import { join } from 'path';
 import { DatabaseLogger } from './database-logger';
 import { DatabaseService } from './database.service';
 import { entities } from './entity.config';
+import { DepositModule } from '../deposits/deposit.module';
 import { LocationModule } from '../location/location.module';
 import { NotificationModule } from '../notification/notification.module';
 import { S3ManagerModule } from '../s3-manager/s3-manager.module';
@@ -80,6 +81,7 @@ export const appOrmConfig: PostgresConnectionOptions = {
     S3ManagerModule,
     LocationModule,
     TransactionModule,
+    DepositModule,
     NotificationModule,
     TypeOrmModule.forRootAsync({
       useFactory: () => appOrmConfig,

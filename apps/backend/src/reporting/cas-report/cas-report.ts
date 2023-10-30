@@ -1,5 +1,5 @@
 import { parse } from 'date-fns';
-import { NormalizedLocation } from '../../constants';
+import { MinistryLocationEntity } from '../../location/entities';
 
 export class CasReport {
   settlement_date: Date;
@@ -17,7 +17,7 @@ export class CasReport {
     payment_method: unknown,
     settlement_date: string,
     amount: number,
-    location: NormalizedLocation
+    location: MinistryLocationEntity
   ) {
     this.card_vendor = payment_method as string;
     this.settlement_date = parse(settlement_date, 'yyyy-MM-dd', new Date());

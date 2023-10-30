@@ -5,7 +5,6 @@ import { format, getMonth, getYear, parse } from 'date-fns';
 import { AppModule } from '../app.module';
 import {
   PaymentMethodClassification,
-  NormalizedLocation,
   DateRange,
   Ministries,
 } from '../constants';
@@ -13,6 +12,7 @@ import { CashDepositService } from '../deposits/cash-deposit.service';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { MinistryLocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { ReportingService } from '../reporting/reporting.service';
@@ -164,7 +164,7 @@ const getPageThreeDeposits = async (
   app: INestApplicationContext,
   dateRange: DateRange,
   program: Ministries,
-  locations: NormalizedLocation[]
+  locations: MinistryLocationEntity[]
 ): Promise<{
   pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] };
   pageThreeDepositDates: DateRange;
@@ -185,7 +185,7 @@ const getPageThreeDeposits = async (
 
   const cashDepositsResults: CashDepositEntity[] =
     await cashDepositService.findCashDepositsForPageThreeReport(
-      locations.map((itm) => itm.pt_location_id),
+      locations.flatMap((itm) => itm.banks.map((itm) => itm.bank_id)),
       program,
       formattedDateRangeForPageThree
     );

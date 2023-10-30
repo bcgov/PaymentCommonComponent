@@ -99,14 +99,14 @@ describe('CashDepositService', () => {
       await service.findCashDepositsByDate(
         program,
         depositDate.maxDate,
-        location.pt_location_id,
+        location.banks.map((itm) => itm.bank_id),
         status
       );
 
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: location.pt_location_id,
+          pt_location_id: In(location.banks.map((itm) => itm.bank_id)),
           metadata: { program },
           deposit_date: depositDate.maxDate,
           status: In(status),
@@ -121,11 +121,11 @@ describe('CashDepositService', () => {
       const location = generateLocation();
 
       jest.spyOn(repository, 'find');
-
+      const banks = location.banks.map((itm) => itm.bank_id);
       const functionParams = {
         program,
         depositDate,
-        location,
+        banks,
       };
 
       const innerFunctionExpectedStatusParams = In(MatchStatusAll);
@@ -133,13 +133,13 @@ describe('CashDepositService', () => {
       await service.findCashDepositsByDate(
         functionParams.program,
         functionParams.depositDate,
-        functionParams.location.pt_location_id
+        functionParams.banks
       );
 
       expect(repository.find).toHaveBeenCalledTimes(1);
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: location.pt_location_id,
+          pt_location_id: In(banks),
           metadata: { program },
           deposit_date: depositDate,
           status: innerFunctionExpectedStatusParams,
@@ -186,14 +186,14 @@ describe('CashDepositService', () => {
       await service.findCashDepositExceptions(
         dates.minDate,
         program,
-        location.pt_location_id
+        location.banks.map((itm) => itm.bank_id)
       );
 
       expect(repository.find).toHaveBeenCalledTimes(1);
 
       expect(repository.find).toHaveBeenCalledWith({
         where: {
-          pt_location_id: location.pt_location_id,
+          pt_location_id: In(location.banks.map((itm) => itm.bank_id)),
           metadata: { program: program },
           deposit_date: LessThanOrEqual(dates.minDate),
           status: MatchStatus.IN_PROGRESS,
