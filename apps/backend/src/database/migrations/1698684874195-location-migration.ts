@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1698463260589 implements MigrationInterface {
-  name = 'Migration1698463260589';
+export class Migration1698684874195 implements MigrationInterface {
+  name = 'LocationMigration1698684874195';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -11,10 +11,10 @@ export class Migration1698463260589 implements MigrationInterface {
       `CREATE UNIQUE INDEX "location_source_idx" ON "location" ("id", "location_id", "source_id") `
     );
     await queryRunner.query(
-      `CREATE TABLE "location_merchant" ("id" integer NOT NULL, "location" uuid, CONSTRAINT "PK_b9e23b9c6e585e7466134d76a93" PRIMARY KEY ("id"))`
+      `CREATE TABLE "location_merchant" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "merchant_id" integer NOT NULL, "location" uuid, CONSTRAINT "PK_b9e23b9c6e585e7466134d76a93" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
-      `CREATE TABLE "location_bank" ("id" integer NOT NULL, "location" uuid, CONSTRAINT "PK_eeba479525aaefa12e7f3b3be68" PRIMARY KEY ("id"))`
+      `CREATE TABLE "location_bank" ("id" uuid NOT NULL DEFAULT uuid_generate_v4(), "bank_id" integer NOT NULL, "location" uuid, CONSTRAINT "PK_eeba479525aaefa12e7f3b3be68" PRIMARY KEY ("id"))`
     );
     await queryRunner.query(
       `ALTER TABLE "location_merchant" ADD CONSTRAINT "FK_9c1f8d6a86dd85962087d7f5dd3" FOREIGN KEY ("location") REFERENCES "location"("id") ON DELETE NO ACTION ON UPDATE NO ACTION`
