@@ -3,14 +3,18 @@ import {
   ManyToOne,
   Relation,
   JoinColumn,
-  PrimaryColumn,
+  PrimaryGeneratedColumn,
+  Column,
 } from 'typeorm';
-import {  MinistryLocationEntity } from './location.entity';
+import { MinistryLocationEntity } from './location.entity';
 
 @Entity('location_merchant')
 export class MerchantEntity {
-  @PrimaryColumn({ unique: true })
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column()
+  merchant_id: number;
 
   @ManyToOne(() => MinistryLocationEntity, (location) => location.merchants)
   @JoinColumn({ name: 'location', referencedColumnName: 'id' })

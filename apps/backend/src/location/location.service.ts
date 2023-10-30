@@ -73,12 +73,16 @@ export class LocationService {
         }
 
         itm.merchant_id !== BankMerchantId &&
-          !acc[key].merchants?.find((merch) => merch.id === itm.merchant_id) &&
-          acc[key].merchants?.push(new MerchantEntity({ id: itm.merchant_id }));
+          !acc[key].merchants?.find(
+            (merch) => merch.merchant_id === itm.merchant_id
+          ) &&
+          acc[key].merchants?.push(
+            new MerchantEntity({ merchant_id: itm.merchant_id })
+          );
 
-        !acc[key].banks?.find((pt) => pt.id === itm.pt_location_id) &&
+        !acc[key].banks?.find((pt) => pt.bank_id === itm.pt_location_id) &&
           acc[key].banks?.push(
-            new BankLocationEntity({ id: itm.pt_location_id })
+            new BankLocationEntity({ bank_id: itm.pt_location_id })
           );
         if (program === 'SBC') {
           acc[key].description = locations.find(
