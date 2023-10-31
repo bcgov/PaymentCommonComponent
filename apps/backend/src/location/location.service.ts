@@ -23,18 +23,18 @@ export class LocationService {
   ) {}
 
   public async findAll(): Promise<MasterLocationEntity[]> {
-    return await this.locationRepo.find();
+    return this.locationRepo.find();
   }
   public async findBanks(): Promise<BankLocationEntity[]> {
-    return await this.bankLocationRepo.find();
+    return this.bankLocationRepo.find();
   }
   public async findMerchants(): Promise<MerchantEntity[]> {
-    return await this.merchantLocationRepo.find();
+    return this.merchantLocationRepo.find();
   }
   public async findMinistryLocations(
     program: Ministries
   ): Promise<MinistryLocationEntity[]> {
-    return await this.ministryLocationRepo.find({
+    return this.ministryLocationRepo.find({
       where: { source_id: program },
       relations: ['banks', 'merchants'],
     });
