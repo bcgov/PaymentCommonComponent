@@ -39,6 +39,11 @@ export class LocationService {
       relations: ['banks', 'merchants'],
     });
   }
+  public async findAllMinistryLocations(): Promise<MinistryLocationEntity[]> {
+    return this.ministryLocationRepo.find({
+      relations: ['banks', 'merchants'],
+    });
+  }
   /**
    * Splits the masterlocation data table in three tables: location, bank, and merchant
    * @param locations
