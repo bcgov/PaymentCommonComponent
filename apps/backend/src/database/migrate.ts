@@ -33,9 +33,9 @@ export const handler = async (_event?: unknown, _context?: Context) => {
 
     console.log('Migration complete.');
 
-    await dbService.seedMasterData();
+    const { message } = await dbService.seedMasterData();
 
-    return 'success';
+    return message;
   } catch (e) {
     console.log(e);
     console.log('Migration failure.');

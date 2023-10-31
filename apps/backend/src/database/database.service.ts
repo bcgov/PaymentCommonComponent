@@ -126,6 +126,7 @@ export class DatabaseService {
         await this.cashDepositService.saveCashDepositEntities(cash);
       }
     }
+    return { message: 'Success' };
   }
 
   public transformCSV(file: string): unknown {
