@@ -30,7 +30,7 @@ export LZ2_PROJECT = iz8ci7
 # Terraform Cloud backend config variables      
 define TF_BACKEND_CFG
 bucket         = "terraform-remote-state-$(LZ2_PROJECT)-$(ENV_NAME)"  
-key            = ".terraform/terraform.state"       
+key            = ".terraform/terraform.tfstate"       
 region         = "ca-central-1"                  
 dynamodb_table = "terraform-remote-state-lock-$(LZ2_PROJECT)"  
 encrypt        = true                              
