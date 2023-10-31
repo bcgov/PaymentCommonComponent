@@ -82,7 +82,10 @@ export class LocationService {
 
         !acc[key].banks?.find((pt) => pt.bank_id === itm.pt_location_id) &&
           acc[key].banks?.push(
-            new BankLocationEntity({ bank_id: itm.pt_location_id })
+            new BankLocationEntity({
+              bank_id: itm.pt_location_id,
+              method: itm.method,
+            })
           );
         if (program === 'SBC') {
           acc[key].description = locations.find(
