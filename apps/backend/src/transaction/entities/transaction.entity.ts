@@ -71,7 +71,7 @@ export class TransactionEntity {
   @Column({ name: 'file_uploaded', nullable: true })
   fileUploadedEntityId?: string;
 
-  @ManyToOne(() => MinistryLocationEntity, { eager: true, nullable: true })
+  @ManyToOne(() => MinistryLocationEntity, { nullable: true })
   @JoinColumn({ name: 'location', referencedColumnName: 'id' })
   location: Relation<MinistryLocationEntity>;
 
