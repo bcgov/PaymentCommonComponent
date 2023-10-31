@@ -7,7 +7,8 @@ import path, { join } from 'path';
 import { locations } from '../mocks/const/locations';
 import { validationPipeConfig } from '../../src/app.config';
 import { AppModule } from '../../src/app.module';
-import { FileTypes } from '../../src/constants';
+import { FileTypes, Ministries } from '../../src/constants';
+import { DatabaseService } from '../../src/database/database.service';
 import { CashDepositService } from '../../src/deposits/cash-deposit.service';
 import { CashDepositEntity } from '../../src/deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../../src/deposits/entities/pos-deposit.entity';
@@ -19,6 +20,7 @@ import { parseGarms } from '../../src/lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../../src/lambdas/utils/parseTDI';
 import { MasterLocationEntity } from '../../src/location/entities';
 import { ILocation } from '../../src/location/interface/location.interface';
+import { LocationService } from '../../src/location/location.service';
 import { TransactionEntity } from '../../src/transaction/entities';
 import { PaymentMethodEntity } from '../../src/transaction/entities/payment-method.entity';
 import { SBCGarmsJson } from '../../src/transaction/interface';
@@ -26,8 +28,10 @@ import { TransactionService } from '../../src/transaction/transaction.service';
 import { TrimPipe } from '../../src/trim.pipe';
 
 //TODO WIP
-describe('Reconciliation Service (e2e)', () => {
+describe('Tests the database tables and seed data (e2e)', () => {
   let app: INestApplication;
+  let databaseService: DatabaseService;
+  let locationService: LocationService;
   let paymentMethodRepo: Repository<PaymentMethodEntity>;
   let locationRepo: Repository<MasterLocationEntity>;
   let posDepositService: PosDepositService;
@@ -44,8 +48,10 @@ describe('Reconciliation Service (e2e)', () => {
       new ValidationPipe(validationPipeConfig)
     );
     await app.init();
+    locationService = module.get(LocationService);
     cashDepositService = module.get(CashDepositService);
     posDepositService = module.get(PosDepositService);
+    databaseService = module.get(DatabaseService);
     transService = module.get(TransactionService);
     locationRepo = module.get('MasterLocationEntityRepository');
     paymentMethodRepo = module.get('PaymentMethodEntityRepository');
@@ -84,6 +90,33 @@ describe('Reconciliation Service (e2e)', () => {
     });
 
     await paymentMethodRepo.save(paymentMethodsEntities);
+  });
+  it('create location, merchant and bank tables', async () => {
+    await databaseService.seedMasterData();
+    const sbcLocations = await locationService.findMinistryLocations(
+      Ministries.SBC
+    );
+    const sbcBanks = locations.flatMap((itm) => itm.banks);
+    const sbcMerchants = locations.flatMap((itm) => itm.merchants);
+
+    const labourLocations = await locationService.findMinistryLocations(
+      Ministries.LABOUR
+    );
+    const labourBanks = locations.flatMap((itm) => itm.banks);
+    const labourMerchants = locations.flatMap((itm) => itm.merchants);
+
+    expect(sbcLocations).toBeDefined();
+    expect(sbcLocations.length).toBeGreaterThan(0);
+    expect(sbcBanks).toBeDefined();
+    expect(sbcBanks.length).toBeGreaterThan(0);
+    expect(sbcMerchants).toBeDefined();
+    expect(sbcMerchants.length).toBeGreaterThan(0);
+    expect(labourLocations).toBeDefined();
+    expect(labourLocations.length).toBeGreaterThan(0);
+    expect(labourBanks).toBeDefined();
+    expect(labourBanks.length).toBeGreaterThan(0);
+    expect(labourMerchants).toBeDefined();
+    expect(labourMerchants.length).toBeGreaterThan(0);
   });
 
   it('parses and inserts cash deposit data', async () => {
@@ -129,6 +162,9 @@ describe('Reconciliation Service (e2e)', () => {
 
   it('parses and inserts payment data', async () => {
     const paymentMethods = await paymentMethodRepo.find();
+    const locations = await locationService.findMinistryLocations(
+      Ministries.SBC
+    );
     const contents = fs.readFileSync(
       join(__dirname, '../fixtures/SBC_SALES_2023_03_08_23_17_53.JSON'),
       'utf8'
