@@ -116,7 +116,7 @@ export class LocationService {
     program: Ministries,
     location_ids: number[]
   ): Promise<MinistryLocationEntity[]> {
-    return await this.ministryLocationRepo.find({
+    return this.ministryLocationRepo.find({
       where: {
         source_id: program,
         location_id: In(location_ids),
@@ -130,7 +130,7 @@ export class LocationService {
   public async getLocationsBySource(
     source: Ministries
   ): Promise<MinistryLocationEntity[]> {
-    return await this.ministryLocationRepo.find({
+    return this.ministryLocationRepo.find({
       where: {
         source_id: source,
       },
