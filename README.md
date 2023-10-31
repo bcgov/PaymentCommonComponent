@@ -1,16 +1,16 @@
 # DROP - Discrepancy Report on Payments
 [![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](<Redirect-URL>)
 
-DROP automates the manual process of finding and reporting discrepancies between line-of-business Ministry transactions and the Provincial Treasury's bank and cash management deposit files. 
+DROP automates the manual process of finding and reporting discrepancies between the ministry line of business transactions and Provincial Treasury's bank and cash management deposit files.
 
 Payment-transaction data from the line-of-business represents one half of the data and is received via STFP.
 
-Deposit data from Provincial Treasury of the Province of British Columbia is also obtained via sftp and comes in three formats:
-- TDI34 files - In person POS Transactions
-- TDI17 files - Cash & Cheque deposits made to the banks
-- TDI34 (DDF) files - Online card transactions (PayBC and ICE pay)
+Deposit data from Provincial Treasury of the Province of British Columbia is also obtained via SFTP and comes in three formats:
+- TDI34 files - In-person point-of-sale (POS) transactions
+- TDI17 files - Cash & cheque deposits made to the banks
+- TDI34 Daily Download Files (DDF)  - Online card transactions (PayBC and ICE Pay)
 
-Files are pushed to sftp and transfered to S3 which triggers a lambda to parse the data into the db. This triggers a subsequent lambda which runs the job of searching for discrepencies in the data and updating the "status" of each row item. After this process has completed another lambda is triggered to generate and output a report to another S3 bucket. 
+Files are pushed to SFTP and transfered to S3 which triggers a lambda to parse the data into the db. This triggers a subsequent lambda which runs the job of searching for discrepencies in the data and updating the "status" of each row item. After this process has completed another lambda is triggered to generate and output a report to another S3 bucket. 
 
 There is also an alerting and notification lambda which notifies users if data files are missing, or if there are errors in the files during parsing. 
 
@@ -58,7 +58,7 @@ Run this command to automatically check for the required prereqs or consult the 
 ```bash
 make check
 ```
-These tools can be install using [homebrew](https://brew.sh/):
+These tools can be installed using [homebrew](https://brew.sh/):
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
@@ -141,7 +141,7 @@ cp .config/.env.example .env
 ```
 [Example](https://github.com/bcgov/PaymentCommonComponent/blob/CCFPCM-642/.config/.env.example)
 
-Contact the team to fill in any missing variables
+Contact the team to fill in any missing variables.
 
 
 #### Yarn
@@ -153,7 +153,7 @@ corepack enable
 corepack prepare yarn@stable --activate
 ```
 
-See [https://yarnpkg.com/getting-started/install](https://yarnpkg.com/getting-started/install) for more details
+See [https://yarnpkg.com/getting-started/install](https://yarnpkg.com/getting-started/install) for more details.
 
 
 ## Running The Project
@@ -223,14 +223,14 @@ make report
 
 #### File Parsing
 
-- Files are pushed to sftp and transfered to S3 which triggers a lambda to parse the data into the db. 
-- Files may also be directly dropped into the S3 bucket.
+- Files are pushed to SFTP and transfered to S3 which triggers a lambda to parse the data into the db
+- Files may also be directly dropped into the S3 bucket
 - Amazon SNS is used to trigger the reconciliation lambda
 
 #### Data Reconciliation
 
-- Lambda searches for discrepencies in the data and updates the "status" of each row item. 
-- After this process has completed another lambda is triggered to generate and output a report to another S3 bucket. 
+- Lambda searches for discrepencies in the data and updates the "status" of each row item
+- After this process has completed another lambda is triggered to generate and output a report to another S3 bucket
 
 
 #### Reporting
@@ -240,9 +240,9 @@ make report
 
 
 #### Notifications
-- Notifies users if data files are missing, or if there are errors in the files during parsing. 
-- For notifications, we are using GC Notify. The key can be found in the AWS Parameter Store.
-- The API documentation for GC Notify sits [here](https://documentation.notification.canada.ca/en/).
+- Notifies users if data files are missing, or if there are errors in the files during parsing
+- For notifications, we are using GC Notify. The key can be found in the AWS Parameter Store
+- The API documentation for GC Notify sits [here](https://documentation.notification.canada.ca/en/)
 
 #### Authentication
 
@@ -253,8 +253,8 @@ An AuthGuard then makes a request to the API Portal using those credentials to r
 
 #### Versioning
 
-Run `make verison-major` to update the version for releases - this will also update the api path
-Run `make verison-minor` to update small changes in which we do not want to update the api path
+Run `make verison-major` to update the version for releases - this will also update the api path.
+Run `make verison-minor` to update small changes in which we do not want to update the api path.
 Run `make verison-patch` to update the version after implementing fixes for bugs etc - this will not update the api path. This is used to track fixes for testing etc. 
 
 
