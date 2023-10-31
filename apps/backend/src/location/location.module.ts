@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   MinistryLocationEntity,
-  LocationEntity,
+  MasterLocationEntity,
   BankLocationEntity,
   MerchantEntity,
 } from './entities';
@@ -14,7 +14,7 @@ import { LoggerModule } from '../logger/logger.module';
     LoggerModule,
     TypeOrmModule.forFeature([
       MinistryLocationEntity,
-      LocationEntity,
+      MasterLocationEntity,
       BankLocationEntity,
       MerchantEntity,
     ]),

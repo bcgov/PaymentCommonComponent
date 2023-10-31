@@ -5,7 +5,7 @@ import { CashDepositService } from './../../../src/deposits/cash-deposit.service
 import { POSDepositEntity } from './../../../src/deposits/entities/pos-deposit.entity';
 import { PosDepositService } from './../../../src/deposits/pos-deposit.service';
 import { ExcelExportService } from './../../../src/excelexport/excelexport.service';
-import { LocationEntity } from './../../../src/location/entities/master-location-data.entity';
+import { MasterLocationEntity } from './../../../src/location/entities/master-location-data.entity';
 import { LocationService } from './../../../src/location/location.service';
 import { S3ManagerService } from './../../../src/s3-manager/s3-manager.service';
 import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
@@ -66,7 +66,7 @@ describe('ReportingService', () => {
           useValue: mockedRepo,
         },
         {
-          provide: getRepositoryToken(LocationEntity),
+          provide: getRepositoryToken(MasterLocationEntity),
           useValue: mockedRepo,
         },
         {

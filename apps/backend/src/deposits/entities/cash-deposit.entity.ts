@@ -11,6 +11,7 @@ import { FileMetadata } from '../../common/columns/metadata';
 import { MatchStatus } from '../../common/const';
 import { FileTypes } from '../../constants';
 import { TDI17Details } from '../../flat-files';
+import { BankLocationEntity } from '../../location/entities';
 import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 import { PaymentEntity } from '../../transaction/entities/payment.entity';
 
@@ -99,6 +100,10 @@ export class CashDepositEntity {
 
   @Column({ name: 'file_uploaded', nullable: true })
   fileUploadedEntityId?: string;
+
+  @ManyToOne(() => BankLocationEntity, { nullable: true })
+  @JoinColumn({ referencedColumnName: 'id', name: 'bank' })
+  bank: Relation<BankLocationEntity>;
 
   constructor(data?: TDI17Details) {
     Object.assign(this, data?.resource);

@@ -31,6 +31,8 @@ import {
 } from '../lambdas/helpers';
 import { parseGarms } from '../lambdas/utils/parseGarms';
 import { parseTDI, parseTDIHeader } from '../lambdas/utils/parseTDI';
+import { MinistryLocationEntity } from '../location/entities';
+import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../notification/entities/program-daily-upload.entity';
@@ -57,6 +59,8 @@ export class ParseService {
     private readonly transactionService: TransactionService,
     @Inject(NotificationService)
     private readonly notificationService: NotificationService,
+    @Inject(LocationService)
+    private readonly locationService: LocationService,
     @InjectRepository(FileUploadedEntity)
     private uploadedRepo: Repository<FileUploadedEntity>
   ) {
@@ -108,7 +112,8 @@ export class ParseService {
    */
   async parseGarmsFile(
     contents: string,
-    fileName: string
+    fileName: string,
+    locations: MinistryLocationEntity[]
   ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: string }> {
     const paymentMethods = await this.paymentMethodService.getPaymentMethods();
     // validate the filename - this must follow a specific format to be valid
@@ -120,6 +125,7 @@ export class ParseService {
       (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
       fileName,
       paymentMethods,
+      locations,
       fileDate
     );
 
@@ -150,11 +156,14 @@ export class ParseService {
   async parseTDICashFile(
     fileName: string,
     program: string,
-    fileContents: Buffer
+    fileContents: Buffer,
+    locations: MinistryLocationEntity[]
   ): Promise<{ cashDeposits: CashDepositEntity[]; fileDate: string }> {
     const contents = Buffer.from(fileContents.toString() || '').toString();
     const header = parseTDIHeader(FileTypes.TDI17, contents);
-
+    const banks = locations
+      .filter((loc) => loc.source_id === program)
+      .flatMap((itm) => itm.banks);
     const parsed = parseTDI({
       type: FileTypes.TDI17,
       fileName,
@@ -164,10 +173,16 @@ export class ParseService {
     });
 
     const tdi17Details = parsed as TDI17Details[];
-    const cashDeposits = tdi17Details.map(
+    const cashDeposits: CashDepositEntity[] = tdi17Details.map(
       (details) => new CashDepositEntity(details)
     );
-    const cashDepositsDto = cashDeposits.map((c) => new CashDepositDTO(c));
+    const cashDepositsDto = cashDeposits.map(
+      (c) =>
+        new CashDepositDTO({
+          ...c,
+          bank: banks.find((bank) => bank.bank_id === c.pt_location_id),
+        })
+    );
     const list = new CashDepositsListDTO(cashDepositsDto);
 
     try {
@@ -197,8 +212,12 @@ export class ParseService {
   async parseTDICardsFile(
     fileName: string,
     program: string,
-    fileContents: Buffer
+    fileContents: Buffer,
+    locations: MinistryLocationEntity[]
   ): Promise<{ posEntities: POSDepositEntity[]; fileDate: string }> {
+    const merchants = locations
+      .filter((loc) => loc.source_id === program)
+      .flatMap((itm) => itm.merchants);
     const header = parseTDIHeader(FileTypes.TDI34, fileContents.toString());
     const parsed = parseTDI({
       type: FileTypes.TDI34,
@@ -213,7 +232,15 @@ export class ParseService {
       (details) => new POSDepositEntity(details)
     );
 
-    const posDepositsDto = posEntities.map((p) => new PosDepositDTO(p));
+    const posDepositsDto = posEntities.map(
+      (p) =>
+        new PosDepositDTO({
+          ...p,
+          merchant: merchants.find(
+            (merch) => merch.merchant_id === p.merchant_id
+          ),
+        })
+    );
     const list = new PosDepositListDTO(posDepositsDto);
 
     try {
@@ -522,14 +549,17 @@ export class ParseService {
   ): Promise<FileUploadedEntity | void> {
     this.appLogger.log(`Parsing ${fileName}`);
     const contents = buffer.toString();
-
+    const locations = await this.locationService.findMinistryLocations(
+      Ministries[program as keyof typeof Ministries]
+    );
     // FileType is based on the filename (from Parser) or from the endpoint body
     if (fileType === FileTypes.SBC_SALES) {
       this.appLogger.log('Parse and store SBC Sales in DB...', fileName);
 
       const { txnFile, txnFileDate } = await this.parseGarmsFile(
         contents,
-        fileName
+        fileName,
+        locations
       );
 
       const fileToSave = await this.saveFileUploaded({
@@ -560,7 +590,8 @@ export class ParseService {
       const { cashDeposits, fileDate } = await this.parseTDICashFile(
         fileName,
         program,
-        buffer
+        buffer,
+        locations
       );
 
       // validating step
@@ -588,7 +619,8 @@ export class ParseService {
       const { posEntities, fileDate } = await this.parseTDICardsFile(
         fileName,
         program,
-        buffer
+        buffer,
+        locations
       );
 
       const fileToSave = await this.saveFileUploaded({

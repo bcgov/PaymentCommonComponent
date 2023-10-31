@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { PaymentEntity } from './payment.entity';
 import { Transaction } from '../interface/transaction.interface';
+import { MinistryLocationEntity } from '../../location/entities';
 import { FileUploadedEntity } from '../../parse/entities/file-uploaded.entity';
 
 @Entity('transaction')
@@ -69,6 +70,10 @@ export class TransactionEntity {
 
   @Column({ name: 'file_uploaded', nullable: true })
   fileUploadedEntityId?: string;
+
+  @ManyToOne(() => MinistryLocationEntity, { nullable: true })
+  @JoinColumn({ name: 'location', referencedColumnName: 'id' })
+  location: Relation<MinistryLocationEntity>;
 
   constructor(transaction?: Partial<TransactionEntity>) {
     Object.assign(this, transaction);

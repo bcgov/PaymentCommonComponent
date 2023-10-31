@@ -21,12 +21,12 @@ import { MatchStatus } from '../common/const';
 import {
   DateRange,
   Ministries,
-  NormalizedLocation,
   PaymentMethodClassification,
 } from '../constants';
 import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { ExcelExportService } from '../excelexport/excelexport.service';
+import { MinistryLocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { PaymentEntity } from '../transaction/entities';
 
@@ -49,7 +49,7 @@ export class ReportingService {
   async generateReport(
     dateRange: DateRange,
     program: Ministries,
-    locations: NormalizedLocation[],
+    locations: MinistryLocationEntity[],
     deposits: {
       posDeposits: POSDepositEntity[];
       cashDeposits: CashDepositEntity[];
@@ -113,7 +113,7 @@ export class ReportingService {
     cashPayments: PaymentEntity[],
     posDeposits: POSDepositEntity[],
     cashDeposits: CashDepositEntity[],
-    locations: NormalizedLocation[]
+    locations: MinistryLocationEntity[]
   ): void {
     this.appLogger.log('Generating Daily Summary WorkSheet');
 
@@ -160,7 +160,7 @@ export class ReportingService {
     posPayments: PaymentEntity[],
     cashDeposits: CashDepositEntity[],
     cashPayments: PaymentEntity[],
-    locations: NormalizedLocation[]
+    locations: MinistryLocationEntity[]
   ) {
     this.appLogger.log('Generating Reconciliation Details Worksheet');
 
@@ -205,7 +205,7 @@ export class ReportingService {
   generateCasReportWorksheet(
     dateRange: DateRange,
     program: Ministries,
-    locations: NormalizedLocation[],
+    locations: MinistryLocationEntity[],
     pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
     pageThreeDepositDates: DateRange
   ) {
@@ -251,7 +251,7 @@ export class ReportingService {
   public getSummaryData(
     dateRange: DateRange,
     program: Ministries,
-    locations: NormalizedLocation[],
+    locations: MinistryLocationEntity[],
     posPayments: PaymentEntity[],
     cashPayments: PaymentEntity[],
     posDeposits: POSDepositEntity[],
@@ -266,12 +266,16 @@ export class ReportingService {
       );
       const cashDepositsByLocation = cashDeposits.filter(
         (itm) =>
-          itm.pt_location_id === location.pt_location_id &&
+          location.banks
+            .map((itm) => itm.bank_id)
+            .includes(itm.pt_location_id) &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const posDepositsByLocation = posDeposits.filter(
         (itm) =>
-          location.merchant_ids.includes(itm.merchant_id) &&
+          location.merchants
+            .map((itm) => itm.merchant_id)
+            .includes(itm.merchant_id) &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const depositsByLocation = [
@@ -368,7 +372,7 @@ export class ReportingService {
     posPayments: PaymentEntity[],
     cashDeposits: CashDepositEntity[],
     cashPayments: PaymentEntity[],
-    locations: NormalizedLocation[]
+    locations: MinistryLocationEntity[]
   ): DetailsReport[] {
     const paymentsReport = [...posPayments, ...cashPayments].map(
       (itm) =>
@@ -383,7 +387,10 @@ export class ReportingService {
     const cashDepositReport = cashDeposits.map(
       (itm) =>
         new CashDepositDetailsReport(
-          locations.find((item) => item.pt_location_id === itm.pt_location_id)!,
+          locations.find((loc) =>
+            loc.banks.map((itm) => itm.bank_id).includes(itm.pt_location_id)
+          )!,
+
           itm
         )
     );
@@ -391,7 +398,9 @@ export class ReportingService {
       (itm) =>
         new POSDepositDetailsReport(
           locations.find((item) =>
-            item.merchant_ids.includes(itm.merchant_id)
+            item.merchants
+              .map((itm) => itm.merchant_id)
+              .includes(itm.merchant_id)
           )!,
           itm
         )
@@ -416,7 +425,7 @@ export class ReportingService {
    * @returns
    */
   public getCasReportData(
-    locations: NormalizedLocation[],
+    locations: MinistryLocationEntity[],
     pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] }
   ): CasReport[] {
     const cashDepositsResults: CashDepositEntity[] = pageThreeDeposits.cash;
@@ -431,9 +440,9 @@ export class ReportingService {
             'CASH DEPOSIT',
             itm.deposit_date,
             itm.deposit_amt_cdn,
-            locations.find(
-              (loc) => loc.pt_location_id === itm.pt_location_id
-            ) as NormalizedLocation
+            locations.find((loc) =>
+              loc.banks.map((itm) => itm.bank_id).includes(itm.pt_location_id)
+            ) as MinistryLocationEntity
           )
       );
     const posCasDeposits: CasReport[] = posDeposits
@@ -447,7 +456,7 @@ export class ReportingService {
             parseFloat(itm.transaction_amt.toString()),
             locations.find(
               (loc) => loc.location_id === itm.merchant_id
-            ) as NormalizedLocation
+            ) as MinistryLocationEntity
           )
       );
     return [...cashDeposits, ...posCasDeposits];

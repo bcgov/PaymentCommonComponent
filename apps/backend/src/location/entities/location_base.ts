@@ -1,6 +1,5 @@
 import { Column, PrimaryGeneratedColumn } from 'typeorm';
 
-
 export class BaseLocationEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -34,5 +33,4 @@ export class BaseLocationEntity {
 
   @Column('varchar', { length: 7, nullable: false })
   project_code: number;
-
 }

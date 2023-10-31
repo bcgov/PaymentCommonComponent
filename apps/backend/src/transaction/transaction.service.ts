@@ -38,4 +38,8 @@ export class TransactionService {
       .distinct()
       .getRawMany();
   }
+
+  async findWithNullLocation() {
+    return await this.transactionRepo.find({ where: { location: undefined } });
+  }
 }

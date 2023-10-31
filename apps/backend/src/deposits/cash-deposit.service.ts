@@ -64,13 +64,13 @@ export class CashDepositService {
   async findCashDepositsByDate(
     program: Ministries,
     deposit_date: string,
-    pt_location_id: number,
+    pt_location_ids: number[],
     statuses?: MatchStatus[]
   ): Promise<CashDepositEntity[]> {
     const depositStatus = statuses ?? MatchStatusAll;
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
+        pt_location_id: In(pt_location_ids),
         metadata: { program: program },
         deposit_date,
         status: In(depositStatus),
@@ -88,13 +88,13 @@ export class CashDepositService {
    */
   async findAllCashDepositDatesPerLocation(
     program: Ministries,
-    pt_location_id: number,
+    pt_location_ids: number[],
     order: FindOptionsOrderValue
   ): Promise<string[]> {
     const deposits: CashDepositEntity[] = await this.cashDepositRepo.find({
       where: {
         metadata: { program },
-        pt_location_id,
+        pt_location_id: In(pt_location_ids),
       },
       order: {
         deposit_date: order,
@@ -133,11 +133,11 @@ export class CashDepositService {
   async findCashDepositExceptions(
     date: string,
     program: Ministries,
-    pt_location_id: number
+    pt_location_ids: number[]
   ): Promise<CashDepositEntity[]> {
     return await this.cashDepositRepo.find({
       where: {
-        pt_location_id,
+        pt_location_id: In(pt_location_ids),
         metadata: { program: program },
         deposit_date: LessThanOrEqual(date),
         status: MatchStatus.IN_PROGRESS,
@@ -250,5 +250,8 @@ export class CashDepositService {
       },
     });
     return [...reconciled, ...in_progress, ...pending];
+  }
+  async findWithNullLocation() {
+    return await this.cashDepositRepo.find({ where: { bank: undefined } });
   }
 }

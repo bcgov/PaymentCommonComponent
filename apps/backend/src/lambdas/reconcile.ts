@@ -9,10 +9,10 @@ import { MatchStatus } from '../common/const';
 import {
   DateRange,
   Ministries,
-  NormalizedLocation,
   PaymentMethodClassification,
 } from '../constants';
 import { PosDepositService } from '../deposits/pos-deposit.service';
+import { MinistryLocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
@@ -185,7 +185,7 @@ const reconcilePos = async (
   posReconciliationService: PosReconciliationService,
   currentDate: string,
   paymentService: PaymentService,
-  locations: NormalizedLocation[],
+  locations: MinistryLocationEntity[],
   program: Ministries,
   posDepositService: PosDepositService,
   appLogger: AppLogger
@@ -212,7 +212,11 @@ const reconcilePos = async (
       )
     );
     posReconciliationService.setPendingDeposits(
-      deposits.filter((itm) => location.merchant_ids.includes(itm.merchant_id))
+      deposits.filter((itm) =>
+        location.merchants
+          .map((itm) => itm.merchant_id)
+          .includes(itm.merchant_id)
+      )
     );
     posReconciliationService.setHeuristicMatchRound(heuristics[program][0]);
     posReconciliationService.setMatchedPayments([]);
@@ -240,7 +244,7 @@ const findPosExceptions = async (
   posReconciliationService: PosReconciliationService,
   currentDate: string,
   paymentService: PaymentService,
-  locations: NormalizedLocation[],
+  locations: MinistryLocationEntity[],
   program: Ministries,
   posDepositService: PosDepositService,
   appLogger: AppLogger
@@ -267,7 +271,9 @@ const findPosExceptions = async (
     );
     posReconciliationService.setPendingDeposits(
       depositsInprogress.filter((itm) =>
-        location.merchant_ids.includes(itm.merchant_id)
+        location.merchants
+          .map((itm) => itm.merchant_id)
+          .includes(itm.merchant_id)
       )
     );
 
@@ -287,7 +293,7 @@ const findPosExceptions = async (
  */
 const reconcileCash = async (
   dateRange: DateRange,
-  locations: NormalizedLocation[],
+  locations: MinistryLocationEntity[],
   cashReconciliationService: CashReconciliationService,
   program: Ministries,
   appLogger: AppLogger

@@ -3,7 +3,7 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import {
   MinistryLocationEntity,
   BankLocationEntity,
-  LocationEntity,
+  MasterLocationEntity,
   MerchantEntity,
 } from '../location/entities';
 import { AlertDestinationEntity } from '../notification/entities/alert-destination.entity';
@@ -24,7 +24,7 @@ export const entities = [
   POSDepositEntity,
   CashDepositEntity,
   MinistryLocationEntity,
-  LocationEntity,
+  MasterLocationEntity,
   BankLocationEntity,
   MerchantEntity,
   FileUploadedEntity,

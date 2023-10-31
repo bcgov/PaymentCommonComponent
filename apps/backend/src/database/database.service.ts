@@ -3,7 +3,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import * as csv from 'csvtojson';
 import { masterData } from './const';
 import { FileTypes, Ministries } from '../constants';
-import { LocationEntity } from '../location/entities';
+import { CashDepositService } from '../deposits/cash-deposit.service';
+import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
+import { PosDepositService } from '../deposits/pos-deposit.service';
+import {
+  MinistryLocationEntity,
+  MasterLocationEntity,
+} from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
@@ -11,6 +18,7 @@ import { ProgramRequiredFileEntity } from '../parse/entities/program-required-fi
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
 import { PaymentMethodEntity } from '../transaction/entities';
 import { PaymentMethodService } from '../transaction/payment-method.service';
+import { TransactionService } from '../transaction/transaction.service';
 
 @Injectable()
 export class DatabaseService {
@@ -20,19 +28,33 @@ export class DatabaseService {
     @Inject(NotificationService)
     private readonly notificationService: NotificationService,
     @Inject(PaymentMethodService)
-    private readonly paymentMethodService: PaymentMethodService
+    private readonly paymentMethodService: PaymentMethodService,
+    @Inject(TransactionService)
+    private readonly transactionService: TransactionService,
+    @Inject(PosDepositService)
+    private readonly posDepositService: PosDepositService,
+    @Inject(CashDepositService)
+    private readonly cashDepositService: CashDepositService
   ) {}
   /**
    * We rely on "master" data to join our txn/deposit table in order to match
    */
   async seedMasterData() {
-    const locations: LocationEntity[] = await this.locationService.findAll();
+    const locations: MasterLocationEntity[] =
+      await this.locationService.findAll();
 
     const paymentMethods: PaymentMethodEntity[] =
       await this.paymentMethodService.getPaymentMethods();
 
     const rules: FileIngestionRulesEntity[] =
       await this.notificationService.getAllRules();
+
+    const transactionsWithNullLocation =
+      await this.transactionService.findWithNullLocation();
+    const posDepositWithNullLocation =
+      await this.posDepositService.findWithNullLocation();
+    const cashDepositWithnullLocation =
+      await this.cashDepositService.findWithNullLocation();
 
     if (rules.length === 0) {
       await this.seedFileIngestionRules();
@@ -59,6 +81,49 @@ export class DatabaseService {
         await this.seedMinistryLocations(
           Ministries[rule.program as keyof typeof Ministries]
         );
+      }
+      const locations: MinistryLocationEntity[] =
+        await this.locationService.findMinistryLocations(
+          Ministries[rule.program as keyof typeof Ministries]
+        );
+      if (transactionsWithNullLocation.length > 0) {
+        const txns = transactionsWithNullLocation.map((txn) => {
+          const location = locations.find(
+            (loc) =>
+              loc.source_id === txn.source_id &&
+              loc.location_id === txn.location_id
+          )!;
+          return { ...txn, location };
+        });
+        await this.transactionService.saveTransactions(txns);
+      }
+      if (posDepositWithNullLocation.length > 0) {
+        const merchants = locations.flatMap((itm) => itm.merchants);
+        const posDeposits = posDepositWithNullLocation.map(
+          (pos: POSDepositEntity) => {
+            const merchant = merchants.find(
+              (merch) => merch.merchant_id === pos.merchant_id
+            )!;
+            return {
+              ...pos,
+              timestamp: pos.timestamp,
+              merchant,
+            };
+          }
+        );
+        await this.posDepositService.savePOSDepositEntities(posDeposits);
+      }
+      if (cashDepositWithnullLocation.length > 0) {
+        const banks = locations.flatMap((itm) => itm.banks);
+        const cash = cashDepositWithnullLocation.map(
+          (cash: CashDepositEntity) => {
+            const bank = banks.find(
+              (bank) => bank.bank_id === cash.pt_location_id
+            )!;
+            return { ...cash, bank };
+          }
+        );
+        await this.cashDepositService.saveCashDepositEntities(cash);
       }
     }
   }

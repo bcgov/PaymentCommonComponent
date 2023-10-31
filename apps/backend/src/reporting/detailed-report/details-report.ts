@@ -1,8 +1,6 @@
 import { MatchStatus } from '../../common/const';
-import {
-  NormalizedLocation,
-  PaymentMethodClassification,
-} from '../../constants';
+import { PaymentMethodClassification } from '../../constants';
+import { MinistryLocationEntity } from '../../location/entities';
 import { PosHeuristicRound } from '../../reconciliation/types';
 
 /*eslint-disable @typescript-eslint/no-explicit-any*/
@@ -53,7 +51,7 @@ export class DetailsReport {
     }
     return null;
   }
-  constructor(location: NormalizedLocation) {
+  constructor(location: MinistryLocationEntity) {
     this.location = location.description;
     this.location_id = location.location_id;
     this.dist_resp_code = location.resp_code;

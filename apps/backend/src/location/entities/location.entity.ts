@@ -10,11 +10,13 @@ import { BankLocationEntity, MerchantEntity } from '.';
 export class MinistryLocationEntity extends BaseLocationEntity {
   @OneToMany(() => BankLocationEntity, (bank) => bank.location, {
     cascade: true,
+    eager: true,
   })
   banks: Relation<BankLocationEntity[]>;
 
   @OneToMany(() => MerchantEntity, (merchant) => merchant.location, {
     cascade: true,
+    eager: true,
   })
   merchants: Relation<MerchantEntity[]>;
 }
