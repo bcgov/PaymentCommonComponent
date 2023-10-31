@@ -1,4 +1,4 @@
-name: Clear all data - tools
+name: Clear all data - Tools
 on:
   workflow_dispatch:
 env:
