@@ -3,7 +3,7 @@ import { BaseLocationEntity } from './location_base';
 import { BankLocationEntity, MerchantEntity } from '.';
 
 @Entity('location')
-@Unique(['id', 'location_id', 'source_id'])
+@Unique(['location_id', 'source_id'])
 @Index('location_source_idx', ['location_id', 'source_id'], {
   unique: true,
 })
