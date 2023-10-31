@@ -141,7 +141,7 @@ cp .config/.env.example .env
 ```
 [Example](https://github.com/bcgov/PaymentCommonComponent/blob/CCFPCM-642/.config/.env.example)
 
-Contact the team to fill in any missing variables
+Contact the team to fill in any missing variables.
 
 
 #### Yarn
@@ -153,7 +153,7 @@ corepack enable
 corepack prepare yarn@stable --activate
 ```
 
-See [https://yarnpkg.com/getting-started/install](https://yarnpkg.com/getting-started/install) for more details
+See [https://yarnpkg.com/getting-started/install](https://yarnpkg.com/getting-started/install) for more details.
 
 
 ## Running The Project
@@ -223,14 +223,14 @@ make report
 
 #### File Parsing
 
-- Files are pushed to sftp and transfered to S3 which triggers a lambda to parse the data into the db. 
-- Files may also be directly dropped into the S3 bucket.
+- Files are pushed to sftp and transfered to S3 which triggers a lambda to parse the data into the db
+- Files may also be directly dropped into the S3 bucket
 - Amazon SNS is used to trigger the reconciliation lambda
 
 #### Data Reconciliation
 
-- Lambda searches for discrepencies in the data and updates the "status" of each row item. 
-- After this process has completed another lambda is triggered to generate and output a report to another S3 bucket. 
+- Lambda searches for discrepencies in the data and updates the "status" of each row item
+- After this process has completed another lambda is triggered to generate and output a report to another S3 bucket
 
 
 #### Reporting
@@ -240,9 +240,9 @@ make report
 
 
 #### Notifications
-- Notifies users if data files are missing, or if there are errors in the files during parsing. 
-- For notifications, we are using GC Notify. The key can be found in the AWS Parameter Store.
-- The API documentation for GC Notify sits [here](https://documentation.notification.canada.ca/en/).
+- Notifies users if data files are missing, or if there are errors in the files during parsing
+- For notifications, we are using GC Notify. The key can be found in the AWS Parameter Store
+- The API documentation for GC Notify sits [here](https://documentation.notification.canada.ca/en/)
 
 #### Authentication
 
@@ -253,8 +253,8 @@ An AuthGuard then makes a request to the API Portal using those credentials to r
 
 #### Versioning
 
-Run `make verison-major` to update the version for releases - this will also update the api path
-Run `make verison-minor` to update small changes in which we do not want to update the api path
+Run `make verison-major` to update the version for releases - this will also update the api path.
+Run `make verison-minor` to update small changes in which we do not want to update the api path.
 Run `make verison-patch` to update the version after implementing fixes for bugs etc - this will not update the api path. This is used to track fixes for testing etc. 
 
 
