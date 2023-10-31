@@ -58,9 +58,9 @@ describe('Reconciliation Service (e2e)', () => {
       .default()
       .fromFile(sbcLocationsMasterDataFile)) as ILocation[];
 
-    const locationEntities = sbcLocationMaster.map((loc) => {
-      return new LocationEntity({ ...loc });
-    });
+    const locationEntities = sbcLocationMaster.map((loc) => ({
+      ...loc,
+    }));
 
     await locationRepo.save(locationEntities);
   });
