@@ -20,6 +20,9 @@ export class BankLocationEntity {
   @JoinColumn({ name: 'location', referencedColumnName: 'id' })
   location: Relation<MinistryLocationEntity>;
 
+  @Column('varchar', { length: 15 })
+  method: string;
+
   constructor(data?: Partial<BankLocationEntity>) {
     Object.assign(this, data);
   }
