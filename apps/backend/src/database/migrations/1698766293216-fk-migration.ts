@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class Migration1698694821491 implements MigrationInterface {
-  name = 'FKMigration1698694821491';
+export class Migration1698766293216 implements MigrationInterface {
+  name = 'FKMigration1698766293216';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`DROP INDEX "public"."location_source_idx"`);
