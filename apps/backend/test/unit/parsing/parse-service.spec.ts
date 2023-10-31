@@ -9,6 +9,7 @@ import { FileTypes } from '../../../src/constants';
 
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
+import { LocationService } from '../../../src/location/location.service';
 import { LoggerModule } from '../../../src/logger/logger.module';
 import { FileIngestionRulesEntity } from '../../../src/notification/entities/file-ingestion-rules.entity';
 import { ProgramDailyUploadEntity } from '../../../src/notification/entities/program-daily-upload.entity';
@@ -24,6 +25,7 @@ import { PaymentService } from '../../../src/transaction/payment.service';
 import { TransactionService } from '../../../src/transaction/transaction.service';
 import { FileIngestionRulesMock } from '../../mocks/classes/file_ingestion_rules_mock';
 import { FileUploadedMock } from '../../mocks/classes/file_upload_mock';
+import { locations } from '../../mocks/const/locations';
 
 describe('ParseService', () => {
   let service: ParseService;
@@ -66,6 +68,10 @@ describe('ParseService', () => {
         {
           provide: MailService,
           useValue: createMock<MailService>(),
+        },
+        {
+          provide: LocationService,
+          useValue: createMock<LocationService>(),
         },
         {
           provide: PaymentMethodService,
@@ -176,7 +182,8 @@ describe('ParseService', () => {
         (
           await service.parseGarmsFile(
             transactionFile.toString(),
-            'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
+            'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+            locations
           )
         ).txnFile[0].total_transaction_amount
       ).toEqual(100);
@@ -189,7 +196,8 @@ describe('ParseService', () => {
       expect(
         service.parseGarmsFile(
           transactionFile.toString(),
-          'sbc/SBC_SALES_2023_03_08_23_17_53.JSON'
+          'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+          locations
         )
       ).rejects.toThrow();
     });
@@ -203,7 +211,8 @@ describe('ParseService', () => {
           await service.parseTDICashFile(
             'bcm/PROD_SBC_F08TDI17_20230309.DAT',
             'SBC',
-            tdi17File
+            tdi17File,
+            locations
           )
         ).cashDeposits[0].deposit_amt_curr
       ).toEqual(558.31);
@@ -217,7 +226,8 @@ describe('ParseService', () => {
         service.parseTDICashFile(
           'bcm/PROD_SBC_F08TDI17_20230309.DAT',
           'SBC',
-          tdi17File
+          tdi17File,
+          locations
         )
       ).rejects.toThrow();
     });
@@ -241,7 +251,8 @@ describe('ParseService', () => {
         service.parseTDICashFile(
           'bcm/PROD_SBC_F08TDI17_20230309.DAT',
           'SBC',
-          Buffer.from(lines.join('\n'))
+          Buffer.from(lines.join('\n')),
+          locations
         )
       ).rejects.toThrow();
 
@@ -255,7 +266,8 @@ describe('ParseService', () => {
         service.parseTDICashFile(
           'bcm/PROD_SBC_F08TDI17_20230309.DAT',
           'SBC',
-          Buffer.from(lines.join('\n'))
+          Buffer.from(lines.join('\n')),
+          locations
         )
       ).rejects.toThrow();
     });
@@ -269,7 +281,8 @@ describe('ParseService', () => {
           await service.parseTDICardsFile(
             'bcm/PROD_SBC_F08TDI34_20230309.DAT',
             'SBC',
-            tdi34File
+            tdi34File,
+            locations
           )
         ).posEntities[0].transaction_amt
       ).toEqual(17);
@@ -283,7 +296,8 @@ describe('ParseService', () => {
         service.parseTDICardsFile(
           'bcm/PROD_SBC_F08TDI34_20230309.DAT',
           'SBC',
-          tdi34File
+          tdi34File,
+          locations
         )
       ).rejects.toThrow();
     });
@@ -307,7 +321,8 @@ describe('ParseService', () => {
         service.parseTDICashFile(
           'bcm/PROD_SBC_F08TD17_20230309.DAT',
           'SBC',
-          Buffer.from(lines.join('\n'))
+          Buffer.from(lines.join('\n')),
+          locations
         )
       ).rejects.toThrow();
 
@@ -321,7 +336,8 @@ describe('ParseService', () => {
         service.parseTDICashFile(
           'bcm/PROD_SBC_F08TD17_20230309.DAT',
           'SBC',
-          Buffer.from(lines.join('\n'))
+          Buffer.from(lines.join('\n')),
+          locations
         )
       ).rejects.toThrow();
     });
