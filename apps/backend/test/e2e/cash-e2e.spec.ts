@@ -4,6 +4,7 @@ import * as csv from 'csvtojson';
 import { Repository } from 'typeorm';
 import fs from 'fs';
 import path, { join } from 'path';
+import { locations } from '../mocks/const/locations';
 import { validationPipeConfig } from '../../src/app.config';
 import { AppModule } from '../../src/app.module';
 import { FileTypes } from '../../src/constants';
@@ -136,6 +137,7 @@ describe('Reconciliation Service (e2e)', () => {
       (await JSON.parse(contents)) as SBCGarmsJson[],
       'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
       paymentMethods,
+      locations,
       extractDateFromTXNFileName('sbc/SBC_SALES_2023_03_08_23_17_53.JSON')
     );
     await transService.saveTransactions(parsedGarmsFile);
