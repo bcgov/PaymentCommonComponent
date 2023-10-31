@@ -1,16 +1,16 @@
 # DROP - Discrepancy Report on Payments
 [![Lifecycle:Maturing](https://img.shields.io/badge/Lifecycle-Maturing-007EC6)](<Redirect-URL>)
 
-DROP automates the manual process of finding and reporting discrepancies between line-of-business Ministry transactions and the Provincial Treasury's bank and cash management deposit files. 
+DROP automates the manual process of finding and reporting discrepancies between the ministry line of business transactions and Provincial Treasury's bank and cash management deposit files.
 
 Payment-transaction data from the line-of-business represents one half of the data and is received via STFP.
 
-Deposit data from Provincial Treasury of the Province of British Columbia is also obtained via sftp and comes in three formats:
-- TDI34 files - In person POS Transactions
-- TDI17 files - Cash & Cheque deposits made to the banks
-- TDI34 (DDF) files - Online card transactions (PayBC and ICE pay)
+Deposit data from Provincial Treasury of the Province of British Columbia is also obtained via SFTP and comes in three formats:
+- TDI34 files - In-person point-of-sale (POS) transactions
+- TDI17 files - Cash & cheque deposits made to the banks
+- TDI34 Daily Download Files (DDF)  - Online card transactions (PayBC and ICE Pay)
 
-Files are pushed to sftp and transfered to S3 which triggers a lambda to parse the data into the db. This triggers a subsequent lambda which runs the job of searching for discrepencies in the data and updating the "status" of each row item. After this process has completed another lambda is triggered to generate and output a report to another S3 bucket. 
+Files are pushed to SFTP and transfered to S3 which triggers a lambda to parse the data into the db. This triggers a subsequent lambda which runs the job of searching for discrepencies in the data and updating the "status" of each row item. After this process has completed another lambda is triggered to generate and output a report to another S3 bucket. 
 
 There is also an alerting and notification lambda which notifies users if data files are missing, or if there are errors in the files during parsing. 
 
@@ -223,7 +223,7 @@ make report
 
 #### File Parsing
 
-- Files are pushed to sftp and transfered to S3 which triggers a lambda to parse the data into the db
+- Files are pushed to SFTP and transfered to S3 which triggers a lambda to parse the data into the db
 - Files may also be directly dropped into the S3 bucket
 - Amazon SNS is used to trigger the reconciliation lambda
 
