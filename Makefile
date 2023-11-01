@@ -245,11 +245,16 @@ aws-sync-files-from-prod-to-test:
 	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-test/bcm --acl bucket-owner-full-control
 
 aws-sync-files-from-prod-to-tools:
-	@aws s3 sync s3://pcc-integration-data-files-prod s3://pcc-integration-data-files-tools --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/bcm s3://pcc-integration-data-files-tools/bcm --acl bucket-owner-full-control
+	@aws s3 sync s3://pcc-integration-data-files-prod/sbc s3://pcc-integration-data-files-tools/sbc --acl bucket-owner-full-control
 
 aws-empty-s3-bucket-dev:
 	@aws s3 rm s3://pcc-integration-data-files-dev/bcm --recursive
 	@aws s3 rm s3://pcc-integration-data-files-dev/sbc --recursive
+
+aws-empty-s3-bucket-tools:
+	@aws s3 rm s3://pcc-integration-data-files-tools/bcm --recursive
+	@aws s3 rm s3://pcc-integration-data-files-tools/sbc --recursive
 
 aws-run-migrator: 
 	@rm migration-results || true

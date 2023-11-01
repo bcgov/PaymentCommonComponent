@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "clearDevData" {
-  description                    = "Database clearDevData function ${local.namespace}"
-  function_name                  = "clearDevData"
+  description                    = "Database clear ${var.target-env} Data function ${local.namespace}"
+  function_name                  = "clear_${var.target-env}_data"
   role                           = aws_iam_role.lambda.arn
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
@@ -19,7 +19,7 @@ resource "aws_lambda_function" "clearDevData" {
     variables = {
       APP_VERSION = var.app_version
       NODE_ENV    = "production"
-      RUNTIME_ENV = "dev"
+      RUNTIME_ENV = var.target_env
       DB_USER     = var.db_username
       DB_PASSWORD = data.aws_ssm_parameter.postgres_password.value
       DB_HOST     = aws_rds_cluster.pgsql.endpoint

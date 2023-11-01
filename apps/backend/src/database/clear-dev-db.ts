@@ -13,6 +13,9 @@ export const handler = async (_event?: unknown, _context?: Context) => {
     if (process.env.RUNTIME_ENV === 'local') {
       return true;
     }
+    if (process.env.RUNTIME_ENV === 'tools') {
+      return true;
+    }
     return false;
   };
 
