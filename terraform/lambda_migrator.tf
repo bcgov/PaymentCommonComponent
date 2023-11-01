@@ -6,7 +6,7 @@ resource "aws_lambda_function" "migrator" {
   filename                       = "build/empty_lambda.zip"
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
   handler                        = "src/database/migrate.handler"
-  memory_size                    = 512
+  memory_size                    = 1024
   timeout                        = 900
   reserved_concurrent_executions = 1
 

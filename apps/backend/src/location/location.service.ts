@@ -31,6 +31,11 @@ export class LocationService {
   public async findMerchants(): Promise<MerchantEntity[]> {
     return this.merchantLocationRepo.find();
   }
+  public async findAllMinistryLocations(): Promise<MinistryLocationEntity[]> {
+    return this.ministryLocationRepo.find({
+      relations: ['banks', 'merchants'],
+    });
+  }
   public async findMinistryLocations(
     program: Ministries
   ): Promise<MinistryLocationEntity[]> {
@@ -99,9 +104,11 @@ export class LocationService {
       },
       {}
     );
-    await this.ministryLocationRepo.save(
-      this.ministryLocationRepo.create(
-        Object.values(MasterLocationEntityList).map((itm) => itm)
+    await Promise.all(
+      await this.ministryLocationRepo.save(
+        this.ministryLocationRepo.create(
+          Object.values(MasterLocationEntityList).map((itm) => itm)
+        )
       )
     );
   }

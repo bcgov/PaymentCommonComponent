@@ -13,6 +13,7 @@ import { POSDepositEntity } from './entities/pos-deposit.entity';
 import { MatchStatus, MatchStatusAll } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
+import datasource from '../database/datasource';
 import {
   MasterLocationEntity,
   MinistryLocationEntity,
@@ -146,6 +147,24 @@ export class PosDepositService {
       throw e;
     }
   }
+
+  async updateAndSavePOSDeposits(data: POSDepositEntity[]): Promise<void> {
+    const queryRunner = datasource.createQueryRunner();
+
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(data);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
   /**
    * Update deposits matched on round four heuristics - calling "save" as "update" will not trigger the cascade for the many to many relations
    * @param deposits
@@ -256,7 +275,9 @@ export class PosDepositService {
     return [...reconciled, ...in_progress, ...pending];
   }
 
-  async findWithNullLocation() {
-    return await this.posDepositRepo.find({ where: { merchant: undefined } });
+  async findWithNullLocation(program: Ministries): Promise<POSDepositEntity[]> {
+    return this.posDepositRepo.find({
+      where: { merchant: undefined, metadata: { program } },
+    });
   }
 }

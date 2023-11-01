@@ -8,15 +8,19 @@ import { CashDepositEntity } from '../deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../deposits/pos-deposit.service';
 import {
-  MinistryLocationEntity,
   MasterLocationEntity,
+  MinistryLocationEntity,
 } from '../location/entities';
 import { LocationService } from '../location/location.service';
+import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
 import { S3ManagerService } from '../s3-manager/s3-manager.service';
-import { PaymentMethodEntity } from '../transaction/entities';
+import {
+  PaymentMethodEntity,
+  TransactionEntity,
+} from '../transaction/entities';
 import { PaymentMethodService } from '../transaction/payment-method.service';
 import { TransactionService } from '../transaction/transaction.service';
 
@@ -34,12 +38,17 @@ export class DatabaseService {
     @Inject(PosDepositService)
     private readonly posDepositService: PosDepositService,
     @Inject(CashDepositService)
-    private readonly cashDepositService: CashDepositService
-  ) {}
+    private readonly cashDepositService: CashDepositService,
+    @Inject(AppLogger)
+    private readonly appLogger: AppLogger
+  ) {
+    appLogger.setContext(DatabaseService.name);
+  }
   /**
    * We rely on "master" data to join our txn/deposit table in order to match
    */
   async seedMasterData() {
+    this.appLogger.setContext('Seed Master Data');
     const locations: MasterLocationEntity[] =
       await this.locationService.findAll();
 
@@ -48,13 +57,6 @@ export class DatabaseService {
 
     const rules: FileIngestionRulesEntity[] =
       await this.notificationService.getAllRules();
-
-    const transactionsWithNullLocation =
-      await this.transactionService.findWithNullLocation();
-    const posDepositWithNullLocation =
-      await this.posDepositService.findWithNullLocation();
-    const cashDepositWithnullLocation =
-      await this.cashDepositService.findWithNullLocation();
 
     if (rules.length === 0) {
       await this.seedFileIngestionRules();
@@ -66,7 +68,10 @@ export class DatabaseService {
     if (paymentMethods.length === 0) {
       await this.seedPaymentMethods();
     }
+  }
 
+  async seedLocationData() {
+    this.appLogger.setContext('Seed Locations Data');
     const programRules: FileIngestionRulesEntity[] =
       await this.notificationService.getAllRules();
     // Get the list of current clients from the programRules table
@@ -82,23 +87,63 @@ export class DatabaseService {
           Ministries[rule.program as keyof typeof Ministries]
         );
       }
-      const locations: MinistryLocationEntity[] =
-        await this.locationService.findMinistryLocations(
-          Ministries[rule.program as keyof typeof Ministries]
-        );
-      if (transactionsWithNullLocation.length > 0) {
-        const txns = transactionsWithNullLocation.map((txn) => {
-          const location = locations.find(
+    }
+  }
+
+  async updateTxnsAndDeposits() {
+    this.appLogger.setContext('Update TXN and Deposit with Location Seed Data');
+    const ministryLocations: MinistryLocationEntity[] =
+      await this.locationService.findAllMinistryLocations();
+
+    this.appLogger.log(`Ministry Locations: ${ministryLocations.length}`);
+
+    const transactionsWithNullLocation: TransactionEntity[] =
+      await this.transactionService.findWithNullLocation(Ministries.SBC);
+
+    this.appLogger.log(
+      `Transactions With Null Locations: ${transactionsWithNullLocation.length}`
+    );
+
+    if (transactionsWithNullLocation.length > 0) {
+      const txns = transactionsWithNullLocation.map((txn) => {
+        const location = ministryLocations
+          .filter((itm) => itm.source_id === Ministries.SBC)
+          .find(
             (loc) =>
               loc.source_id === txn.source_id &&
               loc.location_id === txn.location_id
           )!;
-          return { ...txn, location };
-        });
-        await this.transactionService.saveTransactions(txns);
-      }
+        return { ...txn, location };
+      });
+
+      this.appLogger.log(`Transactions With Locations Updated: ${txns.length}`);
+
+      await this.transactionService.updateAndSaveTxns(txns);
+    }
+
+    const programRules: FileIngestionRulesEntity[] =
+      await this.notificationService.getAllRules();
+
+    for (const rule of programRules) {
+      this.appLogger.log(`Program: ${rule.program}`);
+      const posDepositWithNullLocation =
+        await this.posDepositService.findWithNullLocation(Ministries.SBC);
+      this.appLogger.log(
+        `POS Deposits With Null Locations: ${posDepositWithNullLocation.length}`
+      );
+      const cashDepositWithnullLocation =
+        await this.cashDepositService.findWithNullLocation(Ministries.SBC);
+      this.appLogger.log(
+        `Cash Deposits With Null Locations: ${cashDepositWithnullLocation.length}`
+      );
+
       if (posDepositWithNullLocation.length > 0) {
-        const merchants = locations.flatMap((itm) => itm.merchants);
+        const merchants = ministryLocations
+          .filter((itm) => itm.source_id === rule.program)
+          .flatMap((itm) => itm.merchants);
+
+        this.appLogger.log(`${rule.program} Merchants: ${merchants.length}`);
+
         const posDeposits = posDepositWithNullLocation.map(
           (pos: POSDepositEntity) => {
             const merchant = merchants.find(
@@ -111,10 +156,21 @@ export class DatabaseService {
             };
           }
         );
-        await this.posDepositService.savePOSDepositEntities(posDeposits);
+
+        this.appLogger.log(
+          `POS Deposits With Locations Updated: ${posDeposits.length}`
+        );
+
+        await this.posDepositService.updateAndSavePOSDeposits(posDeposits);
       }
+
       if (cashDepositWithnullLocation.length > 0) {
-        const banks = locations.flatMap((itm) => itm.banks);
+        const banks = ministryLocations
+          .filter((itm) => itm.source_id === rule.program)
+          .flatMap((itm) => itm.banks);
+
+        this.appLogger.log(`${rule.program} Banks: ${banks.length}`);
+
         const cash = cashDepositWithnullLocation.map(
           (cash: CashDepositEntity) => {
             const bank = banks.find(
@@ -123,7 +179,12 @@ export class DatabaseService {
             return { ...cash, bank };
           }
         );
-        await this.cashDepositService.saveCashDepositEntities(cash);
+
+        this.appLogger.log(
+          `Cash Deposits With Locations Updated: ${cash.length}`
+        );
+
+        await this.cashDepositService.updateAndSaveCashDeposits(cash);
       }
     }
   }
