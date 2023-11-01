@@ -1,6 +1,6 @@
 resource "aws_lambda_function" "clearDevData" {
-  description                    = "Database clear ${var.target-env} Data function ${local.namespace}"
-  function_name                  = "clear_${var.target-env}_data"
+  description                    = "Database clear ${var.target_env} Data function ${local.namespace}"
+  function_name                  = "clear_${var.target_env}_data"
   role                           = aws_iam_role.lambda.arn
   runtime                        = "nodejs18.x"
   filename                       = "build/empty_lambda.zip"
