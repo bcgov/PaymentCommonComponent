@@ -218,7 +218,10 @@ aws-deploy-all:
 	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function paycocoapi parser reports reconciler dailyFileCheck batch_reconciler 
 
 aws-deploy-dev-restricted-lambda:
-	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function clearDevData 
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function clear_dev_data 
+
+aws-deploy-tools-restricted-lambda:
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function clear_tools_data 
 
 # Updates migrator lambda function to lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-deploy-migrator:
@@ -263,7 +266,13 @@ aws-run-migrator:
 
 aws-run-clear-dev-data: 
 	@touch clear-db-results || true
-	@aws lambda invoke --function-name clearDevData --payload '{}' clear-db-results  --region ca-central-1
+	@aws lambda invoke --function-name clear_dev_data --payload '{}' clear-db-results  --region ca-central-1
+	@cat clear-db-results | grep "success"
+	@rm clear-db-results
+
+aws-run-clear-tools-data: 
+	@touch clear-db-results || true
+	@aws lambda invoke --function-name clear_tools_data --payload '{}' clear-db-results  --region ca-central-1
 	@cat clear-db-results | grep "success"
 	@rm clear-db-results
 

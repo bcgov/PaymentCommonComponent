@@ -58,7 +58,7 @@ jobs:
       - name: Deploy All
         run: make aws-deploy-all
       
-      - name: Deploy Dev Clear DB Lambda
+      - name: Deploy dev-env restricted lambda
         run: make aws-deploy-dev-restricted-lambda
 
   zap_scan:
