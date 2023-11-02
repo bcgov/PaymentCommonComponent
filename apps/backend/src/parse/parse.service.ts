@@ -80,7 +80,7 @@ export class ParseService {
     errantColumnName: string,
     errantIdColumnName: string
   ): string {
-    let errorMessage = `Error parsing ${fileName}. Please ensure all rows are valid.`;
+    let errorMessage = `Malformed file. Error parsing ${fileName}. Please file is valid.`;
 
     if (
       Array.isArray(error) &&
@@ -116,25 +116,32 @@ export class ParseService {
     locations: MinistryLocationEntity[]
   ): Promise<{ txnFile: TransactionEntity[]; txnFileDate: string }> {
     const paymentMethods = await this.paymentMethodService.getPaymentMethods();
+
     // validate the filename - this must follow a specific format to be valid
     validateSbcGarmsFileName(fileName);
     // Creates an array of Transaction Entities
     const fileDate = extractDateFromTXNFileName(fileName);
-
-    const garmsSales = parseGarms(
-      (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[],
-      fileName,
-      paymentMethods,
-      locations,
-      fileDate
-    );
-
-    // Converts to DTOs strictly for validation purposes
-    const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
-    const list = new GarmsTransactionList(garmsSalesDTO);
     try {
+      // If the json is malformed, an error is thrown here prior to field validation
+      const parsedData = (await JSON.parse(contents ?? '{}')) as SBCGarmsJson[];
+      // after the file is parsed into proper Json objects, we "reshape" it into data that can be used to create Transaction Entities
+      const garmsSales = parseGarms(
+        parsedData,
+        fileName,
+        paymentMethods,
+        locations,
+        fileDate
+      );
+      // after the data is reshaped, validate
+      // Converts to DTOs strictly for validation purposes
+      const garmsSalesDTO = garmsSales.map((t) => new GarmsTransactionDTO(t));
+
+      const list = new GarmsTransactionList(garmsSalesDTO);
+
       await validateOrReject(list);
-    } catch (e: unknown) {
+
+      return { txnFile: garmsSales, txnFileDate: fileDate };
+    } catch (e) {
       const errorMessage = this.handleValidationError(
         e,
         fileName,
@@ -143,7 +150,6 @@ export class ParseService {
       );
       throw new BadRequestException(errorMessage);
     }
-    return { txnFile: garmsSales, txnFileDate: fileDate };
   }
 
   /**
