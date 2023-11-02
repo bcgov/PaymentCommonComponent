@@ -33,8 +33,19 @@ export const handler = async (_event?: unknown, _context?: Context) => {
 
     console.log('Migration complete.');
 
-    await dbService.seedMasterData();
+    console.log('Seeding Master Data...');
 
+    await dbService.seedMasterData();
+    console.log('...complete...');
+
+    console.log('Seeding Location Data...');
+    await dbService.seedLocationData();
+    console.log('...complete...');
+
+    console.log('Updating TXN and Deposit Data...');
+    await dbService.updateTxnsAndDeposits();
+    console.log('...complete...');
+    db.destroy();
     return 'success';
   } catch (e) {
     console.log(e);

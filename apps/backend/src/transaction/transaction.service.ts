@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { TransactionEntity } from './entities';
 import { PaymentService } from './payment.service';
 import { mapLimit } from '../common/promises';
+import { Ministries } from '../constants';
+import datasource from '../database/datasource';
 import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
@@ -29,6 +31,25 @@ export class TransactionService {
     }
   }
 
+  async updateAndSaveTxns(data: TransactionEntity[]): Promise<void> {
+    const queryRunner = datasource.createQueryRunner();
+
+    // establish real database connection
+    await queryRunner.connect();
+
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(data);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
   async findAllUploadedFiles(): Promise<
     { transaction_source_file_name: string }[]
   > {
@@ -39,7 +60,11 @@ export class TransactionService {
       .getRawMany();
   }
 
-  async findWithNullLocation() {
-    return await this.transactionRepo.find({ where: { location: undefined } });
+  async findWithNullLocation(
+    program: Ministries
+  ): Promise<TransactionEntity[]> {
+    return await this.transactionRepo.find({
+      where: { source_id: program, location: undefined },
+    });
   }
 }

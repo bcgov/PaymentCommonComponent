@@ -92,7 +92,15 @@ describe('Tests the database tables and seed data (e2e)', () => {
     await paymentMethodRepo.save(paymentMethodsEntities);
   });
   it('create location, merchant and bank tables', async () => {
+    console.log('Seeding Master Data...');
     await databaseService.seedMasterData();
+    console.log('Seeding Location Data...');
+    await databaseService.seedLocationData();
+    console.log('...complete...');
+
+    console.log('Updating TXN and Deposit Data...');
+    await databaseService.updateTxnsAndDeposits();
+    console.log('...complete...');
     const sbcLocations = await locationService.findMinistryLocations(
       Ministries.SBC
     );

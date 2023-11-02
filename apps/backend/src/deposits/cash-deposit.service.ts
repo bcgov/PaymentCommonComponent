@@ -13,6 +13,7 @@ import { CashDepositEntity } from './entities/cash-deposit.entity';
 import { MatchStatusAll, MatchStatus } from '../common/const';
 import { mapLimit } from '../common/promises';
 import { DateRange, Ministries } from '../constants';
+import datasource from '../database/datasource';
 import { AppLogger } from '../logger/logger.service';
 
 @Injectable()
@@ -53,6 +54,22 @@ export class CashDepositService {
     } catch (e) {
       this.appLogger.error(e);
       throw e;
+    }
+  }
+
+  async updateAndSaveCashDeposits(data: CashDepositEntity[]): Promise<void> {
+    const queryRunner = datasource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      await queryRunner.manager.save(data);
+
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
   }
 
@@ -251,7 +268,11 @@ export class CashDepositService {
     });
     return [...reconciled, ...in_progress, ...pending];
   }
-  async findWithNullLocation() {
-    return await this.cashDepositRepo.find({ where: { bank: undefined } });
+  async findWithNullLocation(
+    program: Ministries
+  ): Promise<CashDepositEntity[]> {
+    return this.cashDepositRepo.find({
+      where: { bank: undefined, metadata: { program } },
+    });
   }
 }
