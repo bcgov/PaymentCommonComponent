@@ -58,3 +58,5 @@ jobs:
       - name: Deploy all
         run: make aws-deploy-all
 
+      - name: Deploy tools-env restricted lambda
+        run: make aws-deploy-tools-restricted-lambda
