@@ -80,7 +80,7 @@ export class ParseService {
     errantColumnName: string,
     errantIdColumnName: string
   ): string {
-    let errorMessage = `Malformed file. Error parsing ${fileName}. Please file is valid.`;
+    let errorMessage = `Malformed file. Error parsing ${fileName}. Please ensure file is valid.`;
 
     if (
       Array.isArray(error) &&
