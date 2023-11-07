@@ -107,25 +107,14 @@ export class ParseService {
     try {
       // SBC garms files are specific to the program ministry SBC so they do not require the program to be spedified - only file+metadata and the static locations and payments methods are required to parse
       if (s3File.fileType === FileTypes.SBC_SALES) {
-        const txn = await this.parseAndValidateSBCGarms(locations, s3File);
-        console.log(txn);
+        await this.parseAndValidateSBCGarms(locations, s3File);
       }
 
       if (s3File.fileType === FileTypes.TDI34) {
-        const tdi34 = await this.parseAndValidateTDICardsFile(
-          locations,
-          program,
-          s3File
-        );
-        console.log(tdi34);
+        await this.parseAndValidateTDICardsFile(locations, program, s3File);
       }
       if (s3File.fileType === FileTypes.TDI17) {
-        const tdi17 = await this.parseAndValidateTDICashFile(
-          locations,
-          program,
-          s3File
-        );
-        console.log(tdi17);
+        await this.parseAndValidateTDICashFile(locations, program, s3File);
       }
     } catch (err) {
       this.appLogger.log('\n\n=========Errors with File Upload: =========\n');

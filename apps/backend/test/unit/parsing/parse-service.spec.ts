@@ -210,23 +210,23 @@ describe('ParseService', () => {
       ).rejects.toThrow();
     });
 
-    // it('should parse tdi17 dat files and pass validation if necessary fields are present', async () => {
-    //   const tdi17File = fs.readFileSync(
-    //     path.join(__dirname, '../../../sample-files/TDI17.TXT')
-    //   );
-    //   const deposits = await service.parseAndValidateTDICashFile(
-    //     locations,
-    //     Ministries.SBC,
-    //     {
-    //       contents: tdi17File,
-    //       filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-    //       fileType: FileTypes.TDI17,
-    //       programRule: new FileIngestionRulesMock('SBC'),
-    //     }
-    //   );
-    //   const testValue = deposits[0].deposit_amt_curr;
-    //   expect(testValue).toEqual(558.31);
-    // });
+    it('should parse tdi17 dat files and pass validation if necessary fields are present', async () => {
+      const tdi17File = fs.readFileSync(
+        path.join(__dirname, '../../../sample-files/TDI17.TXT')
+      );
+      const deposits = await service.parseAndValidateTDICashFile(
+        locations,
+        Ministries.SBC,
+        {
+          contents: tdi17File,
+          filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        }
+      );
+      const testValue = deposits[0].deposit_amt_curr;
+      expect(testValue).toEqual(558.31);
+    });
 
     it('should parse tdi17 dat files and not pass validation if the dto is not met', async () => {
       const tdi17File = fs.readFileSync(
@@ -282,24 +282,24 @@ describe('ParseService', () => {
       ).rejects.toThrow();
     });
 
-    // it('should parse tdi34 dat files and pass validation if necessary fields are present', async () => {
-    //   const tdi34File = fs.readFileSync(
-    //     path.join(__dirname, '../../../sample-files/TDI34.TXT')
-    //   );
-    //   const entities = await service.parseAndValidateTDICardsFile(
-    //     locations,
-    //     Ministries.SBC,
-    //     {
-    //       filename: 'bcm/PROD_SBC_F08TD34_20230309.DAT',
-    //       contents: tdi34File,
-    //       fileType: FileTypes.TDI34,
-    //       programRule: new FileIngestionRulesMock('SBC'),
-    //     }
-    //   );
-    //   console.log(entities)
-    //   const testValue = entities[0].transaction_amt;
-    //   expect(testValue).toEqual(17);
-    // });
+    it('should parse tdi34 dat files and pass validation if necessary fields are present', async () => {
+      const tdi34File = fs.readFileSync(
+        path.join(__dirname, '../../../sample-files/TDI34.TXT')
+      );
+      const entities = await service.parseAndValidateTDICardsFile(
+        locations,
+        Ministries.SBC,
+        {
+          filename: 'bcm/PROD_SBC_F08TD34_20230309.DAT',
+          contents: tdi34File,
+          fileType: FileTypes.TDI34,
+          programRule: new FileIngestionRulesMock('SBC'),
+        }
+      );
+      console.log(entities);
+      const testValue = entities[0].transaction_amt;
+      expect(testValue).toEqual(17);
+    });
 
     it('should parse tdi34 dat files and not pass validation if the dto is not met', async () => {
       const tdi34File = fs.readFileSync(
