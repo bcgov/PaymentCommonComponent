@@ -107,14 +107,25 @@ export class ParseService {
     try {
       // SBC garms files are specific to the program ministry SBC so they do not require the program to be spedified - only file+metadata and the static locations and payments methods are required to parse
       if (s3File.fileType === FileTypes.SBC_SALES) {
-        await this.parseAndValidateSBCGarms(locations, s3File);
+        const txn = await this.parseAndValidateSBCGarms(locations, s3File);
+        console.log(txn);
       }
 
       if (s3File.fileType === FileTypes.TDI34) {
-        await this.parseAndValidateTDICardsFile(locations, program, s3File);
+        const tdi34 = await this.parseAndValidateTDICardsFile(
+          locations,
+          program,
+          s3File
+        );
+        console.log(tdi34);
       }
       if (s3File.fileType === FileTypes.TDI17) {
-        await this.parseAndValidateTDICashFile(locations, program, s3File);
+        const tdi17 = await this.parseAndValidateTDICashFile(
+          locations,
+          program,
+          s3File
+        );
+        console.log(tdi17);
       }
     } catch (err) {
       this.appLogger.log('\n\n=========Errors with File Upload: =========\n');
@@ -191,60 +202,40 @@ export class ParseService {
     // SBC garms files do not contain a header with the date, so we extract it from the filename
     const fileDate = extractDateFromTXNFileName(file.filename);
 
-    try {
-      // If the json is malformed, an error is thrown here prior to field validation
-      const parsedData = (await JSON.parse(
-        file.contents.toString() ?? '{}'
-      )) as SBCGarmsJson[];
+    // If the json is malformed, an error is thrown here prior to field validation
+    const parsedData = (await JSON.parse(
+      file.contents.toString() ?? '{}'
+    )) as SBCGarmsJson[];
 
-      // after the file is parsed into proper Json objects, we "reshape" it into data that can be used to create Transaction Entities
-      const entities = parseGarms(
-        parsedData,
-        file.filename,
-        paymentMethods,
-        locations,
-        fileDate
-      );
+    // after the file is parsed into proper Json objects, we "reshape" it into data that can be used to create Transaction Entities
+    const entities = parseGarms(
+      parsedData,
+      file.filename,
+      paymentMethods,
+      locations,
+      fileDate
+    );
 
-      // check for unknown locations, create stub, and update the entity
-      for (const [index, itm] of entities.entries()) {
-        if (itm.location.id === undefined) {
-          const location = await this.locationService.addStubLocation(
-            itm.location_id,
-            itm.source_id
-          );
-          entities[index] = { ...itm, location };
-          await this.notificationService.sendLocationNotFoundNotification(
-            location,
-            file
-          );
-        }
+    // check for unknown locations, create stub, and update the entity
+    for (const [index, itm] of entities.entries()) {
+      if (itm.location.id === undefined) {
+        const location = await this.locationService.addStubLocation(
+          itm.location_id,
+          itm.source_id
+        );
+        entities[index] = { ...itm, location };
+        await this.notificationService.sendLocationNotFoundNotification(
+          location,
+          file
+        );
       }
-      // Converts to DTOs strictly for validation purposes
-      // after parsing and formatting the data, we validate the data against the Transaction DTO
-      const garmsSalesDTO = entities.map((t) => new GarmsTransactionDTO(t));
-      const validatedEntities = new GarmsTransactionList(garmsSalesDTO);
+    }
+    // Converts to DTOs strictly for validation purposes
+    // after parsing and formatting the data, we validate the data against the Transaction DTO
+    const garmsSalesDTO = entities.map((t) => new GarmsTransactionDTO(t));
+    const validatedEntities = new GarmsTransactionList(garmsSalesDTO);
+    try {
       await validateOrReject(validatedEntities);
-
-      // after validating - save a record of the file to the database
-      const savedFile = await this.uploadService.saveFile(
-        file,
-        fileDate,
-        entities
-      );
-
-      this.appLogger.log(`Transaction count: ${entities.length}`);
-
-      // if file save is successful, save the transaction entities to the database
-      const txns = savedFile
-        ? await this.transactionService.saveTransactions(
-            entities.map((sale) => ({
-              ...sale,
-              fileUploadedEntityId: savedFile.id,
-            }))
-          )
-        : [];
-      return txns;
     } catch (e: unknown) {
       // line level vaidation errors
       const errorMessage = this.handleValidationError(
@@ -255,6 +246,25 @@ export class ParseService {
       );
       throw new BadRequestException(errorMessage);
     }
+    // after validating - save a record of the file to the database
+    const savedFile = await this.uploadService.saveFile(
+      file,
+      fileDate,
+      entities
+    );
+
+    this.appLogger.log(`Transaction count: ${entities.length}`);
+
+    // if file save is successful, save the transaction entities to the database
+    const txns = savedFile
+      ? await this.transactionService.saveTransactions(
+          entities.map((sale) => ({
+            ...sale,
+            fileUploadedEntityId: savedFile.id,
+          }))
+        )
+      : [];
+    return txns;
   }
   /**
    * Parses TDI17 files, validates them, and translates to CashDepositEntity
