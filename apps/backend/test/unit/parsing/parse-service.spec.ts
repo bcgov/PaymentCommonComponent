@@ -5,7 +5,7 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
-import { FileTypes } from '../../../src/constants';
+import { FileTypes, Ministries } from '../../../src/constants';
 
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
@@ -18,6 +18,7 @@ import { NotificationService } from '../../../src/notification/notification.serv
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
 import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 import { ParseService } from '../../../src/parse/parse.service';
+import { UploadService } from '../../../src/parse/upload.service';
 import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
 import { SnsManagerService } from '../../../src/sns-manager/sns-manager.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
@@ -72,6 +73,10 @@ describe('ParseService', () => {
         {
           provide: LocationService,
           useValue: createMock<LocationService>(),
+        },
+        {
+          provide: UploadService,
+          useValue: createMock<UploadService>(),
         },
         {
           provide: PaymentMethodService,
@@ -180,12 +185,13 @@ describe('ParseService', () => {
       );
       expect(
         (
-          await service.parseGarmsFile(
-            transactionFile.toString(),
-            'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
-            locations
-          )
-        ).txnFile[0].total_transaction_amount
+          await service.parseAndValidateSBCGarms(locations, {
+            contents: transactionFile,
+            filename: 'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+            fileType: FileTypes.SBC_SALES,
+            programRule: new FileIngestionRulesMock('SBC'),
+          })
+        )[0].total_transaction_amount
       ).toEqual(100);
     });
 
@@ -194,11 +200,12 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/garms.json')
       );
       expect(
-        service.parseGarmsFile(
-          transactionFile.toString(),
-          'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
-          locations
-        )
+        service.parseAndValidateSBCGarms(locations, {
+          contents: transactionFile,
+          filename: 'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+          fileType: FileTypes.SBC_SALES,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
     });
 
@@ -206,16 +213,19 @@ describe('ParseService', () => {
       const tdi17File = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/TDI17.TXT')
       );
-      expect(
-        (
-          await service.parseTDICashFile(
-            'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-            'SBC',
-            tdi17File,
-            locations
-          )
-        ).cashDeposits[0].deposit_amt_curr
-      ).toEqual(558.31);
+      const deposits = await service.parseAndValidateTDICashFile(
+        locations,
+
+        Ministries.SBC,
+        {
+          contents: tdi17File,
+          filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        }
+      );
+      const testValue = deposits[0].deposit_amt_curr;
+      expect(testValue).toEqual(558.31);
     });
 
     it('should parse tdi17 dat files and not pass validation if the dto is not met', async () => {
@@ -223,12 +233,12 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/TDI17.TXT')
       );
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-          'SBC',
-          tdi17File,
-          locations
-        )
+        service.parseAndValidateTDICashFile(locations, Ministries.SBC, {
+          contents: tdi17File,
+          filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
     });
 
@@ -248,12 +258,12 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongTotal);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
-        )
+        service.parseAndValidateTDICashFile(locations, Ministries.SBC, {
+          contents: Buffer.from(lines.join('\n')),
+          filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
 
       lines.splice(lines.length - 1, 1)[0];
@@ -263,12 +273,12 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongNumber);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
-        )
+        service.parseAndValidateTDICashFile(locations, Ministries.SBC, {
+          filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+          contents: Buffer.from(lines.join('\n')),
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
     });
 
@@ -276,16 +286,17 @@ describe('ParseService', () => {
       const tdi34File = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/TDI34.TXT')
       );
-      expect(
-        (
-          await service.parseTDICardsFile(
-            'bcm/PROD_SBC_F08TDI34_20230309.DAT',
-            'SBC',
-            tdi34File,
-            locations
-          )
-        ).posEntities[0].transaction_amt
-      ).toEqual(17);
+      const entities = await service.parseAndValidateTDICardsFile(
+        locations,
+        Ministries.SBC,
+        {
+          filename: 'bcm/PROD_SBC_F08TD34_20230309.DAT',
+          contents: tdi34File,
+          fileType: FileTypes.TDI34,
+          programRule: new FileIngestionRulesMock('SBC'),
+        }
+      );
+      expect(entities[0].transaction_amt).toEqual(17);
     });
 
     it('should parse tdi34 dat files and not pass validation if the dto is not met', async () => {
@@ -293,12 +304,12 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/TDI34.TXT')
       );
       expect(
-        service.parseTDICardsFile(
-          'bcm/PROD_SBC_F08TDI34_20230309.DAT',
-          'SBC',
-          tdi34File,
-          locations
-        )
+        service.parseAndValidateTDICardsFile(locations, Ministries.SBC, {
+          filename: 'bcm/PROD_SBC_F08TDI34_20230309.DAT',
+          contents: tdi34File,
+          fileType: FileTypes.TDI34,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
     });
 
@@ -318,12 +329,12 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongTotal);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TD17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
-        )
+        service.parseAndValidateTDICashFile(locations, Ministries.SBC, {
+          filename: 'bcm/PROD_SBC_F08TD17_20230309.DAT',
+          contents: Buffer.from(lines.join('\n')),
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
 
       lines.splice(lines.length - 1, 1)[0];
@@ -333,12 +344,12 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongNumber);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TD17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
-        )
+        service.parseAndValidateTDICashFile(locations, Ministries.SBC, {
+          filename: 'bcm/PROD_SBC_F08TD17_20230309.DAT',
+          contents: Buffer.from(lines.join('\n')),
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
     });
   });

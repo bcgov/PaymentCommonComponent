@@ -7,8 +7,9 @@ import { FileIngestionRulesEntity } from './entities/file-ingestion-rules.entity
 import { ProgramDailyUploadEntity } from './entities/program-daily-upload.entity';
 import { MAIL_TEMPLATE_ENUM } from './mail-templates';
 import { MailService } from './mail.service';
-import { Ministries } from '../constants';
+import { Ministries, S3File } from '../constants';
 import { ProgramTemplateName } from '../lambdas/const';
+import { MinistryLocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
 import { FileUploadedEntity } from '../parse/entities/file-uploaded.entity';
 import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
@@ -202,6 +203,53 @@ export class NotificationService {
         {
           fieldName: 'error',
           content: `Validation error found in ${ministry} file: ${filename}.\n${errorMessage}`,
+        },
+      ]
+    );
+  }
+  /**
+   * When an unknown location id is submitted on a txn file, this will send an email to the ministry-client to alert them
+   * @param location the location entity which needs to be updated
+   * @param file  the file where this was found
+   *
+   */
+  async sendLocationNotFoundNotification(
+    location: MinistryLocationEntity,
+    file: S3File
+  ): Promise<void> {
+    const alertDestinationEntities: AlertDestinationEntity[] =
+      await this.mailService.getAlertDestinations(file.programRule.program, [
+        file.filename,
+      ]);
+
+    const alertDestinations = alertDestinationEntities.map(
+      (itm) => itm.destination
+    );
+
+    if (!alertDestinations.length) {
+      return;
+    }
+
+    const program =
+      ProgramTemplateName[
+        file.programRule.program as keyof typeof ProgramTemplateName
+      ];
+
+    await this.mailService.sendEmailAlertBulk(
+      MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
+      alertDestinations.map((ad) => ad),
+      [
+        {
+          fieldName: 'date',
+          content: format(new Date(), 'MMM do, yyyy'),
+        },
+        {
+          fieldName: 'ministryDivision',
+          content: program,
+        },
+        {
+          fieldName: 'error',
+          content: `Location not found in ${file.programRule.program} file: ${file.filename}.\nLocation ID: ${location.location_id}\nPlease contact Pay.digitial to update the location.`,
         },
       ]
     );
