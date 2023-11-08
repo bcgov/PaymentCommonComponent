@@ -70,18 +70,13 @@ export const handler = async (event: S3Event, _context?: Context) => {
     programRules
   );
 
-  
-
   try {
+    appLogger.log(`Parsing: ${finalParseList.length} files`);
     // iterate through the list of files and parse each one
     for (const file of finalParseList) {
       await parseService.parseFile(file);
-    
     }
-
-    appLogger.log(`Attempted to parse ${finalParseList.length} files`);
     // trigger reconciliation
-
     await triggerReconcileSnsMessage();
   } catch (err) {
     appLogger.error(err);

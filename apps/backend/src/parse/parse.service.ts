@@ -195,8 +195,19 @@ export class ParseService {
     await this.validateTxnData(entitiesList, file);
     return { entities, fileDate };
   }
-
-  async parseTDI(s3File: S3File, ministry: Ministries) {
+  /**
+   * sets the entity type and dto type based on the file type
+   * @param s3File file with metadata
+   * @param ministry ministry-client
+   * @returns array of deposit entities and the filedate
+   */
+  async parseTDI(
+    s3File: S3File,
+    ministry: Ministries
+  ): Promise<
+    | { entities: CashDepositEntity[]; fileDate: string }
+    | { entities: POSDepositEntity[]; fileDate: string }
+  > {
     if (s3File.fileType === FileTypes.TDI17) {
       return await this.parseAndValidateTDIFile<
         CashDepositEntity,
@@ -209,6 +220,13 @@ export class ParseService {
       >(s3File, ministry);
     }
   }
+  /**
+   * parses the TDI deposit files
+   * Set the entity type and dto type based on the file type
+   * @param file file plus metadata
+   * @param program ministry-client
+   * @returns filedate and array of deposit entities
+   */
   async parseAndValidateTDIFile<T, K>(
     file: S3File,
     program: Ministries
@@ -249,7 +267,11 @@ export class ParseService {
     return { entities: entitiesList as T[], fileDate };
   }
 
-  // validate the data against the  DTO (specific to the deposit type)
+  /**
+   * Validate the deposit data - the DTO is passed in to validate the data
+   * @param list List of the specific DTO type used to validate
+   * @param file file plus metadata
+   */
   async validateTDI<T>(list: ListDTO<T>, file: S3File) {
     try {
       await validateOrReject(list);
@@ -264,7 +286,11 @@ export class ParseService {
       throw new BadRequestException(errorMessage);
     }
   }
-
+  /**
+   * Validate the txn data - alert if there are any errors
+   * @param garmsSalesDTO DTO for the garms sales data
+   * @param file file plus metadata
+   */
   async validateTxnData(
     garmsSalesDTO: GarmsTransactionDTO[],
     file: S3File
@@ -292,6 +318,7 @@ export class ParseService {
     program: Ministries
   ): Promise<T> {
     if (type === FileTypes.SBC_SALES) {
+      // create and save the transaction entities
       const txns = await this.transactionService.saveTransactions(
         (entities as TransactionEntity[]).map((sale) => ({
           ...sale,
@@ -302,9 +329,11 @@ export class ParseService {
       return txns as T;
     }
     if (type === FileTypes.TDI17) {
+      // find the correct bank for each deposit from the location/banks tables
       const banks = locations
         .filter((loc) => loc.source_id === program)
         .flatMap((itm) => itm.banks);
+      // create and save the cash deposit entities
       const deposits = await this.cashDepositService.saveCashDepositEntities(
         (entities as CashDepositEntity[]).map((deposit) => ({
           ...deposit,
@@ -316,10 +345,11 @@ export class ParseService {
       return deposits as T;
     }
     if (type === FileTypes.TDI34) {
+      // find the correct merchant for each deposit from the location/merchants tables
       const merchants = locations
         .filter((loc) => loc.source_id === program)
         .flatMap((itm) => itm.merchants);
-      // map the deposit entity to the dto
+      // create and save the deposit entities
       const deposits = await this.posDepositService.savePOSDepositEntities(
         (entities as POSDepositEntity[]).map((deposit) => ({
           ...deposit,
