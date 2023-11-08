@@ -112,7 +112,6 @@ export class UploadService {
         );
       }
       const bucket: string = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
-
       return {
         programRule: programRule,
         fileType: FileTypes[requiredFile.fileType as keyof typeof FileTypes],
