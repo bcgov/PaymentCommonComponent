@@ -1,19 +1,11 @@
 import Decimal from 'decimal.js';
 import { MatchStatus } from './common/const';
-import { CashDepositEntity } from './deposits/entities/cash-deposit.entity';
 import { POSDepositEntity } from './deposits/entities/pos-deposit.entity';
 import { TDI17Header } from './flat-files/tdi17/TDI17Header';
 import { TDI34Header } from './flat-files/tdi34/TDI34Header';
 import { FileIngestionRulesEntity } from './notification/entities/file-ingestion-rules.entity';
-import { CashDepositsListDTO } from './parse/dto/cash-deposit.dto';
-import { GarmsTransactionList } from './parse/dto/garms-transaction.dto';
-import { PosDepositListDTO } from './parse/dto/pos-deposit.dto';
 import { PosHeuristicRound } from './reconciliation/types';
-import {
-  PaymentEntity,
-  PaymentMethodEntity,
-  TransactionEntity,
-} from './transaction/entities';
+import { PaymentEntity, PaymentMethodEntity } from './transaction/entities';
 
 enum FileExtensions {
   DAT = 'DAT',
@@ -93,16 +85,6 @@ export const SUPPORTED_FILE_EXTENSIONS: {
   [FileTypes.SBC_SALES]: [FileExtensions.JSON],
 };
 
-export interface Entities {
-  transaction: TransactionEntity;
-  posDeposit: POSDepositEntity;
-  cashDeposit: CashDepositEntity;
-}
-export interface DTO {
-  transaction: GarmsTransactionList;
-  posDeposit: PosDepositListDTO;
-  cashDeposit: CashDepositsListDTO;
-}
 export interface S3File {
   contents: Buffer;
   filename: string;
