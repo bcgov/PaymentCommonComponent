@@ -236,7 +236,7 @@ export class NotificationService {
       ];
 
     await this.mailService.sendEmailAlertBulk(
-      MAIL_TEMPLATE_ENUM.FILE_VALIDATION_ALERT,
+      MAIL_TEMPLATE_ENUM.LOCATION_MISSING_ALERT,
       alertDestinations.map((ad) => ad),
       [
         {
