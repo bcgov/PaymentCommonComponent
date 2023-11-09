@@ -8,6 +8,7 @@ import { Ministries, S3File } from '../constants';
 import { AppLogger } from '../logger/logger.service';
 import { FileIngestionRulesEntity } from '../notification/entities/file-ingestion-rules.entity';
 import { NotificationService } from '../notification/notification.service';
+import { ProgramRequiredFileEntity } from '../parse/entities/program-required-file.entity';
 import { ParseService } from '../parse/parse.service';
 import { UploadService } from '../parse/upload.service';
 import { SnsManagerService } from '../sns-manager/sns-manager.service';
@@ -63,11 +64,16 @@ export const handler = async (event: S3Event, _context?: Context) => {
   const programRules: FileIngestionRulesEntity[] =
     await notificationService.getAllRules();
 
+  // find the required files for each program
+  const requiredFiles: ProgramRequiredFileEntity[] = programRules.flatMap(
+    (itm) => itm.requiredFiles
+  );
   // validate the fileList against the rules
   // get the file objects and metadata for each file
-  const finalParseList: S3File[] = await uploadService.getFileObjectAndMetadata(
-    filteredParseList,
-    programRules
+  const finalParseList: S3File[] = await Promise.all(
+    filteredParseList.map((file) =>
+      uploadService.getFileObjectAndMetadata(file, requiredFiles, programRules)
+    )
   );
 
   try {

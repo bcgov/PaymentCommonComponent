@@ -19,4 +19,9 @@ export class MinistryLocationEntity extends BaseLocationEntity {
     eager: true,
   })
   merchants: Relation<MerchantEntity[]>;
+
+  constructor(data: Partial<MinistryLocationEntity>) {
+    super();
+    Object.assign(this, data);
+  }
 }

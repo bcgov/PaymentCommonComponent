@@ -176,21 +176,19 @@ export class ParseService {
       locations,
       fileDate
     );
+    const entityLocations = entities.map((itm) => itm.location);
+    // get list of locationid and source_id and create stubs for unknown locations
+    const unknownLocations = entityLocations.filter(
+      (itm) => !locations.includes(itm)
+    );
 
-    // check for unknown locations, create stub, and update the entity
-    for (const [index, itm] of entities.entries()) {
-      if (itm.location.id === undefined) {
-        const location = await this.locationService.addStubLocation(
-          itm.location_id,
-          itm.source_id
-        );
-        entities[index] = { ...itm, location };
-        await this.notificationService.sendLocationNotFoundNotification(
-          location,
-          file
-        );
-      }
-    }
+    await Promise.all(
+      unknownLocations.map((itm) => {
+        this.locationService.createLocation(itm);
+        this.notificationService.sendLocationNotFoundNotification(itm, file);
+      })
+    );
+
     const entitiesList = entities.map((t) => new GarmsTransactionDTO(t));
     await this.validateTxnData(entitiesList, file);
     return { entities, fileDate };

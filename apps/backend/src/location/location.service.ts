@@ -187,30 +187,11 @@ export class LocationService {
    * @param source_id  source_id from txn file
    * @returns stub location
    */
-  public async addStubLocation(
-    location_id: number,
-    source_id: string
+  public async createLocation(
+    location: Partial<MinistryLocationEntity>
   ): Promise<MinistryLocationEntity> {
-    const location = new MinistryLocationEntity();
-    location.location_id = location_id;
-    location.source_id = source_id;
-
-    const stubLocation = {
-      source_id: Ministries.SBC,
-      location_id: location_id,
-      description: 'unk',
-      program_code: 0,
-      program_desc: 'unk',
-      ministry_client: 0,
-      resp_code: 'unk',
-      service_line_code: 0,
-      stob_code: 0,
-      project_code: 0,
-      banks: [],
-      merchants: [],
-    };
     return await this.ministryLocationRepo.save(
-      this.ministryLocationRepo.create(stubLocation)
+      this.ministryLocationRepo.create(location)
     );
   }
 }

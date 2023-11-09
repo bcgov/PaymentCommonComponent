@@ -80,53 +80,47 @@ export class UploadService {
       .filter((itm) => !itm.includes('archive'));
   }
   /**
-   * Takes the filtered file list and returns a list of file objects with metadata
+  
+   * Validate the program area and file type for each file in the list
+   * return an S3File object, which includes the file contents and metadata
    * @param fileList a string array of file names
    * @param programRules a list of file ingestion rules
    * @returns FileWithMetadata[]
    */
   async getFileObjectAndMetadata(
-    fileList: string[],
+    file: string,
+    requiredFiles: ProgramRequiredFileEntity[],
     programRules: FileIngestionRulesEntity[]
-  ): Promise<S3File[]> {
-    // find the required files for each program
-    const requiredFiles: ProgramRequiredFileEntity[] = programRules.flatMap(
-      (itm) => itm.requiredFiles
-    );
-    // map over the filelist and update it to include the program rules and file types
-    // validate the file list to ensure it has a program and file type
-    const finalParseList = fileList.map(async (file) => {
-      const programRule = programRules.find((p) => file.includes(p.program));
-      const requiredFile = requiredFiles.find((rf) =>
-        file.includes(rf.fileType)
+  ): Promise<S3File> {
+    // program rules and file types with the file to be parsed
+    // validate the program and file type
+    const programRule = programRules.find((p) => file.includes(p.program));
+    const requiredFile = requiredFiles.find((rf) => file.includes(rf.fileType));
+
+    if (!programRule) {
+      throw new BadRequestException(
+        `File does not reference to any programs: ${file}`
       );
-
-      if (!programRule) {
-        throw new BadRequestException(
-          `File does not reference to any programs: ${file}`
-        );
-      }
-      if (!requiredFile?.fileType) {
-        throw new BadRequestException(
-          `File does not reference to any valid file types: ${file}`
-        );
-      }
-      const bucket: string = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
-      return {
-        programRule: programRule,
-        fileType: FileTypes[requiredFile.fileType as keyof typeof FileTypes],
-        filename: file,
-        contents: Buffer.from(
-          await this.s3Manager.getObjectString({
-            Bucket: bucket,
-            Key: file,
-          })
-        ),
-      };
-    });
-
-    return Promise.all(finalParseList);
+    }
+    if (!requiredFile?.fileType) {
+      throw new BadRequestException(
+        `File does not reference to any valid file types: ${file}`
+      );
+    }
+    const bucket: string = `pcc-integration-data-files-${process.env.RUNTIME_ENV}`;
+    return {
+      programRule: programRule,
+      fileType: FileTypes[requiredFile.fileType as keyof typeof FileTypes],
+      filename: file,
+      contents: Buffer.from(
+        await this.s3Manager.getObjectString({
+          Bucket: bucket,
+          Key: file,
+        })
+      ),
+    };
   }
+
   /**
    * If no records have been passed in from the event, we will check the S3 bucket for any unparsed files
    * This is only for local development and will not be called in any deployed environments
