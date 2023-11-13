@@ -5,9 +5,11 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as fs from 'fs';
 import path from 'path';
-import { FileTypes } from '../../../src/constants';
+import { FileTypes, Ministries } from '../../../src/constants';
 
 import { CashDepositService } from '../../../src/deposits/cash-deposit.service';
+import { CashDepositEntity } from '../../../src/deposits/entities/cash-deposit.entity';
+import { POSDepositEntity } from '../../../src/deposits/entities/pos-deposit.entity';
 import { PosDepositService } from '../../../src/deposits/pos-deposit.service';
 import { LocationService } from '../../../src/location/location.service';
 import { LoggerModule } from '../../../src/logger/logger.module';
@@ -15,9 +17,12 @@ import { FileIngestionRulesEntity } from '../../../src/notification/entities/fil
 import { ProgramDailyUploadEntity } from '../../../src/notification/entities/program-daily-upload.entity';
 import { MailService } from '../../../src/notification/mail.service';
 import { NotificationService } from '../../../src/notification/notification.service';
+import { CashDepositDTO } from '../../../src/parse/dto/cash-deposit.dto';
+import { PosDepositDTO } from '../../../src/parse/dto/pos-deposit.dto';
 import { FileUploadedEntity } from '../../../src/parse/entities/file-uploaded.entity';
 import { ProgramRequiredFileEntity } from '../../../src/parse/entities/program-required-file.entity';
 import { ParseService } from '../../../src/parse/parse.service';
+import { UploadService } from '../../../src/parse/upload.service';
 import { S3ManagerService } from '../../../src/s3-manager/s3-manager.service';
 import { SnsManagerService } from '../../../src/sns-manager/sns-manager.service';
 import { PaymentMethodService } from '../../../src/transaction/payment-method.service';
@@ -37,6 +42,7 @@ describe('ParseService', () => {
       providers: [
         ParseService,
         NotificationService,
+        UploadService,
         {
           provide: S3ManagerService,
           useValue: createMock<S3ManagerService>(),
@@ -178,15 +184,15 @@ describe('ParseService', () => {
       const transactionFile = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/garms.json')
       );
-      expect(
-        (
-          await service.parseGarmsFile(
-            transactionFile.toString(),
-            'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
-            locations
-          )
-        ).txnFile[0].total_transaction_amount
-      ).toEqual(100);
+
+      const { entities } = await service.parseAndValidateSBCGarms(locations, {
+        contents: transactionFile,
+        filename: 'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+        fileType: FileTypes.SBC_SALES,
+        programRule: new FileIngestionRulesMock('SBC'),
+      });
+
+      expect(entities[0].total_transaction_amount).toEqual(100);
     });
 
     it('should parse garms transaction json files and not pass validation if the dto is not met', async () => {
@@ -194,11 +200,12 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/garms.json')
       );
       expect(
-        service.parseGarmsFile(
-          transactionFile.toString(),
-          'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
-          locations
-        )
+        service.parseAndValidateSBCGarms(locations, {
+          contents: transactionFile,
+          filename: 'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
+          fileType: FileTypes.SBC_SALES,
+          programRule: new FileIngestionRulesMock('SBC'),
+        })
       ).rejects.toThrow();
     });
 
@@ -206,16 +213,20 @@ describe('ParseService', () => {
       const tdi17File = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/TDI17.TXT')
       );
-      expect(
-        (
-          await service.parseTDICashFile(
-            'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-            'SBC',
-            tdi17File,
-            locations
-          )
-        ).cashDeposits[0].deposit_amt_curr
-      ).toEqual(558.31);
+      const { entities } = await service.parseAndValidateTDIFile<
+        CashDepositEntity,
+        CashDepositDTO
+      >(
+        {
+          contents: tdi17File,
+          filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+          fileType: FileTypes.TDI17,
+          programRule: new FileIngestionRulesMock('SBC'),
+        },
+        Ministries.SBC
+      );
+      const testValue = entities[0].deposit_amt_curr;
+      expect(testValue).toBe(558.31);
     });
 
     it('should parse tdi17 dat files and not pass validation if the dto is not met', async () => {
@@ -223,11 +234,14 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/TDI17.TXT')
       );
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-          'SBC',
-          tdi17File,
-          locations
+        service.parseAndValidateTDIFile<CashDepositEntity, CashDepositDTO>(
+          {
+            contents: tdi17File,
+            filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+            fileType: FileTypes.TDI17,
+            programRule: new FileIngestionRulesMock('SBC'),
+          },
+          Ministries.SBC
         )
       ).rejects.toThrow();
     });
@@ -248,11 +262,14 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongTotal);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
+        service.parseAndValidateTDIFile<CashDepositEntity, CashDepositDTO>(
+          {
+            contents: Buffer.from(lines.join('\n')),
+            filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+            fileType: FileTypes.TDI17,
+            programRule: new FileIngestionRulesMock('SBC'),
+          },
+          Ministries.SBC
         )
       ).rejects.toThrow();
 
@@ -263,11 +280,14 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongNumber);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TDI17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
+        service.parseAndValidateTDIFile<CashDepositEntity, CashDepositDTO>(
+          {
+            filename: 'bcm/PROD_SBC_F08TDI17_20230309.DAT',
+            contents: Buffer.from(lines.join('\n')),
+            fileType: FileTypes.TDI17,
+            programRule: new FileIngestionRulesMock('SBC'),
+          },
+          Ministries.SBC
         )
       ).rejects.toThrow();
     });
@@ -276,16 +296,21 @@ describe('ParseService', () => {
       const tdi34File = fs.readFileSync(
         path.join(__dirname, '../../../sample-files/TDI34.TXT')
       );
-      expect(
-        (
-          await service.parseTDICardsFile(
-            'bcm/PROD_SBC_F08TDI34_20230309.DAT',
-            'SBC',
-            tdi34File,
-            locations
-          )
-        ).posEntities[0].transaction_amt
-      ).toEqual(17);
+      const { entities } = await service.parseAndValidateTDIFile<
+        POSDepositEntity,
+        PosDepositDTO
+      >(
+        {
+          filename: 'bcm/PROD_SBC_F08TD34_20230309.DAT',
+          contents: tdi34File,
+          fileType: FileTypes.TDI34,
+          programRule: new FileIngestionRulesMock('SBC'),
+        },
+        Ministries.SBC
+      );
+
+      const testValue = entities[0].transaction_amt;
+      expect(testValue).toBe(17);
     });
 
     it('should parse tdi34 dat files and not pass validation if the dto is not met', async () => {
@@ -293,11 +318,14 @@ describe('ParseService', () => {
         path.join(__dirname, '../../../sample-files/invalid-files/TDI34.TXT')
       );
       expect(
-        service.parseTDICardsFile(
-          'bcm/PROD_SBC_F08TDI34_20230309.DAT',
-          'SBC',
-          tdi34File,
-          locations
+        service.parseAndValidateTDIFile<POSDepositEntity, PosDepositDTO>(
+          {
+            filename: 'bcm/PROD_SBC_F08TDI34_20230309.DAT',
+            contents: tdi34File,
+            fileType: FileTypes.TDI34,
+            programRule: new FileIngestionRulesMock('SBC'),
+          },
+          Ministries.SBC
         )
       ).rejects.toThrow();
     });
@@ -318,11 +346,14 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongTotal);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TD17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
+        service.parseAndValidateTDIFile<POSDepositEntity, PosDepositDTO>(
+          {
+            filename: 'bcm/PROD_SBC_F08TD34_20230309.DAT',
+            contents: Buffer.from(lines.join('\n')),
+            fileType: FileTypes.TDI34,
+            programRule: new FileIngestionRulesMock('SBC'),
+          },
+          Ministries.SBC
         )
       ).rejects.toThrow();
 
@@ -333,11 +364,14 @@ describe('ParseService', () => {
       );
       lines.push(newFooterWrongNumber);
       expect(
-        service.parseTDICashFile(
-          'bcm/PROD_SBC_F08TD17_20230309.DAT',
-          'SBC',
-          Buffer.from(lines.join('\n')),
-          locations
+        service.parseAndValidateTDIFile<POSDepositEntity, PosDepositDTO>(
+          {
+            filename: 'bcm/PROD_SBC_F08TD34_20230309.DAT',
+            contents: Buffer.from(lines.join('\n')),
+            fileType: FileTypes.TDI34,
+            programRule: new FileIngestionRulesMock('SBC'),
+          },
+          Ministries.SBC
         )
       ).rejects.toThrow();
     });

@@ -36,6 +36,12 @@ export class LocationService {
       relations: ['banks', 'merchants'],
     });
   }
+  /**
+   * find the locations for a specific minstry client
+   * includes the banks and merchants
+   * @param program
+   * @returns
+   */
   public async findMinistryLocations(
     program: Ministries
   ): Promise<MinistryLocationEntity[]> {
@@ -112,13 +118,21 @@ export class LocationService {
       )
     );
   }
-
+  /**
+   * create new location entities
+   * @param locationsData
+   */
   public async createLocations(
     locationsData: MasterLocationEntity[]
   ): Promise<void> {
     await this.locationRepo.save(this.locationRepo.create(locationsData));
   }
-
+  /**
+   * finds all ministry locations belonging to a ministry-client  by id
+   * @param program  ministry-client
+   * @param location_ids location_ids from the location/txn table
+   * @returns
+   */
   public async getLocationsByID(
     program: Ministries,
     location_ids: number[]
@@ -133,7 +147,11 @@ export class LocationService {
       },
     });
   }
-
+  /**
+   * finds all minstry locations belonging to a ministry-client
+   * @param source Ministries enum
+   * @returns
+   */
   public async getLocationsBySource(
     source: Ministries
   ): Promise<MinistryLocationEntity[]> {
@@ -145,5 +163,35 @@ export class LocationService {
         location_id: 'ASC',
       },
     });
+  }
+  /**
+   * finds a single ministry location without the id
+   * @param location_id the location id
+   * @param source_id the ministry-client
+   * @returns
+   */
+  public async findLocation(
+    location_id: number,
+    source_id: string
+  ): Promise<MinistryLocationEntity> {
+    return this.ministryLocationRepo.findOneOrFail({
+      where: {
+        source_id,
+        location_id,
+      },
+    });
+  }
+  /**
+   * Creates a stub location for a ministry-client if the location is not found, but is submitted in the txn data
+   * @param location_id  location_id from txn file
+   * @param source_id  source_id from txn file
+   * @returns stub location
+   */
+  public async createLocation(
+    location: Partial<MinistryLocationEntity>
+  ): Promise<MinistryLocationEntity> {
+    return await this.ministryLocationRepo.save(
+      this.ministryLocationRepo.create(location)
+    );
   }
 }

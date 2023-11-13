@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker';
 import { format } from 'date-fns';
-import { MinistryLocationEntity } from 'src/location/entities';
 import { PaymentMock } from './payment_mock';
 import { PaymentEntity } from './../../../src/transaction/entities/payment.entity';
 import { Ministries } from '../../../src/constants';
 import { DateRange } from '../../../src/constants';
+import { MinistryLocationEntity } from '../../../src/location/entities';
 import { TransactionEntity } from '../../../src/transaction/entities';
 
 /*eslint-disable */
