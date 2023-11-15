@@ -176,11 +176,10 @@ describe('Tests the database tables and seed data (e2e)', () => {
       join(__dirname, '../fixtures/SBC_SALES_2023_03_08_23_17_53.JSON'),
       'utf8'
     );
-    const parsedGarmsFile: TransactionEntity[] = await parseGarms(
+    const parsedGarmsFile: TransactionEntity[] = parseGarms(
       (await JSON.parse(contents)) as SBCGarmsJson[],
       'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
       paymentMethods,
-
       extractDateFromTXNFileName('sbc/SBC_SALES_2023_03_08_23_17_53.JSON')
     );
     await transService.saveTransactions(parsedGarmsFile);
