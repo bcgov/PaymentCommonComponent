@@ -169,18 +169,44 @@ export class ParseService {
     )) as SBCGarmsJson[];
 
     // after the file is parsed into proper Json objects, we "reshape" it into data that can be used to create Transaction Entities
-    const entities = await parseGarms(
+    const entities = parseGarms(
       parsedData,
       file.filename,
       paymentMethods,
-      locations,
-      fileDate,
-      this.locationService
+      fileDate
     );
 
-    const entitiesList = entities.map((t) => new GarmsTransactionDTO(t));
+    const entitiesWithLocations = await Promise.all(
+      entities.map(async (itm: TransactionEntity) => ({
+        ...itm,
+        location:
+          locations.find(
+            (loc) =>
+              loc.source_id === itm.source_id &&
+              loc.location_id === itm.location_id
+          ) ??
+          (await this.locationService.createLocation({
+            source_id: itm.source_id,
+            location_id: itm.location_id,
+            program_code: 0,
+            program_desc: '',
+            ministry_client: 0,
+            resp_code: '',
+            service_line_code: 0,
+            stob_code: 0,
+            project_code: 0,
+            banks: [],
+            merchants: [],
+            description: 'unk',
+          })),
+      }))
+    );
+
+    const entitiesList = entitiesWithLocations.map(
+      (t) => new GarmsTransactionDTO(t)
+    );
     await this.validateTxnData(entitiesList, file);
-    return { entities, fileDate };
+    return { entities: entitiesWithLocations, fileDate };
   }
   /**
    * sets the entity type and dto type based on the file type
