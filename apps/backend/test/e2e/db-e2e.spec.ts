@@ -37,6 +37,7 @@ describe('Tests the database tables and seed data (e2e)', () => {
   let posDepositService: PosDepositService;
   let cashDepositService: CashDepositService;
   let transService: TransactionService;
+
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
@@ -177,12 +178,13 @@ describe('Tests the database tables and seed data (e2e)', () => {
       join(__dirname, '../fixtures/SBC_SALES_2023_03_08_23_17_53.JSON'),
       'utf8'
     );
-    const parsedGarmsFile: TransactionEntity[] = parseGarms(
+    const parsedGarmsFile: TransactionEntity[] = await parseGarms(
       (await JSON.parse(contents)) as SBCGarmsJson[],
       'sbc/SBC_SALES_2023_03_08_23_17_53.JSON',
       paymentMethods,
       locations,
-      extractDateFromTXNFileName('sbc/SBC_SALES_2023_03_08_23_17_53.JSON')
+      extractDateFromTXNFileName('sbc/SBC_SALES_2023_03_08_23_17_53.JSON'),
+      locationService
     );
     await transService.saveTransactions(parsedGarmsFile);
   }, 12000);
