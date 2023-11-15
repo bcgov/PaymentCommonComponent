@@ -173,25 +173,40 @@ export class ParseService {
       parsedData,
       file.filename,
       paymentMethods,
-      locations,
       fileDate
     );
-    const entityLocations = entities.map((itm) => itm.location);
-    // get list of locationid and source_id and create stubs for unknown locations
-    const unknownLocations = entityLocations.filter(
-      (itm) => !locations.includes(itm)
+
+    const entitiesWithLocations = await Promise.all(
+      entities.map(async (itm: TransactionEntity) => ({
+        ...itm,
+        location:
+          locations.find(
+            (loc) =>
+              loc.source_id === itm.source_id &&
+              loc.location_id === itm.location_id
+          ) ??
+          (await this.locationService.createLocation({
+            source_id: itm.source_id,
+            location_id: itm.location_id,
+            program_code: 0,
+            program_desc: '',
+            ministry_client: 0,
+            resp_code: '',
+            service_line_code: 0,
+            stob_code: 0,
+            project_code: 0,
+            banks: [],
+            merchants: [],
+            description: 'unk',
+          })),
+      }))
     );
 
-    await Promise.all(
-      unknownLocations.map((itm) => {
-        this.locationService.createLocation(itm);
-        this.notificationService.sendLocationNotFoundNotification(itm, file);
-      })
+    const entitiesList = entitiesWithLocations.map(
+      (t) => new GarmsTransactionDTO(t)
     );
-
-    const entitiesList = entities.map((t) => new GarmsTransactionDTO(t));
     await this.validateTxnData(entitiesList, file);
-    return { entities, fileDate };
+    return { entities: entitiesWithLocations, fileDate };
   }
   /**
    * sets the entity type and dto type based on the file type

@@ -1,7 +1,6 @@
 import Decimal from 'decimal.js';
 import { parseFlatDateString } from '../../common/utils/format';
 import { Ministries } from '../../constants';
-import { MinistryLocationEntity } from '../../location/entities';
 import { TransactionEntity, PaymentEntity } from '../../transaction/entities';
 import { PaymentMethodEntity } from '../../transaction/entities/payment-method.entity';
 import {
@@ -27,7 +26,6 @@ export const parseGarms = (
   garmsJson: SBCGarmsJson[],
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[],
-  locations: MinistryLocationEntity[],
   fileDate: string
 ): TransactionEntity[] => {
   const garmsData = garmsJson.map((itm) => ({
@@ -36,7 +34,7 @@ export const parseGarms = (
   }));
 
   return garmsData.map((data: SBCGarmsJson) =>
-    parseGarmsData(data, fileDate, source_file_name, paymentMethods, locations)
+    parseGarmsData(data, fileDate, source_file_name, paymentMethods)
   );
 };
 
@@ -44,8 +42,7 @@ const parseGarmsData = (
   garmsData: SBCGarmsJson,
   fileDate: string,
   source_file_name: string,
-  paymentMethods: PaymentMethodEntity[],
-  locations: MinistryLocationEntity[]
+  paymentMethods: PaymentMethodEntity[]
 ): TransactionEntity => {
   const {
     sales_transaction_date,
@@ -63,26 +60,6 @@ const parseGarmsData = (
     transaction_id: sales_transaction_id,
     transaction_date: sales_transaction_date.slice(0, 10),
     transaction_time: sales_transaction_date.slice(11, 19).replaceAll('.', ':'),
-    location:
-      locations.find(
-        (loc) =>
-          loc.source_id === source.source_id &&
-          loc.location_id === parseInt(source.location_id)
-      ) ??
-      new MinistryLocationEntity({
-        source_id: source.source_id,
-        location_id: parseInt(source.location_id),
-        description: 'unk',
-        program_code: 0,
-        program_desc: 'unk',
-        ministry_client: 0,
-        resp_code: 'unk',
-        service_line_code: 0,
-        stob_code: 0,
-        project_code: 0,
-        banks: [],
-        merchants: [],
-      }),
     location_id: parseInt(source.location_id),
     total_transaction_amount: payment_total,
     fiscal_close_date: parseFlatDateString(fiscal_close_date),
