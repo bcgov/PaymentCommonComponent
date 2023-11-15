@@ -33,16 +33,6 @@ resource "aws_s3_bucket_ownership_controls" "pcc_reporting_ownership" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "pcc_reporting_pb" {
-  bucket = aws_s3_bucket.pcc-reporting.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-
 
 resource "aws_s3_bucket_acl" "pcc_reporting_acl" {
   depends_on = [aws_s3_bucket_ownership_controls.pcc_reporting_ownership]
@@ -87,14 +77,6 @@ resource "aws_s3_bucket_ownership_controls" "pcc_master_data_ownership" {
   }
 }
 
-resource "aws_s3_bucket_public_access_block" "pcc_master_data_pb" {
-  bucket = aws_s3_bucket.pcc-master-data.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
 
 resource "aws_s3_bucket_acl" "pcc_master_data_acl" {
   depends_on = [aws_s3_bucket_ownership_controls.pcc_master_data_ownership]
