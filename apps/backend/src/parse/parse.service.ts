@@ -169,24 +169,13 @@ export class ParseService {
     )) as SBCGarmsJson[];
 
     // after the file is parsed into proper Json objects, we "reshape" it into data that can be used to create Transaction Entities
-    const entities = parseGarms(
+    const entities = await parseGarms(
       parsedData,
       file.filename,
       paymentMethods,
       locations,
-      fileDate
-    );
-    const entityLocations = entities.map((itm) => itm.location);
-    // get list of locationid and source_id and create stubs for unknown locations
-    const unknownLocations = entityLocations.filter(
-      (itm) => !locations.includes(itm)
-    );
-
-    await Promise.all(
-      unknownLocations.map((itm) => {
-        this.locationService.createLocation(itm);
-        this.notificationService.sendLocationNotFoundNotification(itm, file);
-      })
+      fileDate,
+      this.locationService
     );
 
     const entitiesList = entities.map((t) => new GarmsTransactionDTO(t));

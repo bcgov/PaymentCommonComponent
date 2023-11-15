@@ -2,6 +2,7 @@ import Decimal from 'decimal.js';
 import { parseFlatDateString } from '../../common/utils/format';
 import { Ministries } from '../../constants';
 import { MinistryLocationEntity } from '../../location/entities';
+import { LocationService } from '../../location/location.service';
 import { TransactionEntity, PaymentEntity } from '../../transaction/entities';
 import { PaymentMethodEntity } from '../../transaction/entities/payment-method.entity';
 import {
@@ -23,30 +24,41 @@ import {
  * @returns
  */
 
-export const parseGarms = (
+export const parseGarms = async (
   garmsJson: SBCGarmsJson[],
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[],
   locations: MinistryLocationEntity[],
-  fileDate: string
-): TransactionEntity[] => {
+  fileDate: string,
+  locationService: LocationService
+): Promise<TransactionEntity[]> => {
   const garmsData = garmsJson.map((itm) => ({
     ...itm,
     payments: itm.payments.filter((payment) => payment.amount !== 0),
   }));
 
-  return garmsData.map((data: SBCGarmsJson) =>
-    parseGarmsData(data, fileDate, source_file_name, paymentMethods, locations)
+  return await Promise.all(
+    garmsData.map((data: SBCGarmsJson) =>
+      parseGarmsData(
+        data,
+        fileDate,
+        source_file_name,
+        paymentMethods,
+        locations,
+        locationService
+      )
+    )
   );
 };
 
-const parseGarmsData = (
+const parseGarmsData = async (
   garmsData: SBCGarmsJson,
   fileDate: string,
   source_file_name: string,
   paymentMethods: PaymentMethodEntity[],
-  locations: MinistryLocationEntity[]
-): TransactionEntity => {
+  locations: MinistryLocationEntity[],
+  locationService: LocationService
+): Promise<TransactionEntity> => {
   const {
     sales_transaction_date,
     sales_transaction_id,
@@ -69,20 +81,20 @@ const parseGarmsData = (
           loc.source_id === source.source_id &&
           loc.location_id === parseInt(source.location_id)
       ) ??
-      new MinistryLocationEntity({
+      (await locationService.createLocation({
         source_id: source.source_id,
         location_id: parseInt(source.location_id),
-        description: 'unk',
         program_code: 0,
-        program_desc: 'unk',
+        program_desc: '',
         ministry_client: 0,
-        resp_code: 'unk',
+        resp_code: '',
         service_line_code: 0,
         stob_code: 0,
         project_code: 0,
         banks: [],
         merchants: [],
-      }),
+        description: 'unk',
+      })),
     location_id: parseInt(source.location_id),
     total_transaction_amount: payment_total,
     fiscal_close_date: parseFlatDateString(fiscal_close_date),
