@@ -51,21 +51,33 @@ export class DatabaseService {
     this.appLogger.setContext('Seed Master Data');
     const locations: MasterLocationEntity[] =
       await this.locationService.findAll();
+    this.appLogger.log(
+      `Found ${locations.length} rows in Master Location table`
+    );
 
     const paymentMethods: PaymentMethodEntity[] =
       await this.paymentMethodService.getPaymentMethods();
+    this.appLogger.log(
+      `Found ${paymentMethods.length} rows in Payment Method table`
+    );
 
     const rules: FileIngestionRulesEntity[] =
       await this.notificationService.getAllRules();
+    this.appLogger.log(
+      `Found ${rules.length} rows in File Ingestion Rules table`
+    );
 
     if (rules.length === 0) {
+      this.appLogger.log(`No rules found, seeding...`);
       await this.seedFileIngestionRules();
     }
 
     if (locations.length === 0) {
+      this.appLogger.log(`No locations found, seeding...`);
       await this.seedLocations();
     }
     if (paymentMethods.length === 0) {
+      this.appLogger.log(`No payment methods found, seeding...`);
       await this.seedPaymentMethods();
     }
   }
@@ -93,7 +105,7 @@ export class DatabaseService {
   async updateTxnsAndDeposits() {
     this.appLogger.setContext('Update TXN and Deposit with Location Seed Data');
     const ministryLocations: MinistryLocationEntity[] =
-      await this.locationService.findAllMinistryLocations();
+      await this.locationService.quickFindBySource(Ministries.SBC);
 
     this.appLogger.log(`Ministry Locations: ${ministryLocations.length}`);
 
@@ -106,14 +118,19 @@ export class DatabaseService {
 
     if (transactionsWithNullLocation.length > 0) {
       const txns = transactionsWithNullLocation.map((txn) => {
-        const location = ministryLocations
-          .filter((itm) => itm.source_id === Ministries.SBC)
-          .find(
-            (loc) =>
-              loc.source_id === txn.source_id &&
-              loc.location_id === txn.location_id
-          )!;
-        return { ...txn, location };
+        const location = ministryLocations.find(
+          (loc) =>
+            loc.source_id === txn.source_id &&
+            loc.location_id === txn.location_id
+        );
+
+        if (!location) {
+          throw new Error('Location not found');
+        }
+        return {
+          ...txn,
+          location,
+        };
       });
 
       this.appLogger.log(`Transactions With Locations Updated: ${txns.length}`);

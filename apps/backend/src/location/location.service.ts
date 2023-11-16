@@ -31,6 +31,15 @@ export class LocationService {
   public async findMerchants(): Promise<MerchantEntity[]> {
     return this.merchantLocationRepo.find();
   }
+  public async quickFindBySource(
+    program: Ministries
+  ): Promise<MinistryLocationEntity[]> {
+    return await this.ministryLocationRepo.find({
+      where: {
+        source_id: program,
+      },
+    });
+  }
   public async findAllMinistryLocations(): Promise<MinistryLocationEntity[]> {
     return this.ministryLocationRepo.find({
       relations: ['banks', 'merchants'],
@@ -47,7 +56,7 @@ export class LocationService {
   ): Promise<MinistryLocationEntity[]> {
     return this.ministryLocationRepo.find({
       where: { source_id: program },
-      relations: ['banks', 'merchants'],
+      // relations: ['banks', 'merchants'],
     });
   }
   /**
