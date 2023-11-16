@@ -1,10 +1,14 @@
 import { NestFactory } from '@nestjs/core';
 import { Context } from 'aws-lambda';
 import { DatabaseService } from './database.service';
+import db from './datasource';
 import { AppModule } from '../app.module';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (_event?: unknown, _context?: Context) => {
+  if (!db.isInitialized) {
+    await db.initialize();
+  }
   console.log('Starting Seeder...');
   const app = await NestFactory.createApplicationContext(AppModule);
   const dbService = app.get(DatabaseService);
@@ -25,6 +29,7 @@ export const handler = async (_event?: unknown, _context?: Context) => {
     await dbService.updateTxnsAndDeposits();
     console.log('...complete...');
 
+    await db.destroy();
     return 'success';
   } catch (e) {
     console.log(e);
