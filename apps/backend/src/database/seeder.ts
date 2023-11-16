@@ -33,7 +33,7 @@ export const handler = async (_event?: unknown, _context?: Context) => {
     return 'success';
   } catch (e) {
     console.log(e);
-    console.log('Migration failure.');
+    console.log('Seeder failed.');
     return 'failure';
   }
 };
