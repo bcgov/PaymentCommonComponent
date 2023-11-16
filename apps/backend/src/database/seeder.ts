@@ -5,7 +5,7 @@ import { AppModule } from '../app.module';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const handler = async (_event?: unknown, _context?: Context) => {
-  console.log('Starting migrations...');
+  console.log('Starting Seeder...');
   const app = await NestFactory.createApplicationContext(AppModule);
   const dbService = app.get(DatabaseService);
   try {

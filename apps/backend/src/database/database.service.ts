@@ -105,7 +105,7 @@ export class DatabaseService {
   async updateTxnsAndDeposits() {
     this.appLogger.setContext('Update TXN and Deposit with Location Seed Data');
     const ministryLocations: MinistryLocationEntity[] =
-      await this.locationService.quickFindBySource(Ministries.SBC);
+      await this.locationService.findMinistryLocationsBySource(Ministries.SBC);
 
     this.appLogger.log(`Ministry Locations: ${ministryLocations.length}`);
 

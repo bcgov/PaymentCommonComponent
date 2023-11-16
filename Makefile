@@ -227,7 +227,7 @@ aws-deploy-tools-restricted-lambda:
 aws-deploy-migrator:
 	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function migrator
 
-# Updates migrator lambda function to lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
+# Updates seeder lambda function to lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
 aws-deploy-seeder:
 	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function seeder
 
@@ -397,10 +397,8 @@ migration-revert:
 
 migration-run:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/migrate.ts").handler()'
-
-seeder-run:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/seeder.ts").handler()'
-	
+
 migration-run-ci:
 	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:run-migrations
 
