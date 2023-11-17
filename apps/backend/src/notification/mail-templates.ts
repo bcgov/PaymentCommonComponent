@@ -24,6 +24,6 @@ export const MailTemplate = {
   [MAIL_TEMPLATE_ENUM.MONTHLY_REPORT]: {
     id: '7d896692-1b83-4ec0-b5bf-b66c0c44593e',
     name: MAIL_TEMPLATE_ENUM.MONTHLY_REPORT,
-    fields: ['month_name'],
+    fields: ['month_name', 'url', 'username'],
   },
 };

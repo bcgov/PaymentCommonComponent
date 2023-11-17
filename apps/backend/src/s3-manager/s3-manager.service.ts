@@ -15,9 +15,7 @@ import {
   _Object,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
-import {
-  getSignedUrl,
-} from '@aws-sdk/s3-request-presigner';
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -73,10 +71,10 @@ export class S3ManagerService {
     return await upload.done();
   }
 
-  async generatePresignedUrl(
-    { Bucket, Key }: GetObjectCommandInput,
-    expiresIn: number
-  ): Promise<string> {
+  async generatePresignedUrl({
+    Bucket,
+    Key,
+  }: GetObjectCommandInput): Promise<string> {
     const command = new GetObjectCommand({
       Bucket,
       Key,
@@ -84,6 +82,8 @@ export class S3ManagerService {
 
     const client: S3Client = this.s3;
 
-    return await getSignedUrl(client, command, { expiresIn });
+    return await getSignedUrl(client, command, {
+      expiresIn: parseInt(process.env.REPORT_URL_EXPIRY ?? '604800'),
+    });
   }
 }

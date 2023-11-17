@@ -22,6 +22,10 @@ variable "mail_default_to" {}
 
 variable "shared_inbox" {}
 
+variable "report_url_expiry" {}
+
+variable "sbc_username" {}
+
 variable "disable_automated_reconciliation" {
   default = false
 }

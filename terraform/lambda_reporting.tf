@@ -28,6 +28,8 @@ resource "aws_lambda_function" "reports" {
       MAIL_SERVICE_BASE_URL         = var.mail_base_url
       MAIL_SERVICE_DEFAULT_TO_EMAIL = var.mail_default_to
       SBC_SHARED_INBOX              = var.shared_inbox
+      REPORT_EXPIRY                 = var.report_url_expiry
+      SBC_USERNAME                  = var.sbc_username
     }
   }
 
