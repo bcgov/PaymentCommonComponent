@@ -227,6 +227,10 @@ aws-deploy-tools-restricted-lambda:
 aws-deploy-migrator:
 	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function migrator
 
+# Updates seeder lambda function to lambda layer version and artifact located at s3://$APP_SRC_BUCKET/$COMMIT_SHA
+aws-deploy-seeder:
+	APP_SRC_BUCKET=$(APP_SRC_BUCKET) COMMIT_SHA=$(COMMIT_SHA) ./bin/deploy.sh aws-deploy-function seeder
+
 aws-build-and-deploy-all: build-backend aws-upload-artifacts aws-deploy-all
 
 aws-build-and-deploy-migrator: build-backend aws-upload-artifacts aws-deploy-migrator
@@ -263,6 +267,11 @@ aws-run-migrator:
 	@rm migration-results || true
 	@aws lambda invoke --function-name migrator --payload '{}' migration-results --region ca-central-1
 	@cat migration-results | grep "success"
+
+aws-run-seeder: 
+	@rm seeder-results || true
+	@aws lambda invoke --function-name seeder --payload '{}' seeder-results --region ca-central-1
+	@cat seeder-results | grep "success"
 
 aws-run-clear-dev-data: 
 	@touch clear-db-results || true
@@ -388,7 +397,8 @@ migration-revert:
 
 migration-run:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/migrate.ts").handler()'
-	
+	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/seeder.ts").handler()'
+
 migration-run-ci:
 	@docker-compose exec -T backend yarn workspace @payment/backend typeorm:run-migrations
 
