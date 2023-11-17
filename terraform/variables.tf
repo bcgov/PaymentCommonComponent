@@ -20,6 +20,8 @@ variable "mail_base_url" {}
 
 variable "mail_default_to" {}
 
+variable "shared_inbox" {}
+
 variable "disable_automated_reconciliation" {
   default = false
 }

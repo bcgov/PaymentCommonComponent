@@ -11,23 +11,28 @@ import {
   PutObjectCommandInput,
   PutObjectCommandOutput,
   S3Client,
+  S3ClientConfig,
   _Object,
 } from '@aws-sdk/client-s3';
 import { Upload } from '@aws-sdk/lib-storage';
+import {
+  getSignedUrl,
+} from '@aws-sdk/s3-request-presigner';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class S3ManagerService {
-  private s3: S3Client;
+  public s3: S3Client;
   constructor() {
-    this.s3 =
+    const config: S3ClientConfig =
       process.env.NODE_ENV === 'production'
-        ? new S3Client({})
-        : new S3Client({
+        ? {
             endpoint: process.env.AWS_ENDPOINT,
             region: 'ca-central-1',
             forcePathStyle: true,
-          });
+          }
+        : {};
+    this.s3 = new S3Client(config);
   }
 
   async listBucketContents(bucket: string) {
@@ -66,5 +71,19 @@ export class S3ManagerService {
     });
 
     return await upload.done();
+  }
+
+  async generatePresignedUrl(
+    { Bucket, Key }: GetObjectCommandInput,
+    expiresIn: number
+  ): Promise<string> {
+    const command = new GetObjectCommand({
+      Bucket,
+      Key,
+    });
+
+    const client: S3Client = this.s3;
+
+    return await getSignedUrl(client, command, { expiresIn });
   }
 }

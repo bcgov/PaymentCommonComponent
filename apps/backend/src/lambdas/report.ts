@@ -65,16 +65,21 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
   const { pageThreeDeposits, pageThreeDepositDates } =
     await getPageThreeDeposits(app, dateRange, program, locations);
-
-  await reportingService.generateReport(
+  const reportDate = parse(dateRange.minDate, 'yyyy-MM-dd', new Date());
+  const sendEmailedReport =
+    reportDate.getDate() == 1 || process.env.RUNTIME_ENV == 'tools';
+  const reportUrl = await reportingService.generateReport(
     dateRange,
     program,
     locations,
     { posDeposits, cashDeposits },
     { posPayments, cashPayments },
     pageThreeDeposits,
-    pageThreeDepositDates
+    pageThreeDepositDates,
+    sendEmailedReport
   );
+  console.log(reportUrl);
+  return reportUrl;
 };
 /**
  * Query for all matched/exceptions deposits and payments from report date, as well as the cash matching deposit window

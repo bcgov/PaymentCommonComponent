@@ -2,6 +2,7 @@ export enum MAIL_TEMPLATE_ENUM {
   FILES_MISSING_ALERT = 'FILES_MISSING_ALERT',
   FILE_VALIDATION_ALERT = 'FILE_VALIDATION_ALERT',
   LOCATION_MISSING_ALERT = 'LOCATION_MISSING_ALERT',
+  MONTHLY_REPORT = 'MONTHLY_REPORT',
 }
 
 export const MailTemplate = {
@@ -19,5 +20,10 @@ export const MailTemplate = {
     id: 'c12c38a9-af85-40f3-92d8-b871161c926d',
     name: MAIL_TEMPLATE_ENUM.LOCATION_MISSING_ALERT,
     fields: ['date', 'ministryDivision', 'error'],
+  },
+  [MAIL_TEMPLATE_ENUM.MONTHLY_REPORT]: {
+    id: '7d896692-1b83-4ec0-b5bf-b66c0c44593e',
+    name: MAIL_TEMPLATE_ENUM.MONTHLY_REPORT,
+    fields: ['month_name'],
   },
 };

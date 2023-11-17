@@ -57,19 +57,23 @@ export BOOTSTRAP_ENV=terraform/bootstrap
 ifeq ($(ENV_NAME), tools)
 export DISABLE_AUTOMATED_RECONCILIATION=true
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TOOLS)
+export SBC_SHARED_INBOX := chelsea.brown1@ca.ey.com
 endif
 
 ifeq ($(ENV_NAME), dev)
 export DISABLE_AUTOMATED_RECONCILIATION=true
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_DEV)
+export SBC_SHARED_INBOX := chelsea.brown1@ca.ey.com
 endif
 
 ifeq ($(ENV_NAME), test)
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TEST)
+export SBC_SHARED_INBOX := chelsea.brown1@ca.ey.com
 endif
 
 ifeq ($(ENV_NAME), prod)
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_PROD)
+export SBC_SHARED_INBOX := SBC.Finance@gov.bc.ca
 endif
 
 define TFVARS_DATA
@@ -85,6 +89,7 @@ api_endpoint = "$(MAIL_SERVICE_DEFAULT_TO_EMAIL)"
 mail_base_url = "$(MAIL_SERVICE_BASE_URL)"
 mail_default_to = ""
 disable_automated_reconciliation="$(DISABLE_AUTOMATED_RECONCILIATION)"
+shared_inbox="$(SBC_SHARED_INBOX)"
 auth_base_url="$(AUTH_BASE_URL)"
 endef
 export TFVARS_DATA
