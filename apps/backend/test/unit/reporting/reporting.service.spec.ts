@@ -40,6 +40,7 @@ describe('ReportingService', () => {
         PosDepositService,
         PaymentService,
         ExcelExportService,
+
         Logger,
         {
           provide: S3ManagerService,

@@ -28,14 +28,10 @@ import { POSDepositEntity } from '../deposits/entities/pos-deposit.entity';
 import { ExcelExportService } from '../excelexport/excelexport.service';
 import { MinistryLocationEntity } from '../location/entities';
 import { AppLogger } from '../logger/logger.service';
-import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
-import { MailService } from '../notification/mail.service';
 import { PaymentEntity } from '../transaction/entities';
 
 export class ReportingService {
   constructor(
-    @Inject(MailService)
-    private mailService: MailService,
     @InjectRepository(POSDepositEntity)
     private posDepositRepo: Repository<POSDepositEntity>,
     @InjectRepository(PaymentEntity)
@@ -63,9 +59,8 @@ export class ReportingService {
       cashPayments: PaymentEntity[];
     },
     pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
-    pageThreeDepositDates: DateRange,
-    sendEmaiedReport: boolean
-  ): Promise<void> {
+    pageThreeDepositDates: DateRange
+  ): Promise<string> {
     const { cashPayments, posPayments } = payments;
     const { cashDeposits, posDeposits } = deposits;
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
@@ -104,23 +99,10 @@ export class ReportingService {
       'reconciliation_report',
       `${dateRange.minDate}-${dateRange.maxDate}`
     );
-    const url = await this.excelWorkbook.getUrlFromS3(
+    return await this.excelWorkbook.getUrlFromS3(
       'reconciliation_report',
       `${dateRange.minDate}-${dateRange.maxDate}`
     );
-    const fieldEntries = {
-      fieldName: 'month_name',
-      content: url,
-      username: 'Chelsea',
-      month_name: 'Test',
-    };
-    if (sendEmaiedReport) {
-      await this.mailService.sendEmailAlertBulk(
-        MAIL_TEMPLATE_ENUM.MONTHLY_REPORT,
-        [process.env.SBC_SHARED_INBOX ?? ''],
-        [fieldEntries]
-      );
-    }
   }
 
   /**
