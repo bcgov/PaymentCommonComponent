@@ -79,7 +79,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     pageThreeDepositDates
   );
   const month = reportDate.toLocaleString('en-US', { month: 'long' });
-  console.log(month);
+
   const fieldEntries = [
     { fieldName: 'month_name', content: month },
     { fieldName: 'url', content: reportUrl },
