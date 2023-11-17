@@ -79,14 +79,17 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     pageThreeDepositDates
   );
   const month = reportDate.toLocaleString('en-US', { month: 'long' });
-
+  console.log(month);
   const fieldEntries = [
     { fieldName: 'month_name', content: month },
     { fieldName: 'url', content: reportUrl },
     { fieldName: 'username', content: 'SBC' },
   ];
 
-  if (isMonday(new Date()) && new Date().getDate() <= 7) {
+  if (
+    (isMonday(new Date()) && new Date().getDate() <= 7) ||
+    process.env.RUNTIME_ENV === 'tools'
+  ) {
     await mailService.sendEmailAlertBulk(
       MAIL_TEMPLATE_ENUM.MONTHLY_REPORT,
       [process.env.SBC_SHARED_INBOX ?? ''],
