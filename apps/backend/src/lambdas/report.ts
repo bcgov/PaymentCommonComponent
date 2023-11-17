@@ -83,7 +83,7 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
   const fieldEntries = [
     { fieldName: 'month_name', content: month },
     { fieldName: 'url', content: reportUrl },
-    { fieldName: 'username', content: 'SBC' },
+    { fieldName: 'username', content: process.env.SBC_USERNAME ?? '' },
   ];
 
   if (
