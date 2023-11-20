@@ -39,6 +39,12 @@ There is also an alerting and notification lambda which notifies users if data f
     - [Communication](#communication)
     - [Development Tools](#development-tools)
     - [Secrets and Keys](#secrets-and-keys)
+8. [Deployment](#deployment)
+    - [Prod](#prod)
+    - [Test](#test)
+    - [Dev](#dev)
+    - [Tools](#tools)
+
     
 
 ## Tech
@@ -337,5 +343,67 @@ Contact the dev team for the following:
 
 Once you have access to AWS LZ2 platform, login to the any of the environments to get access to the following: 
 
+- Project .env file can be found in the prod parameter store under pcc/.env
 - Database passwords
 - AWS Local Config - Service Account Tokens
+
+
+## Deployments
+
+Deployments and builds are initiated via GitHub actions.
+We have four environments, each with a corresponding GHA yaml file:
+
+### PROD
+
+- requires an approver
+- initiate the deployment by tagging a release, ie: git tag 2.0.0 && git push origin 2.0.0
+- first, deploy this tag to dev: run make tag-dev from the command line
+    - verify the build and run any tests that should run on dev
+- next, deploy this tag to test: run make tag-test from the command line
+    - ensure that QA signs off on the release
+- finally, once approved by the Quality Assurance Analyst, you can run: make tag-prod from the command line
+    - this will initiate the production deployment (P.O. sign off is required)
+- reminder: you must run make plan and make apply manually from the command line to apply any infra updates via terraform
+    
+
+### TEST
+
+- this is our staging environment and most closely resembles prod
+- the data from prod is automatically synced into test
+- parsing, reconciliation and report generation are all automated in this environment (as they are on prod)
+- the lambdas in this environment should not be triggered manually
+- testing should be done with the existing data, as it is (vs upload test cases etc)    
+- to deploy to test:
+- first, deploy to dev: run make tag-dev from the command line    
+    - verify the build and run any tests that should run on dev
+    - ensure that you have received approval from QA analyst
+- next, deploy to test: run make tag-test from the command line
+- reminder: you must run make plan and make apply manually from the command line to apply any infra updates via terraform
+    
+
+### DEV
+
+- this environment is where most of the testing will take place and is “owned” by the QA analyst
+- only the parsing of files from S3 to the database is automated, all other lambdas must be manually triggered
+- data does not automatically sync into this environment
+- you may manually upload data via aws console into the s3 bucket, or you can manually sync the prod data in using the GitHub action with a manual workflow trigger called “manually sync prod data to dev”
+- similarly, you can clear out the s3 bucket and database on dev by using the GitHub action with a manual workflow trigger called “clear all data dev”
+- to deploy to test:
+- first, deploy to tools: run make tag-tools from the command line
+    - this deployment to tools can be done with open PRs and used to verify the build and deployment process
+    - if the deployment to tools is successful, you can deploy to dev
+- next, deploy to dev: run make tag-dev from the command line
+- reminder: you must run make plan and make apply manually from the command line to apply any infra updates via terraform
+    
+
+### TOOLS
+
+- developers use for testing this environment, deploying open pull requests, and debugging purposes
+- this is “owned” by the developers
+- data does not automatically sync into this environment
+- you may manually upload data via aws console into the s3 bucket, or you can manually sync the prod data in using the GitHub action with a manual workflow trigger called “manually sync prod data to tools”
+- similarly, you can clear out the s3 bucket and database on dev by using the GitHub action with a manual workflow trigger called “clear all data tools”
+- deploy to tools:
+    - run make tag-tools from the command line
+    - this deployment to tools can be done with open PRs, to test breaking changes, debugging purposes, verifying the build and deployment process, etc.
+- reminder: you must run make plan and make apply manually from the command line to apply any infra updates via terraform
