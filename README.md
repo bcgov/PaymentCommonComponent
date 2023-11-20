@@ -276,24 +276,7 @@ Run tests:
 make run-test-pipeline
 ```
 
-## Deployment
-Build backend:
-```bash
-make build-backend
-```
 
-Terraform:
-```bash
-make plan
-```
-
-```bash
-make apply
-```
-Tag Based Deployments:
-```bash
-make tag-<env>
-```
 
 ## Documentation
 
@@ -349,6 +332,26 @@ Once you have access to AWS LZ2 platform, login to the any of the environments t
 
 
 ## Deployments
+
+Command Reference: 
+
+Build backend:
+```bash
+make build-backend
+```
+
+Terraform:
+```bash
+make plan
+```
+
+```bash
+make apply
+```
+Tag Based Deployments:
+```bash
+make tag-<env>
+```
 
 Deployments and builds are initiated via GitHub actions.
 We have four environments, each with a corresponding GHA yaml file:
