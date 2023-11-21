@@ -93,7 +93,7 @@ export async function createNestApp(): Promise<{
   app.enableVersioning({
     type: VersioningType.URI,
     prefix: 'api/v',
-    defaultVersion: process.env.APP_VERSION?.split('.')[0] ?? '1',
+    defaultVersion: process.env.API_VERSION?.split('.')[0] ?? '0',
   });
 
   Documentation(app);

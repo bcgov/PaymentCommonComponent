@@ -13,7 +13,7 @@ export PROJECT := pcc
 
 # App Version
 export APP_VERSION := $(shell cat apps/backend/package.json | jq '.version' -r)
-
+export API_VERSION := $(API_VERSION)
 # Environment
 export ENV_NAME ?= dev
 export PCC_SFTP :=  "$(PCC_SFTP)" 
@@ -82,6 +82,7 @@ endif
 
 define TFVARS_DATA
 app_version = "$(APP_VERSION)"
+api_version = "$(API_VERSION)"
 target_env = "$(ENV_NAME)"
 target_aws_account_id = "$(AWS_ACCOUNT_ID)"
 project_code = "$(PROJECT)"
