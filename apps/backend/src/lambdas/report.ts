@@ -1,7 +1,7 @@
 import { INestApplicationContext } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { Context, SNSEvent } from 'aws-lambda';
-import { format, getMonth, getYear, parse } from 'date-fns';
+import { format, getMonth, getYear, isMonday, parse } from 'date-fns';
 import { AppModule } from '../app.module';
 import {
   PaymentMethodClassification,
@@ -15,6 +15,8 @@ import { PosDepositService } from '../deposits/pos-deposit.service';
 import { MinistryLocationEntity } from '../location/entities';
 import { LocationService } from '../location/location.service';
 import { AppLogger } from '../logger/logger.service';
+import { MAIL_TEMPLATE_ENUM } from '../notification/mail-templates';
+import { MailService } from '../notification/mail.service';
 import { ReportingService } from '../reporting/reporting.service';
 import { PaymentEntity } from '../transaction/entities';
 import { PaymentService } from '../transaction/payment.service';
@@ -28,7 +30,7 @@ import { PaymentService } from '../transaction/payment.service';
 export const handler = async (event: SNSEvent, _context?: Context) => {
   const app = await NestFactory.createApplicationContext(AppModule);
   const appLogger = app.get(AppLogger);
-
+  const mailService = app.get(MailService);
   appLogger.setContext('Report Lambda');
   appLogger.log({ _context });
   appLogger.log({ event });
@@ -65,8 +67,9 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
   const { pageThreeDeposits, pageThreeDepositDates } =
     await getPageThreeDeposits(app, dateRange, program, locations);
+  const reportDate = parse(dateRange.minDate, 'yyyy-MM-dd', new Date());
 
-  await reportingService.generateReport(
+  const reportUrl = await reportingService.generateReport(
     dateRange,
     program,
     locations,
@@ -75,6 +78,24 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     pageThreeDeposits,
     pageThreeDepositDates
   );
+  const month = reportDate.toLocaleString('en-US', { month: 'long' });
+
+  const fieldEntries = [
+    { fieldName: 'month_name', content: month },
+    { fieldName: 'link', content: reportUrl },
+    { fieldName: 'username', content: process.env.SBC_USERNAME ?? '' },
+  ];
+
+  if (
+    (isMonday(new Date()) && new Date().getDate() <= 7) ||
+    process.env.RUNTIME_ENV === 'tools'
+  ) {
+    await mailService.sendEmailAlertBulk(
+      MAIL_TEMPLATE_ENUM.MONTHLY_REPORT,
+      [process.env.SBC_SHARED_INBOX ?? ''],
+      fieldEntries
+    );
+  }
 };
 /**
  * Query for all matched/exceptions deposits and payments from report date, as well as the cash matching deposit window

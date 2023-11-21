@@ -50,6 +50,29 @@ export class ExcelExportService {
 
   /**
    *
+   * @param filename
+   * @param date
+   */
+
+  public async getUrlFromS3(filename: string, date: string): Promise<string> {
+    this.appLogger.log('Retrieving report url from S3 Bucket');
+    try {
+      return await this.s3Manager.generatePresignedUrl({
+        Bucket: `pcc-recon-reports-${process.env.RUNTIME_ENV}`,
+        Key: `${filename}_${date}.xlsx`,
+      });
+    } catch (error) {
+      this.appLogger.error(`${error}`);
+      if (process.env.NODE_ENV === 'production') {
+        throw error;
+      } else {
+        return '';
+      }
+    }
+  }
+
+  /**
+   *
    * @param title
    */
   public addWorkbookMetadata(title: string): void {

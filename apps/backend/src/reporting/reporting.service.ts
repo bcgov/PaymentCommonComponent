@@ -60,7 +60,7 @@ export class ReportingService {
     },
     pageThreeDeposits: { cash: CashDepositEntity[]; pos: POSDepositEntity[] },
     pageThreeDepositDates: DateRange
-  ): Promise<void> {
+  ): Promise<string> {
     const { cashPayments, posPayments } = payments;
     const { cashDeposits, posDeposits } = deposits;
     this.excelWorkbook.addWorkbookMetadata('Reconciliation Report');
@@ -96,6 +96,10 @@ export class ReportingService {
     );
 
     await this.excelWorkbook.saveS3(
+      'reconciliation_report',
+      `${dateRange.minDate}-${dateRange.maxDate}`
+    );
+    return await this.excelWorkbook.getUrlFromS3(
       'reconciliation_report',
       `${dateRange.minDate}-${dateRange.maxDate}`
     );
