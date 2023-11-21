@@ -6,8 +6,8 @@ resource "aws_lambda_function" "reports" {
   filename                       = "build/empty_lambda.zip"
   source_code_hash               = filebase64sha256("build/empty_lambda.zip")
   handler                        = "src/lambdas/report.handler"
-  memory_size                    = 1536
-  timeout                        = 600
+  memory_size                    = 10240
+  timeout                        = 900
   reserved_concurrent_executions = 1
 
   vpc_config {
