@@ -512,7 +512,7 @@ Deployments should be done on the lower envs prior to deployment to prod.
 
 [Application Flow](/docs/application_flow.png)
 
-[Automation Flow](/docs/automation_flow.png)
+[Automation Flow](/docs/automation_flow.jpg)
 
 [Role Based Access Readme](docs/role_based_access.md)
 
