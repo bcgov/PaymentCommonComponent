@@ -4,15 +4,15 @@ on:
   workflow_dispatch:
 
 env:
-  ENV_NAME: prod
+  ENV_NAME: prod-sync
 
 jobs:
   sync:
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    concurrency: ci-${{ github.ref }}-prod
+    concurrency: ci-${{ github.ref }}-prod-sync
     environment:
-      name: prod
+      name: prod-sync
 
     steps:
       - name: Checkout
