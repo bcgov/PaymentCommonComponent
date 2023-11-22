@@ -52,7 +52,8 @@ files are missing, or if there are errors in the files during parsing.
    - [Test](#test)
    - [Dev](#dev)
    - [Tools](#tools)
-9. [Supplementary Documentation](#supplementary-documentation)
+11. [API Endpoints](#api-endpoints)
+10. [Supplementary Documentation](#supplementary-documentation)
 
 ## Tech
 
@@ -504,6 +505,14 @@ Deployments should be done on the lower envs prior to deployment to prod.
   - Reminder: For any infrastructure updates via Terraform, you must manually
     run make plan and make apply from the command line.
 
+## API Endpoints
+
+
+[TOOLS]()
+[DEV](https://ee1uqiu7x1.execute-api.ca-central-1.amazonaws.com/api)
+[TEST]()
+[PROD](https://9denw8b5gb.execute-api.ca-central-1.amazonaws.com/api)
+
 ## Supplementary Documentation
 
 [Confluence](https://bcdevex.atlassian.net/wiki/spaces/CCP/pages/1256882192/DROP+Decision+Log)
@@ -521,3 +530,14 @@ Deployments should be done on the lower envs prior to deployment to prod.
 [CI/CD Plan(TODO)](/docs/plans_for_automated_deployments.md)
 
 [Data Rentention Plan](/docs/data_retention.md)
+
+
+## Useful Links
+
+[Cloud Pathfinder](https://loginproxy.gov.bc.ca/auth/realms/public-cloud/protocol/saml/clients/amazon-aws)
+
+[API services portal](https://api.gov.bc.ca)
+
+[Team MIRO](https://miro.com/app/board/uXjVMTLiVk4=/)
+
+
