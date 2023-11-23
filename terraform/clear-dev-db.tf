@@ -1,4 +1,11 @@
+locals {
+  // Disable this on prod and test
+  clear_data_disabled_envs      = ["prod", "test"]
+  clear_dev_data_resource_count = contains(local.clear_data_disabled_envs, var.target_env) == true ? 0 : 1
+}
+
 resource "aws_lambda_function" "clearDevData" {
+  count                          = local.clear_dev_data_resource_count
   description                    = "Database clear ${var.target_env} Data function ${local.namespace}"
   function_name                  = "clear_${var.target_env}_data"
   role                           = aws_iam_role.lambda.arn
@@ -20,7 +27,7 @@ resource "aws_lambda_function" "clearDevData" {
       APP_VERSION = var.app_version
       API_VERSION = var.api_version
       NODE_ENV    = "production"
-      RUNTIME_ENV = var.target_env
+      RUNTIME_ENV = var.target_env == "dev" ? "dev" : "tools"
       DB_USER     = var.db_username
       DB_PASSWORD = data.aws_ssm_parameter.postgres_password.value
       DB_HOST     = aws_rds_cluster.pgsql.endpoint
