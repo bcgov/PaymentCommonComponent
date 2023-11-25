@@ -409,6 +409,8 @@ migration-revert:
 
 migration-run:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/migrate.ts").handler()'
+
+migration-seed:
 	@docker exec -it $(PROJECT)-backend ./node_modules/.bin/ts-node -e 'require("./apps/backend/src/database/seeder.ts").handler()'
 
 migration-run-ci:

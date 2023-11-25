@@ -33,12 +33,14 @@ export const handler = async (event: BatchHandlerEvent, _context?: Context) => {
     end: event.period.to ? new Date(event.period.to) : new Date(),
   });
 
-  const messages: ReconciliationEventMessage[] = listOfDays.map((date) => ({
-    reconciliationMaxDate: format(date, 'yyyy-MM-dd'),
-    program: event.program,
-    reportEnabled: event.reportEnabled,
-    byPassFileValidity: event.byPassFileValidity,
-  }));
+  const messages: ReconciliationEventMessage[] = listOfDays.map(
+    (date: Date) => ({
+      reconciliationMaxDate: format(date, 'yyyy-MM-dd'),
+      program: event.program,
+      reportEnabled: event.reportEnabled,
+      byPassFileValidity: event.byPassFileValidity,
+    })
+  );
 
   for (const message of messages) {
     if (!isLocal) {
