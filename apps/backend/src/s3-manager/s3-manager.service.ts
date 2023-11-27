@@ -22,14 +22,11 @@ import { Injectable } from '@nestjs/common';
 export class S3ManagerService {
   public s3: S3Client;
   constructor() {
-    const config: S3ClientConfig =
-      process.env.NODE_ENV === 'production'
-        ? {
-            endpoint: process.env.AWS_ENDPOINT,
-            region: 'ca-central-1',
-            forcePathStyle: true,
-          }
-        : {};
+    const config: S3ClientConfig = {
+      endpoint: process.env.AWS_ENDPOINT,
+      region: 'ca-central-1',
+      forcePathStyle: true,
+    };
     this.s3 = new S3Client(config);
   }
 
