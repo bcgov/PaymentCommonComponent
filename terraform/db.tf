@@ -1,7 +1,7 @@
 locals {
   pgaudit_role_name        = "rds_pgaudit"
   rds_engine               = "aurora-postgresql"
-  rds_engine_version       = "13.8"
+  rds_engine_version       = "13.12"
   rds_engine_version_short = "13"
   parameter_group_params = {
     shared_preload_libraries = "pgaudit"

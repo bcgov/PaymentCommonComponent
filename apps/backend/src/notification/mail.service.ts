@@ -127,7 +127,10 @@ export class MailService {
           .map((toEmail) => toEmail)
           .join(', ')} - id ${emailResponse.data['data']['id']}`
       );
-    } catch (error) {
+      /*eslint-disable */
+    } catch (error: any) {
+      this.appLogger.error(error?.response?.data?.errors);
+      this.appLogger.error(toEmails);
       this.appLogger.error(
         `Error sending ${MailTemplate[template].name} email to ${toEmails
           .map((toEmail) => toEmail)

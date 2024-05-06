@@ -249,7 +249,7 @@ export class NotificationService {
         },
         {
           fieldName: 'error',
-          content: `Location not found in ${file.programRule.program} file: ${file.filename}.\nLocation ID: ${location.location_id}.`,
+          content: `Location not found in ${file.programRule.program} file: ${file.filename}.\nLocation ID: ${location?.location_id}.`,
         },
       ]
     );

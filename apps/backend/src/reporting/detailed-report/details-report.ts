@@ -52,13 +52,13 @@ export class DetailsReport {
     return null;
   }
   constructor(location: MinistryLocationEntity) {
-    this.location = location.description;
-    this.location_id = location.location_id;
-    this.dist_resp_code = location.resp_code;
-    this.dist_service_line_code = location.service_line_code;
-    this.dist_stob_code = location.stob_code;
-    this.dist_project_code = location.project_code;
-    this.dist_location_code = location.location_id;
+    this.location = location?.description ?? '';
+    this.location_id = location?.location_id ?? '';
+    this.dist_resp_code = location.resp_code ?? '';
+    this.dist_service_line_code = location.service_line_code ?? '';
+    this.dist_stob_code = location.stob_code ?? '';
+    this.dist_project_code = location.project_code ?? '';
+    this.dist_location_code = location?.location_id ?? '';
     this.dist_client_code = null;
     this.misc = '';
     this.merchant_id = null;

@@ -208,7 +208,7 @@ const reconcilePos = async (
   for (const location of locations) {
     posReconciliationService.setPendingPayments(
       payments.filter(
-        (itm) => itm.transaction.location_id === location.location_id
+        (itm) => itm.transaction.location_id === location?.location_id
       )
     );
     posReconciliationService.setPendingDeposits(
@@ -266,7 +266,7 @@ const findPosExceptions = async (
   for (const location of locations) {
     posReconciliationService.setPendingPayments(
       paymentsInprogress.filter(
-        (itm) => itm.transaction.location_id === location.location_id
+        (itm) => itm.transaction.location_id === location?.location_id
       )
     );
     posReconciliationService.setPendingDeposits(
