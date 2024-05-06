@@ -55,11 +55,11 @@ jobs:
       - name: Run migrations
         run: make aws-run-migrator
 
-      - name: Deploy seeder
-        run: make aws-deploy-seeder
+      # - name: Deploy seeder
+      #   run: make aws-deploy-seeder
 
-      - name: Run seeder
-        run: make aws-run-seeder
+      # - name: Run seeder
+      #   run: make aws-run-seeder
 
       - name: Deploy all
         run: make aws-deploy-all

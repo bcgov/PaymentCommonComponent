@@ -56,7 +56,6 @@ services:
       - AWS_DEFAULT_REGION=${AWS_REGION}
       - SBC_USERNAME=${SBC_USERNAME}
       - SBC_SHARED_INBOX=${SBC_SHARED_INBOX}
-
       - YARN_VERSION=3.2.3
       - AWS_ENDPOINT=http://minio:9000
     volumes:

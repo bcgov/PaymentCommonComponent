@@ -2,6 +2,8 @@ Propose the following for automating deployments:
 Tools
 Tools is our “sandbox” environment and should be used for testing out potentially breaking changes, and also for deploying PR’s to ensure they build without error before we merge onto main. It makes sense to keep these deployments manual.
 
+*note:* if you are deploying this project for the first time you must uncomment the lines for running the seeder lambda as this will be required for a new env
+
 Tools Deployments:
 local cli using Makefile cmds
 
