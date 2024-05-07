@@ -86,8 +86,14 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
     { fieldName: 'username', content: process.env.SBC_USERNAME ?? '' },
   ];
 
+  const datePst = new Date(
+    new Date().toLocaleString('en-US', { timeZone: 'PST' })
+  );
+
+  const sendReport = isMonday(datePst) && datePst.getDate() <= 7;
+
   if (
-    (isMonday(new Date()) && new Date().getDate() <= 7) ||
+    sendReport ||
     process.env.RUNTIME_ENV === 'tools' ||
     process.env.RUNTIME_ENV === 'local'
   ) {
