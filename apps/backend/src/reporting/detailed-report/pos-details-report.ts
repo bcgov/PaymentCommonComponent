@@ -29,8 +29,8 @@ export class POSDepositDetailsReport extends DetailsReport {
     this.terminal_no = deposit.terminal_no;
     this.card_id = deposit.card_id;
     this.transaction_code = deposit.transaction_code;
-    this.location_id = location.location_id;
-    this.location = location.description;
+    this.location_id = location?.location_id;
+    this.location = location?.description;
     this.heuristic_match_round = deposit.heuristic_match_round ?? null;
     this.transaction_id =
       deposit.payment_match?.transaction.transaction_id ?? null;

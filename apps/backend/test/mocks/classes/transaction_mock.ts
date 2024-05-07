@@ -26,7 +26,7 @@ export class TransactionMock extends TransactionEntity {
       'yyyy-MM-dd'
     );
     this.source_id = program;
-    this.location_id = location.location_id;
+    this.location_id = location?.location_id;
     this.transaction_date = dateRange.maxDate;
     this.transaction_time = `${faker.number.int({
       min: 0,

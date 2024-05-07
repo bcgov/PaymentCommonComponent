@@ -54,6 +54,13 @@ BATCH_JSON:=$(shell cat ./apps/backend/fixtures/lambda/batch.json | jq '.' -c)
 TERRAFORM_DIR = terraform
 export BOOTSTRAP_ENV=terraform/bootstrap
 
+ifeq ($(ENV_NAME), local)
+export DISABLE_AUTOMATED_RECONCILIATION=true
+export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TOOLS)
+export SBC_SHARED_INBOX := $(SBC_SHARED_INBOX_TOOLS)
+export SBC_USERNAME := $(SBC_USERNAME_TOOLS)
+endif
+
 ifeq ($(ENV_NAME), tools)
 export DISABLE_AUTOMATED_RECONCILIATION=true
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TOOLS)
@@ -64,14 +71,14 @@ endif
 ifeq ($(ENV_NAME), dev)
 export DISABLE_AUTOMATED_RECONCILIATION=true
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_DEV)
-export SBC_SHARED_INBOX := $(SBC_SHARED_INBOX_TOOLS)
-export SBC_USERNAME := $(SBC_USERNAME_TOOLS)
+export SBC_SHARED_INBOX := $(SBC_SHARED_INBOX_DEV)
+export SBC_USERNAME := $(SBC_USERNAME_DEV)
 endif
 
 ifeq ($(ENV_NAME), test)
 export AWS_ACCOUNT_ID := $(AWS_ACCOUNT_ID_TEST)
-export SBC_SHARED_INBOX := $(SBC_SHARED_INBOX_TOOLS)
-export SBC_USERNAME := $(SBC_USERNAME_TOOLS)
+export SBC_SHARED_INBOX := $(SBC_SHARED_INBOX_TEST)
+export SBC_USERNAME := $(SBC_USERNAME_TEST)
 endif
 
 ifeq ($(ENV_NAME), prod)
@@ -129,7 +136,6 @@ check:
 # ======================================================================
 # Terraform commands
 # ======================================================================
-
 format:
 	@terraform -chdir=$(TERRAFORM_DIR) fmt
 

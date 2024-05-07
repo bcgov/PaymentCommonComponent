@@ -88,7 +88,8 @@ export const handler = async (event: SNSEvent, _context?: Context) => {
 
   if (
     (isMonday(new Date()) && new Date().getDate() <= 7) ||
-    process.env.RUNTIME_ENV === 'tools'
+    process.env.RUNTIME_ENV === 'tools' ||
+    process.env.RUNTIME_ENV === 'local'
   ) {
     await mailService.sendEmailAlertBulk(
       MAIL_TEMPLATE_ENUM.MONTHLY_REPORT,

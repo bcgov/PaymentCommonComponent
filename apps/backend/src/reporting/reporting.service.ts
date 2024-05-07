@@ -265,14 +265,14 @@ export class ReportingService {
     locations.forEach((location) => {
       const paymentsByLocation = [...posPayments, ...cashPayments].filter(
         (itm) =>
-          itm.transaction.location_id === location.location_id &&
+          itm.transaction.location_id === location?.location_id &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const cashDepositsByLocation = cashDeposits.filter(
         (itm) =>
-          location.banks
-            .map((itm) => itm.bank_id)
-            .includes(itm.pt_location_id) &&
+          location?.banks
+            .map((itm) => itm?.bank_id)
+            .includes(itm?.pt_location_id) &&
           [MatchStatus.EXCEPTION, MatchStatus.MATCH].includes(itm.status)
       );
       const posDepositsByLocation = posDeposits.filter(
@@ -341,8 +341,8 @@ export class ReportingService {
         values: {
           program: program,
           dates: `${dateRange.minDate} - ${dateRange.maxDate}`,
-          location_id: location.location_id,
-          location_name: location.description,
+          location_id: location?.location_id,
+          location_name: location?.description,
           total_payments: totalPayments,
           total_unmatched_payments: paymentExceptions.length,
           percent_unmatched_payments: unmatchedPercentagePayments,
@@ -378,37 +378,31 @@ export class ReportingService {
     cashPayments: PaymentEntity[],
     locations: MinistryLocationEntity[]
   ): DetailsReport[] {
-    const paymentsReport = [...posPayments, ...cashPayments].map(
-      (itm) =>
-        new PaymentDetailsReport(
-          locations.find(
-            (item) => item.location_id === itm.transaction.location_id
-          )!,
-          itm
-        )
-    );
+    const paymentsReport = [...posPayments, ...cashPayments].map((itm) => {
+      const locationId = locations.find(
+        (item) => item.location_id === itm.transaction.location_id
+      );
+      if (locationId) return new PaymentDetailsReport(locationId, itm);
+    });
 
-    const cashDepositReport = cashDeposits.map(
-      (itm) =>
-        new CashDepositDetailsReport(
-          locations.find((loc) =>
-            loc.banks.map((itm) => itm.bank_id).includes(itm.pt_location_id)
-          )!,
+    const cashDepositReport = cashDeposits.map((itm) => {
+      const bankId = locations.find((loc) =>
+        loc.banks.map((itm) => itm.bank_id).includes(itm.pt_location_id)
+      );
+      if (bankId)
+        return new CashDepositDetailsReport(
+          bankId,
 
           itm
-        )
-    );
-    const posDepositReport = posDeposits.map(
-      (itm) =>
-        new POSDepositDetailsReport(
-          locations.find((item) =>
-            item.merchants
-              .map((itm) => itm.merchant_id)
-              .includes(itm.merchant_id)
-          )!,
-          itm
-        )
-    );
+        );
+    });
+
+    const posDepositReport = posDeposits.map((itm) => {
+      const merchantId = locations.find((item) =>
+        item.merchants.map((itm) => itm.merchant_id).includes(itm.merchant_id)
+      );
+      if (merchantId) return new POSDepositDetailsReport(merchantId, itm);
+    });
     const detailsReport = [
       ...paymentsReport,
       ...cashDepositReport,

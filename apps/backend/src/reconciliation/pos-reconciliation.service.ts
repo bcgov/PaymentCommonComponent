@@ -165,7 +165,7 @@ export class PosReconciliationService {
 
     return {
       type: ReconciliationType.POS,
-      location_id: location.location_id,
+      location_id: location?.location_id,
       total_deposits_pending: this.pendingDeposits.length,
       total_payments_pending: this.pendingPayments.length,
       total_matched_payments: paymentMatches.length,

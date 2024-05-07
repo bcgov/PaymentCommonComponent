@@ -36,7 +36,7 @@ export class CashReconciliationService {
   ): Promise<{ payments: number; deposits: number }> {
     const payments: PaymentEntity[] =
       await this.paymentService.findPaymentsExceptions(
-        location.location_id,
+        location?.location_id,
         exceptionsDate
       );
 
@@ -94,7 +94,7 @@ export class CashReconciliationService {
           parse(dateRange.maxDate, 'yyyy-MM-dd', new Date())
     );
     this.appLogger.log(
-      `Reconciliation Cash: ${location.description} - ${location.location_id}`,
+      `Reconciliation Cash: ${location.description} - ${location?.location_id}`,
       CashReconciliationService.name
     );
     for (const date of filtered) {
@@ -230,7 +230,7 @@ export class CashReconciliationService {
     const aggregatedCashPayments: AggregatedCashPayment[] =
       await this.paymentService.getAggregatedCashPaymentsByCashDepositDates(
         dateRange,
-        location.location_id
+        location?.location_id
       );
     if (pendingDeposits.length === 0 || aggregatedCashPayments.length === 0) {
       this.appLogger.log('SKIPPING - No pending payments / deposits found');
@@ -309,7 +309,7 @@ export class CashReconciliationService {
     return {
       dateRange,
       type: ReconciliationType.CASH,
-      location_id: location.location_id,
+      location_id: location?.location_id,
       pendingPayments: aggregatedCashPayments.length,
       pendingDeposits: pendingDeposits.length,
       paymentsMatched: matchedPayments.length,
